@@ -35,7 +35,7 @@
 | 项目名                                                                 | 描述           |
 | ---------------------------------------------------------------------- | -------------- |
 | **[slax-reader-extensions](../apps/slax-reader-extensions/README.md)** | 浏览器扩展程序 |
-| **[slax-reader-dweb](../apps/slax-reader-dweb/README.md)**             | 网页应用版本å  |
+| **[slax-reader-dweb](../apps/slax-reader-dweb/README.md)**             | 网页应用版本   |
 
 ### 公共库
 

@@ -166,7 +166,7 @@ export default defineNuxtConfig({
     }
   },
   turnstile: {
-    siteKey: envConfig.TURNSTILE_SITE_KEY
+    siteKey: `${envConfig.TURNSTILE_SITE_KEY || ''}`
   },
   experimental: {
     payloadExtraction: false,
@@ -222,7 +222,7 @@ export default defineNuxtConfig({
   schemaOrg: {
     enabled: true,
     identity: {
-      url: envConfig.PUBLIC_BASE_URL,
+      url: `${envConfig.PUBLIC_BASE_URL || ''}`,
       name: 'Slax Reader',
       logo: '/images/logo.png',
       sameAs: ['https://slax.com/', 'https://note.slax.com/', 'https://r.slax.com/', 'https://x.com/wulujia', 'https://r-beta.slax.com/']

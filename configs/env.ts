@@ -43,7 +43,16 @@ export const getExtensionsConfig = () => {
 
   if (!result.success) {
     const errorMessages = result.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('\n')
-    throw new Error(`环境变量解析失败：\n${errorMessages}`)
+    console.warn(`插件环境变量部分解析失败：\n${errorMessages}`)
+    const partialData: Record<string, unknown> = {}
+    const problematicPaths = new Set(result.error.issues.map(issue => issue.path[0]?.toString()))
+    for (const key of Object.keys(extensionsEnvSchema.shape)) {
+      if (!problematicPaths.has(key) && envObject[key] !== undefined) {
+        partialData[key] = envObject[key]
+      }
+    }
+
+    return partialData
   }
 
   return result.data
@@ -64,7 +73,16 @@ export const getDWebConfig = () => {
 
   if (!result.success) {
     const errorMessages = result.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('\n')
-    throw new Error(`环境变量解析失败：\n${errorMessages}`)
+    console.warn(`网页环境变量部分解析失败：\n${errorMessages}`)
+    const partialData: Record<string, unknown> = {}
+    const problematicPaths = new Set(result.error.issues.map(issue => issue.path[0]?.toString()))
+    for (const key of Object.keys(dwebEnvSchema.shape)) {
+      if (!problematicPaths.has(key) && envObject[key] !== undefined) {
+        partialData[key] = envObject[key]
+      }
+    }
+
+    return partialData
   }
 
   return result.data
