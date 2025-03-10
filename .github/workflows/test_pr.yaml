@@ -35,7 +35,7 @@ jobs:
 
       - name: ESLint
         run: |
-          pnpm eslint . --quiet --ext .js,.jsx,.ts,.tsx
+          pnpm lint
 
       - name: Run tests
         run: pnpm test
