@@ -1,0 +1,18 @@
+{
+  "click_to_view": "Click to View",
+  "collect_page": "Collect Page",
+  "collected": "Collected",
+  "collection_failed": "Collection Failed",
+  "collection_in_progress": "Collecting",
+  "collection_not_supported": "Collection Not Supported on This Page",
+  "collection_successful": "Collected",
+  "extended_settings": "Extended Settings",
+  "not_collected": "Not Collected",
+  "recollection": "Collect Again",
+  "removal": "Discard",
+  "removal_failed": "Removal Failed",
+  "removal_in_progress": "Removing",
+  "removal_successful": "Removed",
+  "shortcut_settings": "Shortcut Settings",
+  "slax_collection_list": "Slax Collection List"
+}

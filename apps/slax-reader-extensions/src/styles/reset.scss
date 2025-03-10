@@ -1,0 +1,16 @@
+* {
+  --style: bg-none;
+  font-family:
+    PingFang SC,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+button {
+  --style: outline-none border-none bg-transparent cursor-pointer;
+}

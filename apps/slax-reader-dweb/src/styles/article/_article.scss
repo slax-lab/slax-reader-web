@@ -1,0 +1,158 @@
+@mixin article {
+  video,
+  section,
+  pre,
+  p,
+  hr,
+  h1,
+  h2,
+  h3,
+  h4,
+  figure,
+  p,
+  :not(li) > ul,
+  :not(li) > ol {
+    --style: '!mt-24px';
+  }
+
+  /* 引用类 */
+  blockquote {
+    --style: border-l-(3px solid #33333314) pl-3 text-(#33333399) line-height-24px;
+  }
+
+  /* 表格类 */
+  table {
+    --style: '!w-full border-separate border border-spacing-5px border-(1px solid #33333314)';
+  }
+
+  th,
+  tr,
+  td {
+    --style: text-align-left border-(1px solid #33333314);
+  }
+
+  /* 链接类 */
+  a {
+    --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
+  }
+
+  /* 媒体类 */
+  div > img,
+  section > img,
+  figure > img,
+  picture,
+  picture > img,
+  video {
+    --style: '!w-full';
+  }
+
+  img {
+    --style: max-w-full h-auto bg-#f5f5f3 object-contain;
+    & + img {
+      --style: '!mt-10px';
+    }
+
+    &.slax-image-loading {
+      --style: bg-gradient-to-br from-#f5f5f3 to-#99999950;
+      background-size: 400% 400%;
+      animation: imageLoading 3s ease infinite;
+    }
+
+    &[onerror="this.style.display='none'"],
+    &:not([src]):not([srcset]) {
+      --style: hidden;
+    }
+  }
+
+  /* 代码块类 */
+  pre {
+    --style: p-4 max-w-full bg-gray-200 rounded text-left whitespace-pre-wrap;
+    font-family: 'Courier New', Courier, monospace !important;
+
+    code {
+      --style: max-w-full block whitespace-pre;
+      font-family: 'Courier New', Courier, monospace !important;
+
+      * {
+        font-family: 'Courier New', Courier, monospace !important;
+      }
+
+      span p {
+        --style: inline;
+      }
+    }
+  }
+
+  code {
+    --style: text-left bg-gray-200;
+  }
+
+  /* 标题类 */
+  h1 {
+    --style: text-24px line-height-36px font-bold;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5 {
+    --style: text-20px line-height-30px font-semibold;
+  }
+
+  /* 列表类 */
+  ul {
+    --style: list-none;
+
+    &.has-li {
+      --style: pl-26px;
+    }
+
+    & > li {
+      --style: relative;
+    }
+
+    & > li::before {
+      --style: 'content-empty !absolute bg-#333333 w-4px h-4px rounded-full top-11px -left-20px';
+    }
+  }
+
+  ol {
+    --style: pl-26px list-none;
+    counter-reset: list-counter;
+
+    & > li {
+      --style: relative;
+      counter-increment: list-counter;
+      &::marker {
+        --style: content-empty;
+      }
+
+      &::before {
+        --style: 'content-empty !absolute rounded-full top-1px -left-26px';
+        content: counter(list-counter) '. '; /* 显示计数器 */
+      }
+    }
+  }
+
+  li li::before {
+    --style: content-none;
+  }
+
+  /* iframe */
+  iframe[src] {
+    --style: min-h-400px;
+  }
+
+  /* 动画 */
+  @keyframes imageLoading {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}

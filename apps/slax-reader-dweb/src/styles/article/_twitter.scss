@@ -1,0 +1,68 @@
+@mixin twitter {
+  .tweet {
+    --style: border-b-(1px solid #e1e8ed) pb-24px;
+
+    &:last-child {
+      --style: border-b-none;
+    }
+
+    .tweet-header {
+      --style: relative bg-(cover center #fff) px-25px py-20px border-b-(1px solid #e1e8ed) flex items-center flex-wrap;
+
+      .banner-overlay {
+        --style: bg-#00000099 absolute inset-0;
+      }
+
+      .profile-image {
+        --style: w-48px h-48px rounded-full border-(2px solid #fff) mr-15px relative z-1 cursor-pointer;
+      }
+    }
+  }
+
+  .tweet-user-info {
+    --style: '!ml-10px relative z-1 flex-1 min-w-0';
+    .name {
+      --style: 'font-bold !text-(16px #eee) drop-shadow-(sm white)';
+    }
+
+    .description {
+      --style: '!text-(16px #fff)';
+    }
+
+    .additional-info {
+      --style: mt-5px;
+
+      & > * {
+        --style: text-(16px #fff);
+      }
+    }
+
+    .followers-following > * {
+      --style: '!text-(16px #fff)';
+    }
+    .followers-following span:not(:first-child) {
+      --style: '!ml-10px';
+    }
+  }
+
+  .tweet-content {
+    --style: '!mt-32px whitespace-pre-line';
+  }
+
+  .tweet-media {
+    --style: mt-28px;
+    img {
+      --style: max-w-full rounded-8px mt-10px;
+    }
+  }
+
+  .tweet-footer {
+    --style: '!mt-24px flex items-center justify-end';
+    div {
+      --style: 'flex items-center !ml-20px';
+    }
+    span {
+      --style: '!ml-5px';
+    }
+  }
+}

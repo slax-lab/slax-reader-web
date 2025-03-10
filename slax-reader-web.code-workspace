@@ -1,0 +1,43 @@
+{
+  "folders": [
+    {
+      "name": "slax-reader",
+      "path": "."
+    },
+    {
+      "name": "slax-reader-extensions",
+      "path": "apps/slax-reader-extensions"
+    },
+    {
+      "name": "slax-reader-dweb",
+      "path": "apps/slax-reader-dweb"
+    }
+  ],
+  "settings": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "eslint.format.enable": true,
+    "eslint.enable": true,
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "i18n-ally.localesPaths": ["apps/slax-reader-dweb/i18n/locales", "apps/slax-reader-extensions/src/locales", "apps/slax-reader-dweb/i18n"],
+    "i18n-ally.keystyle": "nested",
+    "i18n-ally.sourceLanguage": "en",
+    "i18n-ally.displayLanguage": "zh",
+    "i18n-ally.sortKeys": true,
+    "i18n-ally.namespace": true,
+    "i18n-ally.enabledParsers": ["ts", "js", "json"],
+    "i18n-ally.enabledFrameworks": ["vue"]
+  },
+  "extensions": {
+    "recommendations": ["lokalise.i18n-ally", "antfu.unocss", "vue.volar", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+  }
+}

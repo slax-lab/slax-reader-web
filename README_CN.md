@@ -1,11 +1,11 @@
 <div align="center">
 <img src="https://r.slax.com/icon.png" />
 <h1> <a href="https://slax.com/slax-reader.html">Slax Reader Web </a> </h1>
-<h1>Simple tools for a relaxed life, Read It Later</h1>
+<h1>Simple tools, relax life, Read It Later </h1>
 
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls) [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls?q=is%3Apr+is%3Aclosed) [![GitHub issues](https://img.shields.io/github/issues/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues) [![GitHub closed issues](https://img.shields.io/github/issues-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues?q=is%3Aissue+is%3Aclosed) ![Stars](https://img.shields.io/github/stars/slax-lab/slax-reader-web?style=flat) ![Forks](https://img.shields.io/github/forks/slax-lab/slax-reader-web?style=flat)
 
-[简体中文](./README_CN.md) | English
+简体中文 | [English](./README.md)
 
 </div>
 
@@ -16,7 +16,7 @@
 </div>
 </br>
 
-Slax Reader Web service includes [browser-based services](./apps/slax-reader-extensions/README.md) and [extension services](./apps/slax-reader-extensions/README.md) and needs to work in conjunction with the [Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client). This document provides deployment and development tutorials. For direct use of Slax Reader, please visit [Slax Reader](https://r.slax.com) or [Slax Reader Bot](https://t.me/slax_reader_bot).
+Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/README.md)及[插件端服务](./apps/slax-reader-extensions/README.md)，需要与项目[Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client) 配合使用。本文为部署、开发教程，如需直接使用 Slax Reader，请移步 [Slax Reader](https://r.slax.com) 或 [Slax Reader Bot](https://t.me/slax_reader_bot)。
 
 <div align="center">
 
@@ -33,25 +33,25 @@ Slax Reader Web service includes [browser-based services](./apps/slax-reader-ext
 
 # 🚀 Self Deploy
 
-Quickly deploy your own version! This project supports multiple deployment methods. Check out our [Deploy Document](./public/DEPLOY-EN.md) for complete step-by-step instructions.
+快速部署您自己的版本！本项目支持多种部署方式。查看我们的 [部署文档](./public/DEPLOY-CN.md) 获取完整的步骤说明。
 
 # 🎉 Feature List
 
-- [x] Supports saving web pages via URL / extensions / Telegram
-- [x] Allows underlining, commenting, replying, sharing, starring, and archiving saved content
-- [x] AI interaction, AI summarization, underlined dialogue, and AI tag generation for saved content
-- [x] Keyword or semantic search for saved content
-- [x] Supports importing bookmarks from Omnivore
-- [x] Supports WebSocket / Browser Push for notifications
-- [x] Server-side rendering and web app usage
+- [x] 支持通过 URL / 插件 / Telegram 进行网页收藏
+- [x] 支持对收藏内容划线、评论、回复、分享、加星标、归档
+- [x] 支持对收藏进行AI对话、AI总结、划线对话、AI标签生成
+- [x] 支持对收藏内容进行关键词或语义搜索
+- [x] 支持从omnivore导入收藏
+- [x] 支持 Websocket / Browser Push 进行消息推送
+- [x] 支持服务端渲染及 Web app 使用
 
 ### TODO List
 
 - [ ] xxxxx
 
-# 🤝 How to Contribute
+# 🤝 How to Contribution
 
-You can contribute to the code by understanding our development, deployment, and basic standards, helping to improve the product. [Development Documentation](./public/DEVELOPMENT-DOCUMENT-EN.md)
+你可以通过了解我们的开发、部署、基础规范来进行代码的贡献，让产品做得更好。[开发文档](./public/DEVELOPMENT-DOCUMENT-CN.md)
 
 # 💖 Contributors
 
@@ -60,9 +60,9 @@ You can contribute to the code by understanding our development, deployment, and
 <img src="https://contrib.rocks/image?repo=slax-lab/slax-reader-web" alt="contributors">
 </a>
 
-# 🙏 Acknowledgments
+# 🙏 鸣谢
 
-In developing Slax Reader Web, we have utilized numerous excellent open-source projects and tools. We sincerely thank the contributors of these projects:
+在开发 Slax Reader Web 的过程中，我们使用了许多优秀的开源项目和工具。在此对这些项目的贡献者表示由衷的感谢：
 
 - ⚡ [Vue](https://vuejs.org/)
 - 🚀 [Nuxt](https://nuxt.com/)
@@ -82,4 +82,4 @@ In developing Slax Reader Web, we have utilized numerous excellent open-source p
 
 # 📝 License
 
-`Slax Reader` is licensed under the [Apache License 2.0](./LICENSE). The community version is 100% free and open-source, forever.
+`Slax Reader` 基于 [Apache License 2.0](./LICENSE) 许可，社区版 100% 免费且开源，永久提供。
