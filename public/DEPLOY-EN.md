@@ -2,7 +2,7 @@
 
 ## Extensions
 
-The extension project is built on the `wxt` framework, supporting deployment across multiple browser platforms.
+The extension project is built on the [`wxt`](https://wxt.dev) framework, supporting deployment across multiple browser platforms.
 
 ### Build Commands
 
