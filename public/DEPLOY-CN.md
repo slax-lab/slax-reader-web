@@ -65,11 +65,11 @@ export default defineNuxtConfig({
 
    - 详细步骤：[Cloudflare Pages Git 集成部署指南](https://developers.cloudflare.com/pages/get-started/git-integration/)
    - 构建命令设置：`pnpm run build:dweb`
-   - 输出目录设置：`.output/public`
+   - 输出目录设置：`dist/public`
 
 2. **手动上传部署**：将构建产物直接上传到 Cloudflare
    - 详细步骤：[Cloudflare Pages 直接上传指南](https://developers.cloudflare.com/pages/get-started/direct-upload/)
-   - 上传 `.output/public` 目录中的内容
+   - 上传 `dist/public` 目录中的内容
 
 ### 其他部署平台
 

@@ -65,11 +65,11 @@ The project recommends deploying on Cloudflare Pages, supporting two deployment 
 
    - Detailed Steps: [Cloudflare Pages Git Integration Deployment Guide](https://developers.cloudflare.com/pages/get-started/git-integration/)
    - Build Command Setting: `pnpm run build:dweb`
-   - Output Directory Setting: `.output/public`
+   - Output Directory Setting: `dist/public`
 
 2. **Manual Upload Deployment**: Directly upload the build output to Cloudflare
    - Detailed Steps: [Cloudflare Pages Direct Upload Guide](https://developers.cloudflare.com/pages/get-started/direct-upload/)
-   - Upload the contents of the `.output/public` directory.
+   - Upload the contents of the `dist/public` directory.
 
 ### Other Deployment Platforms
 
