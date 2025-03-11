@@ -1,0 +1,647 @@
+{
+  "common": {
+    "app": {
+      "name": "Slax Reader",
+      "pro": "Slax Reader Pro",
+      "pro_token": "Pro",
+      "trail_pro": "Slax Reader Trail Pro"
+    },
+    "collection": {
+      "no_more": "No more",
+      "period": "/ Month",
+      "subscribers": "Subscribers"
+    },
+    "country": {
+      "AT": "Austria",
+      "AU": "Australia",
+      "BE": "Belgium",
+      "CA": "Canada",
+      "CH": "Switzerland",
+      "DE": "Germany",
+      "DK": "Denmark",
+      "ES": "Spain",
+      "FI": "Finland",
+      "FR": "France",
+      "GB": "United Kingdom",
+      "HK": "Hong Kong",
+      "IE": "Ireland",
+      "IT": "Italy",
+      "JP": "Japan",
+      "LU": "Luxembourg",
+      "NL": "Netherlands",
+      "NO": "Norway",
+      "NZ": "New Zealand",
+      "PT": "Portugal",
+      "SE": "Sweden",
+      "SG": "Singapore",
+      "US": "United States"
+    },
+    "operate": {
+      "add": "Add",
+      "archive": "Archive",
+      "cancel": "Cancel",
+      "cancel_edit_title": "Cancel Edit",
+      "chatbot": "Chat",
+      "comment": "Comment",
+      "confirm": "Confirm",
+      "copy": "Copy",
+      "delete": "Delete",
+      "delete_line": "Clear",
+      "download": "Download",
+      "edit": "Edit",
+      "edit_title": "Edit title",
+      "forward": "Forward",
+      "like": "Like",
+      "line": "Highlight",
+      "loading": "Loading...",
+      "login": "Login",
+      "menu_trash": "Trash",
+      "off": "OFF",
+      "on": "ON",
+      "payment": {
+        "completed": "Payment Completed",
+        "confirm_desc": "Have you completed the payment?",
+        "confirm_title": "Payment Confirmation",
+        "not_completed": "Payment Not Completed"
+      },
+      "refetch": "Re-fetch",
+      "remove_subscribe": "Remove",
+      "reply": "Reply",
+      "resubscribe": "Re-subscribe",
+      "revert_to_inbox": "Restore to Inbox",
+      "save": "Save",
+      "search": "Search",
+      "share": "Share",
+      "submit": "Submit",
+      "subscribe": "Subscribe",
+      "summary_refresh": "Re-generate",
+      "top": "Top",
+      "trashed": "Trash",
+      "unarchive": "Unarchive",
+      "unsubscribe": "Unsubscribe",
+      "view_source": "Source",
+      "view_source_all": "View all"
+    },
+    "payment": {
+      "completed": "Payment Completed",
+      "confirm_desc": "Have you completed the payment?",
+      "confirm_title": "Whether to complete the payment",
+      "loading": "Loading...",
+      "not_completed": "Payment Not Completed",
+      "stripestatus": {
+        "action_required_requested_capabilities": "Need to apply for account permissions",
+        "listed": "Account at risk",
+        "normal": "Normal",
+        "rejected_fraud": "Fraudulent",
+        "rejected_incomplete_verification": "Incomplete verification",
+        "rejected_listed": "Risk list marked",
+        "rejected_other": "Rejected",
+        "rejected_terms_of_service": "Violation of terms of service",
+        "requirements_past_due": "Need to supplement verification materials",
+        "requirements_pending_verification": "Material under review",
+        "under_review": "Account security check"
+      }
+    },
+    "tips": {
+      "access_unavailable": {
+        "title": "This is private content and cannot be viewed",
+        "desc": "Please contact the publisher to get the correct sharing address",
+        "footer": "(Content page upper right corner - Share - Copy link)"
+      },
+      "add_tag_failed": "Add tag failed",
+      "add_url_success": "Link added",
+      "archive_success": "Content has been Archived",
+      "copy_content_success": "Content copied successfully",
+      "delete_tag_failed": "Delete tag failed",
+      "editname_success": "Title edited successfully",
+      "get_tag_list_failed": "Get tag list failed",
+      "operate_failed": "Operation failed",
+      "refetch_success": "Re-fetch started",
+      "save_failed": "Save failed",
+      "save_success": "Save successful",
+      "share_failed": "Create share failed",
+      "share_success": "Share link copied to clipboard",
+      "star_success": "Content has been starred",
+      "subscribe_success": "Subscription successful!",
+      "transfer_save_success": "Collect Link successful",
+      "trash_success": "Bookmark moved to trash",
+      "unarchive_success": "Content has been Unarchive",
+      "unstar_success": "Content has been unstarred",
+      "unsubscribe_success": "Unsubscribe successful!"
+    }
+  },
+  "component": {
+    "bookmark_tags": {
+      "placeholder": "Enter new tag (press Enter to confirm)"
+    },
+    "ai_summaries": {
+      "click_to_expand": "Click the colored dots to expand/collapse nodes",
+      "click_to_interpret": "Click the button to interpret this article",
+      "copy_content_success": "Content copied successfully",
+      "interpret": "Interpret this article",
+      "mindmap": "Mind Map",
+      "processing": "Content is being analyzed",
+      "title": "Analysis Results"
+    },
+    "article_selection": {
+      "comment_failed": "Comment failed",
+      "stroke_failed": "Highlight failed",
+      "comment_deleted": "Comment deleted",
+      "hours_ago": "hours ago",
+      "just_now": "Just now",
+      "minutes_ago": "minutes ago",
+      "placeholder": "Post your opinion",
+      "reply": "Reply to...",
+      "title": "Post a comment",
+      "comment_placeholder": "Reply to {username}"
+    },
+    "bookmark_article": {
+      "no_title": "No Title",
+      "video_not_support_tips": ">>> Video cannot be played, please visit the original article <<<"
+    },
+    "bookmark_cell": {
+      "edit_title_placeholder": "Enter title",
+      "no_title": "No Title",
+      "shortcut": "link to:"
+    },
+    "add_url_top_modal": {
+      "add_url": {
+        "button": "Add",
+        "placeholder": "Paste the link you want to add here",
+        "title": "Add URL"
+      }
+    },
+    "notification_cell": {
+      "comment_title": "{username} commented:",
+      "reply_title": "{username} replied to you:"
+    },
+    "cancel_collection_modal": {
+      "removecollection": "Remove from my collections",
+      "subtitle": "You'll have access until {date}. After that, you won't be charged",
+      "title": "Unsubscribe from collection {name} ?"
+    },
+    "chat_bubble_message": {
+      "links_source": "Information source:",
+      "related_questions": "Related:"
+    },
+    "chat_bot": {
+      "access_complete": "Access complete",
+      "access_failed": "Access failed:",
+      "accessing_token": "Accessing",
+      "generating_question": "Generating question...",
+      "hello": "Hello, I am the Slax Reader AI assistant:",
+      "now_accessing": "Accessing...",
+      "{alias}_placeholder": "Enter your question ({alias} + enter to line break)",
+      "{tips}_accessing": "\"{tips}\" Accessing...",
+      "{tips}_searching": "\"{tips}\" Searching..."
+    },
+    "chat_tips_message": {
+      "generate_question_title": "You might want to ask..."
+    },
+    "owner_setting": {
+      "charge_percent": "(Including service management fee ratio: {value})",
+      "period": "/ Month",
+      "placeholder": {
+        "name": "Enter name"
+      },
+      "share": {
+        "1": "Show Marks/Comments",
+        "2": "Allow Marks/Comments",
+        "3": "Show My User Info"
+      },
+      "share_disabled": "Sharing disabled",
+      "share_enabled": "Sharing enabled",
+      "share_option": "Share Option",
+      "tips": {
+        "price_cant_changed": "Currently does not support paid to free",
+        "price_unavailable": "Need to complete Stripe account information first"
+      },
+      "title": {
+        "enable_sharing": "Enable collection sharing",
+        "link": "Subscription Link (Users can subscribe to your collection through this link)",
+        "name": "Name Setting",
+        "price": "Subscription price",
+        "share": "Share Option",
+        "subscribe": "Subscription Setting"
+      }
+    },
+    "stripe_pay_setting": {
+      "country_select": {
+        "subtitle": "Cannot be changed after selection",
+        "title": "Select country，"
+      },
+      "guideline": {
+        "create_title": "Create Stripe account",
+        "status": {
+          "active": "Active",
+          "filling": "Filling",
+          "pending": "Pending",
+          "reviewing": "Reviewing"
+        },
+        "title": "Stripe Merchant Settings Process",
+        "update_title": "Complete Stripe merchant information"
+      },
+      "receive": {
+        "available": "Available for receiving payment",
+        "unavailable": "Unavailable for receiving payment"
+      },
+      "withdraw": {
+        "available": "Available for withdrawal",
+        "unavailable": "Unavailable for withdrawal"
+      }
+    },
+    "copy_button": {
+      "copy_content": "Copy content"
+    },
+    "edit_name_modal": {
+      "placeholder": "Enter title",
+      "title": "Edit title"
+    },
+    "edit_tag": {
+      "delete": "Delete tag",
+      "title": "Edit tag"
+    },
+    "feedback": {
+      "placeholder": "Please describe the problem you are experiencing...",
+      "title": "Your feedback will help us improve"
+    },
+    "install_extension_tips": {
+      "descript": "After installation, simply click on the plugin icon to bookmark the URL.",
+      "install": "Go to install",
+      "title": "Install Extension"
+    },
+    "login_view": {
+      "google_login": "Google Login",
+      "share_page_login_tips": "You are not logged in, please log in first",
+      "title": "Create your account, get to know us~"
+    },
+    "notification_header": {
+      "title": "All notifications"
+    },
+    "payment": {
+      "subscribe_successful": "Subscription successful!",
+      "successful": "Payment successful"
+    },
+    "plan_card": {
+      "one_time_purchase": "Purchase 1 month",
+      "plans": {
+        "1": {
+          "free_features": {
+            "1": "1000 bookmarks",
+            "2": "1000 content cache (permanently free for early users)",
+            "3": "Unlimited number of devices",
+            "4": "Unlimited sharing",
+            "5": "All-platform clients (iOS, Android, Web...)",
+            "6": "Full text search",
+            "7": "Unlimited highlighting and commenting",
+            "8": "Import"
+          },
+          "operate_title": "Current Plan",
+          "period": "/ Month",
+          "title": "Free version"
+        },
+        "2": {
+          "free_features": {
+            "1": "Includes all features of the free version"
+          },
+          "operate_title": "Subscribe now",
+          "period": "/ Month",
+          "pro_features": {
+            "1": "Unlimited bookmarks",
+            "2": "Unlimited content cache",
+            "3": "AI Analysis",
+            "4": "AI Chat",
+            "5": "API",
+            "6": "Automatic tagging",
+            "7": "Automated workflows",
+            "8": "Semantic search"
+          },
+          "title": "Paid version (Early Access)"
+        }
+      },
+      "wip": " (Coming soon) "
+    },
+    "plan_payment": {
+      "choose_plan": "Selected plan",
+      "one_time_price": "$9.99",
+      "pay": "Pay",
+      "pay_now": "(bill now)",
+      "period": "/ Month",
+      "plan_price": "$5.99",
+      "stripe_error": "Stripe payment environment error",
+      "tips": "UnionPay cards without the Visa or MasterCard logo are not currently accepted.",
+      "title_trail": "7-day Trial"
+    },
+    "pro_icon": {
+      "processing": "Processing"
+    },
+    "remove_collection_modal": {
+      "title": "Remove from collection {name} ?"
+    },
+    "search_header": {
+      "empty": "No related content found",
+      "placeholder": "Enter what you want to find",
+      "semantic_relative": "Semantic related {value}%"
+    },
+    "share_modal": {
+      "copy_link": "Copy link",
+      "copy_success": "Copied!",
+      "options": {
+        "1": "Show highlights and comments",
+        "2": "Show my avatar and nickname",
+        "3": "Allow visitors to add highlights and comments"
+      },
+      "revoke_tips": "Shared link access been revoked",
+      "title": "Share"
+    },
+    "share_bubble_tips": {
+      "text": "Share with friends"
+    },
+    "collection_header": {
+      "filter_collection_title": "Content of \"{title}\":",
+      "loading": "Collections loading...",
+      "no_collects": "No subscription collections",
+      "subscribe_url": "Subscription link: "
+    },
+    "subscribe_collection_button": {
+      "processing": "Status updating"
+    },
+    "subscription": {
+      "description": "After subscribing, you can experience full AI features, including content analysis and AI assistant.",
+      "title": "Pro Subscription"
+    },
+    "tags_header": {
+      "add_tag": "Add new tag",
+      "add_tag_placeholder": "Enter new tag",
+      "filter_tag_title": "Content under the \"{title}\" tag:",
+      "loading": "Tags loading..."
+    },
+    "article_ce_tweet": {
+      "followers": "Followers",
+      "followings": "Following",
+      "location": "Location: ",
+      "website": "Website: "
+    },
+    "user_notification": {
+      "no_message": "No message",
+      "title": "New message"
+    },
+    "user_operate_icon": {
+      "logout": "Logout",
+      "personal_info": "Setting"
+    }
+  },
+  "page": {
+    "auth": {
+      "authenticating": "Authenticating"
+    },
+    "bookmarks_detail": {
+      "ai_analyze": "Analysis",
+      "chat": "Chat",
+      "loading": "Content loading...",
+      "no_more": "The End",
+      "no_title": "No Title",
+      "not_exists": "Bookmark does not exist",
+      "processing": "Content is being processed, please wait...",
+      "share_bookmark_tips": "Shared by { user } on { date }",
+      "trash_bookmark_restore": "Restore to Inbox",
+      "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days."
+    },
+    "share_detail": {
+      "share_text": "{user} shared on {date}",
+      "transfer_save": "Collect Link",
+      "transfered_save": "Collected"
+    },
+    "bookmarks_index": {
+      "add_url": "Add",
+      "archive": "Archive",
+      "collections": "Collections",
+      "content_deleted": "Original content has been deleted",
+      "empty": "No content here yet",
+      "highlights": "Highlights",
+      "inbox": "Inbox",
+      "more": "Load more",
+      "new_topic": "Input tag (less than 30 characters)...",
+      "no_more": "No more",
+      "starred": "Starred",
+      "topics": "Topics",
+      "trash_no_more": "Bookmarks moved to trash more then 7 days ago are permanently deleted.",
+      "view_original": "View original"
+    },
+    "c_detail": {
+      "subscribe_text": "Originally collected by {user}"
+    },
+    "c_index": {
+      "endtime": "Subscribe on: {time}",
+      "footer_tips": "There's more to discover. Subscribe for full access and content updates.",
+      "free": "Free",
+      "period": "/ Month",
+      "shareby": "Shared by: {username}",
+      "subscribers": "Subscribers: {count}"
+    },
+    "guide": {
+      "guides": {
+        "1": {
+          "title": "Pin the \"Slax Reader\" extension icon"
+        },
+        "2": {
+          "title": "Click the icon to collect content after opening the URL (checkmark indicates collection completion)"
+        },
+        "3": {
+          "title": "Log in to your account to see collected content in Inbox"
+        }
+      },
+      "operate_title": "Get started:",
+      "subtitle": "The following details will help you better use the product",
+      "title": "Welcome to Slax Reader"
+    },
+    "index": {
+      "cards": {
+        "1": {
+          "content": "Collect links, content backed up in your account to ensure good content is not lost",
+          "title": "Backup Content"
+        },
+        "2": {
+          "content": "Clear and generous layout, comfortable reading experience, easy and natural operation",
+          "title": "Simple and practical"
+        },
+        "3": {
+          "content": "A great helper for reading long articles, with AI assistance for understanding, supports outputting content summaries and mind maps",
+          "title": "Reading assistant"
+        },
+        "4": {
+          "content": "AI-assisted questioning and step-by-step inquiry deepen understanding of articles and truly grasp knowledge",
+          "title": "AI Q&A"
+        },
+        "5": {
+          "content": "Automatically generates usable tags and categories without user intervention, simplifying content organization",
+          "title": "Automatic tagging"
+        },
+        "6": {
+          "content": "Collect content via browser extensions, iOS and Android apps, Telegram plugins, etc.",
+          "title": "Convenient bookmarking"
+        }
+      },
+      "faq": "FAQ",
+      "faqs": {
+        "1": {
+          "content": "Slax Reader is not only a read-later tool, but also a reader's AI assistant, learning community, and knowledge base.",
+          "title": "What is Slax Reader?"
+        },
+        "2": {
+          "content": "You can email us at hi{'@'}slax.com or find us on Twitter {'@'}SlaxHQ.",
+          "title": "How can I provide feedback on issues?"
+        },
+        "3": {
+          "content": "We all love reading, continuous learning, and have paid to use various Read it later products over the years, but none have ever fully met our expectations.",
+          "title": "How is our development team?"
+        },
+        "4": {
+          "content": "AI has shown potential in assisting learning, which may be a variable that could lead to breakthroughs. Therefore, we plan to experiment and iterate this product over the long term (in terms of decades).",
+          "title": "Why create this software?"
+        },
+        "5": {
+          "content": "This is currently just an initial preview version, and our differences include:\n · AI Priority: Increased use of AI technology to assist learning\n · Content Backup: Internet link content often gets lost; here, a link once saved is backed up long-term\n\nIn the future, we will implement more differentiated capabilities, such as:\n · Multi-agent discussions to deepen understanding\n · Establishing a unique learning community where everyone can discuss and exchange ideas\n · Content Square: Breaking the homogenization problem brought by algorithmic recommendations\n · Content Subscription: Subscribe to people, content, and tags you are interested in",
+          "title": "What makes Slax Reader different from other read-later products?"
+        },
+        "6": {
+          "content": "We aim to provide exceptional services at the lowest possible price, hence, you can use features for free including unlimited bookmarks, unlimited content caching (free permanently for early users), unlimited devices, unlimited highlighted comments (coming soon), bookmark imports (coming soon), sharing bookmarks, full-text search, and clients across all platforms.\n\nHowever, due to the computational demands of AI and the need for sustainable business operations, we also offer a paid professional version. If you need to use features such as AI analysis, AI Q&A, and automatic tagging, a monthly subscription is required.",
+          "title": "Is your product free?"
+        }
+      },
+      "features": "Free and paid features",
+      "history": "Update history",
+      "history_notes": {
+        "1": {
+          "1": "Support web page collection and search",
+          "2": "Bookmark cache page supports AI summary",
+          "3": "Bookmark cache page supports AI Chat",
+          "version": "v1.0"
+        },
+        "2": {
+          "1": "Bookmark sharing",
+          "2": "Bookmark cache page supports highlighting and commenting",
+          "3": "Bookmark cache page supports selecting content for AI Chat",
+          "4": "Added bookmark tag function",
+          "5": "User language synchronization",
+          "version": "v1.1"
+        },
+        "3": {
+          "1": "Support for ominivore.app website import",
+          "2": "Added trash can function",
+          "3": "AI summary supports re-generation",
+          "4": "Added positioning of highlights and comments in articles",
+          "5": "Added release note",
+          "version": "v1.2"
+        },
+        "4": {
+          "1": "Star subscription",
+          "2": "Support search",
+          "3": "Added message notification",
+          "4": "Support Alipay/WeChat one-time payment",
+          "5": "AI analysis is free",
+          "version": "v1.3"
+        },
+        "head": "Current Version ({version})"
+      },
+      "posters": {
+        "1": {
+          "subtitle": "Open collected links in Slax Reader, suitable for reading on computers, tablets, and phones, with just the right AI tools to assist learning",
+          "title": "Cache page and toolbar"
+        },
+        "2": {
+          "subtitle": "Presents long and complex texts in a structured format, with clickable links to jump to corresponding paragraphs",
+          "title": "AI Analysis"
+        },
+        "3": {
+          "subtitle": "She is a gentle inquirer, a well-read scholar, and a challenger full of personality",
+          "title": "AI Assistant"
+        }
+      },
+      "slogan": "AI smart learning and social assistant, making knowledge accessible",
+      "slogan_left_bracket": " ",
+      "slogan_right_bracket": " "
+    },
+    "slug": {
+      "back_home": "Go back home",
+      "title": "Page not found"
+    },
+    "user": {
+      "batches_progress": "Progress",
+      "business_name": "Business name:",
+      "business_type": "Business type",
+      "capabilities": "Account capabilities:",
+      "choose_sharing_type": "Choose sharing type",
+      "collect_share_settings": "Share settings",
+      "collect_share_url": "Subscription link",
+      "company_name": "Company name",
+      "complete_stripe_info": "Complete account information",
+      "connect_slax_payment": "Connect Slax Payment",
+      "connect_stripe": "Connect Stripe",
+      "count": "Count",
+      "country": "Country/Region",
+      "create_account_error": "Create account failed",
+      "create_stripe_account": "Create Stripe account",
+      "edit": "Edit",
+      "email": "Email",
+      "fetch_stripe_info_failed": "Failed to fetch Stripe account information",
+      "goto_stripe_board": "Go to Stripe dashboard",
+      "help_and_support": "Help and support",
+      "import_description": "Currently supports importing Omnivore data, more platforms coming soon",
+      "import_note1": "Due to our re-fetching and re-analyzing of imported data, the time required will be proportional to the amount of data.",
+      "import_note2": "Note that we only support basic metadata and re-analyze websites as much as possible. If your data is missing, different, or changed, it is recommended to use our APP/browser extension to re-collect to ensure data completeness.",
+      "import_progress": "Import progress",
+      "import_third_party_data": "Import third-party data",
+      "import_time": "Import time",
+      "language": "Language:",
+      "language_en": "En",
+      "language_zh": "Chinese",
+      "my_subscriptions": "My subscriptions",
+      "personal_info": "Personal information",
+      "platform": "Platform",
+      "save": "Save",
+      "select_country": "Select country",
+      "setup_completed": "Setup completed",
+      "setup_progress": "Setup Progress",
+      "setup_step1": "Basic Info",
+      "setup_step2": "Identity",
+      "setup_step3": "Bank Account",
+      "setup_step4": "Complete",
+      "share_my_collection": "Share my collection",
+      "share_my_collection_description": "Share your \"starred\" content to make knowledge accessible",
+      "show_name": "Show name",
+      "status": "Status",
+      "stripe_capabilities": "Stripe Capabilities",
+      "stripe_onboarding": "Stripe Onboarding",
+      "stripe_section_title": "Stripe Merchant Settings",
+      "stripe_setup_notice": "Slax Reader will use your Stripe account for payment, withdrawal, etc., and you need to complete your Stripe account information",
+      "stripe_status": "Stripe status:",
+      "subscribe": {
+        "expired": "Subscribe Expire Time",
+        "first": "First Subscribe Time",
+        "next_payment": "Next Payment Time",
+        "no": "No Subscripted",
+        "subscripted_pro": "Subscribed to Pro",
+        "subscripted_trail_pro": "Subscribed to Trail Pro"
+      },
+      "subscription_description": "After subscribing, you can experience full AI features, including content analysis and AI assistant",
+      "subscription_preferences": "Subscription preferences",
+      "telegram": "Telegram",
+      "telegram_channel": "Telegram Channel",
+      "third_party_binding": "Third-party binding",
+      "update_account_error": "Update account failed",
+      "update_share_status_failed": "Failed to update sharing status",
+      "update_stripe_info": "Update Stripe info",
+      "url_count": "URL Count",
+      "view_import_progress": "View import progress"
+    }
+  },
+  "util": {
+    "chatbot": {
+      "browser_finished": "Access complete",
+      "generate_question": "Generating question",
+      "generate_question_finished": "Finished",
+      "search_finished": "Search complete"
+    }
+  }
+}

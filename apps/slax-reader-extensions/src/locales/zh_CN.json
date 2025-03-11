@@ -1,0 +1,18 @@
+{
+  "click_to_view": "点击查看",
+  "collect_page": "收藏页面",
+  "collected": "已收藏",
+  "collection_failed": "收藏失败",
+  "collection_in_progress": "收藏中",
+  "collection_not_supported": "该网页暂不支持收藏",
+  "collection_successful": "收藏成功",
+  "extended_settings": "扩展设置",
+  "not_collected": "未收藏",
+  "recollection": "重新收藏",
+  "removal": "撤销收藏",
+  "removal_failed": "移除失败",
+  "removal_in_progress": "移除中",
+  "removal_successful": "已移除",
+  "shortcut_settings": "快捷键设置",
+  "slax_collection_list": "Slax 收藏列表"
+}
