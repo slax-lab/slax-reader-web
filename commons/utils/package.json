@@ -1,0 +1,30 @@
+{
+  "name": "@commons/utils",
+  "version": "1.0.0",
+  "description": "存放可复用方法的工具库",
+  "exports": {
+    "./axios": "./src/axios/index.ts",
+    "./request": "./src/request.ts",
+    "./data": "./src/data.ts",
+    "./decoder": "./src/decoder.ts",
+    "./is": "./src/is.ts",
+    "./json": "./src/json.ts",
+    "./object": "./src/object.ts",
+    "./random": "./src/random.ts",
+    "./secure": "./src/secure.ts",
+    "./string": "./src/string.ts"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@apps/slax-reader-extensions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "vue-tsc --noEmit",
+    "postinstall": "wxt prepare",
+    "lint:fix": "eslint .  --fix",
+    "update:utils": "pnpm install @commons/utils"
+  },
+  "dependencies": {
+    "@wxt-dev/i18n": "^0.2.3"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.304",
+    "@wxt-dev/module-vue": "^1.0.2",
+    "@wxt-dev/unocss": "^1.0.0",
+    "sass": "^1.85.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vue-tsc": "^2.2.2",
+    "wxt": "^0.19.27"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
