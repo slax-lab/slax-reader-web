@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://r.slax.com/icon.png" />
 <h1> <a href="https://slax.com/slax-reader.html">Slax Reader Web </a> </h1>
-<h1>Simple tools for a relaxed life, Read It Later</h1>
+<h1>Simple tools for a relaxed life</h1>
 
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls) [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls?q=is%3Apr+is%3Aclosed) [![GitHub issues](https://img.shields.io/github/issues/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues) [![GitHub closed issues](https://img.shields.io/github/issues-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues?q=is%3Aissue+is%3Aclosed) ![Stars](https://img.shields.io/github/stars/slax-lab/slax-reader-web?style=flat) ![Forks](https://img.shields.io/github/forks/slax-lab/slax-reader-web?style=flat)
 
@@ -25,13 +25,24 @@ Slax Reader Web service includes [browser-based services](./apps/slax-reader-ext
 
 # ✨ Get Slax Reader
 
-- [Chrome Web Store](https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd)
-- [Slax Reader](https://r.slax.com)
-- [Slax Reader Bot](https://t.me/slax_reader_bot)
-- ~~Slax Reader APP~~ (WIP)
-- ~~Slax Reader Desktop~~ (WIP)
+> If you want to use Slax Reader directly, you can:
 
-# 🚀 Self Deploy
+#### Read on web
+
+- Web: visit [Slax Reader](https://r.slax.com) to create your free account (no downloads needed).
+
+- Browser Extensions (save links in one click):
+  - [Chrome Web Store](https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd) (also works on Edge)
+
+#### Read on mobile
+
+- [Slax Reader Bot](https://t.me/slaxreaderbot): save articles directly from your phone.
+
+#### Coming soon
+
+- iOS/Android/Desktop apps (under active development).
+
+# 🚀 Self-Deploy
 
 Quickly deploy your own version! This project supports multiple deployment methods. Check out our [Deploy Document](./public/DEPLOY-EN.md) for complete step-by-step instructions.
 
@@ -47,8 +58,6 @@ Quickly deploy your own version! This project supports multiple deployment metho
 
 ### TODO List
 
-- [ ] xxxxx
-
 # 🤝 How to Contribute
 
 You can contribute to the code by understanding our development, deployment, and basic standards, helping to improve the product. [Development Documentation](./public/DEVELOPMENT-DOCUMENT-EN.md)
@@ -57,8 +66,7 @@ You can contribute to the code by understanding our development, deployment, and
 
 💖 [Thank you to every contributor who helps make Slax Reader better](https://github.com/slax-lab/slax-reader-web/graphs/contributors) 💖
 
-<img src="https://contrib.rocks/image?repo=slax-lab/slax-reader-web" alt="contributors">
-</a>
+![contributors](https://contrib.rocks/image?repo=slax-lab/slax-reader-web)
 
 # 🙏 Acknowledgments
 

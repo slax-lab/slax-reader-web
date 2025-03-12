@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://r.slax.com/icon.png" />
 <h1> <a href="https://slax.com/slax-reader.html">Slax Reader Web </a> </h1>
-<h1>Simple tools, relax life, Read It Later </h1>
+<h1>Simple tools for a relaxed life</h1>
 
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls) [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/pulls?q=is%3Apr+is%3Aclosed) [![GitHub issues](https://img.shields.io/github/issues/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues) [![GitHub closed issues](https://img.shields.io/github/issues-closed/slax-lab/slax-reader-web?style=flat)](https://github.com/slax-lab/slax-reader-web/issues?q=is%3Aissue+is%3Aclosed) ![Stars](https://img.shields.io/github/stars/slax-lab/slax-reader-web?style=flat) ![Forks](https://img.shields.io/github/forks/slax-lab/slax-reader-web?style=flat)
 
@@ -25,13 +25,24 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 
 # ✨ Get Slax Reader
 
-- [Chrome Web Store](https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd)
-- [Slax Reader](https://r.slax.com)
-- [Slax Reader Bot](https://t.me/slax_reader_bot)
-- ~~Slax Reader APP~~ (WIP)
-- ~~Slax Reader Desktop~~ (WIP)
+> 如果你想直接使用 Slax Reader，你可以：
 
-# 🚀 Self Deploy
+#### 在网页上阅读
+
+- Web: 访问 [Slax Reader](https://r.slax.com) 创建您的免费账户（无需下载）。
+
+- 浏览器扩展（一键保存链接）：
+  - [Chrome Web Store](https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd)（也适用于 Edge）
+
+#### 在手机上阅读
+
+- [Slax Reader Bot](https://t.me/slaxreaderbot): 直接从您的手机保存文章。
+
+#### 即将推出
+
+- iOS/Android/Desktop 应用（正在开发中）。
+
+# 🚀 Self-Deploy
 
 快速部署您自己的版本！本项目支持多种部署方式。查看我们的 [部署文档](./public/DEPLOY-CN.md) 获取完整的步骤说明。
 
@@ -47,8 +58,6 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 
 ### TODO List
 
-- [ ] xxxxx
-
 # 🤝 How to Contribution
 
 你可以通过了解我们的开发、部署、基础规范来进行代码的贡献，让产品做得更好。[开发文档](./public/DEVELOPMENT-DOCUMENT-CN.md)
@@ -57,8 +66,7 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 
 💖 [Thank you to every contributor who helps make Slax Reader better](https://github.com/slax-lab/slax-reader-web/graphs/contributors) 💖
 
-<img src="https://contrib.rocks/image?repo=slax-lab/slax-reader-web" alt="contributors">
-</a>
+![contributors](https://contrib.rocks/image?repo=slax-lab/slax-reader-web)
 
 # 🙏 鸣谢
 
