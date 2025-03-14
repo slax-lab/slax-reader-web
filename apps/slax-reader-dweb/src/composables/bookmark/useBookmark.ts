@@ -50,12 +50,6 @@ export const useBookmark = (options: BookmarkOptions) => {
         title: options.title,
         shareCode: options.shareCode
       })
-    } else if (options.type === BookmarkType.Collection) {
-      showFeedbackModal({
-        reportType: feedbackType.value,
-        title: options.title,
-        collection: options.collection
-      })
     }
   }
 
@@ -120,18 +114,6 @@ export const useBookmark = (options: BookmarkOptions) => {
           value: {
             user: userStore.user?.userId || 0,
             share_code: shareCode,
-            source: 'bookmark',
-            title: title
-          }
-        })
-      } else if (options.type === BookmarkType.Collection) {
-        const { collection, title } = options
-        analyticsLog({
-          event: 'click_ai_chat',
-          value: {
-            user: userStore.user?.userId || 0,
-            collection_code: collection.code,
-            collection_cbid: collection.cbId,
             source: 'bookmark',
             title: title
           }

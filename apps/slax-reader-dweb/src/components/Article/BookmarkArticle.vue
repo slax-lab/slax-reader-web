@@ -74,7 +74,7 @@ const articleDetail = ref<HTMLDivElement>()
 const isHandledHTML = ref(false)
 const extraListeners: (() => void)[] = []
 
-const { bookmarkId, shareCode, collection, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
+const { bookmarkId, shareCode, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 const articleStyle = computed(() => {
   const content = props.detail.content || ''
   if (content.indexOf('<slax-photo-swipe-topic>') === 0) {
@@ -460,7 +460,6 @@ const handleDrawMark = async () => {
   if (!articleSelection && bookmarkArticle.value && articleDetail.value) {
     articleSelection = new ArticleSelection({
       shareCode: shareCode || '',
-      collection: collection,
       bookmarkId: bookmarkId || 0,
       allowAction: allowAction.value,
       ownerUserId: bookmarkUserId.value,
