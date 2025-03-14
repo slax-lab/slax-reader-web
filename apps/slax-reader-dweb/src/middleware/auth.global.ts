@@ -1,7 +1,13 @@
+import { isServer } from '@commons/utils/is'
+
 import { useCookies } from '@vueuse/integrations/useCookies.mjs'
 
 const { get } = useCookies()
 export default defineNuxtRouteMiddleware((to, from) => {
+  if (isServer) {
+    return
+  }
+
   const isFromAuth = from.fullPath.indexOf('/auth') !== -1
   const isToAuth = to.fullPath.indexOf('/auth') !== -1
   const isToLogin = to.fullPath.indexOf('/login') !== -1
@@ -26,7 +32,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         }
 
         if (!isFromHomepage) {
-          queryParams.redirect = encodeURIComponent(location.href)
+          queryParams.redirect = encodeURIComponent(location?.href)
         }
 
         const queryStr = Object.keys(queryParams)

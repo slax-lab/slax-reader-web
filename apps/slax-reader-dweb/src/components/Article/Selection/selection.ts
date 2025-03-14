@@ -1009,8 +1009,6 @@ export class ArticleSelection {
         url: RESTMethodPath.ADD_MARK,
         body: {
           share_code: this.config.shareCode,
-          collection_code: this.config.collection?.code,
-          cb_id: this.config.collection?.cb_id,
           bm_id: this.config.bookmarkId,
           comment,
           type,

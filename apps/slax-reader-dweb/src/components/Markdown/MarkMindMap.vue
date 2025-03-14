@@ -18,9 +18,9 @@ import { base64toBlob } from '@commons/utils/data'
 import dom2Img, { AutoFitByRatio } from 'easy-dom2img'
 import type Renderer from 'markdown-it/lib/renderer.mjs'
 import Token from 'markdown-it/lib/token.mjs'
-import { type IMarkmapOptions, type INode, wrapFunction } from 'markmap-common'
+import { type INode, wrapFunction } from 'markmap-common'
 import { builtInPlugins, Transformer } from 'markmap-lib'
-import { Markmap } from 'markmap-view'
+import { type IMarkmapOptions, Markmap } from 'markmap-view'
 
 const props = defineProps({
   data: { type: String, default: '' },
