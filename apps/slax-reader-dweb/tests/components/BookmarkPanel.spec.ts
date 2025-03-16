@@ -1,4 +1,4 @@
-import BookmarkPanel, { BookmarkPanelType } from '~/components/BookmarkPanel.vue'
+import BookmarkPanel, { BookmarkPanelType } from '#layers/base/components/BookmarkPanel.vue'
 
 import { mount } from '@vue/test-utils'
 import { getI18nLang } from '~~/i18n/config'

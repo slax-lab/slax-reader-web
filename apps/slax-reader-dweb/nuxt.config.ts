@@ -12,7 +12,7 @@ const envConfig = getDWebConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
+  extends: ['./layer/base'],
   alias: {
     '@': fileURLToPath(new URL('./src', import.meta.url)),
     images: fileURLToPath(new URL('./src/assets/images', import.meta.url)),

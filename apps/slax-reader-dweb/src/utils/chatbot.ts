@@ -4,7 +4,7 @@ import { RequestMethodType } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type ChatCompletionChunk } from '@commons/types/openai'
-import type { QuoteData } from '~/components/Chat/type'
+import type { QuoteData } from '#layers/base/components/Chat/type'
 
 export enum ChatParamsType {
   CONTENT = 'CONTENT',

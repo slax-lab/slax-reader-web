@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import Homepage from '~/components/Homepage.vue'
+import Homepage from '#layers/base/components/Homepage.vue'
 
 definePageMeta({ path: '/:lang(zh|en)', layout: 'blank' })
 

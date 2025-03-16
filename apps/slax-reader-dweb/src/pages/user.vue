@@ -74,14 +74,14 @@
 </template>
 
 <script lang="ts" setup>
-import NavigateStyleButton from '~/components/NavigateStyleButton.vue'
-import ImportLoadingModal from '~/components/ThirdPartyImport/ImportLoadingModal.vue'
-import ImportProgressModal from '~/components/ThirdPartyImport/ImportProgressModal.vue'
+import NavigateStyleButton from '#layers/base/components/NavigateStyleButton.vue'
+import ImportLoadingModal from '#layers/base/components/ThirdPartyImport/ImportLoadingModal.vue'
+import ImportProgressModal from '#layers/base/components/ThirdPartyImport/ImportProgressModal.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type BindedPlatformInfo, type StripeAccountInfo, type UserDetailInfo } from '@commons/types/interface'
-import { AsyncUserCollectionSections, AsyncUserSubscribeSection } from '~/components/isolation/Payment'
-import Toast from '~/components/Toast'
+import { AsyncUserCollectionSections, AsyncUserSubscribeSection } from '#layers/base/components/isolation/Payment'
+import Toast from '#layers/base/components/Toast'
 
 const { t, locale } = useI18n()
 const userStore = useUserStore()

@@ -6,9 +6,9 @@ import { useSubscribe } from '../isolation/useSubscribe'
 import { BookmarkType, type BookmarkTypeOptions, type CommonBookmarkOptions } from './type'
 import { useResize } from './useCommon'
 import type { UserInfo } from '@commons/types/interface'
-import type ChatBot from '~/components/Chat/ChatBot.vue'
-import type { QuoteData } from '~/components/Chat/type'
-import { showFeedbackModal, showLoginModal } from '~/components/Modal'
+import type ChatBot from '#layers/base/components/Chat/ChatBot.vue'
+import type { QuoteData } from '#layers/base/components/Chat/type'
+import { showFeedbackModal, showLoginModal } from '#layers/base/components/Modal'
 interface BookmarkOptions extends CommonBookmarkOptions {
   chatbot: Ref<InstanceType<typeof ChatBot> | undefined>
   typeOptions: () => BookmarkTypeOptions

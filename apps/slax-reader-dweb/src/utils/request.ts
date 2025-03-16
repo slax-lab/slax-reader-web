@@ -2,7 +2,7 @@ import { isClient } from '@commons/utils/is'
 import { type FetchOptions, FetchRequest, type FetchResult, RequestError, RequestMethodType } from '@commons/utils/request'
 
 import { useCookies } from '@vueuse/integrations/useCookies'
-import Toast, { ToastType } from '~/components/Toast'
+import Toast, { ToastType } from '#layers/base/components/Toast'
 
 class ServerRequest extends FetchRequest {
   override async fetchRequest(options: FetchOptions) {

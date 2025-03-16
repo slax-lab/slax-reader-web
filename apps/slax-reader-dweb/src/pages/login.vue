@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import GoogleLoginButton from '~/components/GoogleLoginButton.vue'
+import GoogleLoginButton from '#layers/base/components/GoogleLoginButton.vue'
 
 const route = useRoute()
 const redirect = `${route.query.redirect || ''}`

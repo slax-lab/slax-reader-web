@@ -79,24 +79,24 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from '~/components/AISummaries.vue'
-import BookmarkArticle from '~/components/Article/BookmarkArticle.vue'
-import BookmarkPanel, { BookmarkPanelType } from '~/components/BookmarkPanel.vue'
-import ChatBot from '~/components/Chat/ChatBot.vue'
-import GoogleLoginButton from '~/components/GoogleLoginButton.vue'
-import DetailLayout from '~/components/Layouts/DetailLayout.vue'
-import SidebarLayout from '~/components/Layouts/SidebarLayout.vue'
-import UserNotification, { UserNotificationIconStyle } from '~/components/Notification/UserNotification.vue'
-import ProIcon from '~/components/ProIcon.vue'
-import TopTips from '~/components/Tips/TopTips.vue'
+import AISummaries from '#layers/base/components/AISummaries.vue'
+import BookmarkArticle from '#layers/base/components/Article/BookmarkArticle.vue'
+import BookmarkPanel, { BookmarkPanelType } from '#layers/base/components/BookmarkPanel.vue'
+import ChatBot from '#layers/base/components/Chat/ChatBot.vue'
+import GoogleLoginButton from '#layers/base/components/GoogleLoginButton.vue'
+import DetailLayout from '#layers/base/components/Layouts/DetailLayout.vue'
+import SidebarLayout from '#layers/base/components/Layouts/SidebarLayout.vue'
+import UserNotification, { UserNotificationIconStyle } from '#layers/base/components/Notification/UserNotification.vue'
+import ProIcon from '#layers/base/components/ProIcon.vue'
+import TopTips from '#layers/base/components/Tips/TopTips.vue'
 
 import { isClient } from '@commons/utils/is'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
 import { vResizeObserver } from '@vueuse/components'
-import type { QuoteData } from '~/components/Chat/type'
-import Toast, { ToastType } from '~/components/Toast'
+import type { QuoteData } from '#layers/base/components/Chat/type'
+import Toast, { ToastType } from '#layers/base/components/Toast'
 import { BookmarkType } from '~/composables/bookmark/type'
 import { useBookmark } from '~/composables/bookmark/useBookmark'
 

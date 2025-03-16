@@ -115,18 +115,18 @@
 </template>
 
 <script lang="ts" setup>
-import AddUrlTopModal from '~/components/BookmarkList/AddUrlTopModal.vue'
-import BookmarkCell from '~/components/BookmarkList/BookmarkCell.vue'
-import BookmarkHighlightCell from '~/components/BookmarkList/BookmarkHighlightCell.vue'
-import SearchHeader from '~/components/BookmarkList/SearchHeader.vue'
-import SearchTopModal from '~/components/BookmarkList/SearchTopModal.vue'
-import TabsSidebar from '~/components/BookmarkList/TabsSidebar.vue'
-import TagsHeader from '~/components/BookmarkList/TagsHeader.vue'
-import BookmarksLayout from '~/components/Layouts/BookmarksLayout.vue'
-import NotificationCell from '~/components/Notification/NotificationCell.vue'
-import NotificationHeader from '~/components/Notification/NotificationHeader.vue'
-import UserNotification from '~/components/Notification/UserNotification.vue'
-import InstallExtensionTips from '~/components/Tips/InstallExtensionTips.vue'
+import AddUrlTopModal from '#layers/base/components/BookmarkList/AddUrlTopModal.vue'
+import BookmarkCell from '#layers/base/components/BookmarkList/BookmarkCell.vue'
+import BookmarkHighlightCell from '#layers/base/components/BookmarkList/BookmarkHighlightCell.vue'
+import SearchHeader from '#layers/base/components/BookmarkList/SearchHeader.vue'
+import SearchTopModal from '#layers/base/components/BookmarkList/SearchTopModal.vue'
+import TabsSidebar from '#layers/base/components/BookmarkList/TabsSidebar.vue'
+import TagsHeader from '#layers/base/components/BookmarkList/TagsHeader.vue'
+import BookmarksLayout from '#layers/base/components/Layouts/BookmarksLayout.vue'
+import NotificationCell from '#layers/base/components/Notification/NotificationCell.vue'
+import NotificationHeader from '#layers/base/components/Notification/NotificationHeader.vue'
+import UserNotification from '#layers/base/components/Notification/UserNotification.vue'
+import InstallExtensionTips from '#layers/base/components/Tips/InstallExtensionTips.vue'
 
 import { isSafari } from '@commons/utils/is'
 import type { ChannelMessageData } from '~/utils/channel'
@@ -134,10 +134,11 @@ import type { ChannelMessageData } from '~/utils/channel'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
 import { useInfiniteScroll } from '@vueuse/core'
-import { RightOperates } from '~/components/BookmarkList/OperatesBar'
-import { AsyncCollectionHeader } from '~/components/isolation/Payment'
-import Toast from '~/components/Toast'
+import { RightOperates } from '#layers/base/components/BookmarkList/OperatesBar'
+import { AsyncCollectionHeader } from '#layers/base/components/isolation/Payment'
+import Toast from '#layers/base/components/Toast'
 import { useUserStore } from '~/stores/user'
+import useNotification from '~~/layer/base/composables/useNotification'
 
 const { t } = useI18n()
 
@@ -267,7 +268,7 @@ userStore.getUserInfo({ refresh: true }).then(info => {
 
 onMounted(() => {
   addChannelMessageHandler(chanelMessageHandler)
-  !isSafari() && useNuxtApp().$notification.requestPushPermission()
+  !isSafari() && useNotification().requestPushPermission()
 })
 
 onActivated(() => {
