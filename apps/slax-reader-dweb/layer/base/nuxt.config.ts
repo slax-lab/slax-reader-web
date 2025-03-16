@@ -23,5 +23,6 @@ export default defineNuxtConfig({
         global: true
       }
     ]
-  }
+  },
+  css: [, join(currentDir, './styles/global.scss')]
 })

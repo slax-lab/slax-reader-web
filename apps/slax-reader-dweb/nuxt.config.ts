@@ -56,7 +56,6 @@ export default defineNuxtConfig({
     ]
   },
 
-  css: ['~/styles/global.scss'],
   dir: {},
   srcDir: 'src/',
 

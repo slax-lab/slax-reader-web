@@ -633,7 +633,7 @@ defineExpose({
 
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
-@use '@/styles/article/index.scss' as article;
+@use '#layers/base/styles/article/index.scss' as article;
 @use 'github-syntax-light/lib/github-light.css' as *;
 
 /* 该类下所有样式都是使用入侵的形式去调整，设置时可以根据下方注释的分类来进行对应设置 */
