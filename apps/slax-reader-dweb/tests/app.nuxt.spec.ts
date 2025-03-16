@@ -1,5 +1,5 @@
 // @noErrors
-import App from '~/app.vue'
+import App from '#layers/base/app.vue'
 
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 import { fireEvent, screen, waitFor } from '@testing-library/vue'

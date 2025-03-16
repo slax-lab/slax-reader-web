@@ -1,6 +1,6 @@
 import type { BookmarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
-import type DetailLayout from '~/components/Layouts/DetailLayout.vue'
-import type SidebarLayout from '~/components/Layouts/SidebarLayout.vue'
+import type DetailLayout from '#layers/base/components/Layouts/DetailLayout.vue'
+import type SidebarLayout from '#layers/base/components/Layouts/SidebarLayout.vue'
 
 export enum BookmarkType {
   Normal = 'normal',

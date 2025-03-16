@@ -129,7 +129,7 @@ import UserNotification from '#layers/base/components/Notification/UserNotificat
 import InstallExtensionTips from '#layers/base/components/Tips/InstallExtensionTips.vue'
 
 import { isSafari } from '@commons/utils/is'
-import type { ChannelMessageData } from '~~/layer/base/utils/channel'
+import type { ChannelMessageData } from '#layers/base/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
@@ -137,8 +137,8 @@ import { useInfiniteScroll } from '@vueuse/core'
 import { RightOperates } from '#layers/base/components/BookmarkList/OperatesBar'
 import { AsyncCollectionHeader } from '#layers/base/components/isolation/Payment'
 import Toast from '#layers/base/components/Toast'
+import useNotification from '#layers/base/composables/useNotification'
 import { useUserStore } from '~/stores/user'
-import useNotification from '~~/layer/base/composables/useNotification'
 
 const { t } = useI18n()
 

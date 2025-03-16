@@ -97,8 +97,8 @@ import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commo
 import { vResizeObserver } from '@vueuse/components'
 import type { QuoteData } from '#layers/base/components/Chat/type'
 import Toast, { ToastType } from '#layers/base/components/Toast'
-import { BookmarkType } from '~/composables/bookmark/type'
-import { useBookmark } from '~/composables/bookmark/useBookmark'
+import { BookmarkType } from '#layers/base/composables/bookmark/type'
+import { useBookmark } from '#layers/base/composables/bookmark/useBookmark'
 
 const { t } = useI18n()
 const router = useRoute()

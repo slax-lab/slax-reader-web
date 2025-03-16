@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { useConst } from '~/composables/isolation/useConst'
+import { useConst } from '#layers/base/composables/isolation/useConst'
 
 const { t } = useI18n()
 const tabs = ref<HTMLElement>()

@@ -1,4 +1,4 @@
-import { checkUserSubscribedIsExpired } from '~~/layer/base/utils/isolation/subscribe'
+import { checkUserSubscribedIsExpired } from '#layers/base/utils/isolation/subscribe'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserInfo } from '@commons/types/interface'

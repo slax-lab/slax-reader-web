@@ -37,15 +37,14 @@ import { urlHttpString } from '@commons/utils/string'
 import 'katex/dist/katex.css'
 import { PhotoSwiperDotsElement, registerComponents, TweetFooterInfoElement, TweetUserInfoElement, UnsupportedVideoElement, WechatVideoInfoElement } from './CEComponents'
 import { ArticleSelection } from './Selection/selection'
-import { RESTMethodPath } from '@commons/types/const'
 import { type MarkDetail, MarkType } from '@commons/types/interface'
 import { formatDate } from '@vueuse/core'
 import type { QuoteData } from '#layers/base/components/Chat/type'
 import CursorToast from '#layers/base/components/CursorToast'
 import Preview from '#layers/base/components/ImagePreview'
 import Toast, { ToastType } from '#layers/base/components/Toast'
-import type { BookmarkArticleDetail } from '~/composables/bookmark/type'
-import { useArticleDetail } from '~/composables/bookmark/useArticle'
+import type { BookmarkArticleDetail } from '#layers/base/composables/bookmark/type'
+import { useArticleDetail } from '#layers/base/composables/bookmark/useArticle'
 
 enum ArticleStyle {
   Default = 'default',
