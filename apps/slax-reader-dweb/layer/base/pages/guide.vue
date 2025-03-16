@@ -5,7 +5,7 @@
         <div class="left">
           <div class="app" @click="logoClick">
             <div class="items-wrapper">
-              <img src="~/assets/images/logo-sm.png" alt="" />
+              <img src="@images/logo-sm.png" alt="" />
               <span class="title">{{ $t('common.app.name') }}</span>
             </div>
           </div>
@@ -16,7 +16,7 @@
     <div class="content">
       <div class="responsive-width guide-container">
         <div class="guide-header">
-          <img src="~/assets/images/smileface-bg.png" />
+          <img src="@images/smileface-bg.png" />
           <div class="text">
             <h1>{{ $t('page.guide.title') }}</h1>
             <span>{{ $t('page.guide.subtitle') }}</span>
@@ -56,15 +56,15 @@ const isLogined = haveRequestToken()
 const guides: Guide[] = [
   {
     title: t('page.guide.guides.1.title'),
-    img: new URL('~/assets/images/guide-banner-cover-1.png', import.meta.url).href
+    img: new URL('@images/guide-banner-cover-1.png', import.meta.url).href
   },
   {
     title: t('page.guide.guides.2.title'),
-    img: new URL('~/assets/images/guide-banner-cover-2.png', import.meta.url).href
+    img: new URL('@images/guide-banner-cover-2.png', import.meta.url).href
   },
   {
     title: t('page.guide.guides.3.title'),
-    img: new URL('~/assets/images/guide-banner-cover-3.png', import.meta.url).href
+    img: new URL('@images/guide-banner-cover-3.png', import.meta.url).href
   }
 ]
 

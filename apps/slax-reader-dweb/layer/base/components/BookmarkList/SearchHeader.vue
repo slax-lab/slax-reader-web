@@ -1,7 +1,7 @@
 <template>
   <div class="search-header">
     <div class="search-navigator">
-      <button class="bg-[length:16px_16px] bg-[url('~/assets/images/button-navigate-back.png')] bg-center" @click="navigateBack"></button>
+      <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="navigateBack"></button>
       <span>返回</span>
     </div>
     <div class="search-bar">
@@ -170,7 +170,7 @@ const search = async () => {
       --style: relative pt-168px flex-col items-center h-full flex-center;
       .icon {
         --style: bg-contain w-60px h-75px shrink-0;
-        background-image: url('~/assets/images/logo-bg-gray.png');
+        background-image: url('@images/logo-bg-gray.png');
       }
 
       span {

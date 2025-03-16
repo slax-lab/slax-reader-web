@@ -3,7 +3,7 @@
     <div class="panel-wrapper pro" v-if="canShowPanelButton(BookmarkPanelType.CHATBOT)">
       <div class="item" v-if="canShowPanelButton(BookmarkPanelType.CHATBOT)">
         <button @click="buttonClick(BookmarkPanelType.CHATBOT)">
-          <img src="~/assets/images/panel-item-chatbot.png" alt="" />
+          <img src="@images/panel-item-chatbot.png" alt="" />
           <span>{{ $t('page.bookmarks_detail.chat') }}</span>
         </button>
       </div>
@@ -11,32 +11,32 @@
     <div class="panel-wrapper">
       <div class="item ai-expanded" v-if="canShowPanelButton(BookmarkPanelType.AI)">
         <button @click="buttonClick(BookmarkPanelType.AI)">
-          <img src="~/assets/images/panel-item-ai.png" alt="" />
+          <img src="@images/panel-item-ai.png" alt="" />
           <span>{{ $t('page.bookmarks_detail.ai_analyze') }}</span>
         </button>
       </div>
       <div class="item" v-if="canShowPanelButton(BookmarkPanelType.ARCHIVE)">
         <button @click="buttonClick(BookmarkPanelType.ARCHIVE)">
-          <img src="~/assets/images/panel-item-archive.png" alt="" />
+          <img src="@images/panel-item-archive.png" alt="" />
           <span> {{ $t('common.operate.archive') }} </span>
         </button>
       </div>
       <div class="item" v-if="canShowPanelButton(BookmarkPanelType.UNARCHIVE)">
         <button @click="buttonClick(BookmarkPanelType.UNARCHIVE)">
-          <img src="~/assets/images/panel-item-archive.png" alt="" />
+          <img src="@images/panel-item-archive.png" alt="" />
           <span> {{ $t('common.operate.unarchive') }} </span>
         </button>
       </div>
       <div class="item" v-if="canShowPanelButton(BookmarkPanelType.TOP)">
         <button @click="buttonClick(BookmarkPanelType.TOP)">
-          <img src="~/assets/images/panel-item-top.png" alt="" />
+          <img src="@images/panel-item-top.png" alt="" />
           <span>{{ $t('common.operate.top') }}</span>
         </button>
       </div>
     </div>
     <div class="feedback-wrapper" v-if="canShowPanelButton(BookmarkPanelType.FEEDBACK)">
       <button @click="buttonClick(BookmarkPanelType.FEEDBACK)">
-        <img src="~@/assets/images/button-feedback-icon.png" />
+        <img src="~@images/button-feedback-icon.png" />
       </button>
     </div>
   </div>

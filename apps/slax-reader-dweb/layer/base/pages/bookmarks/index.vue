@@ -11,7 +11,7 @@
       <template v-slot:operates>
         <div class="left-operates">
           <button class="search-icon" ref="notificationIcon" @click="!isSearching && (isShowSearchModal = true)">
-            <img src="~assets/images/tiny-search-outline-icon.png" />
+            <img src="@images/tiny-search-outline-icon.png" />
           </button>
           <UserNotification @checkAll="showNotificationList" />
         </div>
@@ -37,7 +37,7 @@
                 }
               "
             >
-              <img src="~/assets/images/button-add-fill-circle-icon.png" alt="" />
+              <img src="@images/button-add-fill-circle-icon.png" alt="" />
               <span>{{ $t('page.bookmarks_index.add_url') }}</span>
             </button>
           </div>
@@ -598,7 +598,7 @@ const notificationBack = () => {
       --style: relative pt-168px flex-col items-center h-full flex-center;
       .icon {
         --style: bg-contain w-60px h-75px shrink-0;
-        background-image: url('~/assets/images/logo-bg-gray.png');
+        background-image: url('@images/logo-bg-gray.png');
       }
 
       span {

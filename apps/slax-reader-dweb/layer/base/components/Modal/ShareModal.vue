@@ -382,7 +382,7 @@ const optionClick = async (index: number) => {
 
           &.selected {
             --style: 'bg-center bg-[length:7px_6px] border-1';
-            background-image: url('~/assets/images/tiny-tick-outline-icon.png');
+            background-image: url('@images/tiny-tick-outline-icon.png');
           }
 
           &:hover {

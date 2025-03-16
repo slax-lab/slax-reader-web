@@ -29,7 +29,7 @@
     </div>
 
     <div class="item-footer">
-      <img src="~/assets/images/tiny-href-gray-icon.png" alt="" />
+      <img src="@images/tiny-href-gray-icon.png" alt="" />
       <span>{{ highlight.title }}</span>
       <span class="source">{{ $t('page.bookmarks_index.view_original') }}</span>
     </div>

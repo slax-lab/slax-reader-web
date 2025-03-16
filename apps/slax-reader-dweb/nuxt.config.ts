@@ -14,10 +14,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   extends: ['./layer/base'],
   alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url)),
-    images: fileURLToPath(new URL('./src/assets/images', import.meta.url)),
-    style: fileURLToPath(new URL('./src/assets/style', import.meta.url)),
-    data: fileURLToPath(new URL('./src/assets/other/data', import.meta.url))
+    '@': fileURLToPath(new URL('./src', import.meta.url))
   },
 
   app: {
@@ -59,22 +56,10 @@ export default defineNuxtConfig({
   dir: {},
   srcDir: 'src/',
 
-  i18n: {
-    strategy: 'no_prefix',
-    locales: [
-      { code: 'zh', iso: 'zh-CN', file: 'zh.json' },
-      { code: 'en', iso: 'en-US', file: 'en.json' }
-    ],
-    lazy: true,
-    defaultLocale: 'en'
-    // vueI18n: './i18n/config.ts'
-  },
-
   modules: [
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
-    '@nuxtjs/i18n',
     '@unocss/nuxt',
     '@nuxtjs/turnstile',
     'nuxt-og-image',

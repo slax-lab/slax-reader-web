@@ -1,18 +1,18 @@
 <template>
   <div class="user-operate-icon" ref="userOperateIcon">
     <div class="user-icon">
-      <img v-if="!userStore.userInfo" src="~assets/images/user-default-avatar.png" alt="" />
+      <img v-if="!userStore.userInfo" src="@images/user-default-avatar.png" alt="" />
       <img v-else :src="userStore.userInfo.picture" alt="" />
     </div>
     <Transition name="operates">
       <div class="user-operates-container" v-show="isHovered">
         <div class="user-operates">
           <div class="operate" @click="infoClick">
-            <img src="~assets/images/user-operate-info.png" alt="" />
+            <img src="@images/user-operate-info.png" alt="" />
             <span>{{ $t('component.user_operate_icon.personal_info') }}</span>
           </div>
           <div class="operate" @click="logoutClick">
-            <img src="~assets/images/user-operate-logout.png" alt="" />
+            <img src="@images/user-operate-logout.png" alt="" />
             <span>{{ $t('component.user_operate_icon.logout') }}</span>
           </div>
         </div>

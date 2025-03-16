@@ -4,7 +4,7 @@
       <div class="header">
         <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
         <button class="close" @click="closeModal">
-          <img src="~/assets/images/button-dialog-close.png" />
+          <img src="@images/button-dialog-close.png" />
         </button>
       </div>
       <div class="menus" v-if="info.id">
@@ -112,7 +112,7 @@ const menus = computed<MenuItem[]>(() => {
     {
       id: MenuType.Copy,
       name: t('common.operate.copy'),
-      icon: new URL('~/assets/images/menu-copy-icon.png', import.meta.url).href
+      icon: new URL('@images/menu-copy-icon.png', import.meta.url).href
     }
   ]
 
@@ -123,17 +123,17 @@ const menus = computed<MenuItem[]>(() => {
           ? {
               id: MenuType.Stroke_Delete,
               name: t('common.operate.delete_line'),
-              icon: new URL('~/assets/images/menu-stroke-delete-icon.png', import.meta.url).href
+              icon: new URL('@images/menu-stroke-delete-icon.png', import.meta.url).href
             }
           : {
               id: MenuType.Stroke,
               name: t('common.operate.line'),
-              icon: new URL('~/assets/images/menu-stroke-icon.png', import.meta.url).href
+              icon: new URL('@images/menu-stroke-icon.png', import.meta.url).href
             },
         {
           id: MenuType.Comment,
           name: t('common.operate.comment'),
-          icon: new URL('~/assets/images/menu-comment-icon.png', import.meta.url).href
+          icon: new URL('@images/menu-comment-icon.png', import.meta.url).href
         }
       ]
     )
@@ -142,7 +142,7 @@ const menus = computed<MenuItem[]>(() => {
   menus.push({
     id: MenuType.Chatbot,
     name: t('common.operate.chatbot'),
-    icon: new URL('~/assets/images/menu-chatbot-icon.png', import.meta.url).href
+    icon: new URL('@images/menu-chatbot-icon.png', import.meta.url).href
   })
 
   return menus
@@ -427,7 +427,7 @@ defineExpose({
       }
 
       button {
-        --style: mt-10px self-end bg-[url('~/assets/images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
+        --style: mt-10px self-end bg-[url('@images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
 
         &.disabled {
           --style: opacity-50 cursor-auto;

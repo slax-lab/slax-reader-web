@@ -57,7 +57,7 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
   --style: relative flex;
   .menu {
     --style: 'w-16px h-16px bg-contain hover:(scale-103)';
-    background-image: url('~/assets/images/menu-dots.png');
+    background-image: url('@images/menu-dots.png');
   }
 
   .operates-container {

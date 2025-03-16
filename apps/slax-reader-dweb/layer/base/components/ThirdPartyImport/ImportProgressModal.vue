@@ -65,7 +65,7 @@ const getImportProgressData = async () => {
 const getPlatformIcon = (platform: string) => {
   switch (platform) {
     case 'omnivore':
-      return new URL('~/assets/images/import-three-party-logo-omnivore.png', import.meta.url).toString()
+      return new URL('@images/import-three-party-logo-omnivore.png', import.meta.url).toString()
     default:
       return ''
   }

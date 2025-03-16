@@ -9,12 +9,16 @@ const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
 
+console.log('path: #', join(currentDir, './assets/images'))
 const envConfig = getDWebConfig()
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   $meta: {
     name: 'base'
+  },
+  alias: {
+    '@images': join(currentDir, './assets/images')
   },
   components: {
     dirs: [
@@ -24,5 +28,15 @@ export default defineNuxtConfig({
       }
     ]
   },
-  css: [, join(currentDir, './styles/global.scss')]
+  css: [join(currentDir, './styles/global.scss')],
+  modules: ['@nuxtjs/i18n'],
+  i18n: {
+    strategy: 'no_prefix',
+    locales: [
+      { code: 'zh', iso: 'zh-CN', file: 'zh.json' },
+      { code: 'en', iso: 'en-US', file: 'en.json' }
+    ],
+    lazy: true,
+    defaultLocale: 'en'
+  }
 })

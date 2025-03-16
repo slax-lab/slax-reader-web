@@ -15,7 +15,7 @@
         <div class="bubble-container" ref="bubbleContainer" v-resize-observer="[onResizeObserver, {}]">
           <span class="bubble-title" :class="{ zh: locale === 'zh' }">{{ $t('component.share_bubble_tips.text') }}</span>
           <button class="close">
-            <img class="close-img" src="~/assets/images/button-dialog-close-white.png" />
+            <img class="close-img" src="@images/button-dialog-close-white.png" />
           </button>
         </div>
       </div>

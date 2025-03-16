@@ -34,7 +34,7 @@ const updateMenus = () => {
     {
       id: MenuType.Copy,
       name: t('common.operate.copy'),
-      icon: new URL('~/assets/images/menu-copy-icon.png', import.meta.url).href
+      icon: new URL('@images/menu-copy-icon.png', import.meta.url).href
     }
   ]
   if (props.allowAction) {
@@ -43,12 +43,12 @@ const updateMenus = () => {
         {
           id: MenuType.Stroke,
           name: t('common.operate.line'),
-          icon: new URL('~/assets/images/menu-stroke-icon.png', import.meta.url).href
+          icon: new URL('@images/menu-stroke-icon.png', import.meta.url).href
         },
         {
           id: MenuType.Comment,
           name: t('common.operate.comment'),
-          icon: new URL('~/assets/images/menu-comment-icon.png', import.meta.url).href
+          icon: new URL('@images/menu-comment-icon.png', import.meta.url).href
         }
       ]
     )
@@ -57,7 +57,7 @@ const updateMenus = () => {
   menus.value.push({
     id: MenuType.Chatbot,
     name: t('common.operate.chatbot'),
-    icon: new URL('~/assets/images/menu-chatbot-icon.png', import.meta.url).href
+    icon: new URL('@images/menu-chatbot-icon.png', import.meta.url).href
   })
 }
 

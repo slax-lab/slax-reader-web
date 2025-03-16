@@ -10,7 +10,7 @@
           </div>
         </header>
         <div class="content">
-          <img src="~/assets/images/logo.png" alt="" />
+          <img src="@images/logo.png" alt="" />
           <h1 class="app-name">{{ $t('common.app.name') }}</h1>
           <h2 class="slogan">
             {{ $t('page.index.slogan_left_bracket') }}<span>{{ slogan }}</span
@@ -119,17 +119,17 @@ const posters = computed<{ title: string; img: string; subtitle?: string }[]>(()
   {
     title: t('page.index.posters.1.title'),
     subtitle: t('page.index.posters.1.subtitle'),
-    img: new URL('~/assets/images/homepage-banner-cover-1.png', import.meta.url).href
+    img: new URL('@images/homepage-banner-cover-1.png', import.meta.url).href
   },
   {
     title: t('page.index.posters.2.title'),
     subtitle: t('page.index.posters.2.subtitle'),
-    img: new URL('~/assets/images/homepage-banner-cover-2.png', import.meta.url).href
+    img: new URL('@images/homepage-banner-cover-2.png', import.meta.url).href
   },
   {
     title: t('page.index.posters.3.title'),
     subtitle: t('page.index.posters.3.subtitle'),
-    img: new URL('~/assets/images/homepage-banner-cover-3.png', import.meta.url).href
+    img: new URL('@images/homepage-banner-cover-3.png', import.meta.url).href
   }
 ])
 

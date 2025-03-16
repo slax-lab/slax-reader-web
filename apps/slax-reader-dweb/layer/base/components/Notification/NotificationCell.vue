@@ -175,7 +175,7 @@ const handleClick = (): void => {
 
           i {
             --style: w-16px h-16px bg-contain flex-shrink-0;
-            background-image: url('~/assets/images/tiny-href-gray-icon.png');
+            background-image: url('@images/tiny-href-gray-icon.png');
           }
 
           span {
@@ -209,7 +209,7 @@ const handleClick = (): void => {
 
         i {
           --style: w-16px h-16px bg-contain flex-shrink-0;
-          background-image: url('~/assets/images/tiny-href-gray-icon.png');
+          background-image: url('@images/tiny-href-gray-icon.png');
         }
 
         span {
@@ -259,7 +259,7 @@ const handleClick = (): void => {
 
           i {
             --style: w-16px h-16px bg-contain flex-shrink-0;
-            background-image: url('~/assets/images/tiny-href-gray-icon.png');
+            background-image: url('@images/tiny-href-gray-icon.png');
           }
 
           span {

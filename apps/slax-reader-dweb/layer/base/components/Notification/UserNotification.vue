@@ -1,7 +1,7 @@
 <template>
   <div class="user-notification" ref="userNotification">
     <div class="notification-icon" ref="notificationIcon" :class="{ tiny: iconStyle === UserNotificationIconStyle.TINY }" @click="iconClick">
-      <img src="~assets/images/tiny-notification-outline-icon.png" alt="" />
+      <img src="@images/tiny-notification-outline-icon.png" alt="" />
     </div>
     <Transition name="opacity">
       <i class="dot" v-show="unreadCount > 0"></i>
@@ -13,7 +13,7 @@
           <div class="flex items-center">
             <button class="check-all" @click="checkAll">{{ $t('common.operate.view_source_all') }}</button>
             <button class="close" @click="showMessageBubble = false">
-              <img src="~/assets/images/button-dialog-close.png" />
+              <img src="@images/button-dialog-close.png" />
             </button>
           </div>
         </div>
@@ -23,7 +23,7 @@
           </div>
         </Transition>
         <div class="empty" v-if="notifications.length === 0">
-          <img src="@/assets/images/logo-bg-gray.png" alt="" />
+          <img src="@images/logo-bg-gray.png" alt="" />
           <span>{{ $t('component.user_notification.no_message') }}</span>
         </div>
         <div class="notification-messages" v-else>

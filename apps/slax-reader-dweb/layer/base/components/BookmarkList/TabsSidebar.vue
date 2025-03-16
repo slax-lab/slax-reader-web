@@ -26,8 +26,8 @@ defineProps({
 })
 
 const emits = defineEmits(['changeTab'])
-const images = import.meta.glob('~/assets/images/tab-*-normal-icon.png', { eager: true, query: '?url', import: 'default' })
-const highlightedImages = import.meta.glob('~/assets/images/tab-*-highlighted-icon.png', { eager: true, query: '?url', import: 'default' })
+const images = import.meta.glob('@images/tab-*-normal-icon.png', { eager: true, query: '?url', import: 'default' })
+const highlightedImages = import.meta.glob('@images/tab-*-highlighted-icon.png', { eager: true, query: '?url', import: 'default' })
 const tabList = ref<{ type: string; title: string; icon: string; highlightedIcon: string }[]>([])
 
 onMounted(() => {
@@ -104,7 +104,7 @@ defineExpose({
   .trash {
     i {
       --style: inline-block w-16px h-16px bg-contain mr-10px;
-      background-image: url('~/assets/images/tiny-delete-blue-fill-icon.png');
+      background-image: url('@images/tiny-delete-blue-fill-icon.png');
     }
   }
 

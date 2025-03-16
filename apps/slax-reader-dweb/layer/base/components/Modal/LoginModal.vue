@@ -4,7 +4,7 @@
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
           <button class="close" @click="closeModal">
-            <img src="~/assets/images/button-dialog-close.png" />
+            <img src="@images/button-dialog-close.png" />
           </button>
         </div>
         <div class="content">

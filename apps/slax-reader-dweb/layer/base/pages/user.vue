@@ -92,7 +92,7 @@ const { progress, isLoading, start, finish, clear } = useLoadingIndicator({
   estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50)
 })
 
-const avatarUrl = new URL('~/assets/images/user-default-avatar.png', import.meta.url).href
+const avatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).href
 const userInfo = ref<UserDetailInfo>()
 const loading = ref(true)
 const showImportProgressModal = ref(false)
@@ -269,9 +269,9 @@ const localeSelect = (locale: string) => {
             --style: 'flex-center not-first:ml-20px';
 
             button {
-              --style: bg-[url('~/assets/images/button-radio-unselect.png')] w-12px h-12px bg-contain;
+              --style: bg-[url('@images/button-radio-unselect.png')] w-12px h-12px bg-contain;
               &.selected {
-                --style: bg-[url('~/assets/images/button-radio-selected.png')];
+                --style: bg-[url('@images/button-radio-selected.png')];
               }
             }
 

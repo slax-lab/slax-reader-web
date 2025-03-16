@@ -4,7 +4,7 @@
       {{ question.text }}
     </div>
     <div class="text" v-else v-html="question.text"></div>
-    <i v-if="question.clickable" class="bg-[url('~/assets/images/button-tiny-bottom-arrow.png')]"></i>
+    <i v-if="question.clickable" class="bg-[url('@images/button-tiny-bottom-arrow.png')]"></i>
   </div>
 </template>
 

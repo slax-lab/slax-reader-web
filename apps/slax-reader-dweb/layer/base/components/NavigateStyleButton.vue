@@ -1,7 +1,7 @@
 <template>
   <button class="navigate-style-button" @click="buttonClick" :class="{ clickable }">
     <div class="content">
-      <span> {{ title }} <img src="~assets/images/button-tiny-arrow-right.png" alt="" /></span>
+      <span> {{ title }} <img src="@images/button-tiny-arrow-right.png" alt="" /></span>
     </div>
     <Transition name="opacity">
       <div class="loading" v-show="loading">

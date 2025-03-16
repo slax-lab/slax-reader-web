@@ -3,10 +3,10 @@
     <Transition name="tips">
       <div v-show="isAppeared" class="extension">
         <button class="close" @click="closeClick">
-          <img src="~/assets/images/button-dialog-close.png" />
+          <img src="@images/button-dialog-close.png" />
         </button>
         <span class="title">{{ $t('component.install_extension_tips.title') }}</span>
-        <img class="guide" src="~/assets/images/guide-tips-extension.png" alt="" />
+        <img class="guide" src="@images/guide-tips-extension.png" alt="" />
         <span class="descript">{{ $t('component.install_extension_tips.descript') }}</span>
         <button class="install" @click="installClick">
           <span>{{ $t('component.install_extension_tips.install') }}</span>

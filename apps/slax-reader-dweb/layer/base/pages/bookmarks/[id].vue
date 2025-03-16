@@ -36,7 +36,7 @@
             <div class="archive" v-if="!isArchieved">
               <button @click="convienceArchiveClick">
                 <template v-if="!convienceArchiving">
-                  <img src="~/assets/images/panel-item-archive.png" alt="" /> <span>{{ $t('common.operate.archive') }}</span>
+                  <img src="@images/panel-item-archive.png" alt="" /> <span>{{ $t('common.operate.archive') }}</span>
                 </template>
                 <template v-else>
                   <div class="archive-loading">
@@ -74,7 +74,7 @@
           <span class="ml-5">{{ $t('page.bookmarks_detail.not_exists') }}</span>
         </div>
         <div class="invalid" v-else-if="isInvalidBookmark">
-          <img class="w-236px object-contain -translate-x-20px" src="~/assets/images/invalid-bookmark-icon.png" alt="" />
+          <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
           <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
           <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
           <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.footer') }}</span>
@@ -424,7 +424,7 @@ const panelClick = (type: BookmarkPanelType) => {
 
       .share {
         --style: 'w-16px h-16px hover:(scale-105) active:(scale-110) bg-cover';
-        background-image: url('~/assets/images/tiny-share-icon.png');
+        background-image: url('@images/tiny-share-icon.png');
       }
     }
   }

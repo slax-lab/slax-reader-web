@@ -7,7 +7,7 @@
         </button>
         <i class="seperator"></i>
         <button class="close" @click="closeModal">
-          <img src="~/assets/images/button-dialog-close.png" />
+          <img src="@images/button-dialog-close.png" />
         </button>
       </div>
       <div class="summaries-container" v-if="!loading && markdownText.length > 0">
@@ -15,11 +15,11 @@
           <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
           <div class="switch" v-if="done && summaries.length > 1">
             <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
-              <img src="@/assets/images/button-tiny-right-arrow-outline.png" alt="" />
+              <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
             </button>
             <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
             <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
-              <img src="@/assets/images/button-tiny-right-arrow-outline.png" alt="" />
+              <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
             </button>
           </div>
         </div>

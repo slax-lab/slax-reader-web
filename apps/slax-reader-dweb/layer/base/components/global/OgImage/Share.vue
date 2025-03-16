@@ -3,7 +3,7 @@
     <div class="h-full w-full flex items-start justify-start">
       <div class="h-full w-full flex flex-col justify-between">
         <div class="flex flex-row items-center text-left text-[70px] font-black">
-          <img class="h-200px" src="~/assets/images/logo.png" />
+          <img class="h-200px" src="@images/logo.png" />
           <span class="line-clamp-3 ml-15 overflow-hidden text-ellipsis"> {{ title }} </span>
         </div>
         <p class="mb-0 text-4xl text-#16B998 font-bold">r.slax.com</p>

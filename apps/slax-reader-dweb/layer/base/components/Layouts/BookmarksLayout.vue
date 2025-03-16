@@ -5,7 +5,7 @@
       <div class="left">
         <div class="app">
           <div class="items-wrapper">
-            <img src="~/assets/images/logo-sm.png" alt="" />
+            <img src="@images/logo-sm.png" alt="" />
             <span class="title">{{ $t('common.app.name') }}</span>
             <ProIcon />
           </div>

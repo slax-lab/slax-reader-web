@@ -4,7 +4,7 @@
       <div class="tags-grids">
         <div class="add tag-item">
           <div class="tag-add" v-if="!isAddingTag" @click="addTagClick">
-            <i class="h-10px w-10px bg-[length:10px_10px] bg-[url('~/assets/images/tiny-plus-icon.png')] bg-contain"></i>
+            <i class="h-10px w-10px bg-[length:10px_10px] bg-[url('@images/tiny-plus-icon.png')] bg-contain"></i>
             <span>{{ t('component.tags_header.add_tag') }}</span>
           </div>
           <div class="tag-input" v-else>
@@ -33,7 +33,7 @@
             </div>
             <div class="tag-operate min-w-30px group-hover:!opacity-100">
               <button @click="editTagClick(tag)" v-if="!tag.system">
-                <img src="~/assets/images/button-edit-outline-icon.png" />
+                <img src="@images/button-edit-outline-icon.png" />
               </button>
             </div>
           </div>
@@ -48,7 +48,7 @@
     </template>
     <div class="selected-tag" v-else>
       <div class="tag-header">
-        <button class="bg-[length:16px_16px] bg-[url('~/assets/images/button-navigate-back.png')] bg-center" @click="unselectTag"></button>
+        <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="unselectTag"></button>
         <span>{{ $t('component.tags_header.filter_tag_title', { title: filterTagName || '' }) }} </span>
       </div>
     </div>
@@ -300,7 +300,7 @@ const compositionend = () => {
 
         .ai {
           --style: bg-contain w-16px h-16px shrink-0;
-          background-image: url('~/assets/images/cell-ai-style-icon.png');
+          background-image: url('@images/cell-ai-style-icon.png');
         }
       }
 

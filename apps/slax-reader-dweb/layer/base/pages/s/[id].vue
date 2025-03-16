@@ -18,7 +18,7 @@
               @clickButton="transferSaveClick"
             >
               <template #left>
-                <img class="user-icon" v-if="!detail?.user_info?.avatar" src="~assets/images/user-default-avatar.png" alt="" />
+                <img class="user-icon" v-if="!detail?.user_info?.avatar" src="@images/user-default-avatar.png" alt="" />
                 <img class="user-icon" v-else :src="detail.user_info.avatar" alt="" />
               </template>
             </TopTips>

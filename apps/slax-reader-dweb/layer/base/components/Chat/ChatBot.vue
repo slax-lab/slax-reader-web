@@ -3,11 +3,11 @@
     <div class="chat-bot" ref="chat" v-show="isAppeared">
       <div class="chat-header">
         <div class="chat-title">
-          <img src="~/assets/images/panel-item-chatbot.png" alt="" />
+          <img src="@images/panel-item-chatbot.png" alt="" />
           <span>{{ $t('component.chat_bot.hello') }}</span>
         </div>
         <button class="close" @click="closeModal">
-          <img src="~/assets/images/button-dialog-close.png" />
+          <img src="@images/button-dialog-close.png" />
         </button>
       </div>
       <div class="messages-container">
@@ -713,7 +713,7 @@ defineExpose({
       .quote {
         --style: pl-8px border-l-(2px solid #0f141914) line-clamp-2 text-(15px #0f141999) break-all;
         i.img {
-          --style: w-13px h-13px inline-block bg-[url('~/assets/images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
+          --style: w-13px h-13px inline-block bg-[url('@images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
         }
 
         span {
@@ -722,7 +722,7 @@ defineExpose({
       }
 
       button {
-        --style: ml-16px shrink-0 w-16px h-16px bg-[url('~/assets/images/button-circle-close.png')] bg-contain transition-transform duration-250;
+        --style: ml-16px shrink-0 w-16px h-16px bg-[url('@images/button-circle-close.png')] bg-contain transition-transform duration-250;
         &:hover {
           --style: scale-105;
         }
@@ -749,7 +749,7 @@ defineExpose({
         }
 
         button {
-          --style: absolute right-22px bottom-17px bg-[url('~/assets/images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
+          --style: absolute right-22px bottom-17px bg-[url('@images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
 
           &.disabled {
             --style: opacity-50 cursor-auto;

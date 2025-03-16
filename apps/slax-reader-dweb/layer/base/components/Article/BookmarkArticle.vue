@@ -6,7 +6,7 @@
     <div class="desc">
       <button
         v-if="allowStarred"
-        class="star bg-[length:13.5px_13.5px] bg-[url('~/assets/images/tiny-star-disable.png')] bg-center"
+        class="star bg-[length:13.5px_13.5px] bg-[url('@images/tiny-star-disable.png')] bg-center"
         :class="{ enabled: isStarred }"
         @click="e => starBookmark(e, !isStarred)"
       ></button>
@@ -543,7 +543,7 @@ defineExpose({
       --style: shrink-0 -mt-1px w-16px h-16px;
 
       &.enabled {
-        background-image: url('~/assets/images/tiny-star-enable.png');
+        background-image: url('@images/tiny-star-enable.png');
       }
     }
     .text {

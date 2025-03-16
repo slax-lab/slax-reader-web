@@ -5,7 +5,7 @@
         <div class="left">
           <div class="app" @click="logoClick">
             <div class="items-wrapper">
-              <img src="~/assets/images/logo-sm.png" alt="" />
+              <img src="@images/logo-sm.png" alt="" />
               <span class="title">{{ $t('common.app.name') }}</span>
             </div>
           </div>
@@ -15,7 +15,7 @@
     </div>
     <div class="content">
       <div class="slug-container">
-        <img src="~/assets/images/404.png" alt="" />
+        <img src="@images/404.png" alt="" />
         <span>{{ $t('page.slug.title') }}</span>
         <button @click="logoClick">{{ $t('page.slug.back_home') }}</button>
       </div>

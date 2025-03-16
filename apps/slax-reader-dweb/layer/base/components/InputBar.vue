@@ -11,8 +11,8 @@
     />
     <div class="operate" :class="{ loading: loading, disabled }">
       <button :class="{ loading: loading }" :disabled="disabled" @click="confirmClick">
-        <img v-if="confirmIcon === InputConfirmIcon.Tick" src="~/assets/images/tiny-tick-white-icon.png" alt="" />
-        <img v-if="confirmIcon === InputConfirmIcon.Search" src="~/assets/images/tiny-search-white-icon.png" alt="" />
+        <img v-if="confirmIcon === InputConfirmIcon.Tick" src="@images/tiny-tick-white-icon.png" alt="" />
+        <img v-if="confirmIcon === InputConfirmIcon.Search" src="@images/tiny-search-white-icon.png" alt="" />
         <span>{{ confirmTitle }}</span>
       </button>
       <Transition name="opacity">

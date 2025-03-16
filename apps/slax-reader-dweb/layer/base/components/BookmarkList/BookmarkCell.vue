@@ -18,7 +18,7 @@
           />
           <template v-if="!isTrashed && !isSubscribe">
             <button
-              class="star bg-[length:11px_11px] bg-[url('~/assets/images/tiny-star-disable.png')] bg-center"
+              class="star bg-[length:11px_11px] bg-[url('@images/tiny-star-disable.png')] bg-center"
               :class="{ enabled: isStarred }"
               @click="starBookmark(!isStarred)"
             ></button>
@@ -33,8 +33,8 @@
           <span class="date">{{ dateString }}</span>
           <i class="seperator"></i>
           <button class="href" @click="clickHref">
-            <img v-if="bookmark.type === 'shortcut'" src="~/assets/images/tiny-href-fill-icon.png" />
-            <img v-else src="~/assets/images/tiny-link-outline-icon.png" />
+            <img v-if="bookmark.type === 'shortcut'" src="@images/tiny-href-fill-icon.png" />
+            <img v-else src="@images/tiny-link-outline-icon.png" />
             <span class="ml-4px">
               {{ getSiteName() }}
             </span>
@@ -421,8 +421,8 @@ const starBookmark = async (isStar: boolean) => {
           --style: shrink-0 -m-1px w-16px h-16px mx-8px;
 
           &.enabled {
-            background-image: url('~/assets/images/tiny-star-enable.png');
-            // --style: bg-[url('~/assets/images/tiny-star-enable.png')];
+            background-image: url('@images/tiny-star-enable.png');
+            // --style: bg-[url('@images/tiny-star-enable.png')];
           }
         }
 

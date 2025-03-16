@@ -5,7 +5,7 @@
         <div class="header">
           <span>{{ t('component.edit_tag.title') }}</span>
           <button class="close" @click="closeModal">
-            <img src="~/assets/images/button-dialog-close.png" />
+            <img src="@images/button-dialog-close.png" />
           </button>
         </div>
         <div class="content">

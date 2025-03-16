@@ -6,7 +6,7 @@
           <span> {{ tag.show_name }} </span>
           <button v-if="!props.readonly" class="!group-hover:visible !group-hover:opacity-100" @click="deleteBookmarkTag(tag.id)">
             <i class="seperator"></i>
-            <img src="~/assets/images/tiny-cross-gold-icon.png" alt="" />
+            <img src="@images/tiny-cross-gold-icon.png" alt="" />
           </button>
         </div>
       </TransitionGroup>
@@ -15,7 +15,7 @@
       </div>
       <div class="operate" v-if="!props.readonly">
         <button ref="add" class="add" @click="addingTagClick">
-          <img src="~/assets/images/tiny-plus-icon.png" alt="" />
+          <img src="@images/tiny-plus-icon.png" alt="" />
         </button>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
@@ -317,7 +317,7 @@ const addingTagClick = (e: MouseEvent) => {
 
               .ai {
                 --style: bg-contain w-16px h-16px shrink-0;
-                background-image: url('~/assets/images/cell-ai-style-icon.png');
+                background-image: url('@images/cell-ai-style-icon.png');
               }
             }
           }

@@ -1,6 +1,6 @@
 <template>
   <div class="notifications-header" v-show="showHeader">
-    <button class="bg-[length:16px_16px] bg-[url('~/assets/images/button-navigate-back.png')] bg-center" @click="back"></button>
+    <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="back"></button>
     <span>{{ $t('component.notification_header.title') }} </span>
   </div>
 </template>

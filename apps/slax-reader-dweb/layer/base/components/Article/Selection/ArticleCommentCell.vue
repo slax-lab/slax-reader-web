@@ -174,11 +174,11 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       }
 
       .reply-btn {
-        background-image: url('~/assets/images/tiny-comment-icon.png');
+        background-image: url('@images/tiny-comment-icon.png');
       }
 
       .delete-btn {
-        background-image: url('~/assets/images/tiny-delete-red-outline-icon.png');
+        background-image: url('@images/tiny-delete-red-outline-icon.png');
       }
     }
   }

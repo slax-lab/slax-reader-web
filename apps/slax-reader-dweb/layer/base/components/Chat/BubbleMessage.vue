@@ -29,10 +29,10 @@
             </div>
             <div class="operate group-hover:!opacity-100">
               <button class="left" @click="linksLeftOperateClick">
-                <img src="@/assets/images/button-tiny-right-arrow-outline.png" alt="" />
+                <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
               </button>
               <button class="right" @click="linksRightOperateClick">
-                <img src="@/assets/images/button-tiny-right-arrow-outline.png" alt="" />
+                <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
               </button>
             </div>
           </div>
@@ -49,7 +49,7 @@
           <div class="related-question-content">
             <div class="question" v-for="question in content.questions" :key="question.content" @click="questionClick(question)">
               <span class="text">{{ question.content }}</span>
-              <i class="bg-[url('~/assets/images/button-tiny-bottom-search.png')]"></i>
+              <i class="bg-[url('@images/button-tiny-bottom-search.png')]"></i>
             </div>
           </div>
         </div>
@@ -57,7 +57,7 @@
     </div>
     <div class="btns-container" v-if="showCopyBtn">
       <button class="copy-btn" @click="copyBtnClick">
-        <img src="~/assets/images/button-tiny-copy.png" />
+        <img src="@images/button-tiny-copy.png" />
       </button>
     </div>
   </div>
@@ -194,7 +194,7 @@ const quoteClick = (quote: QuoteData) => {
     .quote {
       --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px #fcfcfc99);
       i.img {
-        --style: w-13px h-13px inline-block bg-[url('~/assets/images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
+        --style: w-13px h-13px inline-block bg-[url('@images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
       }
 
       span {

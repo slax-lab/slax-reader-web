@@ -152,7 +152,7 @@ const sendMessage = () => {
     }
 
     button {
-      --style: mb-2px ml-8px self-end bg-[url('~/assets/images/button-tiny-send.png')] w-16px h-16px bg-contain transition-transform duration-250;
+      --style: mb-2px ml-8px self-end bg-[url('@images/button-tiny-send.png')] w-16px h-16px bg-contain transition-transform duration-250;
 
       &.disabled {
         --style: opacity-50 cursor-auto;

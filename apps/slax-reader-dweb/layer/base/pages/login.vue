@@ -4,7 +4,7 @@
     <div class="content">
       <div class="login-view">
         <div class="content">
-          <img class="w-86px" src="~/assets/images/logo.png" />
+          <img class="w-86px" src="@images/logo.png" />
           <div class="mt-24px flex flex-col items-center">
             <div class="title">{{ $t('common.app.name') }}</div>
             <div class="subtitle">{{ $t('component.login_view.title') }}</div>
