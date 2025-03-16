@@ -9,6 +9,7 @@ import type { UserInfo } from '@commons/types/interface'
 import type ChatBot from '#layers/base/components/Chat/ChatBot.vue'
 import type { QuoteData } from '#layers/base/components/Chat/type'
 import { showFeedbackModal, showLoginModal } from '#layers/base/components/Modal'
+import { useUserStore } from '#layers/base/stores/user'
 interface BookmarkOptions extends CommonBookmarkOptions {
   chatbot: Ref<InstanceType<typeof ChatBot> | undefined>
   typeOptions: () => BookmarkTypeOptions

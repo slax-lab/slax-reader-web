@@ -17,6 +17,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useUserStore } from '#layers/base/stores/user'
+
 const isAppeared = ref(false)
 const userStore = useUserStore()
 

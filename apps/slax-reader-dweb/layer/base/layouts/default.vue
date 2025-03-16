@@ -6,6 +6,8 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '#layers/base/stores/user'
+
 const cacheRoutes = ['bookmarks']
 const userStore = useUserStore()
 const { locale } = useI18n()

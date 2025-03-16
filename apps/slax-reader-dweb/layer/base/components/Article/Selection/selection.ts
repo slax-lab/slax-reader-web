@@ -9,6 +9,7 @@ import { type MarkDetail, type MarkInfo, type MarkPathItem, type MarkSelectConte
 import type { QuoteData } from '#layers/base/components/Chat/type'
 import CursorToast from '#layers/base/components/CursorToast'
 import Toast, { ToastType } from '#layers/base/components/Toast'
+import { useUserStore } from '#layers/base/stores/user'
 
 type SelectTextInfo =
   | {

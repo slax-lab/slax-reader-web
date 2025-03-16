@@ -82,6 +82,7 @@ import { RESTMethodPath } from '@commons/types/const'
 import { type BindedPlatformInfo, type StripeAccountInfo, type UserDetailInfo } from '@commons/types/interface'
 import { AsyncUserCollectionSections, AsyncUserSubscribeSection } from '#layers/base/components/isolation/Payment'
 import Toast from '#layers/base/components/Toast'
+import { useUserStore } from '#layers/base/stores/user'
 
 const { t, locale } = useI18n()
 const userStore = useUserStore()

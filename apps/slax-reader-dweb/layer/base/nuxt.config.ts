@@ -29,7 +29,7 @@ export default defineNuxtConfig({
     ]
   },
   css: [join(currentDir, './styles/global.scss')],
-  modules: ['@nuxtjs/i18n'],
+  modules: ['@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n'],
   i18n: {
     strategy: 'no_prefix',
     locales: [

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { BookmarkArticleDetail } from './type'
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
+import { useUserStore } from '#layers/base/stores/user'
 
 const isBookmarkDetail = (detail: BookmarkArticleDetail): detail is BookmarkDetail => 'bookmark_id' in detail && 'starred' in detail && 'archived' in detail
 const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is ShareBookmarkDetail => 'share_info' in detail

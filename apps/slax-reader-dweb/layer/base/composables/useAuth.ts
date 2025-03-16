@@ -1,5 +1,6 @@
 import { RESTMethodPath } from '@commons/types/const'
 import { useCookies } from '@vueuse/integrations/useCookies'
+import { useUserStore } from '#layers/base/stores/user'
 
 const { set, remove } = useCookies()
 

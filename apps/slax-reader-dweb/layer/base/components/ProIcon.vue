@@ -6,6 +6,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useUserStore } from '#layers/base/stores/user'
+
 const { t } = useI18n()
 
 const userStore = useUserStore()

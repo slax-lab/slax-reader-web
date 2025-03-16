@@ -45,6 +45,8 @@
 <script lang="ts" setup>
 import GoogleLoginButton from '#layers/base/components/GoogleLoginButton.vue'
 
+import { useUserStore } from '#layers/base/stores/user'
+
 interface Guide {
   title: string
   img: string

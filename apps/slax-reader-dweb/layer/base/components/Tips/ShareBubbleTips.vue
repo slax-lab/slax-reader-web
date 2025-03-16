@@ -25,6 +25,7 @@
 
 <script lang="ts" setup>
 import { vResizeObserver } from '@vueuse/components'
+import { useUserStore } from '#layers/base/stores/user'
 
 //TODO: 后续这个提示组件最好抽象出来，建议以动态添加的形式实现
 // 原因：1：slot里面的组件原先外部对它的样式会丢失。2：后续可能会有很多类似这种气泡提示需要实现

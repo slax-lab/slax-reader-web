@@ -13,6 +13,7 @@
 import { MenuType } from './type'
 import { vOnClickOutside } from '@vueuse/components'
 import { showLoginModal } from '#layers/base/components/Modal'
+import { useUserStore } from '#layers/base/stores/user'
 
 interface MenuItem {
   id: MenuType

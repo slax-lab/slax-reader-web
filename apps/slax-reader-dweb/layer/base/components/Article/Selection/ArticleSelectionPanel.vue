@@ -55,6 +55,7 @@ import { type MarkCommentInfo, type MarkItemInfo, MenuType } from './type'
 import { vOnClickOutside, vOnKeyStroke, vResizeObserver } from '@vueuse/components'
 import { useResizeObserver } from '@vueuse/core'
 import { showLoginModal } from '#layers/base/components/Modal'
+import { useUserStore } from '#layers/base/stores/user'
 import type { PropType } from 'vue'
 
 interface MenuItem {

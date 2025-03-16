@@ -22,6 +22,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useUserStore } from '#layers/base/stores/user'
+
 const userOperateIcon = ref<HTMLDivElement>()
 const isHovered = useElementHover(userOperateIcon)
 

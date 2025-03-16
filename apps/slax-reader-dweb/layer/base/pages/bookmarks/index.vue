@@ -138,7 +138,7 @@ import { RightOperates } from '#layers/base/components/BookmarkList/OperatesBar'
 import { AsyncCollectionHeader } from '#layers/base/components/isolation/Payment'
 import Toast from '#layers/base/components/Toast'
 import useNotification from '#layers/base/composables/useNotification'
-import { useUserStore } from '~/stores/user'
+import { useUserStore } from '#layers/base/stores/user'
 
 const { t } = useI18n()
 

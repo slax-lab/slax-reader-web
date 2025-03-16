@@ -56,6 +56,7 @@ import ArticleCommentInput from './ArticleCommentInput.vue'
 
 import type { MarkCommentInfo } from './type'
 import { showLoginModal } from '#layers/base/components/Modal'
+import { useUserStore } from '#layers/base/stores/user'
 import type { PropType } from 'vue'
 
 const emits = defineEmits(['replyComment', 'commentDelete'])
