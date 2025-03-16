@@ -1,4 +1,4 @@
-import { checkUserSubscribedIsExpired } from '~/utils/isolation/subscribe'
+import { checkUserSubscribedIsExpired } from '~~/layer/base/utils/isolation/subscribe'
 
 import { type UserInfo } from '@commons/types/interface'
 import { showSubscriptionModal } from '#layers/base/components/isolation/Payment'

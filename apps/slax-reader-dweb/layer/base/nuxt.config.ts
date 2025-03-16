@@ -1,7 +1,9 @@
 import { getDWebConfig, getEnv } from '../../../../configs/env'
 import replace from '@rollup/plugin-replace'
+import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
+const currentDir = dirname(fileURLToPath(import.meta.url))
 const env = getEnv()
 const isDev = env === 'development'
 const isPreview = env === 'preview'
@@ -17,7 +19,7 @@ export default defineNuxtConfig({
   components: {
     dirs: [
       {
-        path: './components/global',
+        path: join(currentDir, './components/global'),
         global: true
       }
     ]

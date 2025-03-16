@@ -129,7 +129,7 @@ import UserNotification from '#layers/base/components/Notification/UserNotificat
 import InstallExtensionTips from '#layers/base/components/Tips/InstallExtensionTips.vue'
 
 import { isSafari } from '@commons/utils/is'
-import type { ChannelMessageData } from '~/utils/channel'
+import type { ChannelMessageData } from '~~/layer/base/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'

@@ -65,7 +65,7 @@ import TipsMessage from './TipsMessage.vue'
 import DotLoading from '#layers/base/components/DotLoading.vue'
 
 import { getUUID } from '@commons/utils/random'
-import type { ChatBotParams } from '~/utils/chatbot'
+import type { ChatBotParams } from '~~/layer/base/utils/chatbot'
 
 import 'highlight.js/styles/base16/equilibrium-gray-light.css'
 import type { BubbleMessageContent, BubbleMessageItem, MessageItem, QuestionMessageItem, QuoteData } from './type'

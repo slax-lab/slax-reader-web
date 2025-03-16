@@ -157,10 +157,6 @@ const defineSeo = () => {
     datePublished: detail.value?.share_info.created_at,
     '@type': ['Article']
   })
-
-  defineOgImageComponent('Share', {
-    title: `${title}`
-  })
 }
 
 const loadBookmarkDetail = async () => {
@@ -232,6 +228,14 @@ const {
     )
 
     data.value && (detail.value = data.value)
+
+    try {
+      defineOgImageComponent('Share', {
+        title: `${detail.value?.title || ''}`
+      })
+    } catch (error) {
+      console.error(error)
+    }
 
     if (!isClient) {
       return
