@@ -13,8 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { useConst } from '#layers/base/composables/isolation/useConst'
-
 const { t } = useI18n()
 const tabs = ref<HTMLElement>()
 
@@ -31,7 +29,7 @@ const highlightedImages = import.meta.glob('@images/tab-*-highlighted-icon.png',
 const tabList = ref<{ type: string; title: string; icon: string; highlightedIcon: string }[]>([])
 
 onMounted(() => {
-  tabList.value = useConst().homepageTabTypes.map(type => {
+  tabList.value = BookmarkTabTypes.map(type => {
     const imageName = `tab-${type}-normal-icon.png`
     const highlightedImageName = `tab-${type}-highlighted-icon.png`
 

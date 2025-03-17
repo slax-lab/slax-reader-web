@@ -1,9 +1,7 @@
-import { checkUserSubscribedIsExpired } from '#layers/base/utils/isolation/subscribe'
-
 import { type UserInfo } from '@commons/types/interface'
 import { showSubscriptionModal } from '#layers/base/components/isolation/Payment'
 
-export const useSubscribe = () => {
+export const useUserSubscribeRelative = () => {
   const isSubscriptionExpired = ref(true)
 
   const checkSubscriptionExpired = () => {

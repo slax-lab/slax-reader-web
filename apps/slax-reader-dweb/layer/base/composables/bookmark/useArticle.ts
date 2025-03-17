@@ -1,45 +1,14 @@
 import { computed } from 'vue'
 
-import type { BookmarkArticleDetail } from './type'
 import { RESTMethodPath } from '@commons/types/const'
-import { type BookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
-import { useUserStore } from '#layers/base/stores/user'
-
-const isBookmarkDetail = (detail: BookmarkArticleDetail): detail is BookmarkDetail => 'bookmark_id' in detail && 'starred' in detail && 'archived' in detail
-const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is ShareBookmarkDetail => 'share_info' in detail
 
 export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
   const { t } = useI18n()
   const title = computed(() => (isBookmarkDetail(detail.value) ? detail.value.alias_title || detail.value.title : detail.value.title) || t('component.bookmark_article.no_title'))
 
+  const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
   const allowStarred = computed(() => {
     return isBookmarkDetail(detail.value) && !detail.value.trashed_at
-  })
-
-  const allowAction = computed(() => {
-    if (isBookmarkDetail(detail.value)) {
-      return true
-    }
-
-    const userId = useUserStore().userInfo?.userId
-
-    if ('share_info' in detail.value && (detail.value.share_info.allow_action || detail.value.user_id === userId)) {
-      return true
-    }
-
-    return false
-  })
-
-  const bookmarkUserId = computed(() => {
-    if (isBookmarkDetail(detail.value)) {
-      return detail.value.user_id
-    }
-
-    if ('share_info' in detail.value) {
-      return detail.value.user_id
-    }
-
-    return 0
   })
 
   const allowTagged = computed(() => {

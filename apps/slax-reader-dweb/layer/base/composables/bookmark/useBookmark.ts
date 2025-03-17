@@ -2,14 +2,14 @@ import { ref } from 'vue'
 
 import { isClient } from '@commons/utils/is'
 
-import { useSubscribe } from '../isolation/useSubscribe'
-import { BookmarkType, type BookmarkTypeOptions, type CommonBookmarkOptions } from './type'
+import type { CommonBookmarkOptions } from './type'
 import { useResize } from './useCommon'
 import type { UserInfo } from '@commons/types/interface'
 import type ChatBot from '#layers/base/components/Chat/ChatBot.vue'
 import type { QuoteData } from '#layers/base/components/Chat/type'
-import { showFeedbackModal, showLoginModal } from '#layers/base/components/Modal'
+import { showLoginModal } from '#layers/base/components/Modal'
 import { useUserStore } from '#layers/base/stores/user'
+
 interface BookmarkOptions extends CommonBookmarkOptions {
   chatbot: Ref<InstanceType<typeof ChatBot> | undefined>
   typeOptions: () => BookmarkTypeOptions
@@ -25,7 +25,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   const userStore = useUserStore()
   const user = ref<UserInfo | null>(userStore.userInfo)
   const redirectHref = useRequestURL().href
-  const { isSubscriptionExpired, checkSubscriptionExpired, updateSubscribeStatus } = useSubscribe()
+  const { isSubscriptionExpired, checkSubscriptionExpired, updateSubscribeStatus } = useUserSubscribeRelative()
 
   const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail, chatbot, typeOptions } = options
   const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize({
@@ -39,19 +39,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   const showFeedback = () => {
     const options = typeOptions()
 
-    if (options.type === BookmarkType.Normal) {
-      showFeedbackModal({
-        reportType: feedbackType.value,
-        title: options.title,
-        bookmarkId: options.bmId
-      })
-    } else if (options.type === BookmarkType.Share) {
-      showFeedbackModal({
-        reportType: feedbackType.value,
-        title: options.title,
-        shareCode: options.shareCode
-      })
-    }
+    showFeedbackView(options, feedbackType.value)
   }
 
   const showAnalyzed = () => {
@@ -64,26 +52,7 @@ export const useBookmark = (options: BookmarkOptions) => {
 
     const options = typeOptions()
     if (summariesExpanded.value) {
-      if (options.type === BookmarkType.Normal) {
-        const { bmId } = options
-        analyticsLog({
-          event: 'click_ai_summary',
-          value: {
-            //TODO: user_id要用store统一在提供的api接口中设置
-            user: userStore.user?.userId || 0,
-            bookmark_id: bmId
-          }
-        })
-      } else if (options.type === BookmarkType.Share) {
-        const { shareCode } = options
-        analyticsLog({
-          event: 'click_ai_summary',
-          value: {
-            user: userStore.user?.userId || 0,
-            share_code: shareCode
-          }
-        })
-      }
+      logAnalyzed(options, userStore.user?.userId || 0)
     }
   }
 
@@ -97,29 +66,7 @@ export const useBookmark = (options: BookmarkOptions) => {
 
     const options = typeOptions()
     if (botExpanded.value) {
-      if (options.type === BookmarkType.Normal) {
-        const { bmId, title } = options
-        analyticsLog({
-          event: 'click_ai_chat',
-          value: {
-            user: userStore.user?.userId || 0,
-            bookmark_id: bmId,
-            source: 'bookmark',
-            title: title
-          }
-        })
-      } else if (options.type === BookmarkType.Share) {
-        const { shareCode, title } = options
-        analyticsLog({
-          event: 'click_ai_chat',
-          value: {
-            user: userStore.user?.userId || 0,
-            share_code: shareCode,
-            source: 'bookmark',
-            title: title
-          }
-        })
-      }
+      logChat(options, userStore.user?.userId || 0)
     }
   }
 

@@ -26,12 +26,8 @@ import { RESTMethodPath } from '@commons/types/const'
 const props = defineProps({
   reportType: String,
   title: String,
-  bookmarkId: {
-    type: Number,
-    required: false
-  },
-  shareCode: {
-    type: String,
+  params: {
+    type: Object as PropType<Record<string, string | number>>,
     required: false
   }
 })
@@ -64,11 +60,9 @@ const reportFeedbackContent = async () => {
   const req = {
     type: props.reportType,
     content: feedback.value,
-    bookmark_id: props.bookmarkId,
-    share_code: props.shareCode
+    ...props.params
   }
 
-  debugger
   request
     .post({
       url: RESTMethodPath.REPORT_FEEDBACK,

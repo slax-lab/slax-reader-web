@@ -109,7 +109,6 @@ import { vResizeObserver } from '@vueuse/components'
 import type { QuoteData } from '#layers/base/components/Chat/type'
 import { showEditNameModal, showShareConfigModal } from '#layers/base/components/Modal'
 import Toast, { ToastType } from '#layers/base/components/Toast'
-import { BookmarkType } from '#layers/base/composables/bookmark/type'
 import { useBookmark } from '#layers/base/composables/bookmark/useBookmark'
 
 const { t } = useI18n()

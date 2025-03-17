@@ -4,15 +4,13 @@ import Feedback from './Feedback.vue'
 import LoginModal from './LoginModal.vue'
 import ShareModal from './ShareModal.vue'
 
-export const showFeedbackModal = (options: { title: string; reportType: string; bookmarkId?: number; shareCode?: string; collection?: { code: string; cbId: number } }) => {
+export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number> }) => {
   const app = modalBootloader({
     ele: Feedback,
     props: {
       reportType: options.reportType,
       title: options.title,
-      bookmarkId: options.bookmarkId,
-      shareCode: options.shareCode,
-      collection: options.collection,
+      params: options.params ?? {},
       onDismiss: () => {
         app.unmount()
         app._container?.remove()
