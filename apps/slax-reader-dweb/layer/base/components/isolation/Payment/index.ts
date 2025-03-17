@@ -2,10 +2,6 @@ defineComponent({
   template: '<!-- -->'
 })
 
-export const AsyncSubscribeButton = defineComponent({
-  template: '<!-- -->'
-})
-
 export const AsyncPaymentPlanCard = defineComponent({
   template: '<!-- -->'
 })
