@@ -2,7 +2,6 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
-console.log('path: #', join(currentDir, './assets/images'))
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
