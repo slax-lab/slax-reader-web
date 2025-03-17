@@ -34,10 +34,10 @@
       <div class="bottom-container">
         <div class="quote-container" v-if="quoteInfo && quoteInfo.data.length > 0">
           <div class="quote">
-            <i class="img" v-if="showQuoteImage"></i>
+            <i class="img bg-[url('@images/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
             <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
           </div>
-          <button @click="closeQuote"></button>
+          <button class="bg-[url('@images/button-circle-close.png')]" @click="closeQuote"></button>
         </div>
         <div class="input-container">
           <div class="textarea-wrapper">
@@ -50,7 +50,7 @@
               @compositionend="compositionend"
               @input="handleInput"
             ></textarea>
-            <button :class="{ disabled: !sendable }" @click="sendMessage"></button>
+            <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
           </div>
         </div>
       </div>
@@ -713,7 +713,7 @@ defineExpose({
       .quote {
         --style: pl-8px border-l-(2px solid #0f141914) line-clamp-2 text-(15px #0f141999) break-all;
         i.img {
-          --style: w-13px h-13px inline-block bg-[url('@images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
+          --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
         }
 
         span {
@@ -722,7 +722,7 @@ defineExpose({
       }
 
       button {
-        --style: ml-16px shrink-0 w-16px h-16px bg-[url('@images/button-circle-close.png')] bg-contain transition-transform duration-250;
+        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-250;
         &:hover {
           --style: scale-105;
         }
@@ -749,7 +749,7 @@ defineExpose({
         }
 
         button {
-          --style: absolute right-22px bottom-17px bg-[url('@images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
+          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-250;
 
           &.disabled {
             --style: opacity-50 cursor-auto;

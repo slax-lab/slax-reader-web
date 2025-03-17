@@ -40,7 +40,7 @@
               @input="handleInput"
             >
             </textarea>
-            <button :class="{ disabled: !sendable }" @click="sendMessage"></button>
+            <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
           </div>
         </div>
       </Transition>
@@ -428,7 +428,7 @@ defineExpose({
       }
 
       button {
-        --style: mt-10px self-end bg-[url('@images/button-tiny-send.png')] w-20px h-20px bg-contain transition-transform duration-250;
+        --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-250;
 
         &.disabled {
           --style: opacity-50 cursor-auto;

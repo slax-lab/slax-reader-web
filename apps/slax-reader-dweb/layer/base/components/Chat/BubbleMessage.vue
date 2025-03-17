@@ -2,7 +2,7 @@
   <div class="bubble-message" :class="{ copyable: showCopyBtn, left: message.direction === 'left', right: message.direction === 'right' }">
     <div class="quote-container" v-if="message.quote && message.quote.data.length > 0" @click="quoteClick(message.quote)">
       <div class="quote">
-        <i class="img" v-if="showQuoteImage"></i>
+        <i class="img bg-[url('@images/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
         <span v-for="item in message.quote.data" :key="item.content">{{ item.content }}</span>
       </div>
     </div>
@@ -194,7 +194,7 @@ const quoteClick = (quote: QuoteData) => {
     .quote {
       --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px #fcfcfc99);
       i.img {
-        --style: w-13px h-13px inline-block bg-[url('@images/tiny-image-icon.png')] bg-contain mr-4px translate-y-2px;
+        --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
       }
 
       span {

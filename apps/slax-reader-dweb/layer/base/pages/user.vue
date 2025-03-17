@@ -270,9 +270,10 @@ const localeSelect = (locale: string) => {
             --style: 'flex-center not-first:ml-20px';
 
             button {
-              --style: bg-[url('@images/button-radio-unselect.png')] w-12px h-12px bg-contain;
+              background: center / contain url('@images/button-radio-unselect.png');
+              --style: size-12px;
               &.selected {
-                --style: bg-[url('@images/button-radio-selected.png')];
+                background: center / contain url('@images/button-radio-selected.png');
               }
             }
 

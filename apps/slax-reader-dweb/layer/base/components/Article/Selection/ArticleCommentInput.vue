@@ -12,7 +12,7 @@
           @input="handleInput"
         >
         </textarea>
-        <button :class="{ disabled: !sendable }" @click="sendMessage"></button>
+        <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
       </div>
     </div>
   </Transition>
@@ -152,7 +152,7 @@ const sendMessage = () => {
     }
 
     button {
-      --style: mb-2px ml-8px self-end bg-[url('@images/button-tiny-send.png')] w-16px h-16px bg-contain transition-transform duration-250;
+      --style: mb-2px ml-8px self-end w-16px h-16px bg-contain transition-transform duration-250;
 
       &.disabled {
         --style: opacity-50 cursor-auto;
