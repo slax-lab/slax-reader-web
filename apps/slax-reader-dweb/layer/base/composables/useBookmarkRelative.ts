@@ -4,8 +4,7 @@ import { useUserStore } from '#layers/base/stores/user'
 
 export enum BookmarkType {
   Normal = 'normal',
-  Share = 'share',
-  Collection = 'collection'
+  Share = 'share'
 }
 
 export type BookmarkTypeOptions =
@@ -18,14 +17,6 @@ export type BookmarkTypeOptions =
       type: BookmarkType.Share
       title: string
       shareCode: string
-    }
-  | {
-      type: BookmarkType.Collection
-      title: string
-      collection: {
-        code: string
-        cbId: number
-      }
     }
 
 export type BookmarkArticleDetail = BookmarkDetail | ShareBookmarkDetail
