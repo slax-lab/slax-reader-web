@@ -19,30 +19,14 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      meta: [
-        {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1'
-        },
-        {
-          charset: 'utf-8'
-        }
-      ],
       link: [
         {
           rel: 'icon',
           type: 'image/png',
           href: isDev || isPreview ? '/favicon.d.ico' : '/favicon.ico'
         }
-      ],
-      style: [],
-      script: []
-      // noscript: [{ children: 'JavaScript is required' }]
-    },
-    rootId: 'slax-reader-dweb',
-    viewTransition: true,
-    pageTransition: { name: 'page', mode: 'out-in' },
-    layoutTransition: { name: 'layout', mode: 'out-in' }
+      ]
+    }
   },
   components: {
     dirs: [

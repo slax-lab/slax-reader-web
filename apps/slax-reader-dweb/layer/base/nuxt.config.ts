@@ -8,6 +8,27 @@ export default defineNuxtConfig({
   $meta: {
     name: 'base'
   },
+
+  app: {
+    head: {
+      meta: [
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1'
+        },
+        {
+          charset: 'utf-8'
+        }
+      ],
+      style: [],
+      script: []
+      // noscript: [{ children: 'JavaScript is required' }]
+    },
+    rootId: 'slax-reader-dweb',
+    viewTransition: true,
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' }
+  },
   alias: {
     '@images': join(currentDir, './assets/images')
   },
