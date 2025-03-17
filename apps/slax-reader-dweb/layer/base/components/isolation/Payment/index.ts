@@ -5,14 +5,8 @@ defineComponent({
 export const AsyncPaymentPlanCard = defineComponent({
   template: '<!-- -->'
 })
-export const AsyncUserSubscribeSection = defineComponent({
-  template: '<!-- -->'
-})
 
 export const AsyncHomepagePlanSection = defineComponent({
-  template: '<!-- -->'
-})
-export const AsyncUserCollectionSections = defineComponent({
   template: '<!-- -->'
 })
 
