@@ -30,6 +30,7 @@ export default defineNuxtConfig({
     layoutTransition: { name: 'layout', mode: 'out-in' }
   },
   alias: {
+    '@': fileURLToPath(new URL('./', import.meta.url)),
     '@images': join(currentDir, './assets/images')
   },
   components: {

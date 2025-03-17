@@ -16,7 +16,7 @@
           <UserNotification @checkAll="showNotificationList" />
         </div>
         <div class="right-operates">
-          <RightOperates />
+          <OperatesBar />
         </div>
       </template>
       <template v-slot:top-modals>
@@ -127,7 +127,6 @@ import NotificationCell from '#layers/base/components/Notification/NotificationC
 import NotificationHeader from '#layers/base/components/Notification/NotificationHeader.vue'
 import UserNotification from '#layers/base/components/Notification/UserNotification.vue'
 import InstallExtensionTips from '#layers/base/components/Tips/InstallExtensionTips.vue'
-import OperatesBar from '~~/layer/base/components/BookmarkList/OperatesBar.vue'
 
 import { isSafari } from '@commons/utils/is'
 import type { ChannelMessageData } from '#layers/base/utils/channel'
