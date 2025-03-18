@@ -47,11 +47,11 @@
         <SearchHeader v-if="searchText" :default-search-text="searchText" @back="() => (searchText = '')" @search-status-update="status => (isSearching = status)" />
         <template v-else>
           <TagsHeader v-if="filterStatus === 'topics'" :select-tag-id="filterTopicId" :select-tag-name="filterTopicName" @select-tag="selectTopic" />
-          <AsyncCollectionHeader
+          <CollectionHeader
             v-if="filterStatus === 'collections'"
             :select-collect-id="filterCollectionId"
             :select-collect-name="filterCollectionName"
-            @code-update="code => (filterCollectionCode = code)"
+            @code-update="(code: string) => (filterCollectionCode = code)"
             @select-collect="selectCollection"
           />
           <NotificationHeader v-if="filterStatus === 'notifications'" @back="notificationBack" />
@@ -134,7 +134,6 @@ import type { ChannelMessageData } from '#layers/base/utils/channel'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
 import { useInfiniteScroll } from '@vueuse/core'
-import { AsyncCollectionHeader } from '#layers/base/components/isolation/Payment'
 import Toast from '#layers/base/components/Toast'
 import useNotification from '#layers/base/composables/useNotification'
 import { useUserStore } from '#layers/base/stores/user'

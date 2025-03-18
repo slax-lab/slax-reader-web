@@ -7,7 +7,6 @@ import { useResize } from './useCommon'
 import type { UserInfo } from '@commons/types/interface'
 import type ChatBot from '#layers/base/components/Chat/ChatBot.vue'
 import type { QuoteData } from '#layers/base/components/Chat/type'
-import { showSubscriptionModal } from '#layers/base/components/isolation/Payment'
 import { showLoginModal } from '#layers/base/components/Modal'
 import { useUserStore } from '#layers/base/stores/user'
 
@@ -26,20 +25,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   const userStore = useUserStore()
   const user = ref<UserInfo | null>(userStore.userInfo)
   const redirectHref = useRequestURL().href
-  const isSubscriptionExpired = ref(true)
-
-  const checkSubscriptionExpired = () => {
-    if (isSubscriptionExpired.value) {
-      showSubscriptionModal()
-      return true
-    }
-
-    return false
-  }
-
-  const updateSubscribeStatus = (user: UserInfo) => {
-    isSubscriptionExpired.value = checkUserSubscribedIsExpired(user)
-  }
+  const { isSubscriptionExpired, checkSubscriptionExpired, updateSubscribeStatus } = useUserSubscribe()
 
   const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail, chatbot, typeOptions } = options
   const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize({
