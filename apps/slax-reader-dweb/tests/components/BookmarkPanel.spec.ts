@@ -1,7 +1,7 @@
-import BookmarkPanel, { BookmarkPanelType } from '~~/layers/base/components/BookmarkPanel.vue'
+import BookmarkPanel, { BookmarkPanelType } from '~~/layers/core/components/BookmarkPanel.vue'
 
 import { mount } from '@vue/test-utils'
-import { getI18nLang } from '~~/layers/base/i18n/config'
+import { getI18nLang } from '~~/layers/core/i18n/config'
 import { createPinia } from 'pinia'
 import { describe, expect, it } from 'vitest'
 import { createI18n } from 'vue-i18n'

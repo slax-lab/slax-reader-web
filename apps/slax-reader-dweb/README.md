@@ -14,6 +14,23 @@ Slax Reader DWeb 是一个基于现代 Web 技术的阅读应用，提供强大�
 ├── public
 │   └── favicon.ico
 ├── slax-reader-dweb.code-workspace
+├── layers
+│   └── core
+│       ├── app.vue
+│       ├── assets
+│       ├── components
+│       ├── composables
+│       ├── error.vue
+│       ├── i18n
+│       ├── layouts
+│       ├── middleware
+│       ├── nuxt.config.ts
+│       ├── pages
+│       ├── public
+│       ├── stores
+│       ├── styles
+│       ├── uno.config.ts
+│       └── utils
 ├── src
 │   ├── app.vue                   # 应用入口组件
 │   ├── components/               # UI 组件目录

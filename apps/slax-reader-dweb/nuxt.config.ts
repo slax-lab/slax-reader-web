@@ -174,11 +174,11 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: true,
     fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/base/public/fonts/pingfang-sc-regular.woff' },
+      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/core/public/fonts/pingfang-sc-regular.woff' },
       {
         name: 'source-serif-pro-400-normal',
         weight: 400,
-        path: '../../layers/base/public/fonts/source-serif-pro-400-normal.woff'
+        path: '../../layers/core/public/fonts/source-serif-pro-400-normal.woff'
       }
     ]
   },
