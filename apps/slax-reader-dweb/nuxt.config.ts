@@ -12,7 +12,6 @@ const envConfig = getDWebConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  extends: ['./layer/base'],
   alias: {
     '@': fileURLToPath(new URL('./src', import.meta.url))
   },
@@ -28,16 +27,7 @@ export default defineNuxtConfig({
       ]
     }
   },
-  components: {
-    dirs: [
-      {
-        path: '@/components/global',
-        global: true
-      }
-    ]
-  },
 
-  dir: {},
   srcDir: 'src/',
 
   modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/test-utils/module'],
@@ -184,11 +174,11 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: true,
     fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '../../layer/base/public/fonts/pingfang-sc-regular.woff' },
+      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/base/public/fonts/pingfang-sc-regular.woff' },
       {
         name: 'source-serif-pro-400-normal',
         weight: 400,
-        path: '../../layer/base/public/fonts/source-serif-pro-400-normal.woff'
+        path: '../../layers/base/public/fonts/source-serif-pro-400-normal.woff'
       }
     ]
   },
