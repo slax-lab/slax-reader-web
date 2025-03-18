@@ -1,5 +1,7 @@
 import { type Component, createApp } from 'vue'
 
+import { createHead } from '@unhead/vue/client'
+
 const modalBootloader = (options: { ele: Component; props: Record<string, unknown>; container?: { styles: Record<string, unknown> } }) => {
   const app = createApp(options.ele, options.props)
   const name = app._component.__name
@@ -22,6 +24,7 @@ const modalBootloader = (options: { ele: Component; props: Record<string, unknow
     document.body.appendChild(element)
   }
 
+  app.use(createHead())
   app.mount(element)
 
   return app
