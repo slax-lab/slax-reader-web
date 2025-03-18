@@ -61,7 +61,7 @@
         </div>
       </div>
     </section>
-    <AsyncHomepagePlanSection />
+    <HomepagePlanSection />
     <section>
       <div class="history">
         <h2 class="title">{{ $t('page.index.history') }}</h2>
@@ -76,7 +76,6 @@
 <script setup lang="ts">
 import ReleaseNote from '#layers/base/components/ReleaseNote.vue'
 
-import { AsyncHomepagePlanSection } from './isolation/Payment'
 import { vElementHover } from '@vueuse/components'
 import { useScroll } from '@vueuse/core'
 
