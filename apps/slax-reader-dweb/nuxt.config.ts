@@ -12,80 +12,25 @@ const envConfig = getDWebConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
   alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url)),
-    images: fileURLToPath(new URL('./src/assets/images', import.meta.url)),
-    style: fileURLToPath(new URL('./src/assets/style', import.meta.url)),
-    data: fileURLToPath(new URL('./src/assets/other/data', import.meta.url))
+    '@': fileURLToPath(new URL('./src', import.meta.url))
   },
 
   app: {
     head: {
-      meta: [
-        {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1'
-        },
-        {
-          charset: 'utf-8'
-        }
-      ],
       link: [
         {
           rel: 'icon',
           type: 'image/png',
           href: isDev || isPreview ? '/favicon.d.ico' : '/favicon.ico'
         }
-      ],
-      style: [],
-      script: []
-      // noscript: [{ children: 'JavaScript is required' }]
-    },
-    rootId: 'slax-reader-dweb',
-    viewTransition: true,
-    pageTransition: { name: 'page', mode: 'out-in' },
-    layoutTransition: { name: 'layout', mode: 'out-in' }
-  },
-  components: {
-    dirs: [
-      {
-        path: '@/components/global',
-        global: true
-      }
-    ]
+      ]
+    }
   },
 
-  css: ['~/styles/global.scss'],
-  dir: {},
   srcDir: 'src/',
 
-  i18n: {
-    strategy: 'no_prefix',
-    locales: [
-      { code: 'zh', iso: 'zh-CN', file: 'zh.json' },
-      { code: 'en', iso: 'en-US', file: 'en.json' }
-    ],
-    lazy: true,
-    defaultLocale: 'en'
-    // vueI18n: './i18n/config.ts'
-  },
-
-  modules: [
-    '@pinia/nuxt',
-    'pinia-plugin-persistedstate/nuxt',
-    '@vueuse/nuxt',
-    '@nuxtjs/i18n',
-    '@unocss/nuxt',
-    '@nuxtjs/turnstile',
-    'nuxt-og-image',
-    'nuxt-schema-org',
-    '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
-    'nuxt-site-config',
-    '@vite-pwa/nuxt',
-    '@nuxt/test-utils/module'
-  ],
+  modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/test-utils/module'],
   future: {
     compatibilityVersion: 3
   },
@@ -152,8 +97,6 @@ export default defineNuxtConfig({
         {} as Record<string, { ssr: false; prerender: true }>
       ),
       '/s/**': { ssr: true, prerender: false },
-      '/c/:id/:cid': { ssr: false, prerender: false },
-      '/c/:id': { ssr: false, prerender: false },
       '/bookmarks/**': { ssr: false, prerender: false },
       '/b': { redirect: '/bookmarks' }
     },
@@ -231,11 +174,11 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: true,
     fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '/fonts/pingfang-sc-regular.woff' },
+      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/core/public/fonts/pingfang-sc-regular.woff' },
       {
         name: 'source-serif-pro-400-normal',
         weight: 400,
-        path: '/fonts/source-serif-pro-400-normal.woff'
+        path: '../../layers/core/public/fonts/source-serif-pro-400-normal.woff'
       }
     ]
   },

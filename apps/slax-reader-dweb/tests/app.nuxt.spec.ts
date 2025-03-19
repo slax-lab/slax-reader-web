@@ -1,9 +1,9 @@
 // @noErrors
-import App from '~/app.vue'
+import App from '#layers/core/app.vue'
 
 import { renderSuspended } from '@nuxt/test-utils/runtime'
 import { fireEvent, screen, waitFor } from '@testing-library/vue'
-import { getI18nLang } from '~~/i18n/config'
+import { getI18nLang } from '#layers/core/i18n/config'
 import { createPinia } from 'pinia'
 import { describe, expect, it } from 'vitest'
 import { createI18n } from 'vue-i18n'

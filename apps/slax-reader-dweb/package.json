@@ -21,6 +21,7 @@
     "@nuxtjs/sitemap": "^7.2.9",
     "@nuxtjs/turnstile": "^0.9.15",
     "@stripe/stripe-js": "^6.0.0",
+    "@unhead/vue": "2.0.0-rc.13",
     "@vite-pwa/nuxt": "0.10.6",
     "@vscode/markdown-it-katex": "^1.1.1",
     "dompurify": "^3.2.4",

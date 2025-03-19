@@ -1,11 +1,10 @@
 // uno.config.ts
 import presetAttributify from '@unocss/preset-attributify'
 import presetIcons from '@unocss/preset-icons'
-import presetUno from '@unocss/preset-uno'
 import presetMini from '@unocss/preset-mini'
 import transformerDirectives from '@unocss/transformer-directives'
 import presetRemToPx from '@unocss/preset-rem-to-px'
-import { defineConfig } from 'unocss'
+import { defineConfig, presetWind3 } from 'unocss'
 
 export default defineConfig({
   rules: [
@@ -49,7 +48,7 @@ export default defineConfig({
     }
   ],
   presets: [
-    presetUno(),
+    presetWind3(),
     presetAttributify(),
     presetIcons({
       scale: 1
