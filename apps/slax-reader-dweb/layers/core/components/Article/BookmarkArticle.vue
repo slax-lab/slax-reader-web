@@ -43,7 +43,6 @@ import type { QuoteData } from '#layers/core/components/Chat/type'
 import CursorToast from '#layers/core/components/CursorToast'
 import Preview from '#layers/core/components/ImagePreview'
 import Toast, { ToastType } from '#layers/core/components/Toast'
-import type { BookmarkArticleDetail } from '#layers/core/composables/bookmark/type'
 import { useArticleDetail } from '#layers/core/composables/bookmark/useArticle'
 
 enum ArticleStyle {
