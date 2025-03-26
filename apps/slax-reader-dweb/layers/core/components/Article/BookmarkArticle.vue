@@ -36,7 +36,7 @@ import { urlHttpString } from '@commons/utils/string'
 
 import 'katex/dist/katex.css'
 import { PhotoSwiperDotsElement, registerComponents, TweetFooterInfoElement, TweetUserInfoElement, UnsupportedVideoElement, WechatVideoInfoElement } from './CEComponents'
-import { ArticleSelection } from './Selection/selection'
+import { ArticleSelection } from './Selection/selection1'
 import { type MarkDetail, MarkType } from '@commons/types/interface'
 import { formatDate } from '@vueuse/core'
 import type { QuoteData } from '#layers/core/components/Chat/type'
