@@ -1,7 +1,9 @@
 import { createApp } from 'vue'
 
 import CollectPopup from '@/components/Collect.vue'
+import SidePanel from '@/components/SidePanel.vue'
 
+import '@/styles/reset.scss'
 import 'uno.css'
 
 const extensionInvalidate = () => {
@@ -14,7 +16,7 @@ export default defineContentScript({
   cssInjectionMode: 'ui',
   async main(ctx) {
     ctx.onInvalidated(extensionInvalidate)
-    const ui = await createShadowRootUi(ctx, {
+    const collectUI = await createShadowRootUi(ctx, {
       name: 'slax-reader-modal',
       position: 'overlay',
       zIndex: 99999999,
@@ -34,6 +36,28 @@ export default defineContentScript({
       }
     })
 
-    ui.mount()
+    collectUI.mount()
+
+    const panelUI = await createShadowRootUi(ctx, {
+      name: 'slax-reader-panel',
+      position: 'overlay',
+      zIndex: 99999999,
+      anchor: 'body',
+      append: 'after',
+      onMount: container => {
+        container.style.position = 'fixed'
+        container.style.visibility = 'visible'
+        const app = createApp(SidePanel, {
+          browser
+        })
+        app.mount(container)
+        return app
+      },
+      onRemove: app => {
+        app?.unmount()
+      }
+    })
+
+    panelUI.mount()
   }
 })

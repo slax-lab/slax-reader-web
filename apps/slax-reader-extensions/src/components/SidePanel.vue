@@ -168,7 +168,7 @@ setTimeout(() => {
     }
 
     .content {
-      --style: w-200px h-full bg-green;
+      --style: w-500px h-full bg-green;
     }
   }
 }
