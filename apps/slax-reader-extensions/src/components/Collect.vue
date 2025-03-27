@@ -121,32 +121,32 @@ watch(
   }
 )
 
-props.browser.runtime.onMessage.addListener(
-  async (message: unknown, sender: Runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
-    console.log('receive message', message, sender)
+props.browser.runtime.onMessage.addListener((message: unknown, sender: Runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
+  console.log('receive message', message, sender)
 
-    const action = (message as MessageType).action
-    switch (action) {
-      case MessageTypeAction.ShowCollectPopup: {
-        console.log('show up pop')
-        showPopup.value = true
-        break
-      }
-      case MessageTypeAction.OpenWelcome:
-        browser.tabs.create({
-          url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
-        })
-        break
-      case MessageTypeAction.QueryHTMLContent:
-        sendResponse({
-          resp: document.body.innerHTML
-        })
-        break
-      default:
-        break
+  const action = (message as MessageType).action
+  switch (action) {
+    case MessageTypeAction.ShowCollectPopup: {
+      console.log('show up pop')
+      showPopup.value = true
+      break
     }
+    case MessageTypeAction.OpenWelcome:
+      browser.tabs.create({
+        url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
+      })
+      break
+    case MessageTypeAction.QueryHTMLContent:
+      sendResponse({
+        resp: document.body.innerHTML
+      })
+      break
+    default:
+      break
   }
-)
+
+  return true
+})
 
 watch(
   () => showPopup.value,
@@ -280,8 +280,6 @@ const closePopup = () => {
 </script>
 
 <style lang="scss" scoped>
-@use './../styles/reset.scss';
-
 .slax-popup {
   --style: fixed top-2 right-2 w-75 z-99999999 bg-white rounded-2xl p-5 pt-6 box-border overflow-hidden shadow shadow-(md gray-400) select-none transition-max-height duration-250
     delay-0 ease-in-out max-h-50 overflow-hidden border-(solid 1px #3333330d) '@dark:(shadow-(md slate-3))';

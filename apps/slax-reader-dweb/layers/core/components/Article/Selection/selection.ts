@@ -210,7 +210,7 @@ export class ArticleSelection {
     }
 
     const processNode = (node: Node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
+      if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() || '').length > 0) {
         processTextNode(node as Text)
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const element = node as HTMLElement

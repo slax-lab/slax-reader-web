@@ -1,7 +1,7 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
 import { LocalStorageKey } from '@commons/types/const'
-import type { Menus, Tabs } from 'wxt/browser'
+import type { Menus, Runtime, Tabs } from 'wxt/browser'
 
 export default defineBackground(() => {
   function openTab(url: string) {
@@ -116,7 +116,7 @@ export default defineBackground(() => {
   browser.commands.onCommand.addListener((command, tab) => openCollectPopup(tab!, command))
 
   // 监听其他页面发送的消息
-  browser.runtime.onMessage.addListener(async (message, sender) => {
+  browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.MessageSender) => {
     const receiveMessage = message as MessageType
     switch (receiveMessage.action) {
       case MessageTypeAction.OpenWelcome:
