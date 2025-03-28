@@ -1,4 +1,5 @@
 import autoMigrateIcons from './plugins/auto-migrate-icons.plugin'
+import toUtf8 from './plugins/vite-plugin-to-utf8'
 
 import { getEnv, getExtensionsConfig } from '../../configs/env'
 import path from 'path'
@@ -78,6 +79,7 @@ export default defineConfig({
   },
 
   vite: () => ({
+    plugins: [toUtf8()],
     define: {
       ...convertToProcessEnv(envConfig)
     },
