@@ -88,6 +88,18 @@ In developing Slax Reader Web, we have utilized numerous excellent open-source p
 - 🧹 [Prettier](https://prettier.io/)
 - 🧰 [Workbox](https://github.com/GoogleChrome/workbox)
 
+# Trademark Policy
+
+The project name Slax Reader, its logo, and any other trademarks, service marks, graphics, and logos used in connection with this project are trademarks or registered trademarks of Slax Lab and may not be used for commercial purposes without prior written permission from Slax Lab.
+
+This trademark restriction does not affect the terms of the Apache License 2.0 as it applies to the software code and documentation, but is an additional requirement.
+
+Specifically:
+
+You may not use the project logo, name, or other trademarks for any commercial purpose without explicit written permission. You may use the project name only for accurate reference to identify that your work is based on this project, but not in a way that suggests endorsement or affiliation. Any modified versions of this software must be clearly labeled as such and must not be labeled or marketed in a manner that suggests they are the official distribution of the original project. For trademark use permission, please contact Slax Lab Teams (ns.boxcounter@gmail.com.).
+
+Please refer to our [trademark and usage policy](./TRADEMARK.md)
+
 # 📝 License
 
-`Slax Reader` is licensed under the [Apache License 2.0](./LICENSE). The community version is 100% free and open-source, forever.
+`Slax Reader` is licensed under the [Apache License 2.0](./LICENSE).
