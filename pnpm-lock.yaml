@@ -38,6 +38,9 @@ importers:
       '@unocss/reset':
         specifier: ^66.0.0
         version: 66.0.0
+      '@vscode/markdown-it-katex':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@vueuse/components':
         specifier: ^13.0.0
         version: 13.0.0(vue@3.5.13(typescript@5.8.2))
@@ -47,6 +50,33 @@ importers:
       '@vueuse/integrations':
         specifier: ^13.0.0
         version: 13.0.0(axios@1.8.3)(change-case@5.4.4)(fuse.js@7.1.0)(universal-cookie@8.0.0)(vue@3.5.13(typescript@5.8.2))
+      dompurify:
+        specifier: ^3.2.4
+        version: 3.2.4
+      easy-dom2img:
+        specifier: ^1.0.2
+        version: 1.0.2
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
+      markdown-it-link-attributes:
+        specifier: ^4.0.1
+        version: 4.0.1
+      markmap-common:
+        specifier: ^0.18.9
+        version: 0.18.9
+      markmap-lib:
+        specifier: ^0.18.11
+        version: 0.18.11(markmap-common@0.18.9)
+      markmap-view:
+        specifier: ^0.18.10
+        version: 0.18.10(markmap-common@0.18.9)
+      mermaid-it-markdown:
+        specifier: ^1.0.8
+        version: 1.0.8(mermaid@10.9.3)(typescript@5.8.2)
       unocss:
         specifier: ^66.0.0
         version: 66.0.0(@unocss/webpack@66.0.0(webpack@5.98.0))(postcss@8.5.3)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(sass@1.85.1)(stylus@0.57.0)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))
@@ -57,6 +87,12 @@ importers:
       '@types/inquirer':
         specifier: ^9.0.7
         version: 9.0.7
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
+      '@types/markdown-it-link-attributes':
+        specifier: ^3.0.5
+        version: 3.0.5
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.26.1
         version: 8.26.1(@typescript-eslint/parser@8.26.1(eslint@9.22.0(jiti@2.4.2))(typescript@5.8.2))(eslint@9.22.0(jiti@2.4.2))(typescript@5.8.2)
@@ -159,48 +195,18 @@ importers:
       '@vite-pwa/nuxt':
         specifier: 0.10.6
         version: 0.10.6(magicast@0.3.5)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(sass@1.85.1)(stylus@0.57.0)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(workbox-build@7.3.0)(workbox-window@7.3.0)
-      '@vscode/markdown-it-katex':
-        specifier: ^1.1.1
-        version: 1.1.1
-      dompurify:
-        specifier: ^3.2.4
-        version: 3.2.4
-      easy-dom2img:
-        specifier: ^1.0.2
-        version: 1.0.2
       firebase:
         specifier: ^11.4.0
         version: 11.4.0
       github-syntax-light:
         specifier: ^0.5.0
         version: 0.5.0
-      highlight.js:
-        specifier: ^11.11.1
-        version: 11.11.1
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
       katex:
         specifier: ^0.16.21
         version: 0.16.21
-      markdown-it:
-        specifier: ^14.1.0
-        version: 14.1.0
-      markdown-it-link-attributes:
-        specifier: ^4.0.1
-        version: 4.0.1
-      markmap-common:
-        specifier: ^0.18.9
-        version: 0.18.9
-      markmap-lib:
-        specifier: ^0.18.11
-        version: 0.18.11(markmap-common@0.18.9)
-      markmap-view:
-        specifier: ^0.18.10
-        version: 0.18.10(markmap-common@0.18.9)
-      mermaid-it-markdown:
-        specifier: ^1.0.8
-        version: 1.0.8(mermaid@10.9.3)(typescript@5.8.2)
       nuxt:
         specifier: 3.16.0
         version: 3.16.0(@parcel/watcher@2.5.1)(@types/node@22.13.10)(db0@0.3.1)(eslint@9.22.0(jiti@2.4.2))(ioredis@5.6.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.35.0)(sass@1.85.1)(stylus@0.57.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(sass@1.85.1)(stylus@0.57.0)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.2))(xml2js@0.5.0)(yaml@2.7.0)
@@ -256,12 +262,6 @@ importers:
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.7
-      '@types/markdown-it':
-        specifier: ^14.1.2
-        version: 14.1.2
-      '@types/markdown-it-link-attributes':
-        specifier: ^3.0.5
-        version: 3.0.5
       '@unocss/nuxt':
         specifier: ^66.0.0
         version: 66.0.0(magicast@0.3.5)(postcss@8.5.3)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(sass@1.85.1)(stylus@0.57.0)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(vue@3.5.13(typescript@5.8.2))(webpack@5.98.0)
@@ -1811,8 +1811,8 @@ packages:
     resolution: {integrity: sha512-dF2iMMy8P9uKVHV/20LA1ulFLL+MKSbfMiixSmn6fpwqzvix38OIc7ebgnFbBqElvghZCW9ACtzKTGKsTGTWGA==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@12.0.0-alpha.1':
-    resolution: {integrity: sha512-ZZ5rtlUcEnhhFS+MTrl0V1UoN3yRninGawP3f1YituJN9217xJvpqCSLa9t8NLaVwVIxsRcq4lQe48D0SigmBg==}
+  '@intlify/shared@12.0.0-alpha.2':
+    resolution: {integrity: sha512-P2DULVX9nz3y8zKNqLw9Es1aAgQ1JGC+kgpx5q7yLmrnAKkPR5MybQWoEhxanefNJgUY5ehsgo+GKif59SrncA==}
     engines: {node: '>= 16'}
 
   '@intlify/unplugin-vue-i18n@6.0.3':
@@ -9939,7 +9939,7 @@ snapshots:
   '@intlify/bundle-utils@10.0.0(vue-i18n@10.0.6(vue@3.5.13(typescript@5.8.2)))':
     dependencies:
       '@intlify/message-compiler': 10.0.6
-      '@intlify/shared': 12.0.0-alpha.1
+      '@intlify/shared': 12.0.0-alpha.2
       acorn: 8.14.1
       escodegen: 2.1.0
       estree-walker: 2.0.2
@@ -9974,7 +9974,7 @@ snapshots:
 
   '@intlify/shared@11.1.2': {}
 
-  '@intlify/shared@12.0.0-alpha.1': {}
+  '@intlify/shared@12.0.0-alpha.2': {}
 
   '@intlify/unplugin-vue-i18n@6.0.3(@vue/compiler-dom@3.5.13)(eslint@9.22.0(jiti@2.4.2))(rollup@4.35.0)(typescript@5.8.2)(vue-i18n@10.0.6(vue@3.5.13(typescript@5.8.2)))(vue@3.5.13(typescript@5.8.2))':
     dependencies:

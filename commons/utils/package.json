@@ -13,7 +13,10 @@
     "./random": "./src/random.ts",
     "./secure": "./src/secure.ts",
     "./string": "./src/string.ts",
-    "./storage": "./src/storage.ts"
+    "./storage": "./src/storage.ts",
+    "./parse": "./src/parse.ts",
+    "./directive": "./src/directive.ts",
+    "./search": "./src/search.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
