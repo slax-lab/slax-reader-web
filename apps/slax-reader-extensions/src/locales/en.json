@@ -14,5 +14,24 @@
   "removal_in_progress": "Removing",
   "removal_successful": "Removed",
   "shortcut_settings": "Shortcut Settings",
-  "slax_collection_list": "Slax Collection List"
+  "slax_collection_list": "Slax Collection List",
+  "component": {
+    "ai_summaries": {
+      "click_to_expand": "Click the colored dots to expand/collapse nodes",
+      "click_to_interpret": "Click the button to interpret this article",
+      "copy_content_success": "Content copied successfully",
+      "interpret": "Interpret this article",
+      "mindmap": "Mind Map",
+      "processing": "Content is being analyzed",
+      "title": "Analysis Results"
+    },
+    "copy_button": {
+      "copy_content": "Copy content"
+    }
+  },
+  "common": {
+    "operate": {
+      "summary_refresh": "Re-generate"
+    }
+  }
 }

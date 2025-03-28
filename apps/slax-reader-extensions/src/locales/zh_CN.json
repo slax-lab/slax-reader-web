@@ -14,5 +14,24 @@
   "removal_in_progress": "移除中",
   "removal_successful": "已移除",
   "shortcut_settings": "快捷键设置",
-  "slax_collection_list": "Slax 收藏列表"
+  "slax_collection_list": "Slax 收藏列表",
+  "component": {
+    "ai_summaries": {
+      "title": "解析结果",
+      "mindmap": "思维导图",
+      "click_to_expand": "点击彩色圆点可展开/收起节点",
+      "click_to_interpret": "点击按钮解读此文章",
+      "interpret": "解读此文章",
+      "processing": "内容解析中",
+      "copy_content_success": "内容复制成功"
+    },
+    "copy_button": {
+      "copy_content": "复制内容"
+    }
+  },
+  "common": {
+    "operate": {
+      "summary_refresh": "重新生成"
+    }
+  }
 }

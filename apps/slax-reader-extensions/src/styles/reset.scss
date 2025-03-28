@@ -1,5 +1,8 @@
 * {
-  --style: bg-none box-border;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
   font-family:
     PingFang SC,
     -apple-system,
@@ -9,8 +12,15 @@
     'Helvetica Neue',
     Arial,
     sans-serif;
+  box-sizing: border-box;
+  print-color-adjust: exact !important;
 }
 
 button {
-  --style: outline-none border-none bg-transparent cursor-pointer;
+  padding: 0;
+  user-select: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  background-color: transparent;
 }
