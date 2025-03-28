@@ -76,7 +76,10 @@ import MarkdownText from './Markdown/MarkdownText.vue'
 import MarkMindMap from './Markdown/MarkMindMap.vue'
 import DotLoading from '#layers/core/components/DotLoading.vue'
 
+import { Resize } from '@commons/utils/directive'
+import { extractMarkdownFromText } from '@commons/utils/parse'
 import { RequestMethodType } from '@commons/utils/request'
+import { findMatchingElement, queryAnchorAlikeQuote, queryMarkdownAnchorQuote, querySimularMarkdownAnchorQuote } from '@commons/utils/search'
 import { copyText } from '@commons/utils/string'
 
 import Toast, { ToastType } from './Toast'

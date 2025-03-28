@@ -91,6 +91,7 @@ import ProIcon from '#layers/core/components/ProIcon.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
 import { isClient } from '@commons/utils/is'
+import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
@@ -98,7 +99,6 @@ import { vResizeObserver } from '@vueuse/components'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 import { useBookmark } from '#layers/core/composables/bookmark/useBookmark'
-
 const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
