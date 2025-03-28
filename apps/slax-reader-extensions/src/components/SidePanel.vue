@@ -26,12 +26,16 @@
           </button>
         </div>
       </div>
-      <div class="content"></div>
+      <div class="content">
+        <AISummaries :bmId="5131361" :isAppeared="isAppeared" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import AISummaries from './AISummaries.vue'
+
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
 import chatbotImage from '~/assets/panel-item-chatbot.png'
@@ -62,6 +66,7 @@ const panelItems = ref<PanelItem[]>([
 ])
 
 const showPanel = ref(false)
+const isAppeared = ref(false)
 
 const loadingText = ref('收藏中')
 const isLoading = ref(false)
@@ -94,7 +99,11 @@ watch(
 
 watch(
   () => showPanel,
-  value => {}
+  value => {
+    if (value) {
+      isAppeared.value = true
+    }
+  }
 )
 
 setTimeout(() => {
@@ -168,7 +177,7 @@ setTimeout(() => {
     }
 
     .content {
-      --style: w-500px h-full bg-green;
+      --style: w-500px h-full overflow-auto;
     }
   }
 }
