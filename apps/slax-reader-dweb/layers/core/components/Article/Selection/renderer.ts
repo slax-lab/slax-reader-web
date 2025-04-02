@@ -1,3 +1,5 @@
+import { removeOuterTag } from '@commons/utils/dom'
+
 import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
 import type { MarkPathItem } from '@commons/types/interface'
 import { useUserStore } from '#layers/core/stores/user'

@@ -1,3 +1,5 @@
+import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
+
 import type { QuoteData } from '../../Chat/type'
 import { MarkManager } from './manager'
 import SelectionModal from './modal'
