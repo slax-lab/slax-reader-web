@@ -4,7 +4,7 @@ export interface MouseTrackOptions {
   wheelTrackingHandler?: () => void
 }
 
-export class BookmarkMouseTrack {
+export class MouseTrack {
   private mousePos = {
     x: 0,
     y: 0
