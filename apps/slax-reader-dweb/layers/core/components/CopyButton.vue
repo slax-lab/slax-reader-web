@@ -16,17 +16,17 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
   user-select: none;
   background: linear-gradient(180deg, #0b0a23 0%, #17294e 100%);
   box-shadow: 0px 10px 20px 0px rgba(0, 0, 0, 0.08);
-  padding: 0px;
+  padding: 0px 8px;
   display: flex;
   align-items: center;
   overflow: hidden;
   flex-wrap: nowrap;
   white-space: nowrap;
   transition: all 0.25s ease-in-out;
-  width: 40px;
   height: 40px;
   border-radius: 20px;
   cursor: pointer;
+  max-width: 40px;
 
   .icon {
     width: 40px;
@@ -47,7 +47,8 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
 
   span {
     opacity: 0;
-    margin-left: 0px;
+    margin-left: 12px;
+    padding-right: 12px;
     font-family:
       PingFangSC,
       PingFang SC;
@@ -61,7 +62,7 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
   }
 
   &:hover {
-    width: 112px;
+    max-width: 1000px;
     background: linear-gradient(180deg, #0b0a23 0%, #17294e 100%);
 
     .icon {

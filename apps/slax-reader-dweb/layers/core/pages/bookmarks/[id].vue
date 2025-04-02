@@ -52,7 +52,7 @@
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
           <AISummaries
             v-if="bmId"
-            :bm-id="bmId"
+            :bookmarkId="bmId"
             :is-appeared="summariesExpanded"
             :content-selector="'.bookmark-detail .detail'"
             @navigated-text="navigateToText"

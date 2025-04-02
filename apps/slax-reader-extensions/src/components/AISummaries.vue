@@ -98,7 +98,7 @@ interface AnchorInfo {
 }
 
 const props = defineProps({
-  bmId: Number,
+  bookmarkId: Number,
   shareCode: String,
   collection: {
     type: Object as PropType<{ code: string; cbId: number }>,
@@ -211,7 +211,7 @@ const getSummariesList = async () => {
   const list = await request.get<SummaryItemModel[]>({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
     query: {
-      ...(props.bmId ? { bookmark_id: props.bmId } : undefined),
+      ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
       ...(props.shareCode ? { share_code: props.shareCode } : undefined),
       ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined)
     }
@@ -241,7 +241,7 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
     method: RequestMethodType.post,
     body: {
-      bmId: props.bmId ? props.bmId : undefined,
+      bookmarkId: props.bookmarkId ? props.bookmarkId : undefined,
       shareCode: props.shareCode ? props.shareCode : undefined,
       ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
       force: refresh
@@ -445,7 +445,7 @@ const refresh = async () => {
 }
 
 const loadSummaries = (options?: { refresh: boolean }) => {
-  if (props.bmId || props.shareCode || props.collection) {
+  if (props.bookmarkId || props.shareCode || props.collection) {
     let step = 0
     const timeInterval = setInterval(() => {
       step += 1
@@ -555,7 +555,7 @@ $copyButtonXOffset: 20px;
   }
 
   .operate-container {
-    --style: absolute top-24px right-18px flex-center;
+    --style: absolute top-24px right-40px flex-center;
 
     button {
       --style: ' hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
@@ -588,7 +588,7 @@ $copyButtonXOffset: 20px;
     --style: items-center overflow-y-auto;
 
     .header {
-      --style: w-full p-x-20px pt-24px pb-0 flex items-center;
+      --style: w-full p-x-40px pt-24px pb-0 flex items-center;
 
       .title {
         --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
@@ -638,7 +638,7 @@ $copyButtonXOffset: 20px;
       }
 
       .text-content {
-        --style: px-20px pt-24px pb-32px relative bg-#262626 rounded-b-4;
+        --style: px-40px pt-24px pb-32px relative bg-#262626 rounded-b-4;
 
         .text-container {
           position: relative;
@@ -765,7 +765,7 @@ $copyButtonXOffset: 20px;
     }
   }
   .loading {
-    --style: min-h-screen py-24px px-20px select-none box-border;
+    --style: min-h-screen py-24px px-40px select-none box-border;
 
     span {
       --style: font-500 text-(14px #16b998) line-height-20px text-align-left;
