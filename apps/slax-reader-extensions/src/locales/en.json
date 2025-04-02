@@ -27,11 +27,58 @@
     },
     "copy_button": {
       "copy_content": "Copy content"
+    },
+    "chat_bubble_message": {
+      "links_source": "Information source:",
+      "related_questions": "Related:"
+    },
+    "chat_bot": {
+      "access_complete": "Access complete",
+      "access_failed": "Access failed:",
+      "accessing_token": "Accessing",
+      "generating_question": "Generating question...",
+      "hello": "Hello, I am the Slax Reader AI assistant:",
+      "now_accessing": "Accessing...",
+      "alias_placeholder": "Enter your question ($1 + enter to line break)",
+      "tips_accessing": "\"$1\" Accessing...",
+      "tips_searching": "\"$1\" Searching..."
+    },
+    "chat_tips_message": {
+      "generate_question_title": "You might want to ask..."
+    },
+    "article_selection": {
+      "comment_failed": "Comment failed",
+      "stroke_failed": "Highlight failed",
+      "comment_deleted": "Comment deleted",
+      "hours_ago": "hours ago",
+      "just_now": "Just now",
+      "minutes_ago": "minutes ago",
+      "placeholder": "Post your opinion",
+      "reply": "Reply to...",
+      "title": "Post a comment",
+      "comment_placeholder": "Reply to $1"
+    }
+  },
+  "util": {
+    "chatbot": {
+      "browser_finished": "Access complete",
+      "generate_question": "Generating question",
+      "generate_question_finished": "Finished",
+      "search_finished": "Search complete"
     }
   },
   "common": {
     "operate": {
-      "summary_refresh": "Re-generate"
+      "summary_refresh": "Re-generate",
+      "reply": "Reply",
+      "line": "Highlight",
+      "delete_line": "Clear",
+      "comment": "Comment",
+      "copy": "Copy",
+      "chatbot": "Chat"
+    },
+    "tips": {
+      "copy_content_success": "Content copied successfully"
     }
   }
 }
