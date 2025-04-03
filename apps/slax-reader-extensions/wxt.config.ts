@@ -114,6 +114,14 @@ export default defineConfig({
     }
   }),
   hooks: {
+    'build:manifestGenerated': (wxt, manifest) => {
+      manifest.content_scripts ??= []
+      manifest.content_scripts.push({
+        css: ['content-scripts/mark.css'],
+        matches: ['<all_urls>'],
+        run_at: 'document_idle'
+      })
+    },
     // 'vite:build:extendConfig': (entries, config) => {
     //   const entryNames = entries.reduce((set, entry) => {
     //     set.add(entry.name)

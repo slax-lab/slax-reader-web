@@ -41,15 +41,12 @@ export default defineContentScript({
     const panelUI = await createShadowRootUi(ctx, {
       name: 'slax-reader-panel',
       position: 'overlay',
+      alignment: 'top-left',
       zIndex: 99999999,
       anchor: 'body',
-      append: 'after',
+      append: 'before',
       onMount: container => {
-        container.style.position = 'fixed'
-        container.style.visibility = 'visible'
-        const app = createApp(SidePanel, {
-          browser
-        })
+        const app = createApp(SidePanel, {})
         app.mount(container)
         return app
       },

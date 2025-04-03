@@ -153,7 +153,7 @@ onUnmounted(() => {
 const addListener = () => {
   window.addEventListener('resize', resizeFit)
   document.onfullscreenchange = () => {
-    isFullscreen.value = document.fullscreenElement === document.querySelector('.mark-mind-map')
+    isFullscreen.value = document.fullscreenElement === container.value
   }
 }
 
@@ -201,7 +201,7 @@ const initSVG = () => {
     await fitMap()
     updateGraphHeight()
     nextTick(() => {
-      document.querySelector('.mark-mind-map')?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
+      container.value?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
     })
   }
 }

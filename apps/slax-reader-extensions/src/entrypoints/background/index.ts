@@ -1,5 +1,7 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
+import { analytics } from '@/utils/analytics'
+
 import { LocalStorageKey } from '@commons/types/const'
 import type { Menus, Runtime, Tabs } from 'wxt/browser'
 

@@ -689,10 +689,10 @@ defineExpose({
     }
 
     .messages {
-      --style: w-full h-full py-24px overflow-auto;
+      --style: w-full h-full py-10px overflow-auto;
 
       .message {
-        --style: 'not-first:mt-8px flex items-center px-12px';
+        --style: 'not-first:mt-8px flex items-center px-24px';
       }
 
       .message:has(.bubble-message) + .message:has(.question-message) {

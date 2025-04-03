@@ -1,5 +1,5 @@
 <template>
-  <div class="markdown-text">
+  <div class="markdown-text" ref="markdownTextContainer">
     <div class="markdown-content" v-html="markdownHTMLText"></div>
   </div>
 </template>
@@ -13,6 +13,8 @@ import 'highlight.js/styles/atom-one-dark.css'
 
 const props = defineProps<{ text: string }>()
 const emits = defineEmits(['anchorClick'])
+
+const markdownTextContainer = ref<HTMLDivElement>()
 const markdownHTMLText = ref('')
 
 watch(
@@ -54,7 +56,7 @@ const update = () => {
 update()
 
 const handleAnchors = () => {
-  Array.from(document.querySelectorAll('.markdown-text .markdown-content .slax_link')).forEach(dom => {
+  Array.from(markdownTextContainer.value!.querySelectorAll('.markdown-content .slax_link')).forEach(dom => {
     const anchorDom = dom as HTMLAnchorElement
     if (anchorDom.onclick) {
       return

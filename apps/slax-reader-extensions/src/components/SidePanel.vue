@@ -1,9 +1,9 @@
 <template>
-  <div class="side-panel">
-    <div class="panel-container" :class="{ appear: showPanel }">
+  <div class="side-panel" v-on-click-outside="closePanel">
+    <div class="panel-container" ref="panelContainer" :class="{ appear: showPanel }">
       <div class="sidebar">
         <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
-          <button @click="showPanel = !showPanel">
+          <button @click="panelClick(panel.type)">
             <div class="icon-wrapper">
               <div class="icon">
                 <img class="normal" :src="panel.icon" alt="" />
@@ -14,7 +14,7 @@
           </button>
         </div>
         <div class="button-wrapper">
-          <button @click="showPanel = !showPanel">
+          <button>
             <div class="icon-wrapper">
               <div class="icon" :class="{ 'animate-spin': isLoading }">
                 <img v-if="!isLoading && !isCollected" src="@/assets/panel-item-app.png" alt="" />
@@ -27,14 +27,22 @@
         </div>
       </div>
       <div class="content">
-        <AISummaries :bmId="5131361" :isAppeared="isAppeared" />
+        <Transition name="sidepanel">
+          <AISummaries v-show="isSummaryShowing" :bookmarkId="5131361" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+        </Transition>
+        <Transition name="sidepanel">
+          <ChatBot v-show="isChatbotShowing" :bookmarkId="5131361" :isAppeared="isChatbotShowing" @dismiss="closePanel" />
+        </Transition>
       </div>
     </div>
   </div>
+  <div class="menus" ref="menus"></div>
+  <div class="panel" ref="panel"></div>
 </template>
 
 <script lang="ts" setup>
 import AISummaries from './AISummaries.vue'
+import ChatBot from './Chat/ChatBot.vue'
 
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
@@ -42,6 +50,13 @@ import chatbotImage from '~/assets/panel-item-chatbot.png'
 import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
+
+import { MouseTrack } from '@commons/utils/mouse'
+
+import type { QuoteData } from './Chat/type'
+import { ArticleSelection } from '@/components/Selection/selection'
+import { vOnClickOutside } from '@vueuse/components'
+import { useScrollLock } from '@vueuse/core'
 
 enum PanelItemType {
   'AI' = 'ai',
@@ -58,6 +73,7 @@ interface PanelItem {
 }
 
 const isCollected = ref(false)
+const isLocked = useScrollLock(window)
 
 const panelItems = ref<PanelItem[]>([
   { type: PanelItemType.AI, icon: aiImage, highlighedIcon: aiHighlightedImage, title: 'AI', hovered: false },
@@ -65,17 +81,25 @@ const panelItems = ref<PanelItem[]>([
   { type: PanelItemType.Share, icon: shareImage, highlighedIcon: shareHighlightedImage, title: 'Share', hovered: false }
 ])
 
-const showPanel = ref(false)
-const isAppeared = ref(false)
+const panelContainer = ref<HTMLDivElement>()
+const menus = ref<HTMLDivElement>()
+const showPanel = computed(() => {
+  return isSummaryShowing.value || isChatbotShowing.value
+})
+
+const isSummaryShowing = ref(false)
+const isChatbotShowing = ref(false)
 
 const loadingText = ref('收藏中')
 const isLoading = ref(false)
-const loadingTitle = ref('收藏中')
+const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
+let articleSelection: ArticleSelection | null = null
 
 const appStatusText = computed(() => {
   return isLoading.value ? loadingTitle.value : isCollected ? '查看收藏' : '收藏内容'
 })
+
 watch(
   () => isLoading.value,
   (value, oldValue) => {
@@ -98,13 +122,85 @@ watch(
 )
 
 watch(
-  () => showPanel,
+  () => showPanel.value,
   value => {
     if (value) {
-      isAppeared.value = true
+      tracking.touchTrack(showPanel.value)
+      tracking.wheelTrack(showPanel.value)
     }
   }
 )
+
+const trackingHandler = () => {
+  checkInAnotherScrollableView()
+}
+
+const tracking = new MouseTrack({
+  touchTrackingHandler: trackingHandler,
+  wheelTrackingHandler: trackingHandler
+})
+
+const checkInAnotherScrollableView = () => {
+  let needLock = false
+  if (panelContainer.value && isMouseWithinElement(panelContainer.value)) {
+    needLock = true
+  }
+
+  if (needLock) {
+    !isLocked.value && (isLocked.value = true)
+  } else {
+    isLocked.value && (isLocked.value = false)
+  }
+}
+
+const isMouseWithinElement = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect()
+  const { x, y } = tracking.lastMousePosition
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+}
+
+onMounted(() => {
+  articleSelection = new ArticleSelection({
+    shareCode: 0 || '',
+    bookmarkId: 5131361,
+    allowAction: true,
+    ownerUserId: 0,
+    containerDom: menus.value!,
+    monitorDom: document.body as HTMLDivElement,
+    postQuoteDataHandler: (data: QuoteData) => {
+      // emits('chatBotQuote', data)
+    }
+  })
+
+  articleSelection.startMonitor()
+  tracking.mouseTrack(true)
+})
+
+onUnmounted(() => {
+  tracking.destruct()
+})
+
+const panelClick = (type: PanelItemType) => {
+  isSummaryShowing.value = false
+  isChatbotShowing.value = false
+
+  switch (type) {
+    case PanelItemType.AI:
+      isSummaryShowing.value = !isSummaryShowing.value
+      break
+    case PanelItemType.Chat:
+      isChatbotShowing.value = !isChatbotShowing.value
+      break
+    case PanelItemType.Share:
+      // Handle share action
+      break
+  }
+}
+
+const closePanel = () => {
+  isSummaryShowing.value = false
+  isChatbotShowing.value = false
+}
 
 setTimeout(() => {
   isLoading.value = true
@@ -177,8 +273,18 @@ setTimeout(() => {
     }
 
     .content {
-      --style: w-500px h-full overflow-auto;
+      --style: w-500px h-full overflow-auto bg-#262626FF;
     }
   }
+}
+
+.sidepanel-enter-active,
+.sidepanel-leave-active {
+  transition: all 0.4s;
+}
+
+.sidepanel-enter-from,
+.sidepanel-leave-to {
+  --style: '!opacity-0';
 }
 </style>

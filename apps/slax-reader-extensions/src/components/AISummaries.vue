@@ -685,7 +685,7 @@ $copyButtonXOffset: 20px;
           left: 0;
           width: 100%;
           box-sizing: border-box;
-          padding: 40px 20px 5px;
+          padding: 40px 40px 5px;
           z-index: 1;
           background-color: #262626;
           .title {

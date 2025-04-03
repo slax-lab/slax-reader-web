@@ -96,6 +96,10 @@ export class MarkRenderer {
     const infos: ({ start: number; end: number; node: Node; type: 'text' } | { type: 'image'; ele: Element })[] = []
     if (markItem.type === 'text') {
       const baseElement = this._config.monitorDom?.querySelector(markItem.path) as HTMLElement
+      if (!baseElement) {
+        return infos
+      }
+
       const nodes = this.getAllTextNodes(baseElement)
       const nodeLengths = nodes.map(node => (node.textContent || '').length)
 
