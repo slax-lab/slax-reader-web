@@ -1,6 +1,7 @@
 <template>
   <Transition name="opacity" @afterLeave="onAfterLeave">
-    <div class="article-selection-comment" v-show="appear" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
+    <div v-show="appear" class="article-selection-comment" ref="commentPanel" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
+      <div class="draggable" ref="draggble"></div>
       <div class="header">
         <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
         <button class="close" @click="closeModal">
@@ -59,7 +60,8 @@ import menuStrokeImage from '@/assets/menu-stroke-icon.png'
 
 import { type MarkCommentInfo, type MarkItemInfo, MenuType } from './type'
 import { vOnClickOutside, vOnKeyStroke, vResizeObserver } from '@vueuse/components'
-import { useDebounceFn, useResizeObserver } from '@vueuse/core'
+import { type Position, useDebounceFn, useResizeObserver } from '@vueuse/core'
+import { useDraggable } from '@vueuse/core'
 import type { PropType } from 'vue'
 
 interface MenuItem {
@@ -89,7 +91,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize'])
+const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize', 'locationUpdate'])
 
 const userId = 0
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
@@ -104,6 +106,34 @@ const sendable = computed(() => {
 
 const maxHeight = ref(0)
 const markComments = ref<MarkCommentInfo[]>([])
+
+const draggble = ref<HTMLDivElement>()
+
+const lastPosition = ref<{ x: number; y: number } | null>(null)
+const { x, y } = useDraggable(draggble, {
+  initialValue: lastPosition.value ? lastPosition.value : { x: 0, y: 0 },
+  onMove: (position: Position) => {
+    onUpdatePositionHandler(position)
+  }
+})
+
+const onUpdatePositionHandler = (position: Position) => {
+  if (lastPosition.value !== null) {
+    if (Math.abs(lastPosition.value.x - position.x) > 300 || Math.abs(lastPosition.value.y - position.y) > 300) {
+      return
+    }
+  }
+
+  lastPosition.value = { x: position.x, y: position.y }
+  emits('locationUpdate', position)
+}
+
+const updateLocation = (position: Position) => {
+  x.value = position.x
+  y.value = position.y
+
+  onUpdatePositionHandler(position)
+}
 
 const commentsHeight = computed(() => {
   return Math.max(0, maxHeight.value - 200)
@@ -378,16 +408,21 @@ const cancelReply = () => {
 
 defineExpose({
   positionConfirmedHandler,
-  maxHeightUpdate
+  maxHeightUpdate,
+  updateLocation
 })
 </script>
 
 <style lang="scss" scoped>
 .article-selection-comment {
-  --style: w-400px max-w-screen px-16px pt-20px pb-16px bg-#262626 rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
+  --style: relative w-400px max-w-screen px-16px pt-20px pb-16px bg-#262626 rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
+
+  .draggable {
+    --style: absolute top-0 left-0 w-full h-20px cursor-grab z-0;
+  }
 
   .header {
-    --style: relative text-align-center min-h-11px;
+    --style: relative z-1 text-align-center min-h-11px;
     span {
       --style: text-(16px #ffffff66) line-height-16px font-600;
     }
@@ -503,12 +538,5 @@ textarea.shake {
 .input-enter-active,
 .input-leave-active {
   --style: transition-all duration-250 ease-in-out;
-}
-</style>
-
-<!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
-<style lang="scss">
-.article-selection-panel-container {
-  --style: transition-all duration-250;
 }
 </style>

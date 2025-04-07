@@ -52,7 +52,6 @@ const showMenus = (options: {
 
   app.mount(articleSelectionMenus)
 
-  debugger
   const selection = window.getSelection()
   if (!selection || !selection.rangeCount) return
   const range = selection.getRangeAt(0)
@@ -93,11 +92,6 @@ const showMenus = (options: {
       }
 
       offsetY = scrollOffsetY + targetOffsetY
-      // if (offsetY - menuRect.height - gap < scrollOffsetY || !(event instanceof MouseEvent)) {
-      //   offsetY += menuRect.height + gap
-      // } else {
-      //   offsetY -= menuRect.height + gap
-      // }
     }
 
     if (offsetX + menuRect.width > bodyRect.width) {
@@ -122,7 +116,7 @@ const showPanel = (options: {
   commentDeleteCallback?: (id: string, markId: number) => void
   dismissCallback?: () => void
 }) => {
-  const { container, articleDom, info, allowAction, bookmarkUserId, actionCallback, commentDeleteCallback, dismissCallback } = options
+  const { container, info, allowAction, bookmarkUserId, actionCallback, commentDeleteCallback, dismissCallback } = options
 
   const key = `article-selection-panel-container`
 
@@ -134,44 +128,37 @@ const showPanel = (options: {
   articleSelectionPanel = document.createElement('div')
   articleSelectionPanel.classList.add(key)
   articleSelectionPanel.style.setProperty('z-index', `${999}`)
-  articleSelectionPanel.style.setProperty('position', `absolute`)
+  articleSelectionPanel.style.setProperty('position', `fixed`)
 
   container.appendChild(articleSelectionPanel)
 
-  // 用于记录初次的高度
-  let initedTopHeight = 0
   let panel: InstanceType<typeof ArticleSelectionPanel> | null = null
-  // 因为有不止一处用到这块逻辑因此抽离出来
-  const updatePanelOffset = () => {
-    const innerHeight = window.innerHeight
-    const containerRect = container.getBoundingClientRect()
+
+  const getIdealOffset = (position: { x: number; y: number }) => {
     const panelRect = articleSelectionPanel.getBoundingClientRect()
-    const articleRect = articleDom.getBoundingClientRect()
-    if (panelRect && articleRect) {
-      let offsetX = articleRect.width + 60
-      if (articleRect.left + offsetX + panelRect.width > window.innerWidth) {
-        offsetX -= articleRect.left + offsetX + panelRect.width - window.innerWidth
-      }
 
-      articleSelectionPanel.style.setProperty('left', `${offsetX}px`)
-
-      if (panelRect.top + panelRect.height > containerRect.top + containerRect.height) {
-        const topOffset = Math.max(0, containerRect.height - panelRect.height)
-        articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
-      } else {
-        if (panelRect.top - containerRect.top !== initedTopHeight) {
-          const isOverflowBefore = initedTopHeight + containerRect.top + panelRect.height > containerRect.top + containerRect.height
-          if (isOverflowBefore) {
-            const topOffset = Math.max(0, containerRect.height - panelRect.height)
-            articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
-          } else {
-            articleSelectionPanel.style.setProperty('top', `${initedTopHeight}px`)
-          }
-        }
-      }
+    let { x, y } = position
+    const panelWidth = panelRect.width || 400
+    const panelHeight = panelRect.height || 300
+    const screenWidth = window.innerWidth
+    const screenHeight = window.innerHeight
+    if (x + panelWidth > screenWidth) {
+      x = screenWidth - panelWidth
     }
 
-    panel?.maxHeightUpdate(Math.min(containerRect.height, innerHeight * 0.8))
+    if (x + panelHeight > screenHeight) {
+      x = screenHeight - panelHeight
+    }
+
+    return { x, y }
+  }
+  // 因为有不止一处用到这块逻辑因此抽离出来
+  const updatePanelOffset = () => {
+    const panelRect = articleSelectionPanel.getBoundingClientRect()
+    const position = getIdealOffset({ x: panelRect.left, y: panelRect.y })
+
+    panel?.updateLocation(position)
+    panel?.maxHeightUpdate(Math.min(container.getBoundingClientRect().height, window.innerHeight * 0.8))
   }
 
   const app = createApp(ArticleSelectionPanel, {
@@ -189,6 +176,11 @@ const showPanel = (options: {
     onCommentDelete: (params: { id: string; markId: number }) => {
       commentDeleteCallback && commentDeleteCallback(params.id, params.markId)
     },
+    onLocationUpdate: (params: { x: number; y: number }) => {
+      const { x, y } = params
+      articleSelectionPanel.style.setProperty('top', `${y}px`)
+      articleSelectionPanel.style.setProperty('left', `${x}px`)
+    },
     onWindowResize: () => {
       updatePanelOffset()
     }
@@ -198,28 +190,33 @@ const showPanel = (options: {
   const selection = window.getSelection()
 
   let topOffset = 0
+  let leftOffset = 0
   if (!selection || !selection.rangeCount) {
     topOffset = options.fallbackYOffset
   } else {
     const range = selection.getRangeAt(0)
     const rect = range?.getBoundingClientRect()
-    const containerRect = container.getBoundingClientRect()
-
     const isZeroRect = isNullRect(rect)
     if (isZeroRect && range.startContainer instanceof HTMLElement) {
-      topOffset = range.startContainer.getBoundingClientRect().top - containerRect.top + 10
+      topOffset = range.startContainer.getBoundingClientRect().top - 10
     } else if (!isZeroRect) {
-      topOffset = rect.top - containerRect.top - 50
+      topOffset = rect.top + 50
+    }
+
+    if (isZeroRect && range.startContainer instanceof HTMLElement) {
+      leftOffset = range.startContainer.getBoundingClientRect().left + 10
+    } else if (!isZeroRect) {
+      leftOffset = rect.left - 50
     }
   }
 
-  initedTopHeight = topOffset
-  const top = topOffset > 0 ? `${topOffset}px` : ''
-  articleSelectionPanel.style.setProperty('top', top)
-
   nextTick(() => {
-    updatePanelOffset()
+    const panelRect = articleSelectionPanel.getBoundingClientRect()
+    leftOffset -= (panelRect.width * 1) / 4
 
+    const position = getIdealOffset({ x: leftOffset, y: topOffset })
+
+    panel.updateLocation(position)
     panel.positionConfirmedHandler()
   })
 }
