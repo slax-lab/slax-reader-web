@@ -5,13 +5,16 @@ import Toast from './Toast.vue'
 import { ToastType } from './type'
 
 const showToast = (options: { text: string; type?: ToastType }) => {
-  let toastElement = document.querySelector('.toast.toast-start') as HTMLElement
+  const rootPanel = document.querySelector('slax-reader-panel')?.shadowRoot
+
+  let toastElement = rootPanel?.querySelector('.toast.toast-start') as HTMLElement
   if (!toastElement) {
     toastElement = document.createElement('div')
     toastElement.classList.add('toast')
     toastElement.classList.add('toast-start')
     toastElement.style.setProperty('z-index', `${100}`)
-    document.body.appendChild(toastElement)
+    const body = rootPanel?.querySelector('body')
+    body?.appendChild(toastElement)
   }
 
   const textToast = document.createElement('div')
