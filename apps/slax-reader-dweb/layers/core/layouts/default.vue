@@ -23,6 +23,20 @@ useHead({
     lang: locale.value
   }
 })
+
+onMounted(() => {
+  addChannelMessageHandler(chanelMessageHandler)
+})
+
+onUnmounted(() => {
+  removeChannelMessageHandler(chanelMessageHandler)
+})
+
+const chanelMessageHandler = (name: keyof ChannelMessageData, data: Partial<ChannelMessageData>) => {
+  if (name === 'refresh') {
+    data[name]?.type === 'page' && window.location.reload()
+  }
+}
 </script>
 
 <style lang="scss" scoped>

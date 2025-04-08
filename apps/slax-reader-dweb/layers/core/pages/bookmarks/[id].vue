@@ -97,7 +97,6 @@ import DotsMenu, { type DotsMenuActionItem } from '#layers/core/components/DotsM
 import DetailLayout from '#layers/core/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import ProIcon from '#layers/core/components/ProIcon.vue'
 import ShareBubbleTips from '#layers/core/components/Tips/ShareBubbleTips.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
