@@ -129,6 +129,10 @@ const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
 })
 
 const defineSeo = () => {
+  if (!detail.value) {
+    return
+  }
+
   const wordText = extractHTMLTextContent(detail.value?.content || '')
   const title = `${detail.value?.title} - ${t('common.app.name')}`
   const description = wordText.length < 60 ? wordText : wordText.slice(0, 60)
@@ -231,6 +235,8 @@ const {
       defineOgImageComponent('Share', {
         title: `${detail.value?.title || ''}`
       })
+
+      defineSeo()
     } catch (error) {
       console.error(error)
     }
@@ -243,7 +249,6 @@ const {
   },
   initialTasksCompleted: () => {
     if (!isClient) {
-      detail.value && defineSeo()
       return
     }
 
