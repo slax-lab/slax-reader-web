@@ -1,7 +1,7 @@
 <template>
   <div class="side-panel" v-on-click-outside="closePanel">
     <div class="panel-container" ref="panelContainer" :class="{ appear: showPanel }">
-      <div class="sidebar">
+      <div class="panel-sidebar">
         <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
           <button @click="panelClick(panel.type)">
             <div class="icon-wrapper">
@@ -26,14 +26,16 @@
           </button>
         </div>
       </div>
-      <div class="content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
+      <div class="panel-content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
-        <Transition name="sidepanel">
-          <AISummaries v-show="isSummaryShowing" :bookmarkId="5131361" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
-        </Transition>
-        <Transition name="sidepanel">
-          <ChatBot v-show="isChatbotShowing" :bookmarkId="5131361" :isAppeared="isChatbotShowing" @dismiss="closePanel" />
-        </Transition>
+        <div class="panel-content-wrapper">
+          <Transition name="sidepanel">
+            <AISummaries v-show="isSummaryShowing" :bookmarkId="5131361" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+          </Transition>
+          <Transition name="sidepanel">
+            <ChatBot v-show="isChatbotShowing" ref="chatbot" :bookmarkId="5131361" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
+          </Transition>
+        </div>
       </div>
     </div>
   </div>
@@ -87,6 +89,7 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const share = useTemplateRef<HTMLDivElement>('share')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
+const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
@@ -177,25 +180,46 @@ const isMouseWithinElement = (element: HTMLElement) => {
 }
 
 onMounted(() => {
-  articleSelection = new ArticleSelection({
-    shareCode: 0 || '',
-    bookmarkId: 5131361,
-    allowAction: true,
-    ownerUserId: 0,
-    containerDom: menus.value!,
-    monitorDom: document.body as HTMLDivElement,
-    postQuoteDataHandler: (data: QuoteData) => {
-      // emits('chatBotQuote', data)
-    }
-  })
+  if (!isSlaxWebsite(window.location.href)) {
+    articleSelection = new ArticleSelection({
+      shareCode: 0 || '',
+      bookmarkId: 5131361,
+      allowAction: true,
+      ownerUserId: 0,
+      containerDom: menus.value!,
+      monitorDom: document.body as HTMLDivElement,
+      postQuoteDataHandler: (data: QuoteData) => {
+        isChatbotShowing.value = true
+        chatbot.value?.addQuoteData(data)
+      }
+    })
 
-  articleSelection.startMonitor()
+    articleSelection.startMonitor()
+  }
+
   tracking.mouseTrack(true)
 })
 
 onUnmounted(() => {
   tracking.destruct()
 })
+
+const isSlaxWebsite = (url: string) => {
+  try {
+    const urlObj = new URL(url)
+
+    if (urlObj.protocol !== 'https:') {
+      return false
+    }
+
+    const hostname = urlObj.hostname
+    const slaxDomainPattern = /^(r|reader|r-beta)\.slax.$/
+
+    return slaxDomainPattern.test(hostname)
+  } catch (e) {
+    return false
+  }
+}
 
 const panelClick = (type: PanelItemType) => {
   isSummaryShowing.value = false
@@ -219,6 +243,10 @@ const panelClick = (type: PanelItemType) => {
 
       break
   }
+}
+
+const findQuote = (quote: QuoteData) => {
+  articleSelection?.findQuote(quote)
 }
 
 const closePanel = () => {
@@ -246,7 +274,7 @@ setTimeout(() => {
       --style: -translate-x-full;
     }
 
-    .sidebar {
+    .panel-sidebar {
       --style: z-1 absolute -left-52px top-1/2 -translate-y-1/2 w-52px h-188px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
 
       &::before {
@@ -300,8 +328,8 @@ setTimeout(() => {
       }
     }
 
-    .content {
-      --style: z-2 relative w-500px h-full overflow-auto bg-#262626FF;
+    .panel-content {
+      --style: z-2 relative w-500px h-100vh bg-#262626FF;
 
       .drag {
         --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
@@ -309,6 +337,10 @@ setTimeout(() => {
         &:hover {
           --style: bg-#ffffff04;
         }
+      }
+
+      .panel-content-wrapper {
+        --style: w-full h-full overflow-auto;
       }
     }
   }

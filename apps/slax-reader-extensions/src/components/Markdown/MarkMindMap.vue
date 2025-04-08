@@ -207,7 +207,7 @@ const initSVG = () => {
 }
 
 const updateGraphHeight = () => {
-  const gHeight = document.querySelector('svg > g')?.getBoundingClientRect().height || 0
+  const gHeight = container.value?.querySelector('svg > g')?.getBoundingClientRect().height || 0
   emits('graphHeightUpdate', { height: gHeight })
 }
 
@@ -305,7 +305,7 @@ const toolbarClick = async (icon: ToolbarIcon) => {
 }
 
 const handleAnchors = () => {
-  Array.from(document.querySelectorAll('.mark-mind-map .mind-svg .slax_link')).forEach(dom => {
+  container.value?.querySelectorAll('.mind-svg .slax_link').forEach(dom => {
     const anchorDom = dom as HTMLAnchorElement
     if (anchorDom.onclick) {
       return
@@ -319,7 +319,7 @@ const handleAnchors = () => {
 }
 
 const requestFullscreen = () => {
-  document.querySelector('.mark-mind-map')?.requestFullscreen()
+  container.value?.requestFullscreen()
 }
 
 const cancelFullscreen = () => {
@@ -335,9 +335,11 @@ const requestDownload = async () => {
 
   try {
     await fitMap()
-    const dom = document.querySelector('.mark-mind-map') as HTMLElement
+    if (!container.value) {
+      return
+    }
 
-    const { data: imgUrl } = await dom2Img(dom, {
+    const { data: imgUrl } = await dom2Img(container.value, {
       width: 2000,
       height: AutoFitByRatio,
       bgcolor: '#fff'
