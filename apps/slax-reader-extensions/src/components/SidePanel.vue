@@ -26,7 +26,8 @@
           </button>
         </div>
       </div>
-      <div class="content">
+      <div class="content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
+        <div class="drag" ref="draggble" />
         <Transition name="sidepanel">
           <AISummaries v-show="isSummaryShowing" :bookmarkId="5131361" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
         </Transition>
@@ -57,7 +58,7 @@ import type { QuoteData } from './Chat/type'
 import { showShareConfigModal } from './Share'
 import { ArticleSelection } from '@/components/Selection/selection'
 import { vOnClickOutside } from '@vueuse/components'
-import { useScrollLock } from '@vueuse/core'
+import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
 
 enum PanelItemType {
   'AI' = 'ai',
@@ -85,6 +86,10 @@ const panelItems = ref<PanelItem[]>([
 const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const share = useTemplateRef<HTMLDivElement>('share')
+const draggble = useTemplateRef<HTMLDivElement>('draggble')
+
+const minContentWidth = 500
+const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -101,6 +106,15 @@ let articleSelection: ArticleSelection | null = null
 
 const appStatusText = computed(() => {
   return isLoading.value ? loadingTitle.value : isCollected ? '查看收藏' : '收藏内容'
+})
+
+useDraggable(draggble, {
+  onMove: (position: Position) => {
+    const windowWidth = window.innerWidth
+    const left = position.x
+
+    contentWidth.value = Math.min(Math.max(minContentWidth, windowWidth - left), windowWidth - 100)
+  }
 })
 
 watch(
@@ -233,7 +247,11 @@ setTimeout(() => {
     }
 
     .sidebar {
-      --style: absolute -left-52px top-1/2 -translate-y-1/2 w-52px h-188px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+      --style: z-1 absolute -left-52px top-1/2 -translate-y-1/2 w-52px h-188px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+
+      &::before {
+        --style: content-empty absolute left-full top-0 w-10px h-full bg-#262626;
+      }
 
       .button-wrapper {
         --style: relative size-44px;
@@ -283,7 +301,15 @@ setTimeout(() => {
     }
 
     .content {
-      --style: w-500px h-full overflow-auto bg-#262626FF;
+      --style: z-2 relative w-500px h-full overflow-auto bg-#262626FF;
+
+      .drag {
+        --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
+
+        &:hover {
+          --style: bg-#ffffff04;
+        }
+      }
     }
   }
 }
