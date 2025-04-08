@@ -37,7 +37,7 @@
     </div>
   </div>
   <div class="menus" ref="menus"></div>
-  <div class="panel" ref="panel"></div>
+  <div class="share" ref="share"></div>
 </template>
 
 <script lang="ts" setup>
@@ -54,6 +54,7 @@ import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 import { MouseTrack } from '@commons/utils/mouse'
 
 import type { QuoteData } from './Chat/type'
+import { showShareConfigModal } from './Share'
 import { ArticleSelection } from '@/components/Selection/selection'
 import { vOnClickOutside } from '@vueuse/components'
 import { useScrollLock } from '@vueuse/core'
@@ -83,6 +84,8 @@ const panelItems = ref<PanelItem[]>([
 
 const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
+const share = useTemplateRef<HTMLDivElement>('share')
+
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
 })
@@ -193,6 +196,13 @@ const panelClick = (type: PanelItemType) => {
       break
     case PanelItemType.Share:
       // Handle share action
+      share.value &&
+        showShareConfigModal({
+          bookmarkId: 5131361,
+          title: document.title,
+          container: share.value
+        })
+
       break
   }
 }

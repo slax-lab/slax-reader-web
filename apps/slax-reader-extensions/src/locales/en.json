@@ -57,6 +57,17 @@
       "reply": "Reply to...",
       "title": "Post a comment",
       "comment_placeholder": "Reply to $1"
+    },
+    "share_modal": {
+      "copy_link": "Copy link",
+      "copy_success": "Copied!",
+      "options": {
+        "first": "Show highlights and comments",
+        "second": "Show my avatar and nickname",
+        "third": "Allow visitors to add highlights and comments"
+      },
+      "revoke_tips": "Shared link access been revoked",
+      "title": "Share"
     }
   },
   "util": {
@@ -78,7 +89,8 @@
       "chatbot": "Chat"
     },
     "tips": {
-      "copy_content_success": "Content copied successfully"
+      "copy_content_success": "Content copied successfully",
+      "share_failed": "Create share failed"
     }
   }
 }

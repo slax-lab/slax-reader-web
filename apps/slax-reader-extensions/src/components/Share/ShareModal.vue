@@ -3,7 +3,7 @@
     <Transition name="modal" @after-leave="onAfterLeave">
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
-          <span>{{ t('component.share_modal.title') }}</span>
+          <span>{{ $t('component.share_modal.title') }}</span>
           <div class="switch" @click="switchClick">
             <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
               <Transition name="opacity">
@@ -14,7 +14,7 @@
         </div>
         <Transition name="tips">
           <div class="tips" v-show="isShowTips">
-            <span>{{ t('component.share_modal.revoke_tips') }}</span>
+            <span>{{ $t('component.share_modal.revoke_tips') }}</span>
           </div>
         </Transition>
         <div class="content" :class="{ disabled: !isSwitched }">
@@ -47,10 +47,10 @@
 <script lang="ts" setup>
 import { copyText } from '@commons/utils/string'
 
+import Toast, { ToastType } from '../Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { ShareDetailInfo } from '@commons/types/interface'
-import CursorToast from '#layers/core/components/CursorToast'
-import Toast, { ToastType } from '#layers/core/components/Toast'
+import { useScrollLock } from '@vueuse/core'
 
 const props = defineProps({
   bookmarkId: {
@@ -63,12 +63,6 @@ const props = defineProps({
   }
 })
 
-const $config = useNuxtApp().$config.public
-
-const t = (text: string) => {
-  return useNuxtApp().$i18n.t(text)
-}
-
 const emits = defineEmits(['dismiss', 'success', 'delete'])
 
 const modalBg = ref<HTMLDivElement>()
@@ -78,20 +72,20 @@ const appear = ref(false)
 const isSwitched = ref(false)
 const isSwitchLoading = ref(false)
 const isShowTips = ref(false)
-const copyTitle = ref(t('component.share_modal.copy_link'))
+const copyTitle = ref($t('component.share_modal.copy_link'))
 const shareLinkUrl = ref('')
 const deleteShareLinkUrl = ref('')
 const options = ref<{ title: string; selected: boolean }[]>([
   {
-    title: t('component.share_modal.options.1'),
+    title: $t('component.share_modal.options.first'),
     selected: true
   },
   {
-    title: t('component.share_modal.options.2'),
+    title: $t('component.share_modal.options.second'),
     selected: true
   },
   {
-    title: t('component.share_modal.options.3'),
+    title: $t('component.share_modal.options.third'),
     selected: true
   }
 ])
@@ -101,7 +95,7 @@ isLocked.value = true
 watch(
   () => isSwitched.value,
   value => {
-    value && (copyTitle.value = t('component.share_modal.copy_link'))
+    value && (copyTitle.value = $t('component.share_modal.copy_link'))
   }
 )
 
@@ -123,7 +117,7 @@ const getShareInfo = async () => {
   })
   if (!res) {
     Toast.showToast({
-      text: t('common.tips.share_failed'),
+      text: $t('common.tips.share_failed'),
       type: ToastType.Error
     })
     isSwitched.value = false
@@ -175,7 +169,7 @@ const updateShare = async (params?: { commentLine?: boolean; userInfo?: boolean;
 
   if (!res) {
     Toast.showToast({
-      text: t('common.tips.share_failed'),
+      text: $t('common.tips.share_failed'),
       type: ToastType.Error
     })
 
@@ -201,7 +195,7 @@ const closeShare = async () => {
 
   if (!res) {
     Toast.showToast({
-      text: t('common.tips.share_failed'),
+      text: $t('common.tips.share_failed'),
       type: ToastType.Error
     })
   }
@@ -214,7 +208,7 @@ const closeShare = async () => {
 }
 
 const getShareUrl = (hashcode: string) => {
-  return `${$config.SHARE_BASE_URL}/s/${hashcode}`
+  return `${process.env.SHARE_BASE_URL}/s/${hashcode}`
 }
 
 const closeModal = () => {
@@ -254,9 +248,8 @@ const switchClick = async () => {
 const copyLinkClick = async (event: MouseEvent) => {
   await copyText(shareLinkUrl.value)
 
-  CursorToast.showToast({
-    text: t('component.share_modal.copy_success'),
-    trackDom: event.target as HTMLElement
+  Toast.showToast({
+    text: $t('component.share_modal.copy_success')
   })
 }
 
@@ -382,7 +375,7 @@ const optionClick = async (index: number) => {
 
           &.selected {
             --style: 'bg-center bg-[length:7px_6px] border-1';
-            background-image: url('@images/tiny-tick-outline-icon.png');
+            background-image: url('@/assets/tiny-tick-outline-icon.png');
           }
 
           &:hover {

@@ -57,6 +57,17 @@
       "minutes_ago": "分钟前",
       "hours_ago": "小时前",
       "comment_placeholder": "回复 $1"
+    },
+    "share_modal": {
+      "title": "分享",
+      "revoke_tips": "分享链接已撤销",
+      "copy_link": "复制链接",
+      "copy_success": "复制成功!",
+      "options": {
+        "first": "显示划线和评论",
+        "second": "显示我的头像和昵称",
+        "third": "允许访客划线和评论"
+      }
     }
   },
   "util": {
@@ -78,7 +89,8 @@
       "chatbot": "Chat"
     },
     "tips": {
-      "copy_content_success": "内容复制成功"
+      "copy_content_success": "内容复制成功",
+      "share_failed": "创建分享失败"
     }
   }
 }
