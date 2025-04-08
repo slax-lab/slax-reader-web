@@ -13,6 +13,9 @@ export interface ChannelMessageData {
     id: number
     trashed: boolean
   }
+  refresh: {
+    type: 'page'
+  }
 }
 
 type ChannelHandlerFunction = (name: keyof ChannelMessageData, data: Partial<ChannelMessageData>) => void | Promise<void>

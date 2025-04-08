@@ -40,7 +40,6 @@
 </template>
 
 <script lang="ts" setup>
-import ProIcon from '#layers/core/components/ProIcon.vue'
 const smallScreenTrigger = ref<HTMLDivElement>()
 
 const isSmallScreen = () => {
