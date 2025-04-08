@@ -87,7 +87,6 @@ import GoogleLoginButton from '#layers/core/components/GoogleLoginButton.vue'
 import DetailLayout from '#layers/core/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import ProIcon from '#layers/core/components/ProIcon.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
 import { isClient } from '@commons/utils/is'
