@@ -1,23 +1,26 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
-import { analytics } from '@/utils/analytics'
-
 import { LocalStorageKey } from '@commons/types/const'
-import type { Menus, Runtime, Tabs } from 'wxt/browser'
+import { storage } from '@wxt-dev/storage'
+import { analytics } from '#analytics'
 
 export default defineBackground(() => {
+  const userToken = storage.defineItem<string>(`local:${LocalStorageKey.USER_TOKEN}`)
+  const userBookmarks = storage.defineItem<string[]>(`local:${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
+
   function openTab(url: string) {
     browser.tabs.create({ url })
   }
 
   async function checkLogin(): Promise<boolean> {
-    let cookies = await storage.getItem(LocalStorageKey.USER_TOKEN)
+    let cookies = await userToken.getValue()
     if (!cookies) {
       const browserCookies = await browser.cookies.get({ url: process.env.PUBLIC_BASE_URL || '', name: process.env.COOKIE_TOKEN_NAME || '' })
       if (browserCookies) {
         cookies = browserCookies.value
       }
-      await storage.setItem(LocalStorageKey.USER_TOKEN, cookies)
+
+      await userToken.setValue(cookies)
     }
 
     if (!cookies) {
@@ -28,13 +31,13 @@ export default defineBackground(() => {
   }
 
   // 打开收藏弹窗
-  async function openCollectPopup(tab: Tabs.Tab, command = 'open_collect') {
+  async function openCollectPopup(tab: Browser.tabs.Tab, command = 'open_collect') {
+    console.log('openCollectPopup')
     if (command !== 'open_collect') return
-    await checkLogin().then(async res => {
-      if (!res) return
-      await browser.tabs.sendMessage(tab.id!, { action: MessageTypeAction.ShowCollectPopup })
-      await analytics.fireEvent('click_extension_collect')
-    })
+    const res = await checkLogin()
+    if (!res) return
+    browser.tabs.sendMessage(tab.id!, { action: MessageTypeAction.ShowCollectPopup })
+    analytics.track('click_extension_collect')
   }
 
   // 打开设置页面
@@ -50,9 +53,9 @@ export default defineBackground(() => {
     if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) return
     console.log('cookie update', changeInfo)
 
-    if (changeInfo.removed) return storage.removeItem(LocalStorageKey.USER_TOKEN)
+    if (changeInfo.removed) return userToken.removeValue()
 
-    storage.setItem(LocalStorageKey.USER_TOKEN, changeInfo.cookie.value)
+    userToken.setValue(changeInfo.cookie.value)
   })
 
   // 监听插件安装事件
@@ -67,7 +70,7 @@ export default defineBackground(() => {
     })
 
     // 注册菜单
-    const menus: Menus.CreateCreatePropertiesType[] = [
+    const menus: Browser.contextMenus.CreateProperties[] = [
       { id: 'setting', title: i18n.t('extended_settings'), contexts: ['action'] },
       { id: 'shortcutKeySetting', title: i18n.t('shortcut_settings'), contexts: ['action'] },
       { id: 'collectList', title: i18n.t('slax_collection_list'), contexts: ['action'] },
@@ -79,14 +82,14 @@ export default defineBackground(() => {
     console.log(`extension installed, reason: ${reason}, browser: ${import.meta.env.BROWSER} .`)
     console.log(`runtime: ${!!browser.runtime} \ncookie: ${!!browser.cookies} \ntabs: ${!!browser.tabs} \ncontextMenus: ${!!browser.contextMenus} \naction: ${!!browser.action}`)
     if (reason === 'install') {
-      if (!(await storage.getItem(LocalStorageKey.USER_TOKEN))) {
+      if (!(await userToken.getValue())) {
         return openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
       }
     } else if (reason === 'update') {
       // TODO Do something
-    } else if (reason === 'browser_update') {
-      // TODO Do something
     }
+
+    analytics.setEnabled(true)
   })
 
   // 插件被挂起(禁用)
@@ -100,7 +103,7 @@ export default defineBackground(() => {
   uninstallUrl && browser.runtime.setUninstallURL(uninstallUrl)
 
   // 菜单点击事件
-  const menuActions: { [key: string]: (info: Menus.OnClickData, tab: Tabs.Tab | undefined) => void } = {
+  const menuActions: { [key: string]: (info: Browser.contextMenus.OnClickData, tab: Browser.tabs.Tab | undefined) => void } = {
     setting: () => openSetting(),
     shortcutKeySetting: () => openTab('chrome://extensions/shortcuts'),
     collectList: () => openTab(`${process.env.PUBLIC_BASE_URL}/bookmarks`),
@@ -118,14 +121,14 @@ export default defineBackground(() => {
   browser.commands.onCommand.addListener((command, tab) => openCollectPopup(tab!, command))
 
   // 监听其他页面发送的消息
-  browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.MessageSender) => {
+  browser.runtime.onMessage.addListener(async (message: unknown, sender: Browser.runtime.MessageSender) => {
     const receiveMessage = message as MessageType
     switch (receiveMessage.action) {
       case MessageTypeAction.OpenWelcome:
         return openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
       case MessageTypeAction.RecordBookmark: {
         console.log('background add bookmark..')
-        let bookmarks = (await storage.getItem<string[]>(LocalStorageKey.USER_BOOKMARKS)) || []
+        let bookmarks = await userBookmarks.getValue()
         const url = receiveMessage.url
 
         let isEdited = false
@@ -139,7 +142,7 @@ export default defineBackground(() => {
 
         console.log(sender.tab)
         if (isEdited && sender.tab?.id) {
-          await storage.setItem(LocalStorageKey.USER_BOOKMARKS, bookmarks)
+          await userBookmarks.setValue(bookmarks)
           await checkAndUpdateBookmarkStatus(sender.tab!.id!, url)
         }
         break
@@ -154,7 +157,7 @@ export default defineBackground(() => {
       return
     }
 
-    const bookmarks = (await storage.getItem<string[]>(LocalStorageKey.USER_BOOKMARKS)) || []
+    const bookmarks = await userBookmarks.getValue()
 
     let text = ''
     if (bookmarks.indexOf(url) !== -1) {
