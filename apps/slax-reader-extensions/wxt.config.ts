@@ -28,7 +28,7 @@ export default defineConfig({
       vueTemplate: true
     }
   },
-  modules: ['@wxt-dev/module-vue', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
+  modules: ['@wxt-dev/module-vue', '@wxt-dev/analytics/module', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
   manifest: {
     name: 'Slax Reader',
     version: '1.3.0',
