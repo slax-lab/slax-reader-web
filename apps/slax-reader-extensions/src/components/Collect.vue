@@ -41,12 +41,11 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'
 import type { PropType } from 'vue'
-import type { Runtime } from 'wxt/browser'
-import { type AugmentedBrowser } from 'wxt/browser'
+import type { WxtBrowser } from 'wxt/browser'
 
 const props = defineProps({
   browser: {
-    type: Object as PropType<AugmentedBrowser>,
+    type: Object as PropType<WxtBrowser>,
     required: true
   }
 })
@@ -121,32 +120,34 @@ watch(
   }
 )
 
-props.browser.runtime.onMessage.addListener((message: unknown, sender: Runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
-  console.log('receive message', message, sender)
+props.browser.runtime.onMessage.addListener(
+  (message: unknown, sender: Browser.runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
+    console.log('receive message', message, sender)
 
-  const action = (message as MessageType).action
-  switch (action) {
-    case MessageTypeAction.ShowCollectPopup: {
-      console.log('show up pop')
-      showPopup.value = true
-      break
+    const action = (message as MessageType).action
+    switch (action) {
+      case MessageTypeAction.ShowCollectPopup: {
+        console.log('show up pop')
+        showPopup.value = true
+        break
+      }
+      case MessageTypeAction.OpenWelcome:
+        browser.tabs.create({
+          url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
+        })
+        break
+      case MessageTypeAction.QueryHTMLContent:
+        sendResponse({
+          resp: document.body.innerHTML
+        })
+        break
+      default:
+        break
     }
-    case MessageTypeAction.OpenWelcome:
-      browser.tabs.create({
-        url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
-      })
-      break
-    case MessageTypeAction.QueryHTMLContent:
-      sendResponse({
-        resp: document.body.innerHTML
-      })
-      break
-    default:
-      break
-  }
 
-  return true
-})
+    return true
+  }
+)
 
 watch(
   () => showPopup.value,
