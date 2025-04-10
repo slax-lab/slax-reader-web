@@ -13,7 +13,8 @@
     "build:dweb": "pnpm --F @apps/slax-reader-dweb run build",
     "build:extensions": "pnpm --F @apps/slax-reader-extensions run build",
     "build:extensions:zip": "pnpm --F @apps/slax-reader-extensions run zip",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "inspect:deps": "node-modules-inspector"
   },
   "keywords": [],
   "author": "",
@@ -72,6 +73,7 @@
     "execa": "^9.5.2",
     "husky": "^9.1.7",
     "inquirer": "^12.5.0",
+    "node-modules-inspector": "^0.6.4",
     "prettier": "^3.5.3",
     "terser": "^5.39.0",
     "tsx": "^4.19.3",

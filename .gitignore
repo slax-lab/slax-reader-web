@@ -177,3 +177,5 @@ project-env.d.ts
 .env.*
 
 .vscode
+
+.node-modules-inspector
