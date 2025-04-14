@@ -7,7 +7,7 @@ import { storage } from '@wxt-dev/storage'
 export const request = new FetchRequest({
   baseUrl: `${process.env.EXTENSIONS_API_BASE_URL}`,
   requestInterceptors: async options => {
-    const token = await storage.getItem<string>(`local:${LocalStorageKey.USER_TOKEN}`)
+    const token = await storage.getItem<string>(`${LocalStorageKey.USER_TOKEN}`)
     if (!token) {
       return options
     }

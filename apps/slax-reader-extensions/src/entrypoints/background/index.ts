@@ -1,19 +1,23 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
-import { LocalStorageKey } from '@commons/types/const'
+import { LocalStorageKey, RESTMethodPath } from '@commons/types/const'
+import { type UserInfo } from '@commons/types/interface'
 import { storage } from '@wxt-dev/storage'
 import { analytics } from '#analytics'
+import md5 from 'md5'
 
 export default defineBackground(() => {
-  const userToken = storage.defineItem<string>(`local:${LocalStorageKey.USER_TOKEN}`)
-  const userBookmarks = storage.defineItem<string[]>(`local:${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
   const bookmarkRecordsSyncKey = 'bookmarkRecordsSync'
+  const userInfo = storage.defineItem<UserInfo, { lastUpdated: number }>(`${LocalStorageKey.USER_INFO}`)
+  const bookmarkRecords = storage.defineItem<Record<string, number>>(`${LocalStorageKey.BOOKMARK_RECORDS}`, { fallback: {} })
+  const userToken = storage.defineItem<string>(`${LocalStorageKey.USER_TOKEN}`)
+  const userBookmarks = storage.defineItem<string[]>(`${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
 
-  function openTab(url: string) {
+  const openTab = (url: string) => {
     browser.tabs.create({ url })
   }
 
-  async function checkLogin(): Promise<boolean> {
+  const checkLogin = async () => {
     let cookies = await userToken.getValue()
     if (!cookies) {
       const browserCookies = await browser.cookies.get({ url: process.env.PUBLIC_BASE_URL || '', name: process.env.COOKIE_TOKEN_NAME || '' })
@@ -32,7 +36,7 @@ export default defineBackground(() => {
   }
 
   // 打开收藏弹窗
-  async function openCollectPopup(tab: Browser.tabs.Tab, command = 'open_collect') {
+  const openCollectPopup = async (tab: Browser.tabs.Tab, command = 'open_collect') => {
     console.log('openCollectPopup')
     if (command !== 'open_collect') return
     const res = await checkLogin()
@@ -42,19 +46,45 @@ export default defineBackground(() => {
   }
 
   // 打开设置页面
-  async function openSetting() {
+  const openSetting = async () => {
     if (!(await checkLogin())) return
     openTab(`${process.env.PUBLIC_BASE_URL}/user`)
+  }
+
+  const queryUserInfo = async (): Promise<UserInfo> => {
+    const cache = await userInfo.getValue()
+    const meta = await userInfo.getMeta()
+
+    const duration = Date.now() - (meta?.lastUpdated || 0)
+
+    // if have cache and duration is less than 1 day
+    if (cache && duration < 24 * 60 * 60 * 1000) return cache
+
+    const resp = await request.get<UserInfo>({
+      url: RESTMethodPath.ME
+    })
+
+    if (!resp) {
+      throw new Error('refresh user info failed')
+    }
+
+    await userInfo.setValue(resp)
+    await userInfo.setMeta({ lastUpdated: Date.now() })
+
+    return resp
   }
 
   const cookieHost = process.env.COOKIE_DOMAIN as string
 
   // 监听cookie变化
-  browser.cookies.onChanged.addListener(changeInfo => {
+  browser.cookies.onChanged.addListener(async changeInfo => {
     if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) return
     console.log('cookie update', changeInfo)
 
-    if (changeInfo.removed) return userToken.removeValue()
+    if (changeInfo.removed) {
+      await Promise.allSettled([userToken.removeValue(), userBookmarks.removeValue(), userInfo.removeValue(), bookmarkRecords.removeValue()])
+      return
+    }
 
     userToken.setValue(changeInfo.cookie.value)
   })
@@ -129,37 +159,132 @@ export default defineBackground(() => {
   browser.commands.onCommand.addListener((command, tab) => openCollectPopup(tab!, command))
 
   // 监听其他页面发送的消息
-  browser.runtime.onMessage.addListener(async (message: unknown, sender: Browser.runtime.MessageSender) => {
+  browser.runtime.onMessage.addListener((message: unknown, sender: Browser.runtime.MessageSender, sendResponse: (response?: unknown) => void) => {
     const receiveMessage = message as MessageType
     switch (receiveMessage.action) {
       case MessageTypeAction.OpenWelcome:
-        return openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
+        openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
+        return false
       case MessageTypeAction.RecordBookmark: {
         console.log('background add bookmark..')
-        let bookmarks = await userBookmarks.getValue()
-        const url = receiveMessage.url
+        const task = async () => {
+          let bookmarks = await userBookmarks.getValue()
+          const url = receiveMessage.url
 
-        let isEdited = false
-        if (receiveMessage.actionType === BookmarkActionType.ADD && bookmarks.indexOf(url) === -1) {
-          isEdited = true
-          bookmarks.push(url)
-        } else if (receiveMessage.actionType === BookmarkActionType.DELETE && bookmarks.indexOf(url) !== -1) {
-          isEdited = true
-          bookmarks = bookmarks.filter(bookmark => bookmark !== url)
+          let isEdited = false
+          if (receiveMessage.actionType === BookmarkActionType.ADD && bookmarks.indexOf(url) === -1) {
+            isEdited = true
+            bookmarks.push(url)
+          } else if (receiveMessage.actionType === BookmarkActionType.DELETE && bookmarks.indexOf(url) !== -1) {
+            isEdited = true
+            bookmarks = bookmarks.filter(bookmark => bookmark !== url)
+          }
+
+          console.log(sender.tab)
+          if (isEdited && sender.tab?.id) {
+            await userBookmarks.setValue(bookmarks)
+            await checkAndUpdateBookmarkStatus(sender.tab!.id!, url)
+          }
+
+          console.log('added bookmark')
         }
 
-        console.log(sender.tab)
-        if (isEdited && sender.tab?.id) {
-          await userBookmarks.setValue(bookmarks)
-          await checkAndUpdateBookmarkStatus(sender.tab!.id!, url)
-        }
-        break
+        task()
+
+        return false
       }
-      default:
-        break
+
+      case MessageTypeAction.QueryBookmarkRecord: {
+        const url = receiveMessage.url
+        const hashCode = md5(url)
+
+        queryBookmarkRecord(hashCode)
+          .then(res => {
+            if (res === 0) {
+              sendResponse({ success: false })
+            } else {
+              sendResponse({ success: true, data: { bookmarkId: res } })
+            }
+          })
+          .catch(error => {
+            sendResponse({ success: false, data: error })
+          })
+
+        return true
+      }
+
+      case MessageTypeAction.AddBookmarkRecord: {
+        const url = receiveMessage.url
+        const bookmarkId = receiveMessage.bookmarkId
+        const hashCode = md5(url)
+
+        addBookmarkRecord(hashCode, bookmarkId)
+          .then(() => {
+            sendResponse({ success: true })
+          })
+          .catch(error => {
+            sendResponse({ success: false, data: error })
+          })
+
+        return true
+      }
+
+      case MessageTypeAction.CheckLogined: {
+        checkLogin()
+          .then(res => {
+            if (!res) {
+              sendResponse({
+                success: false
+              })
+            } else {
+              sendResponse({ success: true, data: res })
+            }
+          })
+          .catch(error => {
+            sendResponse({
+              success: false,
+              data: error
+            })
+          })
+
+        return true
+      }
+
+      case MessageTypeAction.QueryUserInfo: {
+        queryUserInfo().then(res => {
+          sendResponse({
+            success: true,
+            data: res
+          })
+        })
+
+        return true
+      }
     }
+
+    return false
   })
 
+  const queryBookmarkRecord = async (hashCode: string) => {
+    const res = await bookmarkRecords.getValue()
+    const record = res[hashCode]
+
+    //TODO: 后续要增加接口
+
+    if (record) {
+      return record
+    }
+
+    return 0
+  }
+
+  const addBookmarkRecord = async (hashCode: string, bookmarkId: number) => {
+    const res = await bookmarkRecords.getValue()
+    res[hashCode] = bookmarkId
+
+    await bookmarkRecords.setValue(res)
+    //TODO: 后续要增加接口
+  }
   const checkAndUpdateBookmarkStatus = async (tabId: number, url: string) => {
     if (!tabId) {
       return
@@ -175,11 +300,6 @@ export default defineBackground(() => {
 
     await browser.action.setBadgeText({ text, tabId })
   }
-
-  // browser.tabs.onActivated.addListener(async ({ tabId }) => {
-  //   const tab = await browser.tabs.get(tabId)
-  //   await checkAndUpdateBookmarkStatus(tabId, tab.url!)
-  // })
 
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.status !== 'complete') return
