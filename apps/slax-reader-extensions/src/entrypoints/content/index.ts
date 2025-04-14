@@ -46,7 +46,9 @@ export default defineContentScript({
       anchor: 'body',
       append: 'before',
       onMount: container => {
-        const app = createApp(SidePanel, {})
+        const app = createApp(SidePanel, {
+          browser
+        })
         app.mount(container)
         return app
       },

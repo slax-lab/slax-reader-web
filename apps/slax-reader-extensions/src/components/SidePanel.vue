@@ -28,12 +28,12 @@
       </div>
       <div class="panel-content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
-        <div class="panel-content-wrapper">
+        <div class="panel-content-wrapper" v-if="bookmarkId">
           <Transition name="sidepanel">
-            <AISummaries v-show="isSummaryShowing" :bookmarkId="5131361" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+            <AISummaries v-show="isSummaryShowing" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
           </Transition>
           <Transition name="sidepanel">
-            <ChatBot v-show="isChatbotShowing" ref="chatbot" :bookmarkId="5131361" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
+            <ChatBot v-show="isChatbotShowing" ref="chatbot" :bookmarkId="bookmarkId" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
           </Transition>
         </div>
       </div>
@@ -54,13 +54,19 @@ import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
+import { type MessageType, MessageTypeAction } from '@/config'
+
 import { MouseTrack } from '@commons/utils/mouse'
 
 import type { QuoteData } from './Chat/type'
 import { showShareConfigModal } from './Share'
 import { ArticleSelection } from '@/components/Selection/selection'
+import { RESTMethodPath } from '@commons/types/const'
+import type { AddBookmarkReq, AddBookmarkResp, BookmarkDetail, UserInfo } from '@commons/types/interface'
+import { Readability } from '@slax-lab/readability'
 import { vOnClickOutside } from '@vueuse/components'
 import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
+import type { WxtBrowser } from 'wxt/browser'
 
 enum PanelItemType {
   'AI' = 'ai',
@@ -75,6 +81,13 @@ interface PanelItem {
   title: string
   hovered: boolean
 }
+
+const props = defineProps({
+  browser: {
+    type: Object as PropType<WxtBrowser>,
+    required: true
+  }
+})
 
 const isCollected = ref(false)
 const isLocked = useScrollLock(window)
@@ -94,9 +107,7 @@ const chatbot = ref<InstanceType<typeof ChatBot>>()
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
 
-const showPanel = computed(() => {
-  return isSummaryShowing.value || isChatbotShowing.value
-})
+const bookmarkId = ref(0)
 
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
@@ -106,6 +117,10 @@ const isLoading = ref(false)
 const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
 let articleSelection: ArticleSelection | null = null
+
+const showPanel = computed(() => {
+  return isSummaryShowing.value || isChatbotShowing.value
+})
 
 const appStatusText = computed(() => {
   return isLoading.value ? loadingTitle.value : isCollected ? '查看收藏' : '收藏内容'
@@ -180,29 +195,51 @@ const isMouseWithinElement = (element: HTMLElement) => {
 }
 
 onMounted(() => {
+  tracking.mouseTrack(true)
+
+  loadSelection()
+})
+
+onUnmounted(() => {
+  tracking.destruct()
+})
+
+const loadSelection = async () => {
+  const bookmarkRecord = await tryGetBookmarkRecord()
+  if (bookmarkRecord) {
+    bookmarkId.value = bookmarkRecord
+    isCollected.value = true
+  }
+
   if (!isSlaxWebsite(window.location.href)) {
+    const detail = bookmarkId.value ? await getBookmarkDetail(bookmarkId.value) : null
+    const userInfo = await tryGetUserInfo()
+
     articleSelection = new ArticleSelection({
-      shareCode: 0 || '',
-      bookmarkId: 5131361,
       allowAction: true,
-      ownerUserId: 0,
       containerDom: menus.value!,
       monitorDom: document.body as HTMLDivElement,
+      userInfo: userInfo,
+      bookmarkIdQuery: async () => {
+        if (bookmarkId.value === 0) {
+          await addBookmark()
+        }
+
+        return bookmarkId.value
+      },
       postQuoteDataHandler: (data: QuoteData) => {
         isChatbotShowing.value = true
         chatbot.value?.addQuoteData(data)
       }
     })
 
+    if (detail) {
+      articleSelection.drawMark(detail.marks)
+    }
+
     articleSelection.startMonitor()
   }
-
-  tracking.mouseTrack(true)
-})
-
-onUnmounted(() => {
-  tracking.destruct()
-})
+}
 
 const isSlaxWebsite = (url: string) => {
   try {
@@ -221,7 +258,15 @@ const isSlaxWebsite = (url: string) => {
   }
 }
 
-const panelClick = (type: PanelItemType) => {
+const panelClick = async (type: PanelItemType) => {
+  const res = await props.browser.runtime.sendMessage({
+    action: MessageTypeAction.CheckLogined
+  })
+
+  if (!res) {
+    return
+  }
+
   isSummaryShowing.value = false
   isChatbotShowing.value = false
 
@@ -254,13 +299,101 @@ const closePanel = () => {
   isChatbotShowing.value = false
 }
 
-setTimeout(() => {
+const getWebSiteInfo = () => {
+  var r: any = {}
+  r.target_url = window.location.href
+  r.target_title = document.title || document.querySelector('meta[property="og:title"]')?.getAttribute('content') || `${location.href}${location.pathname}`
+
+  const iconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]')
+  r.target_icon = iconLink ? iconLink.getAttribute('href') : ''
+  r.description =
+    document.querySelector('meta[name="twitter:description"]')?.getAttribute('content') ||
+    document.querySelector('meta[name="description"]')?.getAttribute('content') ||
+    document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+    ''
+
+  const cloneDom = document.cloneNode(true) as Document
+  Array.from(cloneDom.getElementsByTagName('slax-reader-modal') || []).forEach(element => element.remove())
+  r.content = (cloneDom || document).documentElement.outerHTML
+
+  return r as AddBookmarkReq
+}
+
+const tryGetUserInfo = async () => {
+  const res = await queryBackground<UserInfo>({
+    action: MessageTypeAction.QueryUserInfo
+  })
+
+  if (!res || !res.success) {
+    return null
+  }
+
+  return res.data
+}
+
+const tryGetBookmarkRecord = async () => {
+  const res = await queryBackground<{ bookmarkId: number }>({
+    action: MessageTypeAction.QueryBookmarkRecord,
+    url: window.location.href
+  })
+
+  console.log('push message res: ', res)
+
+  if (!res || !res.success) {
+    return 0
+  }
+
+  return res.data.bookmarkId
+}
+
+const getBookmarkDetail = async (bookmarkId: number) => {
+  const res = await request.get<BookmarkDetail>({
+    url: RESTMethodPath.BOOKMARK_DETAIL,
+    query: {
+      bookmark_id: String(bookmarkId)
+    }
+  })
+
+  return res
+}
+
+const queryBackground = async <R extends {}>(params: MessageType) => {
+  const res = await props.browser.runtime.sendMessage<MessageType, { success: true; data: R } | { success: false; data?: Error }>(params)
+  return res
+}
+
+const addBookmark = async () => {
   isLoading.value = true
-  setTimeout(() => {
+
+  try {
+    const websiteInfo = getWebSiteInfo()
+    const resp = await request.post<AddBookmarkResp>({
+      url: RESTMethodPath.ADD_BOOKMARK,
+      body: {
+        ...websiteInfo
+      }
+    })
+
+    if (resp) {
+      await queryBackground({ action: MessageTypeAction.AddBookmarkRecord, url: window.location.href, bookmarkId: resp.bmId })
+      bookmarkId.value = resp.bmId
+      isCollected.value = true
+    }
+  } finally {
     isLoading.value = false
-    isCollected.value = true
-  }, 3000)
-}, 2000)
+  }
+}
+
+const cloneBodyDocument = () => {
+  const newDocument = document.implementation.createHTMLDocument(document.title)
+  const bodyContent = document.body.cloneNode(true)
+  newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
+  return newDocument
+}
+
+const getRawTextContent = () => {
+  return new Readability(cloneBodyDocument(), { debug: false }).parse()
+}
 </script>
 
 <style lang="scss" scoped>
