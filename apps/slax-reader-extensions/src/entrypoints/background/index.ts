@@ -7,6 +7,7 @@ import { analytics } from '#analytics'
 export default defineBackground(() => {
   const userToken = storage.defineItem<string>(`local:${LocalStorageKey.USER_TOKEN}`)
   const userBookmarks = storage.defineItem<string[]>(`local:${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
+  const bookmarkRecordsSyncKey = 'bookmarkRecordsSync'
 
   function openTab(url: string) {
     browser.tabs.create({ url })
@@ -69,6 +70,8 @@ export default defineBackground(() => {
       color: '#fff'
     })
 
+    browser.alarms.create(bookmarkRecordsSyncKey, { periodInMinutes: 60 })
+
     // 注册菜单
     const menus: Browser.contextMenus.CreateProperties[] = [
       { id: 'setting', title: i18n.t('extended_settings'), contexts: ['action'] },
@@ -90,6 +93,11 @@ export default defineBackground(() => {
     }
 
     analytics.setEnabled(true)
+  })
+
+  browser.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === bookmarkRecordsSyncKey) {
+    }
   })
 
   // 插件被挂起(禁用)

@@ -34,7 +34,7 @@ export default defineConfig({
     version: '1.3.0',
     description: 'An AI-powered browser extension that generates outlines and highlights key points to enhance your web reading experience.',
     default_locale: 'en',
-    permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus'],
+    permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus', 'alarms'],
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'"
     },
