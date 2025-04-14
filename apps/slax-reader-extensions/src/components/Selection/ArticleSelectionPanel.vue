@@ -21,7 +21,7 @@
               v-for="(comment, index) in markComments"
               :key="index"
               :comment="comment"
-              :bookmarkUserId="bookmarkUserId"
+              :userId="userId"
               @replyComment="replyComment"
               @commentDelete="commentDelete"
             />
@@ -81,19 +81,18 @@ const props = defineProps({
     required: true,
     type: Object as PropType<MarkItemInfo>
   },
-  bookmarkUserId: {
-    required: true,
-    type: Number
-  },
   allowAction: {
     required: true,
     type: Boolean
+  },
+  userId: {
+    required: true,
+    type: Number
   }
 })
 
 const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize', 'locationUpdate'])
 
-const userId = 0
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = ref($t('component.article_selection.placeholder'))
 const compositionAppear = ref(false)
@@ -138,6 +137,7 @@ const updateLocation = (position: Position) => {
 const commentsHeight = computed(() => {
   return Math.max(0, maxHeight.value - 200)
 })
+
 const menus = computed<MenuItem[]>(() => {
   const menus: MenuItem[] = [
     {
@@ -150,7 +150,7 @@ const menus = computed<MenuItem[]>(() => {
   if (props.allowAction) {
     menus.push(
       ...[
-        !!props.info.stroke.find(item => item.userId === userId)
+        !!props.info.stroke.find(item => item.userId === props.userId)
           ? {
               id: MenuType.Stroke_Delete,
               name: $t('common.operate.delete_line'),

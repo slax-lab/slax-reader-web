@@ -109,14 +109,14 @@ const showPanel = (options: {
   container: HTMLDivElement
   articleDom: HTMLDivElement
   info: MarkItemInfo
-  bookmarkUserId: number
+  userId: number
   allowAction: boolean
   fallbackYOffset: number
   actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
   commentDeleteCallback?: (id: string, markId: number) => void
   dismissCallback?: () => void
 }) => {
-  const { container, info, allowAction, bookmarkUserId, actionCallback, commentDeleteCallback, dismissCallback } = options
+  const { container, info, allowAction, userId, actionCallback, commentDeleteCallback, dismissCallback } = options
 
   const key = `article-selection-panel-container`
 
@@ -163,7 +163,7 @@ const showPanel = (options: {
 
   const app = createApp(ArticleSelectionPanel, {
     info,
-    bookmarkUserId,
+    userId,
     allowAction,
     onDismiss: () => {
       app.unmount()

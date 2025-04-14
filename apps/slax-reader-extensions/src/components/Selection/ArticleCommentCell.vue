@@ -66,7 +66,7 @@ const props = defineProps({
     type: Object as PropType<MarkCommentInfo>,
     required: true
   },
-  bookmarkUserId: {
+  userId: {
     type: Number,
     required: true
   }
@@ -93,19 +93,11 @@ const showCreateTime = (comment: MarkCommentInfo) => {
 }
 
 const canDeleteComment = (comment: MarkCommentInfo) => {
-  // const userId = useUserStore().userInfo?.userId
-  // userId === comment.userId || userId === props.bookmarkUserId
-  return false
+  return props.userId === comment.userId
 }
 
 const replyComment = (comment: MarkCommentInfo) => {
   if (comment.isDeleted) return
-  // if (!useUserStore().userInfo) {
-  //   return showLoginModal({
-  //     redirect: window.location.href
-  //   })
-  // }
-
   comment.showInput = !comment.showInput
 }
 

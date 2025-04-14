@@ -7,7 +7,7 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig } from './type'
-import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
+import { type MarkDetail, type MarkPathItem, type UserInfo } from '@commons/types/interface'
 
 type SelectTextInfo =
   | {
@@ -27,11 +27,13 @@ export class ArticleSelection {
   private monitor: SelectionMonitor
   private manager: MarkManager
   private renderer: MarkRenderer
+  private _config: SelectionConfig
 
   constructor(config: SelectionConfig) {
-    this.renderer = new MarkRenderer(config)
-    this.manager = new MarkManager(config, this.renderer, this.findQuote.bind(this))
-    this.monitor = new SelectionMonitor(config.monitorDom, this.handleMouseUp.bind(this))
+    this._config = config
+    this.renderer = new MarkRenderer(this._config)
+    this.manager = new MarkManager(this._config, this.renderer, this.findQuote.bind(this))
+    this.monitor = new SelectionMonitor(this._config.monitorDom, this.handleMouseUp.bind(this))
   }
 
   startMonitor() {
@@ -88,6 +90,10 @@ export class ArticleSelection {
       }
       this.config.monitorDom?.addEventListener('click', clickHandler)
     }
+  }
+
+  updateUserInfo(userInfo: UserInfo) {
+    this._config.userInfo = userInfo
   }
 
   private async handleMouseUp(e: MouseEvent | TouchEvent) {

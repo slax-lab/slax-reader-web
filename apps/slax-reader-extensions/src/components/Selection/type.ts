@@ -1,5 +1,5 @@
 import type { QuoteData } from '../Chat/type'
-import type { MarkPathItem } from '@commons/types/interface'
+import type { MarkPathItem, UserInfo } from '@commons/types/interface'
 
 export enum MenuType {
   Copy = 'copy',
@@ -41,11 +41,9 @@ export type MarkCommentInfo = {
 export interface SelectionConfig {
   containerDom: HTMLDivElement | null
   monitorDom: HTMLDivElement | null
-  bookmarkId?: number
-  shareCode?: string
-  collection?: { code: string; cb_id: number }
-  ownerUserId: number
   allowAction: boolean
+  userInfo: UserInfo | null
+  bookmarkIdQuery: () => Promise<number>
   postQuoteDataHandler: (data: QuoteData) => void
 }
 

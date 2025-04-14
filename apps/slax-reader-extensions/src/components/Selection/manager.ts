@@ -33,8 +33,9 @@ export class MarkManager {
   async strokeSelection(meta: StrokeSelectionMeta) {
     const { info, comment, replyToId } = meta
     const markItems = info.source
-    // const userInfo = useUserStore().userInfo
-    const userInfo = {} as any
+
+    const userInfo = await this.config.userInfo
+    if (!userInfo) return
 
     if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
       return info.id
@@ -121,15 +122,19 @@ export class MarkManager {
   }
 
   async deleteStroke(info: MarkItemInfo) {
-    const userId = 0 //useUserStore().userInfo?.userId || 0
+    const userInfo = await this.config.userInfo
+    if (!userInfo) return
+
+    const userId = userInfo.userId
     if (!userId) return
 
     const markId = info.stroke.find(item => item.userId === userId)?.mark_id
     if (!markId) return
 
+    const bookmarkId = await this.config.bookmarkIdQuery()
     await request.post({
       url: RESTMethodPath.DELETE_MARK,
-      body: { bm_id: this.config.bookmarkId, mark_id: markId }
+      body: { bm_id: bookmarkId, mark_id: markId }
     })
 
     info.stroke = info.stroke.filter(item => item.userId !== userId)
@@ -167,9 +172,11 @@ export class MarkManager {
     }
 
     try {
+      const bookmarkId = await this.config.bookmarkIdQuery()
+
       await request.post({
         url: RESTMethodPath.DELETE_MARK,
-        body: { bm_id: this.config.bookmarkId, mark_id: markId }
+        body: { bm_id: bookmarkId, mark_id: markId }
       })
       removeMarkOrComment()
     } catch (e) {
@@ -230,61 +237,17 @@ export class MarkManager {
     return true
   }
 
-  // showMenus(options: { e: MouseEvent; source: MarkPathItem[] }) {
-  //   const { e, source } = options
-  //   let menusY = 0
-  //   SelectionModal.showMenus({
-  //     container: this.config.containerDom!,
-  //     allowAction: this.config.allowAction,
-  //     event: e,
-  //     callback: (type: MenuType, event: MouseEvent) => {
-  //       const currentInfo = this.currentMarkItemInfo
-  //       if (!currentInfo) return
-
-  //       if (type === MenuType.Stroke) {
-  //         currentInfo.id = getUUID()
-  //         this.strokeSelection({ info: currentInfo })
-  //       } else if (type === MenuType.Copy) {
-  //         this.copyMarkedText(source, event)
-  //       } else if (type === MenuType.Comment) {
-  //         currentInfo.id = getUUID()
-  //         this.showPanel({ fallbackYOffset: menusY })
-  //       } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-  //         const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source) }
-  //         const selection = window.getSelection()
-  //         const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
-
-  //         const selected = this.getSelectedElementsList()
-  //         if (!selected || selected.length === 0) {
-  //           quote.source.selection = range
-  //         } else {
-  //           const paths = this.getMarkPathItems(selected)
-  //           quote.source.paths = paths || (range ? undefined : [])
-  //           if (!paths && range) quote.source.selection = range
-  //         }
-
-  //         this.config.postQuoteDataHandler(quote)
-  //         this._findQuote(quote)
-  //       }
-
-  //       if (type !== MenuType.Comment) this.clearSelection()
-  //     },
-  //     positionCallback: ({ y }) => (menusY = y),
-  //     noActionCallback: () => {
-  //       this.updateCurrentMarkItemInfo(null)
-  //       this.clearSelectContent()
-  //     }
-  //   })
-  // }
-
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
+
+    const userInfo = this.config.userInfo
+    if (!userInfo) return
 
     SelectionModal.showPanel({
       container: this.config.containerDom!,
       articleDom: this.config.monitorDom!,
       info: this._currentMarkItemInfo.value,
-      bookmarkUserId: this.config.ownerUserId,
+      userId: userInfo.userId,
       allowAction: this.config.allowAction,
       fallbackYOffset: options?.fallbackYOffset || 0,
       actionCallback: (type, meta) => {
@@ -346,12 +309,12 @@ export class MarkManager {
   }
 
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, comment?: string, replyToId?: number) {
+    const bookmarkId = await this.config.bookmarkIdQuery()
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
-          share_code: this.config.shareCode,
-          bm_id: this.config.bookmarkId,
+          bm_id: bookmarkId,
           comment,
           type,
           source: value,
