@@ -1,6 +1,6 @@
 import { MessageTypeAction } from '@/config'
 
-import type { AuthService } from './auth-service'
+import type { AuthService } from './authService'
 
 export class BrowserService {
   static openTab(url: string): void {

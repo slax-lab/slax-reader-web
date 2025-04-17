@@ -1,10 +1,10 @@
-import { AuthService } from './auth-service'
-import { BookmarkService } from './bookmark-service'
-import { BrowserService } from './browser-service'
+import { AuthService } from './authService'
+import { BookmarkService } from './bookmarkService'
+import { BrowserService } from './browserService'
 import { CONFIG } from './config'
 import { UserIndexedDBService } from './indexedDB'
-import { MessageHandler } from './message-handler'
-import { StorageService } from './storage-service'
+import { MessageHandler } from './messageHandler'
+import { StorageService } from './storageService'
 
 export default defineBackground(() => {
   const storageService = new StorageService()

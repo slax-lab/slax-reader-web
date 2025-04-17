@@ -1,6 +1,6 @@
-import { BrowserService } from './browser-service'
+import { BrowserService } from './browserService'
 import { CONFIG } from './config'
-import type { StorageService } from './storage-service'
+import type { StorageService } from './storageService'
 import { RESTMethodPath } from '@commons/types/const'
 import type { UserInfo } from '@commons/types/interface'
 

@@ -1,9 +1,9 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
-import type { AuthService } from './auth-service'
-import type { BookmarkService } from './bookmark-service'
-import { BrowserService } from './browser-service'
-import type { StorageService } from './storage-service'
+import type { AuthService } from './authService'
+import type { BookmarkService } from './bookmarkService'
+import { BrowserService } from './browserService'
+import type { StorageService } from './storageService'
 import md5 from 'md5'
 
 export class MessageHandler {
