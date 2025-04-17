@@ -12,7 +12,6 @@ export default defineBackground(() => {
   const bookmarkRecordsSyncKey = 'bookmarkRecordsSync'
   const userInfo = storage.defineItem<UserInfo, { lastUpdated: number }>(`${LocalStorageKey.USER_INFO}`)
   const userToken = storage.defineItem<string>(`${LocalStorageKey.USER_TOKEN}`)
-  const userBookmarks = storage.defineItem<string[]>(`${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
   const dbService = new UserIndexedDBService()
 
   const loadSocket = () => {
@@ -201,7 +200,7 @@ export default defineBackground(() => {
     console.log('cookie update', changeInfo)
 
     if (changeInfo.removed) {
-      await Promise.allSettled([userToken.removeValue(), userBookmarks.removeValue(), userInfo.removeValue(), dbService.clearAllData()])
+      await Promise.allSettled([userToken.removeValue(), userInfo.removeValue(), dbService.clearAllData()])
       return
     }
 
@@ -292,21 +291,9 @@ export default defineBackground(() => {
       case MessageTypeAction.RecordBookmark: {
         console.log('background add bookmark..')
         const task = async () => {
-          let bookmarks = await userBookmarks.getValue()
           const url = receiveMessage.url
-
-          let isEdited = false
-          if (receiveMessage.actionType === BookmarkActionType.ADD && bookmarks.indexOf(url) === -1) {
-            isEdited = true
-            bookmarks.push(url)
-          } else if (receiveMessage.actionType === BookmarkActionType.DELETE && bookmarks.indexOf(url) !== -1) {
-            isEdited = true
-            bookmarks = bookmarks.filter(bookmark => bookmark !== url)
-          }
-
           console.log(sender.tab)
-          if (isEdited && sender.tab?.id) {
-            await userBookmarks.setValue(bookmarks)
+          if (sender.tab?.id) {
             await checkAndUpdateBookmarkStatus(sender.tab!.id!, url)
           }
 
@@ -462,10 +449,10 @@ export default defineBackground(() => {
       return
     }
 
-    const bookmarks = await userBookmarks.getValue()
+    const bookmarkId = await queryBookmarkRecord(md5(url))
 
     let text = ''
-    if (bookmarks.indexOf(url) !== -1) {
+    if (bookmarkId) {
       console.log('include')
       text = '✓'
     }

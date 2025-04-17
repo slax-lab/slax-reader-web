@@ -70,7 +70,6 @@ enum RESTMethodPath {
 
 enum LocalStorageKey {
   USER_TOKEN = 'local:token',
-  USER_BOOKMARKS = 'local:bookmarks',
   ANALYTICS_ENABLED = 'local:analytics-enabled',
   USER_INFO = 'local:user_info'
 }
