@@ -13,6 +13,8 @@ enum RESTMethodPath {
   REVERT_BOOKMARK = '/v1/bookmark/trash_revert',
   BOOKMARK_DETAIL = '/v1/bookmark/detail',
   BOOKMARK_LIST = '/v1/bookmark/list',
+  ALL_BOOKMARK_CHANGELOGS = '/v1/bookmark/all_change_logs',
+  PARTIAL_BOOKMARK_CHANGELOGS = '/v1/bookmark/partial_change_logs',
   BOOKMARK_AI_SUMMARIES = '/v1/aigc/summaries',
   BOOKMARK_AI_SUMMARIES_LIST = '/v1/bookmark/summaries',
   BOOKMARK_ARCHIVE = '/v1/bookmark/archive',
@@ -69,7 +71,6 @@ enum RESTMethodPath {
 enum LocalStorageKey {
   USER_TOKEN = 'local:token',
   USER_BOOKMARKS = 'local:bookmarks',
-  BOOKMARK_RECORDS = 'local:bookmark_records',
   ANALYTICS_ENABLED = 'local:analytics-enabled',
   USER_INFO = 'local:user_info'
 }
