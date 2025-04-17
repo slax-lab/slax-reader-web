@@ -1,3 +1,4 @@
+import { isClient } from '@commons/utils/is'
 import { FetchRequest, type FetchResult } from '@commons/utils/request'
 
 import { LocalStorageKey } from '@commons/types/const'
@@ -21,8 +22,8 @@ export const request = new FetchRequest({
     if (response.status === 401) {
       await storage.removeItem(LocalStorageKey.USER_TOKEN)
       const url = `${process.env.PUBLIC_BASE_URL}/login?from=extension`
-      if (window) {
-        window.open(url)
+      if (isClient) {
+        window?.open(url)
       } else if (browser && browser.tabs) {
         browser.tabs.create({ url })
       }
