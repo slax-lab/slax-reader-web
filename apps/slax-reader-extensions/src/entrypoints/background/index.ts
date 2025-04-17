@@ -1,7 +1,9 @@
 import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
+import { UserIndexedDBService } from './db'
+import { SlaxWebSocket } from './socket'
 import { LocalStorageKey, RESTMethodPath } from '@commons/types/const'
-import { type UserInfo } from '@commons/types/interface'
+import { type BookmarkChangelog, type BookmarkChangelogResp, type UserBookmarkChangelog, type UserInfo } from '@commons/types/interface'
 import { storage } from '@wxt-dev/storage'
 import { analytics } from '#analytics'
 import md5 from 'md5'
@@ -9,9 +11,44 @@ import md5 from 'md5'
 export default defineBackground(() => {
   const bookmarkRecordsSyncKey = 'bookmarkRecordsSync'
   const userInfo = storage.defineItem<UserInfo, { lastUpdated: number }>(`${LocalStorageKey.USER_INFO}`)
-  const bookmarkRecords = storage.defineItem<Record<string, number>>(`${LocalStorageKey.BOOKMARK_RECORDS}`, { fallback: {} })
   const userToken = storage.defineItem<string>(`${LocalStorageKey.USER_TOKEN}`)
   const userBookmarks = storage.defineItem<string[]>(`${LocalStorageKey.USER_BOOKMARKS}`, { fallback: [] })
+  const dbService = new UserIndexedDBService()
+
+  const loadSocket = () => {
+    const ws = new SlaxWebSocket({
+      url: 'wss://',
+      autoReconnect: true,
+      reconnectInterval: 2000,
+      maxReconnectAttempts: 3
+    })
+
+    // 监听连接打开事件
+    ws.on('open', event => {
+      console.log('Connection established!')
+
+      // 发送消息
+      ws.send('Hello WebSocket!')
+
+      // 发送JSON数据
+      ws.sendJSON({ type: 'greeting', content: 'Hello from JSON!' })
+    })
+
+    // 监听消息事件
+    ws.on('message', event => {
+      console.log('Received message:', event.data)
+    })
+
+    // 监听错误事件
+    ws.on('error', event => {
+      console.error('WebSocket error occurred')
+    })
+
+    // 监听关闭事件
+    ws.on('close', event => {
+      console.log(`Connection closed. Code: ${event.code}, Reason: ${event.reason}`)
+    })
+  }
 
   const openTab = (url: string) => {
     browser.tabs.create({ url })
@@ -51,17 +88,23 @@ export default defineBackground(() => {
     openTab(`${process.env.PUBLIC_BASE_URL}/user`)
   }
 
-  const queryUserInfo = async (): Promise<UserInfo> => {
+  const queryUserInfo = async () => {
+    if (!(await userToken.getValue())) {
+      return null
+    }
+
     const cache = await userInfo.getValue()
     const meta = await userInfo.getMeta()
 
     const duration = Date.now() - (meta?.lastUpdated || 0)
 
-    // if have cache and duration is less than 1 day
     if (cache && duration < 24 * 60 * 60 * 1000) return cache
 
     const resp = await request.get<UserInfo>({
-      url: RESTMethodPath.ME
+      url: RESTMethodPath.ME,
+      errorInterceptors: error => {
+        console.log(error)
+      }
     })
 
     if (!resp) {
@@ -74,6 +117,82 @@ export default defineBackground(() => {
     return resp
   }
 
+  const updateAllBookmarkRecords = async () => {
+    if (!(await userToken.getValue())) {
+      return
+    }
+
+    const res = await request.get<BookmarkChangelogResp<BookmarkChangelog>>({
+      url: RESTMethodPath.ALL_BOOKMARK_CHANGELOGS
+    })
+
+    try {
+      await dbService.initialize()
+      await dbService.clearBookmarkRecords()
+      await dbService.close()
+    } catch (e) {}
+
+    if (!res) {
+      return
+    }
+
+    const time = res.end_time
+    const logs = res.logs || []
+
+    await addBookmarkRecords(
+      logs.map(item => ({
+        hashUrl: md5(item.target_url),
+        bookmarkId: item.bookmark_id
+      }))
+    )
+
+    await updateRecordSyncTime(Number(time))
+  }
+
+  const updatePartialBookmarkRecords = async () => {
+    if (!(await userToken.getValue())) {
+      return
+    }
+
+    const endTime = (await queryRecordSyncTime()) || 0
+
+    if (endTime && Date.now() - endTime > 15 * 24 * 60 * 60 * 1000) {
+      // 超过15天，直接全量更新一次
+      await updateAllBookmarkRecords()
+      return
+    }
+
+    const res = await request.get<BookmarkChangelogResp<UserBookmarkChangelog>>({
+      url: RESTMethodPath.PARTIAL_BOOKMARK_CHANGELOGS,
+      query: {
+        end_time: endTime
+      }
+    })
+
+    if (!res) return
+
+    const time = res.end_time
+    const logs = res.logs || []
+
+    for (const item of logs.reverse()) {
+      const hashUrl = md5(item.target_url)
+      const bookmarkId = item.bookmark_id
+
+      if (item.log_action === 'add' || item.log_action === 'update') {
+        await addBookmarkRecords([
+          {
+            hashUrl,
+            bookmarkId
+          }
+        ])
+      } else if (item.log_action === 'delete') {
+        deleteBookmarkRecord(hashUrl)
+      }
+    }
+
+    await updateRecordSyncTime(time)
+  }
+
   const cookieHost = process.env.COOKIE_DOMAIN as string
 
   // 监听cookie变化
@@ -82,11 +201,12 @@ export default defineBackground(() => {
     console.log('cookie update', changeInfo)
 
     if (changeInfo.removed) {
-      await Promise.allSettled([userToken.removeValue(), userBookmarks.removeValue(), userInfo.removeValue(), bookmarkRecords.removeValue()])
+      await Promise.allSettled([userToken.removeValue(), userBookmarks.removeValue(), userInfo.removeValue(), dbService.clearAllData()])
       return
     }
 
-    userToken.setValue(changeInfo.cookie.value)
+    await userToken.setValue(changeInfo.cookie.value)
+    await updateAllBookmarkRecords()
   })
 
   // 监听插件安装事件
@@ -100,7 +220,7 @@ export default defineBackground(() => {
       color: '#fff'
     })
 
-    browser.alarms.create(bookmarkRecordsSyncKey, { periodInMinutes: 60 })
+    browser.alarms.create(bookmarkRecordsSyncKey, { periodInMinutes: 60 * 5 })
 
     // 注册菜单
     const menus: Browser.contextMenus.CreateProperties[] = [
@@ -127,8 +247,12 @@ export default defineBackground(() => {
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === bookmarkRecordsSyncKey) {
+      updatePartialBookmarkRecords()
     }
   })
+
+  // 浏览器启动
+  browser.runtime.onStartup.addListener(() => {})
 
   // 插件被挂起(禁用)
   browser.runtime.onSuspend.addListener(() => {})
@@ -216,9 +340,14 @@ export default defineBackground(() => {
       case MessageTypeAction.AddBookmarkRecord: {
         const url = receiveMessage.url
         const bookmarkId = receiveMessage.bookmarkId
-        const hashCode = md5(url)
+        const urlHash = md5(url)
 
-        addBookmarkRecord(hashCode, bookmarkId)
+        addBookmarkRecords([
+          {
+            hashUrl: urlHash,
+            bookmarkId
+          }
+        ])
           .then(() => {
             sendResponse({ success: true })
           })
@@ -265,26 +394,69 @@ export default defineBackground(() => {
     return false
   })
 
-  const queryBookmarkRecord = async (hashCode: string) => {
-    const res = await bookmarkRecords.getValue()
-    const record = res[hashCode]
-
-    //TODO: 后续要增加接口
-
-    if (record) {
-      return record
+  const queryRecordSyncTime = async () => {
+    const userInfo = await queryUserInfo()
+    if (!userInfo) {
+      return null
     }
 
-    return 0
+    await dbService.initialize()
+    const time = await dbService.getLastSyncTime(userInfo.userId)
+    await dbService.close()
+
+    return time || 0
   }
 
-  const addBookmarkRecord = async (hashCode: string, bookmarkId: number) => {
-    const res = await bookmarkRecords.getValue()
-    res[hashCode] = bookmarkId
+  const updateRecordSyncTime = async (time: number) => {
+    const userInfo = await queryUserInfo()
+    if (!userInfo) {
+      return
+    }
 
-    await bookmarkRecords.setValue(res)
-    //TODO: 后续要增加接口
+    await dbService.initialize()
+    await dbService.updateLastSyncTime(userInfo.userId, time)
+    await dbService.close()
   }
+
+  const queryBookmarkRecord = async (hashCode: string) => {
+    const userInfo = await queryUserInfo()
+    if (!userInfo) {
+      return null
+    }
+
+    await dbService.initialize()
+    const record = await dbService.getBookmarkRecord(userInfo?.userId, hashCode)
+    await dbService.close()
+
+    if (!record) {
+      return 0
+    }
+
+    return record.bookmark_id
+  }
+
+  const addBookmarkRecords = async (records: { hashUrl: string; bookmarkId: number }[]) => {
+    const userInfo = await queryUserInfo()
+    if (!userInfo) {
+      return null
+    }
+
+    await dbService.initialize()
+    await dbService.saveBookmarkRecords(records.map(record => ({ user_id: userInfo.userId, bookmark_id: record.bookmarkId, url_hash: record.hashUrl })))
+    await dbService.close()
+  }
+
+  const deleteBookmarkRecord = async (hashUrl: string) => {
+    const userInfo = await queryUserInfo()
+    if (!userInfo) {
+      return null
+    }
+
+    await dbService.initialize()
+    await dbService.deleteBookmarkRecord(userInfo.userId, hashUrl)
+    await dbService.close()
+  }
+
   const checkAndUpdateBookmarkStatus = async (tabId: number, url: string) => {
     if (!tabId) {
       return
