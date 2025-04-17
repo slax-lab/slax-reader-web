@@ -19,7 +19,8 @@
     "./search": "./src/search.ts",
     "./date": "./src/date.ts",
     "./dom": "./src/dom.ts",
-    "./mouse": "./src/mouse.ts"
+    "./mouse": "./src/mouse.ts",
+    "./socket": "./src/socket.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
