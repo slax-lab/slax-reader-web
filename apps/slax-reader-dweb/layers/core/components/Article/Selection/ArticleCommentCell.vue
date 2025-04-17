@@ -54,6 +54,8 @@
 <script setup lang="ts">
 import ArticleCommentInput from './ArticleCommentInput.vue'
 
+import { formatDate } from '@commons/utils/date'
+
 import type { MarkCommentInfo } from './type'
 import { showLoginModal } from '#layers/core/components/Modal'
 import { useUserStore } from '#layers/core/stores/user'
@@ -138,7 +140,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
     --style: flex justify-between items-center;
 
     .left {
-      --style: select-none;
+      --style: select-none flex items-center;
       img {
         --style: w-24px h-24px rounded-full;
       }
