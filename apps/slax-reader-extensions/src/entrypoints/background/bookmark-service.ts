@@ -1,6 +1,6 @@
 import type { AuthService } from './auth-service'
 import { CONFIG } from './config'
-import type { UserIndexedDBService } from './db'
+import type { UserIndexedDBService } from './indexedDB'
 import type { StorageService } from './storage-service'
 import type { BookmarkDBRecord, BookmarkRecord } from './types'
 import { RESTMethodPath } from '@commons/types/const'

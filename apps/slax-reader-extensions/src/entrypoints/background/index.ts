@@ -2,7 +2,7 @@ import { AuthService } from './auth-service'
 import { BookmarkService } from './bookmark-service'
 import { BrowserService } from './browser-service'
 import { CONFIG } from './config'
-import { UserIndexedDBService } from './db'
+import { UserIndexedDBService } from './indexedDB'
 import { MessageHandler } from './message-handler'
 import { StorageService } from './storage-service'
 
