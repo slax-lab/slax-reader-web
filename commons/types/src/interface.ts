@@ -383,3 +383,19 @@ export interface ImportProcessResp {
   created_at: string
   count: number
 }
+
+export interface BookmarkChangelog {
+  target_url: string
+  bookmark_id: number
+}
+
+export interface UserBookmarkChangelog {
+  target_url: string
+  bookmark_id: number
+  log_action: 'add' | 'delete' | 'update'
+}
+
+export interface BookmarkChangelogResp<T> {
+  end_time: number
+  logs: T[]
+}
