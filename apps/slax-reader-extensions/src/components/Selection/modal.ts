@@ -212,7 +212,7 @@ const showPanel = (options: {
 
   nextTick(() => {
     const panelRect = articleSelectionPanel.getBoundingClientRect()
-    leftOffset -= (panelRect.width * 1) / 4
+    leftOffset = Math.max(0, leftOffset - (panelRect.width * 1) / 4)
 
     const position = getIdealOffset({ x: leftOffset, y: topOffset })
 

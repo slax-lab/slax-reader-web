@@ -127,7 +127,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
     --style: flex justify-between items-center;
 
     .left {
-      --style: select-none;
+      --style: select-none flex items-center;
       img {
         --style: w-24px h-24px rounded-full;
       }
