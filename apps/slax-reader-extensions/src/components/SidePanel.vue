@@ -14,7 +14,7 @@
           </button>
         </div>
         <div class="button-wrapper">
-          <button>
+          <button @click="collectionClick">
             <div class="icon-wrapper">
               <div class="icon" :class="{ 'animate-spin': isLoading }">
                 <img v-if="!isLoading && !isCollected" src="@/assets/panel-item-app.png" alt="" />
@@ -241,6 +241,18 @@ const loadSelection = async () => {
   }
 }
 
+const collectionClick = async () => {
+  if (isLoading.value) {
+    return
+  }
+
+  if (!isCollected.value || !bookmarkId.value) {
+    await addBookmark()
+  }
+
+  checkSource()
+}
+
 const isSlaxWebsite = (url: string) => {
   try {
     const urlObj = new URL(url)
@@ -259,6 +271,10 @@ const isSlaxWebsite = (url: string) => {
 }
 
 const panelClick = async (type: PanelItemType) => {
+  if (isLoading.value && type === PanelItemType.Share) {
+    return
+  }
+
   const res = await props.browser.runtime.sendMessage({
     action: MessageTypeAction.CheckLogined
   })
@@ -389,6 +405,10 @@ const cloneBodyDocument = () => {
   const bodyContent = document.body.cloneNode(true)
   newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
   return newDocument
+}
+
+const checkSource = () => {
+  window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks/${bookmarkId.value}`, '_blank')
 }
 
 const getRawTextContent = () => {
