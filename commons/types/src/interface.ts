@@ -389,13 +389,11 @@ export interface BookmarkChangelog {
   bookmark_id: number
 }
 
-export interface UserBookmarkChangelog {
-  target_url: string
-  bookmark_id: number
+export interface UserBookmarkChangelog extends BookmarkChangelog {
   log_action: 'add' | 'delete' | 'update'
 }
 
 export interface BookmarkChangelogResp<T> {
-  end_time: number
+  end_time?: number
   logs: T[]
 }

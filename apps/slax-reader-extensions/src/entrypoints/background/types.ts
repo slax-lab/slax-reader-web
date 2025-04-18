@@ -1,4 +1,4 @@
-import type { UserInfo } from '@commons/types/interface'
+import type { UserBookmarkChangelog, UserInfo } from '@commons/types/interface'
 
 export interface UserData {
   userInfo: UserInfo | null
@@ -6,13 +6,17 @@ export interface UserData {
   bookmarks: string[]
 }
 
-export interface BookmarkRecord {
+export interface BookmarkChange {
   hashUrl: string
   bookmarkId: number
 }
 
-export interface BookmarkDBRecord {
+export interface BookmarkActionChange extends BookmarkChange {
+  action: UserBookmarkChangelog['log_action']
+}
+
+export interface BookmarkDBChange {
   user_id: number
   bookmark_id: number
-  url_hash: string
+  hash_url: string
 }
