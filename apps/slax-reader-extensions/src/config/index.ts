@@ -4,8 +4,8 @@ export enum MessageTypeAction {
   ShowCollectPopup = 'show-collect-popup',
   HideCollectPopup = 'hide-collect-popup',
   RecordBookmark = 'record-bookmark',
-  QueryBookmarkRecord = 'query-bookmark-record',
-  AddBookmarkRecord = 'add-bookmark-record',
+  QueryBookmarkChange = 'query-bookmark-change',
+  AddBookmarkChange = 'add-bookmark-change',
   CheckLogined = 'check-logined',
   QueryUserInfo = 'query-user-info'
 }
@@ -26,11 +26,11 @@ export type MessageType =
       actionType: BookmarkActionType
     }
   | {
-      action: MessageTypeAction.QueryBookmarkRecord
+      action: MessageTypeAction.QueryBookmarkChange
       url: string
     }
   | {
-      action: MessageTypeAction.AddBookmarkRecord
+      action: MessageTypeAction.AddBookmarkChange
       url: string
       bookmarkId: number
     }

@@ -1,4 +1,4 @@
-import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
+import { type MessageType, MessageTypeAction } from '@/config'
 
 import type { AuthService } from './authService'
 import type { BookmarkService } from './bookmarkService'
@@ -25,12 +25,12 @@ export class MessageHandler {
         this.handleRecordBookmark(receiveMessage, sender)
         return false
 
-      case MessageTypeAction.QueryBookmarkRecord:
-        this.handleQueryBookmarkRecord(receiveMessage, sendResponse)
+      case MessageTypeAction.QueryBookmarkChange:
+        this.handleQueryBookmarkChange(receiveMessage, sendResponse)
         return true
 
-      case MessageTypeAction.AddBookmarkRecord:
-        this.handleAddBookmarkRecord(receiveMessage, sendResponse)
+      case MessageTypeAction.AddBookmarkChange:
+        this.handleAddBookmarkChange(receiveMessage, sendResponse)
         return true
 
       case MessageTypeAction.CheckLogined:
@@ -51,18 +51,18 @@ export class MessageHandler {
         await this.bookmarkService.checkAndUpdateBookmarkStatus(sender.tab.id, message.url)
       }
     } catch (error) {
-      console.error('Error handling record bookmark:', error)
+      console.error('Error handling change bookmark:', error)
     }
   }
 
-  private async handleQueryBookmarkRecord(
-    message: Extract<MessageType, { action: MessageTypeAction.QueryBookmarkRecord }>,
+  private async handleQueryBookmarkChange(
+    message: Extract<MessageType, { action: MessageTypeAction.QueryBookmarkChange }>,
     sendResponse: (response?: unknown) => void
   ): Promise<boolean> {
     try {
       const url = message.url
-      const hashCode = md5(url)
-      const bookmarkId = await this.bookmarkService.queryBookmarkRecord(hashCode)
+      const hashUrl = md5(url)
+      const bookmarkId = await this.bookmarkService.queryBookmarkChange(hashUrl)
 
       if (bookmarkId === 0) {
         sendResponse({ success: false })
@@ -70,15 +70,15 @@ export class MessageHandler {
         sendResponse({ success: true, data: { bookmarkId } })
       }
     } catch (error) {
-      console.error('Error querying bookmark record:', error)
+      console.error('Error querying bookmark change:', error)
       sendResponse({ success: false, data: error })
     }
 
     return true
   }
 
-  private async handleAddBookmarkRecord(
-    message: Extract<MessageType, { action: MessageTypeAction.AddBookmarkRecord }>,
+  private async handleAddBookmarkChange(
+    message: Extract<MessageType, { action: MessageTypeAction.AddBookmarkChange }>,
     sendResponse: (response?: unknown) => void
   ): Promise<boolean> {
     try {
@@ -86,10 +86,10 @@ export class MessageHandler {
       const bookmarkId = message.bookmarkId
       const hashUrl = md5(url)
 
-      await this.bookmarkService.addBookmarkRecords([{ hashUrl, bookmarkId }])
+      await this.bookmarkService.addBookmarkChanges([{ hashUrl, bookmarkId }])
       sendResponse({ success: true })
     } catch (error) {
-      console.error('Error adding bookmark record:', error)
+      console.error('Error adding bookmark change:', error)
       sendResponse({ success: false, data: error })
     }
 

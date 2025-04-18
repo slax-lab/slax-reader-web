@@ -2,15 +2,13 @@ import { AuthService } from './authService'
 import { BookmarkService } from './bookmarkService'
 import { BrowserService } from './browserService'
 import { CONFIG } from './config'
-import { UserIndexedDBService } from './indexedDB'
 import { MessageHandler } from './messageHandler'
 import { StorageService } from './storageService'
 
 export default defineBackground(() => {
   const storageService = new StorageService()
-  const dbService = new UserIndexedDBService()
   const authService = new AuthService(storageService)
-  const bookmarkService = new BookmarkService(storageService, authService, dbService)
+  const bookmarkService = new BookmarkService(storageService, authService)
   const messageHandler = new MessageHandler(storageService, authService, bookmarkService)
 
   // 监听cookie变化
@@ -23,12 +21,13 @@ export default defineBackground(() => {
     console.log('Cookie update:', changeInfo)
 
     if (changeInfo.removed) {
-      await Promise.allSettled([storageService.clearUserData(), dbService.clearAllData()])
+      await Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData()])
+
       return
     }
 
     await storageService.setToken(changeInfo.cookie.value)
-    await bookmarkService.updateAllBookmarkRecords()
+    await bookmarkService.updateAllBookmarkChanges()
   })
 
   // 监听插件安装事件
@@ -36,17 +35,17 @@ export default defineBackground(() => {
     BrowserService.setupBadge()
     BrowserService.registerContextMenus()
 
-    browser.alarms.create(CONFIG.BOOKMARK_RECORDS_SYNC_KEY, {
+    await browser.alarms.create(CONFIG.BOOKMARK_RECORDS_SYNC_KEY, {
       periodInMinutes: CONFIG.SYNC_INTERVAL_MINUTES
     })
 
     console.log(`Extension installed, reason: ${reason}, browser: ${import.meta.env.BROWSER}`)
     console.log(`Runtime: ${!!browser.runtime} \nCookie: ${!!browser.cookies} \nTabs: ${!!browser.tabs} \nContextMenus: ${!!browser.contextMenus} \nAction: ${!!browser.action}`)
 
-    if (reason === 'install') {
-      if (!(await storageService.getToken())) {
-        return BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
-      }
+    if (!(await storageService.getToken())) {
+      reason === 'install' && BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
+    } else {
+      await bookmarkService.updateAllBookmarkChanges()
     }
 
     analytics.setEnabled(true)
@@ -55,7 +54,7 @@ export default defineBackground(() => {
   // 监听定时任务
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === CONFIG.BOOKMARK_RECORDS_SYNC_KEY) {
-      bookmarkService.updatePartialBookmarkRecords()
+      bookmarkService.updatePartialBookmarkChanges()
     }
   })
 

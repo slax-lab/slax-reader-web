@@ -1,9 +1,9 @@
 /**
  * 书签记录的接口定义
  */
-export interface BookmarkRecord {
+export interface BookmarkChange {
   user_id: number
-  url_hash: string
+  hash_url: string
   bookmark_id: number
 }
 
@@ -21,7 +21,7 @@ export interface UserConfig {
  */
 export interface OperationResult {
   success: boolean
-  updated?: BookmarkRecord[] // 更新的记录
+  updated?: BookmarkChange[] // 更新的记录
   error?: Error // 其他错误
 }
 
@@ -31,7 +31,7 @@ export interface OperationResult {
 export class UserIndexedDBService {
   private readonly DB_NAME = 'BookmarksDatabase'
   private readonly DB_VERSION = 1
-  private readonly BOOKMARKS_STORE = 'bookmarks_changelogs'
+  private readonly BOOKMARKS_STORE = 'bookmarks_changes'
   private readonly CONFIG_STORE = 'user_config'
   private db: IDBDatabase | null = null
 
@@ -64,10 +64,10 @@ export class UserIndexedDBService {
         if (oldVersion < 1) {
           // 首次创建数据库（版本0到版本1）
           if (!db.objectStoreNames.contains(this.BOOKMARKS_STORE)) {
-            const store = db.createObjectStore(this.BOOKMARKS_STORE, { keyPath: ['user_id', 'url_hash'] })
+            const store = db.createObjectStore(this.BOOKMARKS_STORE, { keyPath: ['user_id', 'hash_url'] })
 
             // 创建索引
-            store.createIndex('by_url_hash', 'url_hash', { unique: false })
+            store.createIndex('by_hash_url', 'hash_url', { unique: false })
             store.createIndex('by_user_id', 'user_id', { unique: false })
             store.createIndex('by_bookmark_id', 'bookmark_id', { unique: false })
 
@@ -89,6 +89,7 @@ export class UserIndexedDBService {
    */
   private ensureDbConnected(): OperationResult {
     if (!this.db) {
+      debugger
       return {
         success: false,
         error: new Error('数据库未初始化，请先调用 initialize() 方法')
@@ -102,9 +103,9 @@ export class UserIndexedDBService {
    * @param bookmark 要添加或更新的书签记录
    * @returns Promise 解析为操作结果
    */
-  public async saveBookmarkRecord(bookmark: BookmarkRecord): Promise<OperationResult> {
+  public async saveBookmarkChange(bookmark: BookmarkChange): Promise<OperationResult> {
     // 如果没有提供时间戳，添加当前时间
-    return this.saveBookmarkRecords([bookmark])
+    return this.saveBookmarkChanges([bookmark])
   }
 
   /**
@@ -112,20 +113,20 @@ export class UserIndexedDBService {
    * @param bookmarks 要添加或更新的书签记录数组
    * @returns Promise 解析为操作结果，包含成功状态和更新的记录
    */
-  public async saveBookmarkRecords(bookmarks: BookmarkRecord[]): Promise<OperationResult> {
+  public async saveBookmarkChanges(bookmarks: BookmarkChange[]): Promise<OperationResult> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       return dbCheck
     }
 
     // 检查哪些记录已经存在（将被更新）
-    const updated: BookmarkRecord[] = []
-    const toSave: BookmarkRecord[] = [...bookmarks]
+    const updated: BookmarkChange[] = []
+    const toSave: BookmarkChange[] = [...bookmarks]
 
     // 检查每条记录是否已存在
     for (const bookmark of bookmarks) {
       try {
-        const existingRecord = await this.getBookmarkRecord(bookmark.user_id, bookmark.url_hash)
+        const existingRecord = await this.getBookmarkChange(bookmark.user_id, bookmark.hash_url)
         if (existingRecord) {
           updated.push(bookmark)
         }
@@ -170,7 +171,7 @@ export class UserIndexedDBService {
    * @param urlHash URL哈希
    * @returns Promise 解析为书签记录或null
    */
-  public async getBookmarkRecord(userId: number, urlHash: string): Promise<BookmarkRecord | null> {
+  public async getBookmarkChange(userId: number, urlHash: string): Promise<BookmarkChange | null> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       throw dbCheck.error
@@ -192,11 +193,11 @@ export class UserIndexedDBService {
   }
 
   /**
-   * 根据 url_hash 查询书签记录
-   * @param urlHash 要查询的 url_hash
+   * 根据 hash_url 查询书签记录
+   * @param urlHash 要查询的 hash_url
    * @returns Promise 解析为操作结果，包含匹配的书签记录
    */
-  public async findByUrlHash(urlHash: string): Promise<OperationResult & { records?: BookmarkRecord[] }> {
+  public async findByUrlHash(urlHash: string): Promise<OperationResult & { records?: BookmarkChange[] }> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       return dbCheck
@@ -205,7 +206,7 @@ export class UserIndexedDBService {
     return new Promise(resolve => {
       const transaction = this.db!.transaction(this.BOOKMARKS_STORE, 'readonly')
       const store = transaction.objectStore(this.BOOKMARKS_STORE)
-      const index = store.index('by_url_hash')
+      const index = store.index('by_hash_url')
       const request = index.getAll(urlHash)
 
       request.onerror = event => {
@@ -219,15 +220,15 @@ export class UserIndexedDBService {
       request.onsuccess = () => {
         resolve({
           success: true,
-          records: request.result as BookmarkRecord[]
+          records: request.result as BookmarkChange[]
         })
       }
     })
   }
 
   /**
-   * 根据 url_hash 删除书签记录
-   * @param urlHash 要删除的 url_hash
+   * 根据 hash_url 删除书签记录
+   * @param urlHash 要删除的 hash_url
    * @returns Promise 解析为操作结果
    */
   public async deleteByUrlHash(urlHash: string): Promise<OperationResult> {
@@ -268,7 +269,7 @@ export class UserIndexedDBService {
 
       // 逐个删除找到的记录
       records.forEach(record => {
-        const request = store.delete([record.user_id, record.url_hash])
+        const request = store.delete([record.user_id, record.hash_url])
 
         request.onerror = event => {
           console.error('删除单个书签记录失败:', event)
@@ -284,7 +285,7 @@ export class UserIndexedDBService {
    * @param urlHash URL哈希值
    * @returns Promise 解析为操作结果
    */
-  public async deleteBookmarkRecord(userId: number, urlHash: string): Promise<OperationResult> {
+  public async deleteBookmarkChange(userId: number, urlHash: string): Promise<OperationResult> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       return dbCheck
@@ -311,10 +312,10 @@ export class UserIndexedDBService {
 
   /**
    * 批量删除书签记录
-   * @param records 要删除的书签记录数组，每个记录需包含 user_id 和 url_hash
+   * @param records 要删除的书签记录数组，每个记录需包含 user_id 和 hash_url
    * @returns Promise 解析为操作结果
    */
-  public async deleteBookmarkRecords(records: Pick<BookmarkRecord, 'user_id' | 'url_hash'>[]): Promise<OperationResult> {
+  public async deleteBookmarkChanges(records: Pick<BookmarkChange, 'user_id' | 'hash_url'>[]): Promise<OperationResult> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       return dbCheck
@@ -339,7 +340,7 @@ export class UserIndexedDBService {
 
       // 逐个删除记录
       records.forEach(record => {
-        const request = store.delete([record.user_id, record.url_hash])
+        const request = store.delete([record.user_id, record.hash_url])
 
         request.onerror = event => {
           console.error('删除单个书签记录失败:', event)
@@ -475,7 +476,7 @@ export class UserIndexedDBService {
    * 清除书签数据
    * @returns Promise 解析为操作结果
    */
-  public async clearBookmarkRecords(): Promise<OperationResult> {
+  public async clearBookmarkChanges(): Promise<OperationResult> {
     const dbCheck = this.ensureDbConnected()
     if (!dbCheck.success) {
       return dbCheck

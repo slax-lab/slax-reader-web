@@ -205,7 +205,7 @@ onUnmounted(() => {
 })
 
 const loadSelection = async () => {
-  const bookmarkRecord = await tryGetBookmarkRecord()
+  const bookmarkRecord = await tryGetBookmarkChange()
   if (bookmarkRecord) {
     bookmarkId.value = bookmarkRecord
     isCollected.value = true
@@ -249,22 +249,11 @@ const collectionClick = async () => {
   if (!isCollected.value || !bookmarkId.value) {
     await addBookmark()
   }
-
-  checkSource()
 }
 
 const isSlaxWebsite = (url: string) => {
   try {
-    const urlObj = new URL(url)
-
-    if (urlObj.protocol !== 'https:') {
-      return false
-    }
-
-    const hostname = urlObj.hostname
-    const slaxDomainPattern = /^(r|reader|r-beta)\.slax.$/
-
-    return slaxDomainPattern.test(hostname)
+    return url.startsWith(process.env.SHARE_BASE_URL || '')
   } catch (e) {
     return false
   }
@@ -294,10 +283,13 @@ const panelClick = async (type: PanelItemType) => {
       isChatbotShowing.value = !isChatbotShowing.value
       break
     case PanelItemType.Share:
-      // Handle share action
+      if (bookmarkId.value === 0) {
+        await addBookmark()
+      }
+
       share.value &&
         showShareConfigModal({
-          bookmarkId: 5131361,
+          bookmarkId: bookmarkId.value,
           title: document.title,
           container: share.value
         })
@@ -347,9 +339,9 @@ const tryGetUserInfo = async () => {
   return res.data
 }
 
-const tryGetBookmarkRecord = async () => {
+const tryGetBookmarkChange = async () => {
   const res = await queryBackground<{ bookmarkId: number }>({
-    action: MessageTypeAction.QueryBookmarkRecord,
+    action: MessageTypeAction.QueryBookmarkChange,
     url: window.location.href
   })
 
@@ -391,7 +383,7 @@ const addBookmark = async () => {
     })
 
     if (resp) {
-      await queryBackground({ action: MessageTypeAction.AddBookmarkRecord, url: window.location.href, bookmarkId: resp.bmId })
+      await queryBackground({ action: MessageTypeAction.AddBookmarkChange, url: window.location.href, bookmarkId: resp.bmId })
       bookmarkId.value = resp.bmId
       isCollected.value = true
     }
