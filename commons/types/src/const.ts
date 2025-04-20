@@ -15,6 +15,7 @@ enum RESTMethodPath {
   BOOKMARK_LIST = '/v1/bookmark/list',
   ALL_BOOKMARK_CHANGES = '/v1/bookmark/all_changes',
   PARTIAL_BOOKMARK_CHANGES = '/v1/bookmark/partial_changes',
+  CONNECT_BOOKMARK_CHANGES = '/v1/bookmark/connect_changes',
   BOOKMARK_AI_SUMMARIES = '/v1/aigc/summaries',
   BOOKMARK_AI_SUMMARIES_LIST = '/v1/bookmark/summaries',
   BOOKMARK_ARCHIVE = '/v1/bookmark/archive',

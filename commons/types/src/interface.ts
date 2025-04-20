@@ -389,8 +389,11 @@ export interface BookmarkChangelog {
   bookmark_id: number
 }
 
-export interface UserBookmarkChangelog extends BookmarkChangelog {
+export interface BookmarkActionChangelog extends BookmarkChangelog {
   log_action: 'add' | 'delete' | 'update'
+}
+export interface BookmarkSocketChangelog extends BookmarkActionChangelog {
+  created_at: string
 }
 
 export interface BookmarkChangelogResp<T> {
