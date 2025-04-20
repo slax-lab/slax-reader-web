@@ -1,13 +1,17 @@
+import { SlaxWebSocket } from '@commons/utils/socket'
+
 import type { AuthService } from './authService'
 import { CONFIG } from './config'
 import { UserIndexedDBService } from './indexedDB'
 import type { StorageService } from './storageService'
-import type { BookmarkActionChange, BookmarkChange, BookmarkDBChange } from './types'
+import type { BookmarkActionChange, BookmarkChange, BookmarkDBChange, BookmarkSocketData } from './types'
 import { RESTMethodPath } from '@commons/types/const'
-import type { BookmarkChangelog, BookmarkChangelogResp, UserBookmarkChangelog } from '@commons/types/interface'
+import type { BookmarkActionChangelog, BookmarkChangelog, BookmarkChangelogResp } from '@commons/types/interface'
 import md5 from 'md5'
 
 export class BookmarkService {
+  private socket: SlaxWebSocket | null = null
+
   constructor(
     private storageService: StorageService,
     private authService: AuthService
@@ -65,7 +69,7 @@ export class BookmarkService {
         return
       }
 
-      const res = await request.get<BookmarkChangelogResp<UserBookmarkChangelog>>({
+      const res = await request.get<BookmarkChangelogResp<BookmarkActionChangelog>>({
         url: RESTMethodPath.PARTIAL_BOOKMARK_CHANGES,
         query: {
           end_time: endTime
@@ -279,5 +283,70 @@ export class BookmarkService {
     } finally {
       await dbService.close()
     }
+  }
+
+  async enableSocket() {
+    if (this.socket) {
+      return
+    }
+
+    const token = await this.storageService.getToken()
+    if (!token) {
+      console.warn('No token found for WebSocket connection')
+      return
+    }
+
+    const baseUrl = process.env.EXTENSIONS_API_BASE_URL || ''
+    const socketBastUrl = baseUrl.replace('https', 'wss').replace('http', 'ws')
+    const socketUrl = `${socketBastUrl}${RESTMethodPath.CONNECT_BOOKMARK_CHANGES}?token=${token}`
+
+    this.socket = new SlaxWebSocket({
+      url: socketUrl,
+      autoReconnect: true,
+      reconnectInterval: 2000,
+      maxReconnectAttempts: 3
+    })
+
+    this.socket.on('open', event => {
+      console.log('Connection established!')
+    })
+
+    this.socket.on('message', async event => {
+      console.log('Received message:', event.data)
+      const data = JSON.parse(event.data) as BookmarkSocketData
+      if (!data) {
+        return
+      }
+
+      if (data.type === 'bookmark_changes') {
+        const changelog = data.data
+        const syncTime = await this.querychangeSyncTime()
+        const createAt = Number(new Date(changelog.created_at))
+        if (syncTime && createAt > syncTime) {
+          await Promise.allSettled([this.updatechangeSyncTime(createAt), this.addBookmarkChanges([{ hashUrl: md5(changelog.target_url), bookmarkId: changelog.bookmark_id }])])
+        }
+      }
+    })
+
+    this.socket.on('error', event => {
+      console.error('WebSocket error occurred')
+    })
+
+    this.socket.on('close', event => {
+      console.log(`Connection closed. Code: ${event.code}, Reason: ${event.reason}`)
+    })
+
+    this.socket.on('reconnect', event => {
+      console.log(`Reconnecting... Attempt: ${event.detail.attempt}`)
+    })
+  }
+
+  async closeSocket() {
+    if (!this.socket) {
+      return
+    }
+
+    this.socket?.close(1000, 'Normal closure')
+    this.socket = null
   }
 }

@@ -11,6 +11,12 @@ export default defineBackground(() => {
   const bookmarkService = new BookmarkService(storageService, authService)
   const messageHandler = new MessageHandler(storageService, authService, bookmarkService)
 
+  storageService.getToken().then(token => {
+    if (token) {
+      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+    }
+  })
+
   // 监听cookie变化
   const cookieHost = process.env.COOKIE_DOMAIN as string
   browser.cookies.onChanged.addListener(async changeInfo => {
@@ -21,13 +27,14 @@ export default defineBackground(() => {
     console.log('Cookie update:', changeInfo)
 
     if (changeInfo.removed) {
-      await Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData()])
+      await Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData(), bookmarkService.closeSocket()])
 
       return
     }
 
     await storageService.setToken(changeInfo.cookie.value)
     await bookmarkService.updateAllBookmarkChanges()
+    await bookmarkService.enableSocket()
   })
 
   // 监听插件安装事件
