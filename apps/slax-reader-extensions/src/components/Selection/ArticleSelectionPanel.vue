@@ -351,12 +351,6 @@ const handleInput = () => {
 }
 
 const handleClick = (type: MenuType, event: MouseEvent) => {
-  // if (type !== MenuType.Copy && !useUserStore().userInfo) {
-  //   return showLoginModal({
-  //     redirect: window.location.href
-  //   })
-  // }
-
   if (type === MenuType.Comment) {
     nextTick(() => {
       cancelReply()

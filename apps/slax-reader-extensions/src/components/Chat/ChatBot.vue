@@ -186,16 +186,16 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
           tipsType: name
         })
       } else if (name === 'browser') {
-        // pushBuffer({
-        //   type: 'tips',
-        //   tips: tips ? $t(`component.chat_bot.{tips}_accessing`, { tips }) : $t('component.chat_bot.now_accessing'),
-        //   loading: true,
-        //   tipsType: name
-        // })
+        pushBuffer({
+          type: 'tips',
+          tips: tips ? $t(`component.chat_bot.tips_accessing`, [tips]) : $t('component.chat_bot.now_accessing'),
+          loading: true,
+          tipsType: name
+        })
       } else if (name === 'search') {
         pushBuffer({
           type: 'tips',
-          tips: tips, //$t(`component.chat_bot.{tips}_searching`, { tips }),
+          tips: $t(`component.chat_bot.tips_searching`, [tips]),
           loading: true,
           tipsType: name
         })

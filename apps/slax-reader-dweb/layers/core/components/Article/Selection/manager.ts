@@ -235,53 +235,6 @@ export class MarkManager {
     return true
   }
 
-  // showMenus(options: { e: MouseEvent; source: MarkPathItem[] }) {
-  //   const { e, source } = options
-  //   let menusY = 0
-  //   SelectionModal.showMenus({
-  //     container: this.config.containerDom!,
-  //     allowAction: this.config.allowAction,
-  //     event: e,
-  //     callback: (type: MenuType, event: MouseEvent) => {
-  //       const currentInfo = this.currentMarkItemInfo
-  //       if (!currentInfo) return
-
-  //       if (type === MenuType.Stroke) {
-  //         currentInfo.id = getUUID()
-  //         this.strokeSelection({ info: currentInfo })
-  //       } else if (type === MenuType.Copy) {
-  //         this.copyMarkedText(source, event)
-  //       } else if (type === MenuType.Comment) {
-  //         currentInfo.id = getUUID()
-  //         this.showPanel({ fallbackYOffset: menusY })
-  //       } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-  //         const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source) }
-  //         const selection = window.getSelection()
-  //         const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
-
-  //         const selected = this.getSelectedElementsList()
-  //         if (!selected || selected.length === 0) {
-  //           quote.source.selection = range
-  //         } else {
-  //           const paths = this.getMarkPathItems(selected)
-  //           quote.source.paths = paths || (range ? undefined : [])
-  //           if (!paths && range) quote.source.selection = range
-  //         }
-
-  //         this.config.postQuoteDataHandler(quote)
-  //         this._findQuote(quote)
-  //       }
-
-  //       if (type !== MenuType.Comment) this.clearSelection()
-  //     },
-  //     positionCallback: ({ y }) => (menusY = y),
-  //     noActionCallback: () => {
-  //       this.updateCurrentMarkItemInfo(null)
-  //       this.clearSelectContent()
-  //     }
-  //   })
-  // }
-
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
 
