@@ -81,7 +81,7 @@ export class MarkManager {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.COMMENT) : MarkType.LINE
+    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.EXTENSIONS_COMMENT) : MarkType.EXTENSIONS_LINE
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
     const res = await this.saveMarkSelectContent(markItems, markType, comment, replyToId)
@@ -388,9 +388,9 @@ export class MarkManager {
         infoItems.push(markInfoItem)
       }
 
-      if (mark.type === MarkType.LINE) {
+      if (mark.type === MarkType.EXTENSIONS_LINE) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if (mark.type === MarkType.COMMENT) {
+      } else if (mark.type === MarkType.EXTENSIONS_COMMENT) {
         const comment = commentMap.get(mark.id)
         if (comment) markInfoItem.comments.push(comment)
       }

@@ -144,7 +144,9 @@ export interface BookmarkTag {
 export enum MarkType {
   LINE = 1,
   COMMENT = 2,
-  REPLY = 3
+  REPLY = 3,
+  EXTENSIONS_LINE = 4,
+  EXTENSIONS_COMMENT = 5
 }
 
 export interface ShareDetailInfo {
