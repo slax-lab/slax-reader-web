@@ -89,7 +89,7 @@ export const extractMarkdownNodes = (modelResponse: string) => {
 
 // 用于解析markdown文本，提取所有的锚点引用，返回一个字符串列表
 export const queryMarkdownAnchorQuote = (markdown: string) => {
-  const anchorPatt = new RegExp(/\[(.+)\]\(#(.+[(.*)]*.*?)\)/g)
+  const anchorPatt = new RegExp(/\[(.+?)\]\(#((?:\([^)]*\)|[^)])*)\)/g)
   const result: { index: number; anchorNum: string; text: string; anchorText: string }[] = []
   let matches: RegExpExecArray | null = null
   while ((matches = anchorPatt.exec(markdown)) !== null) {
