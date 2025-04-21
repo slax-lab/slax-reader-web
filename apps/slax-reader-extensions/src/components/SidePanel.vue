@@ -28,7 +28,7 @@
       </div>
       <div class="panel-content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
-        <div class="panel-content-wrapper" v-if="bookmarkId">
+        <div class="panel-content-wrapper">
           <Transition name="sidepanel">
             <AISummaries v-show="isSummaryShowing" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
           </Transition>
@@ -63,7 +63,6 @@ import { showShareConfigModal } from './Share'
 import { ArticleSelection } from '@/components/Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkDetail, UserInfo } from '@commons/types/interface'
-import { Readability } from '@slax-lab/readability'
 import { vOnClickOutside } from '@vueuse/components'
 import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
 import type { WxtBrowser } from 'wxt/browser'
@@ -392,19 +391,8 @@ const addBookmark = async () => {
   }
 }
 
-const cloneBodyDocument = () => {
-  const newDocument = document.implementation.createHTMLDocument(document.title)
-  const bodyContent = document.body.cloneNode(true)
-  newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
-  return newDocument
-}
-
 const checkSource = () => {
   window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks/${bookmarkId.value}`, '_blank')
-}
-
-const getRawTextContent = () => {
-  return new Readability(cloneBodyDocument(), { debug: false }).parse()
 }
 </script>
 

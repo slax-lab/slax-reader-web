@@ -83,6 +83,7 @@ import { copyText } from '@commons/utils/string'
 import Toast, { ToastType } from './Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { SummaryItemModel } from '@commons/types/interface'
+import { Readability } from '@slax-lab/readability'
 
 interface Anchor {
   index: number
@@ -190,6 +191,10 @@ watch(
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0
+  if (!props.bookmarkId) {
+    await loadSummaries()
+    return
+  }
 
   await getSummariesList()
 
@@ -237,16 +242,25 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
   }
 
   loading.value = true
-  const callBack = await request.stream({
-    url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
-    method: RequestMethodType.post,
-    body: {
-      bookmarkId: props.bookmarkId ? props.bookmarkId : undefined,
-      shareCode: props.shareCode ? props.shareCode : undefined,
-      ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
-      force: refresh
-    }
-  })
+  const callBack =
+    props.bookmarkId || props.shareCode || props.collection
+      ? await request.stream({
+          url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
+          method: RequestMethodType.post,
+          body: {
+            bmId: props.bookmarkId ? props.bookmarkId : undefined,
+            shareCode: props.shareCode ? props.shareCode : undefined,
+            ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
+            force: refresh
+          }
+        })
+      : await request.stream({
+          url: RESTMethodPath.RAW_CONTENT_AI_SUMMARIES,
+          method: RequestMethodType.post,
+          body: {
+            raw_content: getRawTextContent()?.textContent || ''
+          }
+        })
 
   callBack &&
     callBack((text: string, isDone: boolean) => {
@@ -445,26 +459,24 @@ const refresh = async () => {
 }
 
 const loadSummaries = (options?: { refresh: boolean }) => {
-  if (props.bookmarkId || props.shareCode || props.collection) {
-    let step = 0
-    const timeInterval = setInterval(() => {
-      step += 1
-    }, 2000)
-    let executeStep = 0
-    let result = ''
-    querySummaries(options?.refresh || false, (text: string, done: boolean) => {
-      result += text
-      let needUpdateText = done || executeStep < step
-      if (done) {
-        clearInterval(timeInterval)
-      } else if (executeStep < step) {
-        executeStep = step
-      }
-      if (needUpdateText) {
-        rawMarkdownText.value = extractMarkdownFromText(result) || ''
-      }
-    })
-  }
+  let step = 0
+  const timeInterval = setInterval(() => {
+    step += 1
+  }, 2000)
+  let executeStep = 0
+  let result = ''
+  querySummaries(options?.refresh || false, (text: string, done: boolean) => {
+    result += text
+    let needUpdateText = done || executeStep < step
+    if (done) {
+      clearInterval(timeInterval)
+    } else if (executeStep < step) {
+      executeStep = step
+    }
+    if (needUpdateText) {
+      rawMarkdownText.value = extractMarkdownFromText(result) || ''
+    }
+  })
 }
 
 const anchorClick = async (link: string) => {
@@ -541,6 +553,17 @@ const copyContent = async () => {
 }
 const closeModal = () => {
   emits('dismiss')
+}
+
+const getRawTextContent = () => {
+  return new Readability(cloneBodyDocument(), { debug: false }).parse()
+}
+
+const cloneBodyDocument = () => {
+  const newDocument = document.implementation.createHTMLDocument(document.title)
+  const bodyContent = document.body.cloneNode(true)
+  newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
+  return newDocument
 }
 </script>
 
@@ -662,7 +685,7 @@ $copyButtonXOffset: 20px;
           box-sizing: border-box;
           width: 100%;
           padding-top: 24px + 32px;
-          padding-left: 4px + 20px;
+          padding-left: 4px + 40px;
           left: 0;
           top: 100%;
           transition: top 0.25s ease-in-out;

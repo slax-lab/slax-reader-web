@@ -68,7 +68,9 @@ import { parseMarkdownText } from '@commons/utils/parse'
 import { getUUID } from '@commons/utils/random'
 
 import 'highlight.js/styles/base16/equilibrium-gray-light.css'
+import { ChatBot, type ChatBotParams, ChatParamsType, type ChatResponseData, ChatResponseType } from './chatbot'
 import type { BubbleMessageContent, BubbleMessageItem, MessageItem, QuestionMessageItem, QuoteData } from './type'
+import { Readability } from '@slax-lab/readability'
 import { vOnKeyStroke } from '@vueuse/components'
 
 const props = defineProps({
@@ -85,6 +87,18 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['dismiss', 'findQuote'])
+
+const getRawTextContent = () => {
+  return new Readability(cloneBodyDocument(), { debug: false }).parse()
+}
+
+const cloneBodyDocument = () => {
+  const newDocument = document.implementation.createHTMLDocument(document.title)
+  const bodyContent = document.body.cloneNode(true)
+  newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
+  return newDocument
+}
+
 const botParams: ChatBotParams = (() => {
   if (props.bookmarkId) {
     return { bookmarkId: props.bookmarkId }
@@ -93,7 +107,10 @@ const botParams: ChatBotParams = (() => {
   } else if (props.collection) {
     return { collection: props.collection }
   } else {
-    return { bookmarkId: 0 }
+    return {
+      title: document.title || document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '',
+      raw_content: getRawTextContent()?.textContent || ''
+    }
   }
 })()
 

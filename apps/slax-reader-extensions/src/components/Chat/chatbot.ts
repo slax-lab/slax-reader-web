@@ -1,9 +1,9 @@
+import { $t } from '../../utils/locale'
+import { request } from '../../utils/request'
 import { LineDecoder, SSEDecoder } from '@commons/utils/decoder'
 import { partialParse } from '@commons/utils/json'
 import { RequestMethodType } from '@commons/utils/request'
 
-import { $t } from './locale'
-import { request } from './request'
 import type { QuoteData } from '@/components/Chat/type'
 import { RESTMethodPath } from '@commons/types/const'
 import { type ChatCompletionChunk } from '@commons/types/openai'
@@ -25,7 +25,7 @@ export enum ChatResponseType {
   STATUS_UPDATE = 'STATUS_UPDATE'
 }
 
-export type ChatBotParams = { bookmarkId: number } | { shareCode: string } | { collection: { code: string; cbId: number } }
+export type ChatBotParams = { bookmarkId: number } | { shareCode: string } | { collection: { code: string; cbId: number } } | { title: string; raw_content: string }
 
 export type ChatResponseFunctionData =
   | {
@@ -58,6 +58,10 @@ export class ChatBot {
   bookmarkId?: number
   shareCode?: string
   collection?: { code: string; cbId: number }
+  raw?: {
+    title: string
+    raw_content: string
+  }
   responseCallback?: (params: { type: ChatResponseType; data: ChatResponseData }) => void
   chatStatusUpdateHandler?: (isChatting: boolean) => void
 
@@ -68,6 +72,11 @@ export class ChatBot {
       this.shareCode = params.shareCode
     } else if ('collection' in params) {
       this.collection = params.collection
+    } else if ('title' in params && 'raw_content' in params) {
+      this.raw = {
+        title: params.title,
+        raw_content: params.raw_content
+      }
     }
 
     this.responseCallback = responseCallback
@@ -80,7 +89,7 @@ export class ChatBot {
 
     const messages = this.createMessages(params)
     const callBack = await request.stream({
-      url: RESTMethodPath.BOT_CHAT,
+      url: !this.raw ? RESTMethodPath.BOT_CHAT : RESTMethodPath.RAW_CONTENT_CHAT,
       method: RequestMethodType.post,
       body: messages
     })
@@ -225,25 +234,27 @@ export class ChatBot {
 
       messages.push({ role: 'user', content: params.content })
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
+        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
         ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
-        collection: this.collection ? this.collection : undefined,
+        ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages,
         quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined
       }
     } else if (params.type === ChatParamsType.QUESTIONS) {
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
+        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
         ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages: [{ role: 'assistant', tool_calls: [{ id: '1', type: 'function', function: { name: 'generateQuestion' } }] }]
       }
     } else if (params.type === ChatParamsType.ASK) {
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
+        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
         ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages: [
           {
             role: 'assistant',
