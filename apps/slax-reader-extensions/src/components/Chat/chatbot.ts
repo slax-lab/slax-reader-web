@@ -89,7 +89,7 @@ export class ChatBot {
 
     const messages = this.createMessages(params)
     const callBack = await request.stream({
-      url: !this.raw ? RESTMethodPath.BOT_CHAT : RESTMethodPath.RAW_CONTENT_CHAT,
+      url: RESTMethodPath.BOT_CHAT,
       method: RequestMethodType.post,
       body: messages
     })

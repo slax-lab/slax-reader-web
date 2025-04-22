@@ -242,25 +242,21 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
   }
 
   loading.value = true
-  const callBack =
-    props.bookmarkId || props.shareCode || props.collection
-      ? await request.stream({
-          url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
-          method: RequestMethodType.post,
-          body: {
+  const callBack = await request.stream({
+    url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
+    method: RequestMethodType.post,
+    body:
+      props.bookmarkId || props.shareCode || props.collection
+        ? {
             bmId: props.bookmarkId ? props.bookmarkId : undefined,
             shareCode: props.shareCode ? props.shareCode : undefined,
             ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
             force: refresh
           }
-        })
-      : await request.stream({
-          url: RESTMethodPath.RAW_CONTENT_AI_SUMMARIES,
-          method: RequestMethodType.post,
-          body: {
+        : {
             raw_content: getRawTextContent()?.textContent || ''
           }
-        })
+  })
 
   callBack &&
     callBack((text: string, isDone: boolean) => {
