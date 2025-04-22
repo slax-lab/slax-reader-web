@@ -170,18 +170,18 @@ const quoteClick = (quote: QuoteData) => {
 
 <style lang="scss" scoped>
 .bubble-message {
-  --style: relative bg-#1F1F1FFF min-h-10 max-w-398px rounded-8px p-16px;
+  --style: relative bg-#1F1F1FFF min-h-10 min-w-300px rounded-8px p-16px;
 
   &.copyable {
     --style: '!pb-48px';
   }
 
   &.left {
-    --style: ml-0 mr-auto justify-start bg-transparent text-(#fff);
+    --style: ml-0 mr-auto justify-start bg-transparent text-(#fff) mr-50px;
   }
 
   &.right {
-    --style: mr-0 my-8px ml-auto justify-end bg-#333 text-(#ffffffe6);
+    --style: mr-0 my-8px ml-auto justify-end bg-#333 text-(#ffffffe6) min-w-auto max-w-366px;
   }
 
   & > * {
@@ -417,7 +417,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .related-question {
-    --style: w-366px;
+    --style: max-w-366px;
     .related-question-title {
       --style: text-(12px #ffffff66) line-height-17px;
     }
