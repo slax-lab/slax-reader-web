@@ -156,7 +156,9 @@ export interface BookmarkTag {
 export enum MarkType {
   LINE = 1,
   COMMENT = 2,
-  REPLY = 3
+  REPLY = 3,
+  EXTENSIONS_LINE = 4,
+  EXTENSIONS_COMMENT = 5
 }
 
 export interface ShareDetailInfo {
@@ -395,4 +397,21 @@ export interface ImportProcessResp {
   reason: string
   created_at: string
   count: number
+}
+
+export interface BookmarkChangelog {
+  target_url: string
+  bookmark_id: number
+}
+
+export interface BookmarkActionChangelog extends BookmarkChangelog {
+  log_action: 'add' | 'delete' | 'update'
+}
+export interface BookmarkSocketChangelog extends BookmarkActionChangelog {
+  created_at: string
+}
+
+export interface BookmarkChangelogResp<T> {
+  previous_sync?: number
+  logs: T[]
 }

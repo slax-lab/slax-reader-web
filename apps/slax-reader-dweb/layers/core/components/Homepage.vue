@@ -270,7 +270,7 @@ const tryClick = async () => {
     .content {
       --style: pt-108px w-full h-full flex flex-col items-center;
       img {
-        --style: w-86px h-108px object-contain;
+        --style: w-86px h-108px object-contain select-none;
       }
 
       .app-name {

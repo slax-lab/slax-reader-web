@@ -52,7 +52,7 @@
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
           <AISummaries
             v-if="bmId"
-            :bm-id="bmId"
+            :bookmarkId="bmId"
             :is-appeared="summariesExpanded"
             :content-selector="'.bookmark-detail .detail'"
             @navigated-text="navigateToText"
@@ -100,6 +100,7 @@ import UserNotification, { UserNotificationIconStyle } from '#layers/core/compon
 import ShareBubbleTips from '#layers/core/components/Tips/ShareBubbleTips.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
+import { formatDate } from '@commons/utils/date'
 import { RequestError } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'

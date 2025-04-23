@@ -214,7 +214,6 @@ const updateGraphHeight = () => {
 const monitorKeyboard = () => {
   const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
   document.addEventListener('keydown', (e: KeyboardEvent) => {
-    console.log(e.key)
     if (['ArrowUp', 'ArrowDown'].indexOf(e.key) === -1) {
       return
     }

@@ -3,9 +3,6 @@ import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import MdLinkAttributes from 'markdown-it-link-attributes'
-import MdMermaid from 'mermaid-it-markdown'
-
-//TODO: 如果markdown-it各方面表现出色，那需要将markdown-it全面替代marked
 
 const highlightBlock = (str: string, lang?: string) => {
   return `<pre class="code-block-wrapper"><div class="code-block-header"><span class="code-block-header__lang">${lang}</span><span class="code-block-header__copy"></span></div><code class="hljs code-block-body ${lang}">${str}</code></pre>`
@@ -49,10 +46,7 @@ const mdi = new MarkdownIt({
   }
 })
 
-mdi
-  .use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } })
-  .use(MdKatex)
-  .use(MdMermaid)
+mdi.use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } }).use(MdKatex)
 
 // 转换markdown内容
 export const parseMarkdownText = (text: string) => {

@@ -17,6 +17,14 @@
     unicode-range: U+0-7F, U+A0, U+B7, U+200A, U+2014, U+2018, U+2019, U+201C, U+201D, U+2022, U+2026;
   }
 
+  @font-face {
+    font-family: 'PingFang SC';
+    src: url('/fonts/pingfang-sc-regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
   /* 块级元素 */
   body,
   h1, h2, h3, h4, h5, h6,

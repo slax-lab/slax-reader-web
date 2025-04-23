@@ -64,6 +64,7 @@ import QuestionMessage from './QuestionMessage.vue'
 import TipsMessage from './TipsMessage.vue'
 import DotLoading from '#layers/core/components/DotLoading.vue'
 
+import { parseMarkdownText } from '@commons/utils/parse'
 import { getUUID } from '@commons/utils/random'
 import type { ChatBotParams } from '#layers/core/utils/chatbot'
 
