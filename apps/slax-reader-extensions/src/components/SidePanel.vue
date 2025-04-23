@@ -30,10 +30,18 @@
         <div class="drag" ref="draggble" />
         <div class="panel-content-wrapper">
           <Transition name="sidepanel">
-            <AISummaries v-show="isSummaryShowing" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+            <AISummaries v-show="isSummaryShowing" :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
           </Transition>
           <Transition name="sidepanel">
-            <ChatBot v-show="isChatbotShowing" ref="chatbot" :bookmarkId="bookmarkId" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
+            <ChatBot
+              v-show="isChatbotShowing"
+              :key="currentUrl"
+              ref="chatbot"
+              :bookmarkId="bookmarkId"
+              :isAppeared="isChatbotShowing"
+              @dismiss="closePanel"
+              @find-quote="findQuote"
+            />
           </Transition>
         </div>
       </div>
@@ -101,12 +109,15 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const share = useTemplateRef<HTMLDivElement>('share')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
+const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
 
 const bookmarkId = ref(0)
+const bookmarkUrl = ref('')
+const currentUrl = ref(window.location.href)
 
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
@@ -165,6 +176,27 @@ watch(
   }
 )
 
+props.browser.runtime.onMessage.addListener(
+  (message: unknown, sender: Browser.runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
+    console.log('receive message', message, sender)
+
+    const receiveMessage = message as MessageType
+    switch (receiveMessage.action) {
+      case MessageTypeAction.PageUrlUpdate: {
+        const url = receiveMessage.url
+        if (url !== bookmarkUrl.value) {
+          updateBookmarkStatus()
+          loadSelection()
+
+          currentUrl.value = url
+        }
+      }
+    }
+
+    return false
+  }
+)
+
 const trackingHandler = () => {
   checkInAnotherScrollableView()
 }
@@ -196,6 +228,7 @@ const isMouseWithinElement = (element: HTMLElement) => {
 onMounted(() => {
   tracking.mouseTrack(true)
 
+  updateBookmarkStatus()
   loadSelection()
 })
 
@@ -203,11 +236,28 @@ onUnmounted(() => {
   tracking.destruct()
 })
 
-const loadSelection = async () => {
-  const bookmarkRecord = await tryGetBookmarkChange()
+const updateBookmarkStatus = async () => {
+  const url = window.location.href
+  const bookmarkRecord = await tryGetBookmarkChange(url)
   if (bookmarkRecord) {
     bookmarkId.value = bookmarkRecord
+    bookmarkUrl.value = url
     isCollected.value = true
+  } else {
+    bookmarkUrl.value = ''
+    bookmarkId.value = 0
+    isCollected.value = false
+  }
+}
+
+const loadSelection = async () => {
+  if (articleSelection) {
+    articleSelection.closeMonitor()
+    articleSelection = null
+  }
+
+  if (!bookmarkId.value) {
+    return
   }
 
   if (!isSlaxWebsite(window.location.href)) {
@@ -247,6 +297,8 @@ const collectionClick = async () => {
 
   if (!isCollected.value || !bookmarkId.value) {
     await addBookmark()
+  } else if (isCollected.value && bookmarkId.value) {
+    checkSource()
   }
 }
 
@@ -338,10 +390,10 @@ const tryGetUserInfo = async () => {
   return res.data
 }
 
-const tryGetBookmarkChange = async () => {
+const tryGetBookmarkChange = async (url: string) => {
   const res = await queryBackground<{ bookmarkId: number }>({
     action: MessageTypeAction.QueryBookmarkChange,
-    url: window.location.href
+    url
   })
 
   console.log('push message res: ', res)
@@ -384,6 +436,7 @@ const addBookmark = async () => {
     if (resp) {
       await queryBackground({ action: MessageTypeAction.AddBookmarkChange, url: window.location.href, bookmarkId: resp.bmId })
       bookmarkId.value = resp.bmId
+      bookmarkUrl.value = websiteInfo.target_url
       isCollected.value = true
     }
   } finally {

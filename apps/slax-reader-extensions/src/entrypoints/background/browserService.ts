@@ -37,4 +37,9 @@ export class BrowserService {
 
     menus.forEach(item => browser.contextMenus.create(item))
   }
+
+  static async notifyUrlUpdate(tab: Browser.tabs.Tab, url: string): Promise<void> {
+    const message = { action: MessageTypeAction.PageUrlUpdate, url }
+    await browser.tabs.sendMessage(tab.id!, message)
+  }
 }

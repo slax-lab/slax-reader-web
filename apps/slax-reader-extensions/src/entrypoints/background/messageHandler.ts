@@ -16,6 +16,8 @@ export class MessageHandler {
   handleMessage(message: unknown, sender: Browser.runtime.MessageSender, sendResponse: (response?: unknown) => void) {
     const receiveMessage = message as MessageType
 
+    console.log('Received message:', receiveMessage)
+
     switch (receiveMessage.action) {
       case MessageTypeAction.OpenWelcome:
         BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
@@ -55,10 +57,7 @@ export class MessageHandler {
     }
   }
 
-  private async handleQueryBookmarkChange(
-    message: Extract<MessageType, { action: MessageTypeAction.QueryBookmarkChange }>,
-    sendResponse: (response?: unknown) => void
-  ): Promise<boolean> {
+  private async handleQueryBookmarkChange(message: Extract<MessageType, { action: MessageTypeAction.QueryBookmarkChange }>, sendResponse: (response?: unknown) => void) {
     try {
       const url = message.url
       const hashUrl = md5(url)
@@ -73,14 +72,9 @@ export class MessageHandler {
       console.error('Error querying bookmark change:', error)
       sendResponse({ success: false, data: error })
     }
-
-    return true
   }
 
-  private async handleAddBookmarkChange(
-    message: Extract<MessageType, { action: MessageTypeAction.AddBookmarkChange }>,
-    sendResponse: (response?: unknown) => void
-  ): Promise<boolean> {
+  private async handleAddBookmarkChange(message: Extract<MessageType, { action: MessageTypeAction.AddBookmarkChange }>, sendResponse: (response?: unknown) => void) {
     try {
       const url = message.url
       const bookmarkId = message.bookmarkId
@@ -92,11 +86,9 @@ export class MessageHandler {
       console.error('Error adding bookmark change:', error)
       sendResponse({ success: false, data: error })
     }
-
-    return true
   }
 
-  private async handleCheckLogined(sendResponse: (response?: unknown) => void): Promise<boolean> {
+  private async handleCheckLogined(sendResponse: (response?: unknown) => void) {
     try {
       const isLoggedIn = await this.authService.checkLogin()
       sendResponse({ success: isLoggedIn, data: isLoggedIn })
@@ -104,11 +96,9 @@ export class MessageHandler {
       console.error('Error checking login status:', error)
       sendResponse({ success: false, data: error })
     }
-
-    return true
   }
 
-  private async handleQueryUserInfo(sendResponse: (response?: unknown) => void): Promise<boolean> {
+  private async handleQueryUserInfo(sendResponse: (response?: unknown) => void) {
     try {
       const userInfo = await this.authService.queryUserInfo()
       sendResponse({ success: true, data: userInfo })
@@ -116,7 +106,5 @@ export class MessageHandler {
       console.error('Error querying user info:', error)
       sendResponse({ success: false, data: error })
     }
-
-    return true
   }
 }

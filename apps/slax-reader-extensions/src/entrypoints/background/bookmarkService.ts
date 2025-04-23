@@ -36,7 +36,7 @@ export class BookmarkService {
       await dbService.initialize()
       await dbService.clearBookmarkChanges()
 
-      const time = res.end_time
+      const time = res.previous_sync
       const logs = res.logs || []
 
       await this.addBookmarkChanges(
@@ -61,9 +61,9 @@ export class BookmarkService {
     }
 
     try {
-      const endTime = (await this.querychangeSyncTime()) || 0
+      const previousSync = (await this.querychangeSyncTime()) || 0
 
-      if (endTime && Date.now() - endTime > CONFIG.FULL_SYNC_BOOKMARK_CHANGES_DAYS * 24 * 60 * 60 * 1000) {
+      if (previousSync && Date.now() - previousSync > CONFIG.FULL_SYNC_BOOKMARK_CHANGES_DAYS * 24 * 60 * 60 * 1000) {
         // 超过15天，直接全量更新一次
         await this.updateAllBookmarkChanges()
         return
@@ -72,13 +72,13 @@ export class BookmarkService {
       const res = await request.get<BookmarkChangelogResp<BookmarkActionChangelog>>({
         url: RESTMethodPath.PARTIAL_BOOKMARK_CHANGES,
         query: {
-          end_time: endTime
+          previous_sync: previousSync
         }
       })
 
       if (!res) return
 
-      const time = res.end_time
+      const time = res.previous_sync
       const logs = res.logs || []
 
       await this.addBookmarkActionChanges(
@@ -286,15 +286,18 @@ export class BookmarkService {
   }
 
   async enableSocket() {
-    if (this.socket) {
-      return
-    }
-
     const token = await this.storageService.getToken()
     if (!token) {
       console.warn('No token found for WebSocket connection')
       return
     }
+
+    if (this.socket) {
+      console.warn('WebSocket connection already exists')
+      return
+    }
+
+    console.log('Enabling WebSocket connection...')
 
     const baseUrl = process.env.EXTENSIONS_API_BASE_URL || ''
     const socketBastUrl = baseUrl.replace('https', 'wss').replace('http', 'ws')
@@ -341,12 +344,21 @@ export class BookmarkService {
     })
   }
 
-  async closeSocket() {
+  closeSocket() {
     if (!this.socket) {
       return
     }
 
     this.socket?.close(1000, 'Normal closure')
     this.socket = null
+  }
+
+  async checkSocket() {
+    const token = await this.storageService.getToken()
+    if (!token && this.socket) {
+      await this.closeSocket()
+    } else if (token && !this.socket) {
+      await this.enableSocket()
+    }
   }
 }

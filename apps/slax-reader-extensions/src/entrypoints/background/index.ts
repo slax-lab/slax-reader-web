@@ -1,3 +1,5 @@
+import { MessageTypeAction } from '@/config'
+
 import { AuthService } from './authService'
 import { BookmarkService } from './bookmarkService'
 import { BrowserService } from './browserService'
@@ -10,31 +12,45 @@ export default defineBackground(() => {
   const authService = new AuthService(storageService)
   const bookmarkService = new BookmarkService(storageService, authService)
   const messageHandler = new MessageHandler(storageService, authService, bookmarkService)
+  const userToken = ref<string>('')
+
+  const changesCheckup = async () => {
+    await Promise.allSettled([bookmarkService.updatePartialBookmarkChanges(), bookmarkService.checkSocket()])
+  }
 
   storageService.getToken().then(token => {
+    userToken.value = token || ''
+
     if (token) {
-      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+      // 这里的执行场景基本是用来兼容线程被休眠然后重新恢复的情况
+      changesCheckup()
     }
   })
 
   // 监听cookie变化
+
   const cookieHost = process.env.COOKIE_DOMAIN as string
-  browser.cookies.onChanged.addListener(async changeInfo => {
+  browser.cookies.onChanged.addListener(changeInfo => {
     if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) {
       return
     }
 
     console.log('Cookie update:', changeInfo)
 
-    if (changeInfo.removed) {
-      await Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData(), bookmarkService.closeSocket()])
+    if (changeInfo.removed && changeInfo.cause !== 'overwrite') {
+      Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData(), bookmarkService.closeSocket()])
 
       return
     }
 
-    await storageService.setToken(changeInfo.cookie.value)
-    await bookmarkService.updateAllBookmarkChanges()
-    await bookmarkService.enableSocket()
+    if (userToken.value === changeInfo.cookie.value) {
+      return
+    }
+
+    userToken.value = changeInfo.cookie.value
+    storageService.setToken(userToken.value).then(() => {
+      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+    })
   })
 
   // 监听插件安装事件
@@ -61,7 +77,7 @@ export default defineBackground(() => {
   // 监听定时任务
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === CONFIG.BOOKMARK_RECORDS_SYNC_KEY) {
-      bookmarkService.updatePartialBookmarkChanges()
+      changesCheckup()
     }
   })
 
@@ -106,6 +122,8 @@ export default defineBackground(() => {
       if (tabInfo && tab.url) {
         await bookmarkService.checkAndUpdateBookmarkStatus(tabId, tab.url)
       }
+
+      userToken && BrowserService.notifyUrlUpdate(tab, tab.url || '')
     } catch (error) {
       console.error(`Error checking tab with id: ${tabId}`, error)
     }
