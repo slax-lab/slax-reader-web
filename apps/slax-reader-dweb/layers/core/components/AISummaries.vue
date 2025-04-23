@@ -76,7 +76,10 @@ import MarkdownText from './Markdown/MarkdownText.vue'
 import MarkMindMap from './Markdown/MarkMindMap.vue'
 import DotLoading from '#layers/core/components/DotLoading.vue'
 
+import { Resize } from '@commons/utils/directive'
+import { extractMarkdownFromText } from '@commons/utils/parse'
 import { RequestMethodType } from '@commons/utils/request'
+import { findMatchingElement, queryAnchorAlikeQuote, queryMarkdownAnchorQuote, querySimularMarkdownAnchorQuote } from '@commons/utils/search'
 import { copyText } from '@commons/utils/string'
 
 import Toast, { ToastType } from './Toast'
@@ -97,7 +100,7 @@ interface AnchorInfo {
 }
 
 const props = defineProps({
-  bmId: Number,
+  bookmarkId: Number,
   shareCode: String,
   collection: {
     type: Object as PropType<{ code: string; cbId: number }>,
@@ -211,7 +214,7 @@ const getSummariesList = async () => {
   const list = await request.get<SummaryItemModel[]>({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
     query: {
-      ...(props.bmId ? { bookmark_id: props.bmId } : undefined),
+      ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
       ...(props.shareCode ? { share_code: props.shareCode } : undefined),
       ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined)
     }
@@ -241,7 +244,7 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
     method: RequestMethodType.post,
     body: {
-      bmId: props.bmId ? props.bmId : undefined,
+      bmId: props.bookmarkId ? props.bookmarkId : undefined,
       shareCode: props.shareCode ? props.shareCode : undefined,
       ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
       force: refresh
@@ -445,7 +448,7 @@ const refresh = async () => {
 }
 
 const loadSummaries = (options?: { refresh: boolean }) => {
-  if (props.bmId || props.shareCode || props.collection) {
+  if (props.bookmarkId || props.shareCode || props.collection) {
     let step = 0
     const timeInterval = setInterval(() => {
       step += 1

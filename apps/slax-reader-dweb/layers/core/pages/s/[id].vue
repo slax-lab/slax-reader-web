@@ -89,7 +89,9 @@ import SidebarLayout from '#layers/core/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
+import { formatDate } from '@commons/utils/date'
 import { isClient } from '@commons/utils/is'
+import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'

@@ -7,7 +7,7 @@
           <div class="switch" @click="switchClick">
             <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
               <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-18px text-#fff" v-show="isSwitchLoading"></div>
+                <div class="i-svg-spinners:180-ring-with-bg text-14px text-#fff" v-show="isSwitchLoading"></div>
               </Transition>
             </div>
           </div>

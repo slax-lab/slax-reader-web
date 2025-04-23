@@ -3,17 +3,41 @@ export enum MessageTypeAction {
   OpenWelcome = 'open-welcome-tab',
   ShowCollectPopup = 'show-collect-popup',
   HideCollectPopup = 'hide-collect-popup',
-  RecordBookmark = 'record-bookmark'
+  RecordBookmark = 'record-bookmark',
+  QueryBookmarkChange = 'query-bookmark-change',
+  AddBookmarkChange = 'add-bookmark-change',
+  CheckLogined = 'check-logined',
+  QueryUserInfo = 'query-user-info',
+  PageUrlUpdate = 'page-url-update'
 }
 
 export type MessageType =
   | {
-      action: MessageTypeAction.QueryHTMLContent | MessageTypeAction.ShowCollectPopup | MessageTypeAction.HideCollectPopup | MessageTypeAction.OpenWelcome
+      action:
+        | MessageTypeAction.QueryHTMLContent
+        | MessageTypeAction.ShowCollectPopup
+        | MessageTypeAction.HideCollectPopup
+        | MessageTypeAction.OpenWelcome
+        | MessageTypeAction.CheckLogined
+        | MessageTypeAction.QueryUserInfo
     }
   | {
       action: MessageTypeAction.RecordBookmark
       url: string
       actionType: BookmarkActionType
+    }
+  | {
+      action: MessageTypeAction.QueryBookmarkChange
+      url: string
+    }
+  | {
+      action: MessageTypeAction.AddBookmarkChange
+      url: string
+      bookmarkId: number
+    }
+  | {
+      action: MessageTypeAction.PageUrlUpdate
+      url: string
     }
 
 export enum BookmarkActionType {

@@ -37,7 +37,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 .sidebar {
-  --style: 'fixed max-md:(left-0 top-full w-full) md:(left-full top-0 h-full) ';
+  --style: 'fixed max-md:(left-0 top-full w-full) print:hidden md:(left-full top-0 h-full) ';
 
   &.animated {
     --style: transition-right duration-200;
