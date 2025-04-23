@@ -8,7 +8,7 @@ import vue from 'eslint-plugin-vue'
 
 export default [
   {
-    ignores: ['**/node_modules/**', '**/build/**', 'project-env.d.ts', '**/.wrangler/**', '**/.nuxt/**', '**/.wxt/**', '**/dist/**']
+    ignores: ['**/node_modules/**', '**/build/**', 'project-env.d.ts', '**/.wrangler/**', '**/.nuxt/**', '**/.wxt/**', '**/dist/**', '**/public/**']
   },
   {
     files: ['**/*.vue'],

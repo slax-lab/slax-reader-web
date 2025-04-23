@@ -83,6 +83,18 @@ export interface BookmarkItem {
   type: 'shortcut' | 'article'
 }
 
+export interface InlineBookmarkDetail {
+  title: string
+  target_url: string
+  share_info: ShareInfo
+  marks: MarkDetail
+  user_info: {
+    nick_name: string
+    avatar: string
+    show_userinfo: boolean
+  }
+}
+
 export interface ShareBookmarkDetail {
   byline: string
   content: string
@@ -266,6 +278,7 @@ export enum UserSubscribeCollectionType {
   free = 1,
   paid = 2
 }
+
 export interface UserSubscribeCollectionItem {
   id: number
   type: UserSubscribeCollectionType

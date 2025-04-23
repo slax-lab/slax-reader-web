@@ -7,7 +7,7 @@ export default [
   ...config,
 
   {
-    ignores: ['node_modules/', 'build/', '.nuxt/', 'dist/', '.wrangler/']
+    ignores: ['node_modules/', 'build/', '.nuxt/', 'dist/', '.wrangler/', 'public/']
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
