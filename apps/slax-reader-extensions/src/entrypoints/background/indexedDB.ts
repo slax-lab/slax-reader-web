@@ -89,7 +89,6 @@ export class UserIndexedDBService {
    */
   private ensureDbConnected(): OperationResult {
     if (!this.db) {
-      debugger
       return {
         success: false,
         error: new Error('数据库未初始化，请先调用 initialize() 方法')
