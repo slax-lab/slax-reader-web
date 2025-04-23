@@ -7,7 +7,8 @@ export enum MessageTypeAction {
   QueryBookmarkChange = 'query-bookmark-change',
   AddBookmarkChange = 'add-bookmark-change',
   CheckLogined = 'check-logined',
-  QueryUserInfo = 'query-user-info'
+  QueryUserInfo = 'query-user-info',
+  PageUrlUpdate = 'page-url-update'
 }
 
 export type MessageType =
@@ -33,6 +34,10 @@ export type MessageType =
       action: MessageTypeAction.AddBookmarkChange
       url: string
       bookmarkId: number
+    }
+  | {
+      action: MessageTypeAction.PageUrlUpdate
+      url: string
     }
 
 export enum BookmarkActionType {
