@@ -88,6 +88,18 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 - 🧹 [Prettier](https://prettier.io/)
 - 🧰 [Workbox](https://github.com/GoogleChrome/workbox)
 
+# 商标政策
+
+项目名称 Slax Reader、其标志以及与本项目相关的任何其他商标、服务标志、图形和标志均为 Slax Lab 的商标或注册商标，未经 Slax Lab 事先书面许可，不得用于商业目的。
+
+此商标限制不影响 Apache License 2.0 对软件代码和文档的适用条款，但作为一项额外要求。
+
+具体而言：
+
+未经明确书面许可，您不得将项目标志、名称或其他商标用于任何商业目的。您可以使用项目名称仅作为准确引用，以表明您的作品基于本项目，但不得以暗示认可或附属关系的方式使用。本软件的任何修改版本必须清楚地标明为修改版本，且不得以暗示其为原始项目官方发行版的方式进行标记或营销。如需商标使用许可，请联系 Slax Lab 团队 (ns.boxcounter@gmail.com)。
+
+请参阅我们的[商标和使用政策](./TRADEMARK.md)
+
 # 📝 License
 
-`Slax Reader` 基于 [Apache License 2.0](./LICENSE) 许可，社区版 100% 免费且开源，永久提供。
+`Slax Reader` 基于 [Apache License 2.0](./LICENSE) 许可。
