@@ -399,6 +399,6 @@ export interface BookmarkSocketChangelog extends BookmarkActionChangelog {
 }
 
 export interface BookmarkChangelogResp<T> {
-  end_time?: number
+  previous_sync?: number
   logs: T[]
 }

@@ -382,7 +382,7 @@ defineExpose({
   --style: relative w-full h-full;
 
   .mind-svg {
-    --style: absolute w-full h-full top-0 left-0;
+    --style: absolute w-full h-full top-0 left-0 bg-#262626;
   }
 
   .mind-toolbar {
