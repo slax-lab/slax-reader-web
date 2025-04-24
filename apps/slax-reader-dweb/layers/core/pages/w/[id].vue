@@ -51,7 +51,6 @@
 <script lang="ts" setup>
 import OperatesBar from '#layers/core/components/global/OperatesBar.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import ProIcon from '#layers/core/components/ProIcon.vue'
 
 import { RequestMethodType } from '@commons/utils/request'
 
