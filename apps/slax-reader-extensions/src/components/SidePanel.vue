@@ -176,6 +176,18 @@ watch(
   }
 )
 
+watch(
+  () => bookmarkId.value,
+  value => {
+    if (!value) {
+      unloadSelection()
+      return
+    }
+
+    loadSelection()
+  }
+)
+
 props.browser.runtime.onMessage.addListener(
   (message: unknown, sender: Browser.runtime.MessageSender, sendResponse: (response?: 'string' | Record<string, string | number>) => void) => {
     console.log('receive message', message, sender)
@@ -186,8 +198,6 @@ props.browser.runtime.onMessage.addListener(
         const url = receiveMessage.url
         if (url !== bookmarkUrl.value) {
           updateBookmarkStatus()
-          loadSelection()
-
           currentUrl.value = url
         }
       }
@@ -251,10 +261,7 @@ const updateBookmarkStatus = async () => {
 }
 
 const loadSelection = async () => {
-  if (articleSelection) {
-    articleSelection.closeMonitor()
-    articleSelection = null
-  }
+  unloadSelection()
 
   if (!bookmarkId.value) {
     return
@@ -287,6 +294,13 @@ const loadSelection = async () => {
     }
 
     articleSelection.startMonitor()
+  }
+}
+
+const unloadSelection = () => {
+  if (articleSelection) {
+    articleSelection.closeMonitor()
+    articleSelection = null
   }
 }
 
