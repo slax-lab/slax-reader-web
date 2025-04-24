@@ -62,13 +62,12 @@ import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
-import { type MessageType, MessageTypeAction } from '@/config'
-
 import { MouseTrack } from '@commons/utils/mouse'
 
+import { type MessageType, MessageTypeAction } from '@/config'
 import type { QuoteData } from './Chat/type'
+import { ArticleSelection } from './Selection/selection'
 import { showShareConfigModal } from './Share'
-import { ArticleSelection } from '@/components/Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkDetail, UserInfo } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'
@@ -337,8 +336,14 @@ const panelClick = async (type: PanelItemType) => {
     return
   }
 
+  const userInfo = await tryGetUserInfo()
+
   isSummaryShowing.value = false
   isChatbotShowing.value = false
+
+  if (!(await examineSideBarAction(type, userInfo))) {
+    return
+  }
 
   switch (type) {
     case PanelItemType.AI:
