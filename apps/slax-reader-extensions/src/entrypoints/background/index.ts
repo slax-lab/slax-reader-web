@@ -1,5 +1,3 @@
-import { MessageTypeAction } from '@/config'
-
 import { AuthService } from './authService'
 import { BookmarkService } from './bookmarkService'
 import { BrowserService } from './browserService'

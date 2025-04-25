@@ -174,9 +174,6 @@ importers:
 
   apps/slax-reader-dweb:
     dependencies:
-      '@lottiefiles/dotlottie-vue':
-        specifier: ^0.5.8
-        version: 0.5.8(vue@3.5.13(typescript@5.8.3))
       '@nuxtjs/i18n':
         specifier: ^9.3.1
         version: 9.3.1(@vue/compiler-dom@3.5.13)(eslint@9.22.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.35.0)(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
@@ -1911,14 +1908,6 @@ packages:
 
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
-
-  '@lottiefiles/dotlottie-vue@0.5.8':
-    resolution: {integrity: sha512-VTMj0+QFG1DW/eEWBO/Rh89JZrp/N9zitf6oeyxxO4Pxt/+WT9aK/XGE5/7IDqaYUmqR5MRkfcT9okwvxKe6Vw==}
-    peerDependencies:
-      vue: ^3.3.4
-
-  '@lottiefiles/dotlottie-web@0.41.0':
-    resolution: {integrity: sha512-hJR3zN9DiQkNjEA0+OJbuPJPXZtbySrfYa61WD5qFc7dBPHGDUaSC6APvwM2FSrzPy0AU4nrOPfExEe6VNznkg==}
 
   '@mapbox/node-pre-gyp@2.0.0':
     resolution: {integrity: sha512-llMXd39jtP0HpQLVI37Bf1m2ADlEb35GYSh1SDSLsBhR+5iCxiNGlT31yqbNtVHygHAtMy6dWFERpU2JgufhPg==}
@@ -10153,13 +10142,6 @@ snapshots:
       - supports-color
 
   '@kwsites/promise-deferred@1.1.1': {}
-
-  '@lottiefiles/dotlottie-vue@0.5.8(vue@3.5.13(typescript@5.8.3))':
-    dependencies:
-      '@lottiefiles/dotlottie-web': 0.41.0
-      vue: 3.5.13(typescript@5.8.3)
-
-  '@lottiefiles/dotlottie-web@0.41.0': {}
 
   '@mapbox/node-pre-gyp@2.0.0':
     dependencies:
