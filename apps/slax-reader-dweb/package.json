@@ -15,7 +15,6 @@
     "ssr:dev": "pnpm build && pnpm wrangler pages dev --port 3000"
   },
   "dependencies": {
-    "@lottiefiles/dotlottie-vue": "^0.5.8",
     "@nuxtjs/i18n": "^9.3.1",
     "@nuxtjs/robots": "^5.2.8",
     "@nuxtjs/sitemap": "^7.2.9",

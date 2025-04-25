@@ -1,5 +1,5 @@
 <template>
-  <div class="side-panel" v-on-click-outside="closePanel">
+  <div class="side-panel" v-on-click-outside="closePanel" v-if="!needHidden">
     <div class="panel-container" ref="panelContainer" :class="{ appear: showPanel }">
       <div class="panel-sidebar">
         <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
@@ -62,9 +62,10 @@ import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
+import { type MessageType, MessageTypeAction } from '@/config'
+
 import { MouseTrack } from '@commons/utils/mouse'
 
-import { type MessageType, MessageTypeAction } from '@/config'
 import type { QuoteData } from './Chat/type'
 import { ArticleSelection } from './Selection/selection'
 import { showShareConfigModal } from './Share'
@@ -133,6 +134,10 @@ const showPanel = computed(() => {
 
 const appStatusText = computed(() => {
   return isLoading.value ? loadingTitle.value : isCollected ? '查看收藏' : '收藏内容'
+})
+
+const needHidden = computed(() => {
+  return isSlaxWebsite(currentUrl.value)
 })
 
 useDraggable(draggble, {
@@ -312,14 +317,6 @@ const collectionClick = async () => {
     await addBookmark()
   } else if (isCollected.value && bookmarkId.value) {
     checkSource()
-  }
-}
-
-const isSlaxWebsite = (url: string) => {
-  try {
-    return url.startsWith(process.env.SHARE_BASE_URL || '')
-  } catch (e) {
-    return false
   }
 }
 
