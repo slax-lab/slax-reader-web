@@ -52,8 +52,8 @@
 </template>
 
 <script lang="ts" setup>
-// import AISummaries from './AISummaries.vue'
-// import ChatBot from './Chat/ChatBot.vue'
+import AISummaries from './AISummaries.vue'
+import ChatBot from './Chat/ChatBot.vue'
 
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
@@ -109,8 +109,8 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const share = useTemplateRef<HTMLDivElement>('share')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
-// const summaries = ref<InstanceType<typeof AISummaries>>()
-// const chatbot = ref<InstanceType<typeof ChatBot>>()
+const summaries = ref<InstanceType<typeof AISummaries>>()
+const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
