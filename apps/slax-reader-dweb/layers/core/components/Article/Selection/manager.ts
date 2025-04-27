@@ -4,7 +4,16 @@ import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
 import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type StrokeSelectionMeta } from './type'
 import { RESTMethodPath } from '@commons/types/const'
-import { type MarkDetail, type MarkInfo, type MarkPathItem, type MarkSelectContent, MarkType, type MarkUserInfo, type UserList } from '@commons/types/interface'
+import {
+  type MarkDetail,
+  type MarkInfo,
+  type MarkPathApprox,
+  type MarkPathItem,
+  type MarkSelectContent,
+  MarkType,
+  type MarkUserInfo,
+  type UserList
+} from '@commons/types/interface'
 import CursorToast from '#layers/core/components/CursorToast'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 import { useUserStore } from '#layers/core/stores/user'
@@ -33,7 +42,7 @@ export class MarkManager {
   }
 
   async strokeSelection(meta: StrokeSelectionMeta) {
-    const { info, comment, replyToId } = meta
+    const { info, comment, replyToId, approx } = meta
     const markItems = info.source
     const userInfo = useUserStore().userInfo
 
@@ -84,7 +93,7 @@ export class MarkManager {
     const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.COMMENT) : MarkType.LINE
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
-    const res = await this.saveMarkSelectContent(markItems, markType, comment, replyToId)
+    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
     if (!res) {
       Toast.showToast({
         text: commentItem ? t('component.article_selection.comment_failed') : t('component.article_selection.stroke_failed'),
@@ -246,10 +255,10 @@ export class MarkManager {
       allowAction: this.config.allowAction,
       fallbackYOffset: options?.fallbackYOffset || 0,
       actionCallback: (type, meta) => {
-        if (type === MenuType.Stroke) this.strokeSelection(meta)
+        if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
         else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
-        else if (type === MenuType.Comment) this.strokeSelection(meta)
+        else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
           const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
           this.config.postQuoteDataHandler(quote)
@@ -303,7 +312,7 @@ export class MarkManager {
     }
   }
 
-  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, comment?: string, replyToId?: number) {
+  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
@@ -314,7 +323,8 @@ export class MarkManager {
           type,
           source: value,
           parent_id: replyToId,
-          select_content: this._selectContent.value
+          select_content: this._selectContent.value,
+          approx_source: approx
         }
       })
       return res || null
@@ -379,7 +389,7 @@ export class MarkManager {
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
       if (!markInfoItem) {
-        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [] }
+        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source, type: mark.type }
         infoItems.push(markInfoItem)
       }
 

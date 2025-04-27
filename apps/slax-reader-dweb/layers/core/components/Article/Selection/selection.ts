@@ -1,4 +1,5 @@
 import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
+import { HighlightRange } from '@commons/utils/range'
 
 import type { QuoteData } from '../../Chat/type'
 import { MarkManager } from './manager'
@@ -7,6 +8,7 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig } from './type'
+import { MarkType } from '@commons/types/interface'
 import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
 
 type SelectTextInfo =
@@ -27,11 +29,13 @@ export class ArticleSelection {
   private monitor: SelectionMonitor
   private manager: MarkManager
   private renderer: MarkRenderer
+  private _highlightRange: HighlightRange
 
   constructor(config: SelectionConfig) {
     this.renderer = new MarkRenderer(config)
     this.manager = new MarkManager(config, this.renderer, this.findQuote.bind(this))
     this.monitor = new SelectionMonitor(config.monitorDom, this.handleMouseUp.bind(this))
+    this._highlightRange = new HighlightRange(document)
   }
 
   startMonitor() {
@@ -113,7 +117,7 @@ export class ArticleSelection {
       const currentMark = this.manager.currentMarkItemInfo
       if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [] })
+      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], type: MarkType.COMMENT })
       this.manager.clearSelectContent()
 
       selectedInfo.forEach(item => {
@@ -131,6 +135,11 @@ export class ArticleSelection {
         }
       })
 
+      const range = window.getSelection()!.getRangeAt(0)
+      console.log(range)
+      const approx = this._highlightRange.getSelector(range)
+      console.log(approx)
+
       let menusY = 0
       SelectionModal.showMenus({
         container: this.config.containerDom!,
@@ -142,7 +151,7 @@ export class ArticleSelection {
 
           if (type === MenuType.Stroke) {
             currentInfo.id = getUUID()
-            this.manager.strokeSelection({ info: currentInfo })
+            this.manager.strokeSelection({ info: currentInfo, approx })
           } else if (type === MenuType.Copy) {
             this.manager.copyMarkedText(source, event)
           } else if (type === MenuType.Comment) {
