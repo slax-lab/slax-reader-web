@@ -52,8 +52,8 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from './AISummaries.vue'
-import ChatBot from './Chat/ChatBot.vue'
+// import AISummaries from './AISummaries.vue'
+// import ChatBot from './Chat/ChatBot.vue'
 
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
@@ -70,7 +70,7 @@ import type { QuoteData } from './Chat/type'
 import { showShareConfigModal } from './Share'
 import { ArticleSelection } from '@/components/Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
-import type { AddBookmarkReq, AddBookmarkResp, BookmarkDetail, UserInfo } from '@commons/types/interface'
+import type { AddBookmarkReq, AddBookmarkResp, MarkDetail, UserInfo } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'
 import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
 import type { WxtBrowser } from 'wxt/browser'
@@ -109,8 +109,8 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const share = useTemplateRef<HTMLDivElement>('share')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
-const summaries = ref<InstanceType<typeof AISummaries>>()
-const chatbot = ref<InstanceType<typeof ChatBot>>()
+// const summaries = ref<InstanceType<typeof AISummaries>>()
+// const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
@@ -268,7 +268,7 @@ const loadSelection = async () => {
   }
 
   if (!isSlaxWebsite(window.location.href)) {
-    const detail = bookmarkId.value ? await getBookmarkDetail(bookmarkId.value) : null
+    const markList = bookmarkId.value ? await getBookmarkMarkList(bookmarkId.value) : null
     const userInfo = await tryGetUserInfo()
 
     articleSelection = new ArticleSelection({
@@ -285,12 +285,12 @@ const loadSelection = async () => {
       },
       postQuoteDataHandler: (data: QuoteData) => {
         isChatbotShowing.value = true
-        chatbot.value?.addQuoteData(data)
+        // chatbot.value?.addQuoteData(data)
       }
     })
 
-    if (detail) {
-      articleSelection.drawMark(detail.marks)
+    if (markList) {
+      articleSelection.drawMark(markList)
     }
 
     articleSelection.startMonitor()
@@ -419,9 +419,9 @@ const tryGetBookmarkChange = async (url: string) => {
   return res.data.bookmarkId
 }
 
-const getBookmarkDetail = async (bookmarkId: number) => {
-  const res = await request.get<BookmarkDetail>({
-    url: RESTMethodPath.BOOKMARK_DETAIL,
+const getBookmarkMarkList = async (bookmarkId: number) => {
+  const res = await request.get<MarkDetail>({
+    url: RESTMethodPath.BOOKMARK_MARK_LIST,
     query: {
       bookmark_id: String(bookmarkId)
     }

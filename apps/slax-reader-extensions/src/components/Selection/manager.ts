@@ -5,7 +5,16 @@ import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
 import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type StrokeSelectionMeta } from './type'
 import { RESTMethodPath } from '@commons/types/const'
-import { type MarkDetail, type MarkInfo, type MarkPathItem, type MarkSelectContent, MarkType, type MarkUserInfo, type UserList } from '@commons/types/interface'
+import {
+  type MarkDetail,
+  type MarkInfo,
+  type MarkPathApprox,
+  type MarkPathItem,
+  type MarkSelectContent,
+  MarkType,
+  type MarkUserInfo,
+  type UserList
+} from '@commons/types/interface'
 
 export class MarkManager {
   private _markItemInfos: MarkItemInfo[] = []
@@ -31,7 +40,7 @@ export class MarkManager {
   }
 
   async strokeSelection(meta: StrokeSelectionMeta) {
-    const { info, comment, replyToId } = meta
+    const { info, comment, replyToId, approx } = meta
     const markItems = info.source
 
     const userInfo = await this.config.userInfo
@@ -81,10 +90,10 @@ export class MarkManager {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.EXTENSIONS_COMMENT) : MarkType.EXTENSIONS_LINE
+    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.ORIGIN_COMMENT) : MarkType.ORIGIN_LINE
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
-    const res = await this.saveMarkSelectContent(markItems, markType, comment, replyToId)
+    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
     if (!res) {
       Toast.showToast({
         text: commentItem ? t('component.article_selection.comment_failed') : t('component.article_selection.stroke_failed'),
@@ -251,10 +260,10 @@ export class MarkManager {
       allowAction: this.config.allowAction,
       fallbackYOffset: options?.fallbackYOffset || 0,
       actionCallback: (type, meta) => {
-        if (type === MenuType.Stroke) this.strokeSelection(meta)
+        if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
         else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
-        else if (type === MenuType.Comment) this.strokeSelection(meta)
+        else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
           const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
           this.config.postQuoteDataHandler(quote)
@@ -308,7 +317,7 @@ export class MarkManager {
     }
   }
 
-  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, comment?: string, replyToId?: number) {
+  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
@@ -319,7 +328,8 @@ export class MarkManager {
           type,
           source: value,
           parent_id: replyToId,
-          select_content: this._selectContent.value
+          select_content: this._selectContent.value,
+          approx_source: approx
         }
       })
       return res || null
@@ -330,6 +340,7 @@ export class MarkManager {
   }
 
   private createUserMap(userList: UserList): Map<number, MarkUserInfo> {
+    console.log(userList)
     return new Map(Object.entries(userList).map(([key, value]) => [Number(key), value]))
   }
 
@@ -384,13 +395,13 @@ export class MarkManager {
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
       if (!markInfoItem) {
-        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [] }
+        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source, type: mark.type }
         infoItems.push(markInfoItem)
       }
 
-      if (mark.type === MarkType.EXTENSIONS_LINE) {
+      if (mark.type === MarkType.LINE) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if (mark.type === MarkType.EXTENSIONS_COMMENT) {
+      } else if (mark.type === MarkType.COMMENT) {
         const comment = commentMap.get(mark.id)
         if (comment) markInfoItem.comments.push(comment)
       }

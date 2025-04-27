@@ -1,4 +1,5 @@
 import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
+import { HighlightRange } from '@commons/utils/range'
 
 import type { QuoteData } from '../Chat/type'
 import { MarkManager } from './manager'
@@ -7,7 +8,7 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig } from './type'
-import { type MarkDetail, type MarkPathItem, type UserInfo } from '@commons/types/interface'
+import { type MarkDetail, type MarkPathItem, MarkType, type UserInfo } from '@commons/types/interface'
 
 type SelectTextInfo =
   | {
@@ -28,12 +29,14 @@ export class ArticleSelection {
   private manager: MarkManager
   private renderer: MarkRenderer
   private _config: SelectionConfig
+  private _highlightRange: HighlightRange
 
   constructor(config: SelectionConfig) {
     this._config = config
     this.renderer = new MarkRenderer(this._config)
     this.manager = new MarkManager(this._config, this.renderer, this.findQuote.bind(this))
     this.monitor = new SelectionMonitor(this._config.monitorDom, this.handleMouseUp.bind(this))
+    this._highlightRange = new HighlightRange(document)
   }
 
   startMonitor() {
@@ -119,7 +122,7 @@ export class ArticleSelection {
       const currentMark = this.manager.currentMarkItemInfo
       if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [] })
+      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], type: MarkType.ORIGIN_LINE })
       this.manager.clearSelectContent()
 
       selectedInfo.forEach(item => {
@@ -137,6 +140,9 @@ export class ArticleSelection {
         }
       })
 
+      const range = window.getSelection()!.getRangeAt(0)
+      const approx = this._highlightRange.getSelector(range)
+
       let menusY = 0
       SelectionModal.showMenus({
         container: this.config.containerDom!,
@@ -148,7 +154,7 @@ export class ArticleSelection {
 
           if (type === MenuType.Stroke) {
             currentInfo.id = getUUID()
-            this.manager.strokeSelection({ info: currentInfo })
+            this.manager.strokeSelection({ info: currentInfo, approx })
           } else if (type === MenuType.Copy) {
             this.manager.copyMarkedText(source, event)
           } else if (type === MenuType.Comment) {

@@ -1,4 +1,4 @@
-import type { MarkPathItem } from '@commons/types/interface'
+import type { MarkPathApprox, MarkPathItem, MarkType } from '@commons/types/interface'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 
 export enum MenuType {
@@ -14,6 +14,8 @@ export interface MarkItemInfo {
   source: MarkPathItem[]
   stroke: { mark_id?: number; userId: number }[]
   comments: MarkCommentInfo[]
+  approx?: MarkPathApprox
+  type: MarkType
 }
 
 export type MarkCommentInfo = {
@@ -53,6 +55,7 @@ export interface StrokeSelectionMeta {
   info: MarkItemInfo
   comment?: string
   replyToId?: number
+  approx: MarkPathApprox
 }
 
 export interface DrawMarkBaseInfo {

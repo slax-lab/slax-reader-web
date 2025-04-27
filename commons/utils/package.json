@@ -20,7 +20,8 @@
     "./date": "./src/date.ts",
     "./dom": "./src/dom.ts",
     "./mouse": "./src/mouse.ts",
-    "./socket": "./src/socket.ts"
+    "./socket": "./src/socket.ts",
+    "./range": "./src/range.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -29,6 +30,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "approx-string-match": "^2.0.0",
     "axios": "^1.7.9",
     "lodash-es": "^4.17.21"
   },

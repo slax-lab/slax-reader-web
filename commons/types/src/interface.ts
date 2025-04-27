@@ -20,6 +20,7 @@ export interface MarkInfo {
   user_id: number
   type: MarkType
   source: MarkPathItem[]
+  approx_source?: MarkPathApprox
   parent_id: number
   root_id: number
   comment: string
@@ -45,6 +46,14 @@ export type MarkPathItem =
       type: 'image'
       path: string
     }
+
+export type MarkPathApprox = {
+  exact: string
+  prefix: string
+  suffix: string
+  position_start: number
+  position_end: number
+}
 
 export interface ShareInfo {
   need_login: boolean
@@ -157,8 +166,8 @@ export enum MarkType {
   LINE = 1,
   COMMENT = 2,
   REPLY = 3,
-  EXTENSIONS_LINE = 4,
-  EXTENSIONS_COMMENT = 5
+  ORIGIN_LINE = 4,
+  ORIGIN_COMMENT = 5
 }
 
 export interface ShareDetailInfo {
