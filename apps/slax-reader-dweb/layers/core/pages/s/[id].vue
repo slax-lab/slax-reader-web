@@ -54,13 +54,15 @@
       </DetailLayout>
       <ClientOnly>
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <AISummaries
-            :share-code="shareCode"
-            :is-appeared="summariesExpanded"
-            :content-selector="'.bookmark-detail .detail'"
-            @navigated-text="navigateToText"
-            @dismiss="summariesExpanded = false"
-          />
+          <ClientOnly>
+            <AISummaries
+              :share-code="shareCode"
+              :is-appeared="summariesExpanded"
+              :content-selector="'.bookmark-detail .detail'"
+              @navigated-text="navigateToText"
+              @dismiss="summariesExpanded = false"
+            />
+          </ClientOnly>
         </SidebarLayout>
         <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
           <ChatBot ref="chatbot" :share-code="shareCode" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
