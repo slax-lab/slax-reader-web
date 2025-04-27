@@ -61,7 +61,7 @@ interface PanelItem {
   hovered: boolean
 }
 
-const emits = defineEmits(['panelClick', 'isDragging'])
+const emits = defineEmits(['isDragging'])
 
 const minContentWidth = 200
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))

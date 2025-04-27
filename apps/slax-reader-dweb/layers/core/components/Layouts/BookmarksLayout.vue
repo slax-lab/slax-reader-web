@@ -59,7 +59,6 @@ defineExpose({
 <style lang="scss" scoped>
 .bookmarks-layout {
   --style: w-full flex flex-col items-center overflow-hidden;
-  --header-height: 44px;
 
   .responsive-width {
     --style: 'max-w-900px max-md:(w-full) md:(w-900px)';
