@@ -567,7 +567,7 @@ defineExpose({
       --style: 'bg-#ffd99933';
     }
 
-    &::v-deep(slax-mark) {
+    &:deep(slax-mark) {
       --style: color-inherit relative transition-colors duration-250;
 
       &.comment {

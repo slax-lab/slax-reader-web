@@ -206,49 +206,49 @@ const quoteClick = (quote: QuoteData) => {
   .text {
     --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line;
 
-    &::v-deep(& :not(code)) {
+    &:deep(& :not(code)) {
       --style: m-0 text-#0f1419;
     }
 
-    &::v-deep(.hljs) {
+    &:deep(.hljs) {
       --style: bg-#33333314;
     }
 
-    &::v-deep(pre) {
+    &:deep(pre) {
       --style: mt-16px;
     }
 
-    &::v-deep(h1) {
+    &:deep(h1) {
       --style: 'font-bold text-(20px) line-height-28px not-first:mt-32px';
     }
 
-    &::v-deep(h2) {
+    &:deep(h2) {
       --style: 'font-bold text-(16px) line-height-22px not-first:mt-22px';
     }
 
-    &::v-deep(h3),
-    &::v-deep(h4),
-    &::v-deep(h5) {
+    &:deep(h3),
+    &:deep(h4),
+    &:deep(h5) {
       --style: 'font-bold text-(15px) not-first:mt-12px';
     }
 
     // 非标题类内容，在前面有内容时才增加间距
-    &::v-deep(* + ul),
-    &::v-deep(* + ol) {
+    &:deep(* + ul),
+    &:deep(* + ol) {
       --style: mt-10px;
       margin-top: 10px;
     }
 
-    &::v-deep(li) {
+    &:deep(li) {
       --style: relative pl-20px box-border font-normal text-(14px) line-height-20px whitespace-normal;
     }
 
-    &::v-deep(ul),
-    &::v-deep(ol) {
+    &:deep(ul),
+    &:deep(ol) {
       --style: list-none whitespace-normal;
     }
 
-    &::v-deep(ul) {
+    &:deep(ul) {
       --style: pl-0 flex flex-col;
       li {
         &::marker {
@@ -274,7 +274,7 @@ const quoteClick = (quote: QuoteData) => {
       }
     }
 
-    &::v-deep(ol) {
+    &:deep(ol) {
       --style: pl-0 flex flex-col;
       counter-reset: list-counter;
 
@@ -295,26 +295,26 @@ const quoteClick = (quote: QuoteData) => {
       }
     }
 
-    &::v-deep(a) {
+    &:deep(a) {
       --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
     }
 
-    &::v-deep(table) {
+    &:deep(table) {
       --style: border-collapse;
     }
 
-    &::v-deep(thead),
-    &::v-deep(td),
-    &::v-deep(tr),
-    &::v-deep(th) {
+    &:deep(thead),
+    &:deep(td),
+    &:deep(tr),
+    &:deep(th) {
       --style: border-(1px solid #9999991a) p-4px text-align-center;
     }
 
-    &::v-deep(* + p) {
+    &:deep(* + p) {
       --style: mt-22px;
     }
 
-    &::v-deep(code) {
+    &:deep(code) {
       font-family: 'Courier New', Courier, monospace !important;
 
       * {

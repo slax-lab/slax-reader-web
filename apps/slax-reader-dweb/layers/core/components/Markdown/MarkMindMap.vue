@@ -346,21 +346,19 @@ defineExpose({
   .mind-svg {
     --style: absolute w-full h-full top-0 left-0;
 
-    // eslint-disable-next-line vue-scoped-css/require-v-deep-argument
-    &::v-deep {
-      .markmap-foreign {
-        --style: font-400 text-12px line-height-20px;
-        --style: 'text-#333 dark:text-#ffffffcc';
-      }
-      .markmap-foreign > div {
+    &:deep(.markmap-foreign) {
+      --style: font-400 text-12px line-height-20px;
+      --style: 'text-#333 dark:text-#ffffffcc';
+      & > div {
         --style: flex items-center;
       }
-      .slax_link {
-        --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounted-3px transition-colors duration-150;
-        --style: '!decoration-none !bg-#16b9981f !text-#333 dark:!bg-#16b9981f dark:!text-#ffffffcc';
-      }
+    }
 
-      .slax_link:hover {
+    &:deep(.slax_link) {
+      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounded-3px transition-colors duration-150;
+      --style: '!decoration-none !bg-#16b9981f !text-#333 dark:!bg-#16b9981f dark:!text-#ffffffcc';
+
+      &:hover {
         --style: '!bg-#475467 !text-#fff';
       }
     }

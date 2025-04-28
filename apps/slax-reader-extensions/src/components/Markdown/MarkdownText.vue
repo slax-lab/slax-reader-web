@@ -74,37 +74,37 @@ const handleAnchors = () => {
 .markdown-text {
   .markdown-content {
     --style: flex flex-col;
-    &::v-deep(*) {
+    &:deep(*) {
       --style: m-0;
       --style: 'text-#0f1419 dark:text-#ffffffe6';
     }
 
-    &::v-deep(h1) {
+    &:deep(h1) {
       --style: font-bold text-20px line-height-28px;
       --style: 'not-first:mt-32px text-0f1419 dark:text-#ffffffe6';
     }
 
-    &::v-deep(h2) {
+    &:deep(h2) {
       --style: font-bold text-16px line-height-22px mt-32px;
       --style: 'text-#0f1419 dark:text-#ffffffcc';
     }
 
-    &::v-deep(h3),
-    &::v-deep(h4),
-    &::v-deep(h5) {
+    &:deep(h3),
+    &:deep(h4),
+    &:deep(h5) {
       --style: font-bold text-12px mt-20px;
       --style: 'text-#0f1419 dark:text-#ffffffcc';
     }
 
     // 非标题类内容，在前面有内容时才增加间距
-    &::v-deep(* + ul),
-    &::v-deep(* + ol),
-    &::v-deep(li > ul),
-    &::v-deep(li > ol) {
+    &:deep(* + ul),
+    &:deep(* + ol),
+    &:deep(li > ul),
+    &:deep(li > ol) {
       --style: mt-16px;
     }
 
-    &::v-deep(ul) {
+    &:deep(ul) {
       --style: pl-0 flex flex-col list-none;
       li {
         --style: relative pl-20px box-border font-normal text-14px line-height-20px;
@@ -137,20 +137,20 @@ const handleAnchors = () => {
       }
     }
 
-    &::v-deep(a) {
+    &:deep(a) {
       --style: -top-1px relative text-#5080a8;
     }
 
-    &::v-deep(a:not(.slax_link)) {
+    &:deep(a:not(.slax_link)) {
       color: #5080a8;
     }
 
-    &::v-deep(.slax_link) {
-      --style: ml-0 select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px transition-colors duration-150;
+    &:deep(.slax_link) {
+      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-10px rounded-3px transition-colors duration-150;
       --style: '!decoration-none bg-#16b9981f text-#333333  dark:text-#ffffff99';
     }
 
-    &::v-deep(.slax_link:hover) {
+    &:deep(.slax_link:hover) {
       --style: 'bg-#475467 !text-#fff';
     }
   }

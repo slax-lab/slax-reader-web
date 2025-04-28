@@ -38,7 +38,7 @@ const questionClick = () => {
   .text {
     --style: text-(15px #333) line-height-22px font-500;
 
-    &::v-deep(*) {
+    &:deep(*) {
       --style: text-(15px #333) line-height-22px font-500 list-none;
     }
   }
