@@ -1,6 +1,6 @@
 import search from 'approx-string-match'
 
-export interface Config {
+export interface HighlightRangeInfo {
   // postion selector
   position_start: number
   position_end: number
@@ -100,7 +100,7 @@ export class HighlightRange {
   }
 
   // fuzzy match with context prefix and suffix
-  private getRangeByFuzzy(item: Config) {
+  private getRangeByFuzzy(item: HighlightRangeInfo) {
     const bodyContent = this.doc.body.textContent
     if (!bodyContent) return null
 
@@ -131,7 +131,7 @@ export class HighlightRange {
       }
     })
 
-    const bestMatch = rankedMatches[0]
+    const bestMatch = rankedMatches.reduce((best, current) => (current.totalScore > best.totalScore ? current : best), rankedMatches[0])
 
     // discard matches with too low a score
     if (bestMatch.totalScore > 0.3) return this.createReangFromMatch(bestMatch.start, bestMatch.end)
@@ -139,7 +139,7 @@ export class HighlightRange {
   }
 
   // direct match when has position
-  private getRangeByPosition(item: Config) {
+  private getRangeByPosition(item: HighlightRangeInfo) {
     if (item.position_start < 0 || item.position_end > this.textContent.length || item.position_start >= item.position_end) return null
 
     const actualText = this.textContent.substring(item.position_start, item.position_end)
@@ -160,7 +160,7 @@ export class HighlightRange {
   }
 
   // just match by quote
-  private getRangeByQuote(item: Config) {
+  private getRangeByQuote(item: HighlightRangeInfo) {
     // only allow 2 errors(not match) in match textContent
     const matches = search(this.textContent, item.exact, 2)
     if (matches.length < 1) return null
@@ -181,7 +181,7 @@ export class HighlightRange {
     return this.createReangFromMatch(matches[0].start, matches[0].end)
   }
 
-  public getSelector(range: Range): Config {
+  public getSelector(range: Range): HighlightRangeInfo {
     const exact = range.toString()
 
     const startOffset = this.getTextOffset(range.startContainer, range.startOffset)
@@ -202,7 +202,7 @@ export class HighlightRange {
     }
   }
 
-  public getRange(item: Config) {
+  public getRange(item: HighlightRangeInfo) {
     for (const func of [this.getRangeByPosition, this.getRangeByFuzzy, this.getRangeByQuote]) {
       const range = func.bind(this)(item)
       if (range) return range
