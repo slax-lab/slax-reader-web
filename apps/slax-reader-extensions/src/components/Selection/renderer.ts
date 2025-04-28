@@ -2,7 +2,7 @@ import { removeOuterTag } from '@commons/utils/dom'
 import { HighlightRange } from '@commons/utils/range'
 
 import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
-import { type MarkPathItem, MarkType } from '@commons/types/interface'
+import { type MarkPathItem } from '@commons/types/interface'
 
 export class MarkRenderer {
   private _handleMarkClickHandler?: (ele: HTMLElement) => void
@@ -10,9 +10,11 @@ export class MarkRenderer {
   constructor(private _config: SelectionConfig) {}
 
   async drawMark(info: MarkItemInfo, action: 'create' | 'update' = 'create') {
-    const isSelfStroke = true //!!info.stroke.find(item => item.userId === useUserStore().userInfo?.userId)
-    const isStroke = info.stroke.length > 0
+    const userId = this.config.userInfo?.userId
+
     const isComment = info.comments.length > 0
+    const isStroke = info.stroke.length > 0
+    const isSelfStroke = !!info.stroke.find(item => item.userId === userId)
 
     if (action === 'create') {
       const baseInfo = {
@@ -21,23 +23,26 @@ export class MarkRenderer {
         isComment,
         isSelfStroke
       } as DrawMarkBaseInfo
-      if (info.type === MarkType.ORIGIN_COMMENT || info.type === MarkType.ORIGIN_LINE) {
-        for (const markItem of info.source) {
-          if (!isStroke && !isComment) continue
 
-          const infos = this.transferNodeInfos(markItem)
-          for (const infoItem of infos) {
-            if (infoItem.type === 'image') {
-              this.addImageMark({ ...baseInfo, ele: infoItem.ele as HTMLImageElement })
-              continue
-            }
-            this.addMark({ ...baseInfo, node: infoItem.node, start: infoItem.start, end: infoItem.end })
+      let drawMark = false
+      for (const markItem of info.source) {
+        if (!isStroke && !isComment) continue
+
+        const infos = this.transferNodeInfos(markItem)
+        for (const infoItem of infos) {
+          if (infoItem.type === 'image') {
+            this.addImageMark({ ...baseInfo, ele: infoItem.ele as HTMLImageElement })
+            continue
           }
+          this.addMark({ ...baseInfo, node: infoItem.node, start: infoItem.start, end: infoItem.end })
         }
-      } else if (info.type === MarkType.COMMENT || info.type === MarkType.LINE) {
-        const rangeSvc = new HighlightRange(window.document)
-        const newRange = rangeSvc.getRange(info.approx!)
 
+        drawMark = infos.length > 0
+      }
+
+      if (!drawMark && info.approx) {
+        const rangeSvc = new HighlightRange(window.document)
+        const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
           this.addMarks(newRange, baseInfo)
         }
