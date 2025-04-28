@@ -4,7 +4,11 @@
       <div v-if="showPanel" class="sidecontent-wrapper" ref="sidecontent" :style="showPanel && contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
         <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
-          <div class="sidebar-content"></div>
+          <div class="sidebar-content">
+            <div class="dark px-20px py-4px">
+              <AISummaries :isAppeared="showPanel" :content-selector="'body'" @navigated-text="() => false" />
+            </div>
+          </div>
           <div class="sidebar-panel">
             <div class="panel-buttons">
               <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
@@ -44,6 +48,8 @@
 </template>
 
 <script lang="ts" setup>
+import AISummaries from '#layers/core/components/AISummaries.vue'
+
 import { type Position, useDraggable } from '@vueuse/core'
 
 enum PanelItemType {
@@ -63,7 +69,7 @@ interface PanelItem {
 
 const emits = defineEmits(['isDragging'])
 
-const minContentWidth = 200
+const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
 const sidecontent = useTemplateRef<HTMLDivElement>('sidecontent')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
@@ -144,6 +150,7 @@ const panelClick = async (type: PanelItemType) => {
 
     .sidebar-panel {
       --style: absolute top-0 right-0 h-full w-48px border-l-(1px solid #ffffff0f) flex items-center justify-between;
+      --style: 'dark:bg-red';
 
       .panel-buttons {
         --style: border-t-(1px solid #ffffff0f) border-b-(1px solid #ffffff0f) py-16px w-full;
@@ -187,6 +194,10 @@ const panelClick = async (type: PanelItemType) => {
           }
         }
       }
+    }
+
+    .sidebar-content {
+      --style: h-full pr-48px overflow-auto;
     }
   }
 }
