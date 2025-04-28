@@ -1,5 +1,5 @@
 import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
-import { HighlightRange } from '@commons/utils/range'
+import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 
 import type { QuoteData } from '../../Chat/type'
 import { MarkManager } from './manager'
@@ -8,7 +8,6 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig } from './type'
-import { MarkType } from '@commons/types/interface'
 import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
 
 type SelectTextInfo =
@@ -98,13 +97,14 @@ export class ArticleSelection {
     this.monitor.clearMouseListenerTry()
 
     setTimeout(() => {
-      const selectedInfo = this.getSelectedElementsList()
-      if (!selectedInfo || selectedInfo.length === 0) {
+      const { list, approx } = this.getSelectionElementInfo()
+
+      if (!list || list.length === 0 || !approx) {
         this.manager.updateCurrentMarkItemInfo(null)
         return
       }
 
-      const source = this.getMarkPathItems(selectedInfo)
+      const source = this.getMarkPathItems(list)
       if (!source) return
 
       const markInfoItem = this.manager.getMarkItemInfos().find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
@@ -117,10 +117,10 @@ export class ArticleSelection {
       const currentMark = this.manager.currentMarkItemInfo
       if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], type: MarkType.COMMENT })
+      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
       this.manager.clearSelectContent()
 
-      selectedInfo.forEach(item => {
+      list.forEach(item => {
         const lastContent = this.manager.selectContent[this.manager.selectContent.length - 1]
         const newContent = {
           type: item.type,
@@ -135,11 +135,6 @@ export class ArticleSelection {
         }
       })
 
-      const range = window.getSelection()!.getRangeAt(0)
-      console.log(range)
-      const approx = this._highlightRange.getSelector(range)
-      console.log(approx)
-
       let menusY = 0
       SelectionModal.showMenus({
         container: this.config.containerDom!,
@@ -151,7 +146,7 @@ export class ArticleSelection {
 
           if (type === MenuType.Stroke) {
             currentInfo.id = getUUID()
-            this.manager.strokeSelection({ info: currentInfo, approx })
+            this.manager.strokeSelection({ info: currentInfo })
           } else if (type === MenuType.Copy) {
             this.manager.copyMarkedText(source, event)
           } else if (type === MenuType.Comment) {
@@ -184,6 +179,26 @@ export class ArticleSelection {
         }
       })
     }, 0)
+  }
+
+  private getSelectionElementInfo(): { list: SelectTextInfo[]; approx: HighlightRangeInfo | null } {
+    const list = this.getSelectedElementsList()
+    const approx = this.getSelectedApproxText()
+
+    return {
+      list,
+      approx
+    }
+  }
+
+  private getSelectedApproxText(): HighlightRangeInfo | null {
+    const selection = window.getSelection()
+    if (!selection || !selection.rangeCount) return null
+
+    const range = selection.getRangeAt(0)
+    const approx = this._highlightRange.getSelector(range)
+
+    return approx
   }
 
   private getSelectedElementsList(): SelectTextInfo[] {
