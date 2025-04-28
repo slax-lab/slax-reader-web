@@ -30,7 +30,9 @@
         <div class="drag" ref="draggble" />
         <div class="panel-content-wrapper">
           <Transition name="sidepanel">
-            <AISummaries v-show="isSummaryShowing" :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+            <div class="dark px-20px pt-4px" v-show="isSummaryShowing">
+              <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
+            </div>
           </Transition>
           <Transition name="sidepanel">
             <ChatBot
