@@ -54,6 +54,6 @@
     "vite-plugin-pwa": "^0.21.1",
     "vitest": "^3.0.8",
     "wrangler": "^4.0.0",
-    "@slax-lab/liveproxy-sw": "1.0.2-dev.4"
+    "@slax-lab/liveproxy-sw": "1.0.2-dev.5"
   }
 }

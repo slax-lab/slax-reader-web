@@ -128,7 +128,7 @@ const handleEventMessage = (e: MessageEvent) => {
 
 const injectInlineScript = async () => {
   document.title = `Slax Reader - ${inlineBookmarkDetail.value?.title}`
-  iframeRef.value!.src = `/w/liveproxy/mp_/${inlineBookmarkDetail.value!.target_url}`
+  iframeRef.value!.src = `/sw/liveproxy/mp_/${inlineBookmarkDetail.value!.target_url}`
 
   await new Promise<void>(resolve => {
     const loadHandler = () => {
@@ -195,7 +195,7 @@ const injectInlineScript = async () => {
   // monitor title change
   new MutationObserver(function (mutations) {
     window.document.title = 'Slax Reader - ' + mutations[0].target.textContent || ''
-  }).observe(iframeDocument.value!.querySelector('title')!, { subtree: true, characterData: true, childList: true })
+  }).observe(iframeDocument.value?.querySelector('title')!, { subtree: true, characterData: true, childList: true })
 
   // get event message from iframe
   window.addEventListener('message', handleEventMessage)
@@ -204,7 +204,7 @@ const injectInlineScript = async () => {
 const initInlineScript = async () => {
   if (!navigator.serviceWorker) throw new Error('navigator.serviceWorker is not supported')
 
-  await navigator.serviceWorker.register('/liveproxy-sw.js', { scope: '/w' })
+  await navigator.serviceWorker.register('/liveproxy-sw.js', { scope: '/sw' })
 
   if (!navigator.serviceWorker.controller) {
     await new Promise<void>(resolve => {
@@ -216,8 +216,8 @@ const initInlineScript = async () => {
 
   navigator.serviceWorker.controller!.postMessage({
     msg_type: 'init',
-    proxy_prefix: '/w/liveproxy',
-    proxy_prefix_regexp: '(?:\/proxy\/(?:([0-9]*)([a-z]{2,3})_)?\/|\/w\/liveproxy\/(?:([a-z]{2,3})_)?\/)(https?:\/\/.+)'
+    proxy_prefix: '/sw/liveproxy',
+    proxy_prefix_regexp: '(?:\/proxy\/(?:([0-9]*)([a-z]{2,3})_)?\/|\/sw\/liveproxy\/(?:([a-z]{2,3})_)?\/)(https?:\/\/.+)'
   })
 
   await new Promise<void>(resolve => {
