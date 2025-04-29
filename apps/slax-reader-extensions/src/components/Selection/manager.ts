@@ -395,9 +395,7 @@ export class MarkManager {
       const userId = mark.user_id
       const source = mark.source
       if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
-
-      // test code // 后续需要修复
-      if (!mark.approx_source) continue
+      if (!mark.approx_source) continue // 插件划线针对旧版本划线直接过滤
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
