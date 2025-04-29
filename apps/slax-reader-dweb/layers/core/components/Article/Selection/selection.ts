@@ -1,5 +1,4 @@
 import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
-import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 
 import type { QuoteData } from '../../Chat/type'
 import { MarkManager } from './manager'
@@ -7,34 +6,18 @@ import SelectionModal from './modal'
 import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
-import { MenuType, type SelectionConfig } from './type'
+import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
 import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
-
-type SelectTextInfo =
-  | {
-      type: 'text'
-      startOffset: number
-      endOffset: number
-      text: string
-      node?: Node
-    }
-  | {
-      type: 'image'
-      src: string
-      ele: Element
-    }
 
 export class ArticleSelection {
   private monitor: SelectionMonitor
   private manager: MarkManager
   private renderer: MarkRenderer
-  private _highlightRange: HighlightRange
 
   constructor(config: SelectionConfig) {
     this.renderer = new MarkRenderer(config)
     this.manager = new MarkManager(config, this.renderer, this.findQuote.bind(this))
     this.monitor = new SelectionMonitor(config.monitorDom, this.handleMouseUp.bind(this))
-    this._highlightRange = new HighlightRange(document)
   }
 
   startMonitor() {
@@ -97,7 +80,14 @@ export class ArticleSelection {
     this.monitor.clearMouseListenerTry()
 
     setTimeout(() => {
-      const { list, approx } = this.getSelectionElementInfo()
+      const selection = window.getSelection()
+      if (!selection || !selection.rangeCount) {
+        this.manager.updateCurrentMarkItemInfo(null)
+        return
+      }
+
+      const range = selection.getRangeAt(0)
+      const { list, approx } = this.manager.getElementInfo(range)
 
       if (!list || list.length === 0 || !approx) {
         this.manager.updateCurrentMarkItemInfo(null)
@@ -156,8 +146,8 @@ export class ArticleSelection {
             const quote: QuoteData = { source: {}, data: this.manager.createQuote(currentInfo.source) }
             const selection = window.getSelection()
             const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
+            const selected = this.manager.getElementsList(range!)
 
-            const selected = this.getSelectedElementsList()
             if (!selected || selected.length === 0) {
               quote.source.selection = range
             } else {
@@ -179,78 +169,6 @@ export class ArticleSelection {
         }
       })
     }, 0)
-  }
-
-  private getSelectionElementInfo(): { list: SelectTextInfo[]; approx: HighlightRangeInfo | null } {
-    const list = this.getSelectedElementsList()
-    const approx = this.getSelectedApproxText()
-
-    return {
-      list,
-      approx
-    }
-  }
-
-  private getSelectedApproxText(): HighlightRangeInfo | null {
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) return null
-
-    const range = selection.getRangeAt(0)
-    const approx = this._highlightRange.getSelector(range)
-
-    return approx
-  }
-
-  private getSelectedElementsList(): SelectTextInfo[] {
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) return []
-
-    const range = selection.getRangeAt(0)
-    const selectedInfo: SelectTextInfo[] = []
-
-    const isNodeFullyInRange = (node: Node) => {
-      const nodeRange = document.createRange()
-      nodeRange.selectNodeContents(node)
-      return range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
-    }
-
-    const isNodePartiallyInRange = (node: Node) => range.intersectsNode(node)
-
-    const processTextNode = (textNode: Text) => {
-      if (!isNodePartiallyInRange(textNode)) return
-
-      let startOffset = textNode === range.startContainer ? range.startOffset : 0
-      let endOffset = textNode === range.endContainer ? range.endOffset : textNode.length
-      startOffset = Math.max(0, Math.min(startOffset, textNode.length))
-      endOffset = Math.max(startOffset, Math.min(endOffset, textNode.length))
-
-      if (endOffset > startOffset) {
-        selectedInfo.push({
-          type: 'text',
-          node: textNode,
-          startOffset,
-          endOffset,
-          text: textNode.textContent!.slice(startOffset, endOffset)
-        })
-      }
-    }
-
-    const processNode = (node: Node) => {
-      if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() || '').length > 0) {
-        processTextNode(node as Text)
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = node as HTMLElement
-        if (element.tagName === 'IMG' && isNodeFullyInRange(element)) {
-          selectedInfo.push({ type: 'image', src: (element as HTMLImageElement).src, ele: element })
-        }
-        if (isNodePartiallyInRange(element)) {
-          for (const child of element.childNodes) processNode(child)
-        }
-      }
-    }
-
-    processNode(range.commonAncestorContainer)
-    return selectedInfo.length > 0 && !selectedInfo.every(item => item.type === 'text' && item.text.trim().length === 0) ? selectedInfo : []
   }
 
   private getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
