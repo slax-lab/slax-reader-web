@@ -167,6 +167,8 @@ export class MarkManager {
             const index = this._markItemInfos.findIndex(item => item.id === id)
             this._markItemInfos.splice(index, 1)
           }
+
+          markInfoItem.comments = [...markInfoItem.comments]
           return
         }
         for (const child of comment.children) {
@@ -314,7 +316,7 @@ export class MarkManager {
     }
   }
 
-  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
+  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,

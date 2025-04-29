@@ -44,7 +44,7 @@ export class MarkRenderer {
         const rangeSvc = new HighlightRange(window.document)
         const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
-          this.addMarks(newRange, baseInfo)
+          this.addMarksInRange(newRange, baseInfo)
         }
       }
     } else {
@@ -66,7 +66,7 @@ export class MarkRenderer {
     return info.id
   }
 
-  addMarks(range: Range, baseInfo: DrawMarkBaseInfo) {
+  addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
     if (range.startContainer === range.endContainer) {
       console.log('is same node')
       this.addMark({

@@ -171,6 +171,8 @@ export class MarkManager {
             const index = this._markItemInfos.findIndex(item => item.id === id)
             this._markItemInfos.splice(index, 1)
           }
+
+          markInfoItem.comments = [...markInfoItem.comments]
           return
         }
         for (const child of comment.children) {
@@ -342,7 +344,6 @@ export class MarkManager {
   }
 
   private createUserMap(userList: UserList): Map<number, MarkUserInfo> {
-    console.log(userList)
     return new Map(Object.entries(userList).map(([key, value]) => [Number(key), value]))
   }
 
@@ -363,6 +364,7 @@ export class MarkManager {
           showInput: false,
           loading: false
         }
+
         commentMap.set(mark.id, comment)
       }
     }
@@ -411,6 +413,7 @@ export class MarkManager {
         if (comment) markInfoItem.comments.push(comment)
       }
     }
+
     return infoItems
   }
 

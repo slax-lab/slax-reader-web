@@ -13,14 +13,19 @@ export interface HighlightRangeInfo {
 
 export class HighlightRange {
   static FUZZY_MATCH_MAX_ERRORS = 0
+  private container: HTMLElement
   private textContent: string
 
-  constructor(private doc: Document) {
-    this.textContent = this.doc.body.textContent || ''
+  constructor(
+    private doc: Document,
+    container?: HTMLElement
+  ) {
+    this.container = container || (this.doc as Document).body
+    this.textContent = this.container.textContent || ''
   }
 
   private getTextOffset(node: Node, offset: number) {
-    const walker = this.doc.createTreeWalker(this.doc.body, NodeFilter.SHOW_TEXT, null)
+    const walker = this.doc.createTreeWalker(this.container, NodeFilter.SHOW_TEXT, null)
 
     let totalOffset = 0
     let currentNode
@@ -37,7 +42,7 @@ export class HighlightRange {
   }
 
   private getNodeAndOffsetAtPosition(position: number) {
-    const walker = this.doc.createTreeWalker(this.doc.body, NodeFilter.SHOW_TEXT, null)
+    const walker = this.doc.createTreeWalker(this.container, NodeFilter.SHOW_TEXT, null)
 
     let currentNode
     let currentOffset = 0
@@ -101,7 +106,7 @@ export class HighlightRange {
 
   // fuzzy match with context prefix and suffix
   private getRangeByFuzzy(item: HighlightRangeInfo) {
-    const bodyContent = this.doc.body.textContent
+    const bodyContent = this.container.textContent
     if (!bodyContent) return null
 
     const matches = search(bodyContent, item.exact, HighlightRange.FUZZY_MATCH_MAX_ERRORS)

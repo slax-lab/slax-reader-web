@@ -42,10 +42,10 @@ export class MarkRenderer {
       }
 
       if (!drawMark && info.approx) {
-        const rangeSvc = new HighlightRange(window.document)
+        const rangeSvc = new HighlightRange(window.document, this._config.monitorDom!)
         const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
-          this.addMarks(newRange, baseInfo)
+          this.addMarksInRange(newRange, baseInfo)
         }
       }
     } else {
@@ -67,7 +67,7 @@ export class MarkRenderer {
     return info.id
   }
 
-  addMarks(range: Range, baseInfo: DrawMarkBaseInfo) {
+  addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
     if (range.startContainer === range.endContainer) {
       this.addMark({
         ...baseInfo,
