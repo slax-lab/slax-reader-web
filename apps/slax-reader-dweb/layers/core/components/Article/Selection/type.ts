@@ -63,3 +63,17 @@ export interface DrawMarkBaseInfo {
   isSelfStroke: boolean
   isHighlighted?: boolean
 }
+
+export type SelectTextInfo =
+  | {
+      type: 'text'
+      startOffset: number
+      endOffset: number
+      text: string
+      node?: Node
+    }
+  | {
+      type: 'image'
+      src: string
+      ele: Element
+    }
