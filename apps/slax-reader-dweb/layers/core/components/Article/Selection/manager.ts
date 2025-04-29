@@ -1,8 +1,10 @@
+import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
+
 import type { QuoteData } from '../../Chat/type'
 import SelectionModal from './modal'
 import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
-import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type StrokeSelectionMeta } from './type'
+import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
 import { RESTMethodPath } from '@commons/types/const'
 import {
   type MarkDetail,
@@ -23,6 +25,7 @@ export class MarkManager {
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
   private _findQuote: (quote: QuoteData) => void
+  private _highlightRange: HighlightRange
 
   constructor(
     private config: SelectionConfig,
@@ -31,6 +34,7 @@ export class MarkManager {
   ) {
     this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
     this._findQuote = findQuote
+    this._highlightRange = new HighlightRange(document)
   }
 
   async drawMarks(marks: MarkDetail) {
@@ -298,6 +302,78 @@ export class MarkManager {
     })
   }
 
+  getElementInfo(range: Range): { list: SelectTextInfo[]; approx: HighlightRangeInfo | undefined } {
+    const list = this.getElementsList(range)
+    const approx = this.getApproxText(range)
+
+    return {
+      list,
+      approx
+    }
+  }
+
+  getApproxText(range: Range): HighlightRangeInfo | undefined {
+    if (!range) {
+      return undefined
+    }
+
+    debugger
+    const approx = this._highlightRange.getSelector(range)
+    return approx
+  }
+
+  getElementsList(range: Range): SelectTextInfo[] {
+    if (!range) {
+      return []
+    }
+
+    const selectedInfo: SelectTextInfo[] = []
+
+    const isNodeFullyInRange = (node: Node) => {
+      const nodeRange = document.createRange()
+      nodeRange.selectNodeContents(node)
+      return range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
+    }
+
+    const isNodePartiallyInRange = (node: Node) => range.intersectsNode(node)
+
+    const processTextNode = (textNode: Text) => {
+      if (!isNodePartiallyInRange(textNode)) return
+
+      let startOffset = textNode === range.startContainer ? range.startOffset : 0
+      let endOffset = textNode === range.endContainer ? range.endOffset : textNode.length
+      startOffset = Math.max(0, Math.min(startOffset, textNode.length))
+      endOffset = Math.max(startOffset, Math.min(endOffset, textNode.length))
+
+      if (endOffset > startOffset) {
+        selectedInfo.push({
+          type: 'text',
+          node: textNode,
+          startOffset,
+          endOffset,
+          text: textNode.textContent!.slice(startOffset, endOffset)
+        })
+      }
+    }
+
+    const processNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() || '').length > 0) {
+        processTextNode(node as Text)
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement
+        if (element.tagName === 'IMG' && isNodeFullyInRange(element)) {
+          selectedInfo.push({ type: 'image', src: (element as HTMLImageElement).src, ele: element })
+        }
+        if (isNodePartiallyInRange(element)) {
+          for (const child of element.childNodes) processNode(child)
+        }
+      }
+    }
+
+    processNode(range.commonAncestorContainer)
+    return selectedInfo.length > 0 && !selectedInfo.every(item => item.type === 'text' && item.text.trim().length === 0) ? selectedInfo : []
+  }
+
   updateCurrentMarkItemInfo(info: MarkItemInfo | null) {
     this._currentMarkItemInfo.value = info
   }
@@ -425,6 +501,32 @@ export class MarkManager {
 
     const infoItem = this._markItemInfos.find(item => item.id === id)
     if (!infoItem) return
+
+    if ((!infoItem.approx || Object.keys(infoItem.approx).length === 0) && infoItem.source.length > 0) {
+      // 这里兼容无approx的数据
+
+      try {
+        const walker = document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
+
+        let firstTextNode: Text | null = null
+        let lastTextNode: Text | null = null
+        while (walker.nextNode()) {
+          const node = walker.currentNode as Text
+          if (!firstTextNode) firstTextNode = node
+          lastTextNode = node
+        }
+
+        if (firstTextNode && lastTextNode) {
+          const range = document.createRange()
+          range.setStart(firstTextNode, 0)
+          range.setEnd(lastTextNode, lastTextNode.length)
+
+          infoItem.approx = this.getApproxText(range)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
     this._currentMarkItemInfo.value = infoItem
     this.showPanel()
