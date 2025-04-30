@@ -1,5 +1,5 @@
 import type { QuoteData } from '../Chat/type'
-import type { MarkPathItem, UserInfo } from '@commons/types/interface'
+import type { MarkPathApprox, MarkPathItem, UserInfo } from '@commons/types/interface'
 
 export enum MenuType {
   Copy = 'copy',
@@ -14,6 +14,7 @@ export interface MarkItemInfo {
   source: MarkPathItem[]
   stroke: { mark_id?: number; userId: number }[]
   comments: MarkCommentInfo[]
+  approx: MarkPathApprox
 }
 
 export type MarkCommentInfo = {
@@ -36,6 +37,7 @@ export type MarkCommentInfo = {
   // 针对界面相关的控制属性
   showInput: boolean
   loading: boolean
+  operateLoading: boolean
 }
 
 export interface SelectionConfig {
@@ -60,3 +62,17 @@ export interface DrawMarkBaseInfo {
   isSelfStroke: boolean
   isHighlighted?: boolean
 }
+
+export type SelectTextInfo =
+  | {
+      type: 'text'
+      startOffset: number
+      endOffset: number
+      text: string
+      node?: Node
+    }
+  | {
+      type: 'image'
+      src: string
+      ele: Element
+    }

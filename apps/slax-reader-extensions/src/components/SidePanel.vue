@@ -72,7 +72,7 @@ import type { QuoteData } from './Chat/type'
 import { ArticleSelection } from './Selection/selection'
 import { showShareConfigModal } from './Share'
 import { RESTMethodPath } from '@commons/types/const'
-import type { AddBookmarkReq, AddBookmarkResp, BookmarkDetail, UserInfo } from '@commons/types/interface'
+import type { AddBookmarkReq, AddBookmarkResp, MarkDetail, UserInfo } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'
 import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
 import type { WxtBrowser } from 'wxt/browser'
@@ -274,7 +274,7 @@ const loadSelection = async () => {
   }
 
   if (!isSlaxWebsite(window.location.href)) {
-    const detail = bookmarkId.value ? await getBookmarkDetail(bookmarkId.value) : null
+    const markList = bookmarkId.value ? await getBookmarkMarkList(bookmarkId.value) : null
     const userInfo = await tryGetUserInfo()
 
     articleSelection = new ArticleSelection({
@@ -295,8 +295,8 @@ const loadSelection = async () => {
       }
     })
 
-    if (detail) {
-      articleSelection.drawMark(detail.marks)
+    if (markList) {
+      articleSelection.drawMark(markList)
     }
 
     articleSelection.startMonitor()
@@ -423,9 +423,9 @@ const tryGetBookmarkChange = async (url: string) => {
   return res.data.bookmarkId
 }
 
-const getBookmarkDetail = async (bookmarkId: number) => {
-  const res = await request.get<BookmarkDetail>({
-    url: RESTMethodPath.BOOKMARK_DETAIL,
+const getBookmarkMarkList = async (bookmarkId: number) => {
+  const res = await request.get<MarkDetail>({
+    url: RESTMethodPath.BOOKMARK_MARK_LIST,
     query: {
       bookmark_id: String(bookmarkId)
     }

@@ -1,4 +1,5 @@
 import { removeOuterTag } from '@commons/utils/dom'
+import { HighlightRange } from '@commons/utils/range'
 
 import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
 import type { MarkPathItem } from '@commons/types/interface'
@@ -10,20 +11,23 @@ export class MarkRenderer {
   constructor(private _config: SelectionConfig) {}
 
   async drawMark(info: MarkItemInfo, action: 'create' | 'update' = 'create') {
-    const isSelfStroke = !!info.stroke.find(item => item.userId === useUserStore().userInfo?.userId)
-    const isStroke = info.stroke.length > 0
+    const userId = useUserStore().userInfo?.userId
+
     const isComment = info.comments.length > 0
+    const isStroke = info.stroke.length > 0
+    const isSelfStroke = !!info.stroke.find(item => item.userId === userId)
 
     if (action === 'create') {
+      const baseInfo = {
+        id: info.id,
+        isStroke,
+        isComment,
+        isSelfStroke
+      } as DrawMarkBaseInfo
+
+      let drawMark = false
       for (const markItem of info.source) {
         if (!isStroke && !isComment) continue
-
-        const baseInfo = {
-          id: info.id,
-          isStroke,
-          isComment,
-          isSelfStroke
-        } as DrawMarkBaseInfo
 
         const infos = this.transferNodeInfos(markItem)
         for (const infoItem of infos) {
@@ -32,6 +36,16 @@ export class MarkRenderer {
             continue
           }
           this.addMark({ ...baseInfo, node: infoItem.node, start: infoItem.start, end: infoItem.end })
+        }
+
+        drawMark = infos.length > 0
+      }
+
+      if (!drawMark && info.approx) {
+        const rangeSvc = new HighlightRange(window.document, this._config.monitorDom!)
+        const newRange = rangeSvc.getRange(info.approx)
+        if (newRange) {
+          this.addMarksInRange(newRange, baseInfo)
         }
       }
     } else {
@@ -51,6 +65,84 @@ export class MarkRenderer {
     }
 
     return info.id
+  }
+
+  addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
+    if (range.startContainer === range.endContainer) {
+      this.addMark({
+        ...baseInfo,
+        node: range.startContainer,
+        start: range.startOffset,
+        end: range.endOffset
+      })
+      return
+    }
+
+    const nodes = this.getTextNodesInRange(range)
+
+    if (nodes.length > 0) {
+      if (nodes[0] === range.startContainer) {
+        this.addMark({
+          ...baseInfo,
+          node: nodes[0],
+          start: range.startOffset,
+          end: (nodes[0].textContent || '').length
+        })
+      }
+
+      for (let i = 1; i < nodes.length - 1; i++) {
+        this.addMark({
+          ...baseInfo,
+          node: nodes[i],
+          start: 0,
+          end: (nodes[i].textContent || '').length
+        })
+      }
+
+      if (nodes.length > 1 && nodes[nodes.length - 1] === range.endContainer) {
+        this.addMark({
+          ...baseInfo,
+          node: nodes[nodes.length - 1],
+          start: 0,
+          end: range.endOffset
+        })
+      }
+    }
+  }
+
+  getTextNodesInRange(range: Range): Node[] {
+    const nodes: Node[] = []
+    const monitorDom = this._config.monitorDom || document.body
+
+    const walker = document.createTreeWalker(monitorDom, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        if (!node.textContent || node.textContent.trim() === '') {
+          return NodeFilter.FILTER_REJECT
+        }
+
+        const nodeRange = document.createRange()
+        nodeRange.selectNode(node)
+
+        const nodeInRange = range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
+
+        return nodeInRange ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+      }
+    })
+
+    let node: Node | null
+    while ((node = walker.nextNode())) {
+      if (node.textContent && node.textContent.trim() !== '') {
+        nodes.push(node)
+        console.log('Found text node:', {
+          content: node.textContent,
+          parentNode: node.parentNode ? node.parentNode.nodeName : 'none',
+          nodeType: node.nodeType
+        })
+      }
+    }
+
+    console.log('Found nodes in range:', nodes.length)
+    return nodes
   }
 
   addMark(info: DrawMarkBaseInfo & { node: Node; start: number; end: number }) {

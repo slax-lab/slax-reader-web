@@ -1,17 +1,29 @@
+import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
+
 import type { QuoteData } from '../Chat/type'
 import Toast, { ToastType } from '../Toast'
 import SelectionModal from './modal'
 import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
-import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type StrokeSelectionMeta } from './type'
+import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
 import { RESTMethodPath } from '@commons/types/const'
-import { type MarkDetail, type MarkInfo, type MarkPathItem, type MarkSelectContent, MarkType, type MarkUserInfo, type UserList } from '@commons/types/interface'
+import {
+  type MarkDetail,
+  type MarkInfo,
+  type MarkPathApprox,
+  type MarkPathItem,
+  type MarkSelectContent,
+  MarkType,
+  type MarkUserInfo,
+  type UserList
+} from '@commons/types/interface'
 
 export class MarkManager {
   private _markItemInfos: MarkItemInfo[] = []
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
   private _findQuote: (quote: QuoteData) => void
+  private _highlightRange: HighlightRange
 
   constructor(
     private config: SelectionConfig,
@@ -20,6 +32,7 @@ export class MarkManager {
   ) {
     this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
     this._findQuote = findQuote
+    this._highlightRange = new HighlightRange(document)
   }
 
   async drawMarks(marks: MarkDetail) {
@@ -32,9 +45,10 @@ export class MarkManager {
 
   async strokeSelection(meta: StrokeSelectionMeta) {
     const { info, comment, replyToId } = meta
-    const markItems = info.source
 
-    const userInfo = await this.config.userInfo
+    const approx = info.approx
+    const markItems = info.source
+    const userInfo = this.config.userInfo
     if (!userInfo) return
 
     if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
@@ -63,7 +77,8 @@ export class MarkManager {
           createdAt: new Date(),
           children: [],
           showInput: false,
-          loading: true
+          loading: true,
+          operateLoading: false
         }
       : null
 
@@ -81,10 +96,10 @@ export class MarkManager {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.EXTENSIONS_COMMENT) : MarkType.EXTENSIONS_LINE
+    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.ORIGIN_COMMENT) : MarkType.ORIGIN_LINE
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
-    const res = await this.saveMarkSelectContent(markItems, markType, comment, replyToId)
+    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
     if (!res) {
       Toast.showToast({
         text: commentItem ? t('component.article_selection.comment_failed') : t('component.article_selection.stroke_failed'),
@@ -122,10 +137,7 @@ export class MarkManager {
   }
 
   async deleteStroke(info: MarkItemInfo) {
-    const userInfo = await this.config.userInfo
-    if (!userInfo) return
-
-    const userId = userInfo.userId
+    const userId = this.config.userInfo?.userId
     if (!userId) return
 
     const markId = info.stroke.find(item => item.userId === userId)?.mark_id
@@ -149,7 +161,7 @@ export class MarkManager {
     const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
 
-    const removeMarkOrComment = () => {
+    const removeMarkOrComment = async () => {
       for (const [idx, comment] of markInfoItem.comments.entries()) {
         if (comment.markId === markId) {
           const keepMarks = !!comment.children.find(item => !item.isDeleted)
@@ -157,17 +169,24 @@ export class MarkManager {
             markInfoItem.comments[idx].isDeleted = true
           } else {
             markInfoItem.comments.splice(idx, 1)
-            const index = this._markItemInfos.findIndex(item => item.id === id)
-            this._markItemInfos.splice(index, 1)
           }
-          return
+
+          break
         }
+
         for (const child of comment.children) {
           if (child.markId === markId) {
             child.isDeleted = true
-            return
+            break
           }
         }
+      }
+
+      await this.renderer.drawMark(markInfoItem, 'update')
+
+      if (markInfoItem.stroke.length === 0 && markInfoItem.comments.length === 0) {
+        const index = this._markItemInfos.findIndex(item => item.id === markInfoItem.id)
+        this._markItemInfos.splice(index, 1)
       }
     }
 
@@ -178,7 +197,8 @@ export class MarkManager {
         url: RESTMethodPath.DELETE_MARK,
         body: { bm_id: bookmarkId, mark_id: markId }
       })
-      removeMarkOrComment()
+
+      await removeMarkOrComment()
     } catch (e) {
       console.error(e)
     }
@@ -243,6 +263,7 @@ export class MarkManager {
     const userInfo = this.config.userInfo
     if (!userInfo) return
 
+    const currentMarkItemInfo = this._currentMarkItemInfo.value
     SelectionModal.showPanel({
       container: this.config.containerDom!,
       articleDom: this.config.monitorDom!,
@@ -251,10 +272,10 @@ export class MarkManager {
       allowAction: this.config.allowAction,
       fallbackYOffset: options?.fallbackYOffset || 0,
       actionCallback: (type, meta) => {
-        if (type === MenuType.Stroke) this.strokeSelection(meta)
+        if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
         else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
-        else if (type === MenuType.Comment) this.strokeSelection(meta)
+        else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
           const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
           this.config.postQuoteDataHandler(quote)
@@ -263,8 +284,10 @@ export class MarkManager {
       },
       commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
       dismissCallback: () => {
-        this._currentMarkItemInfo.value = null
-        this._selectContent.value = []
+        if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
+          this.updateCurrentMarkItemInfo(null)
+          this.clearSelectContent()
+        }
       }
     })
   }
@@ -290,6 +313,77 @@ export class MarkManager {
     })
   }
 
+  getElementInfo(range: Range): { list: SelectTextInfo[]; approx: HighlightRangeInfo | undefined } {
+    const list = this.getElementsList(range)
+    const approx = this.getApproxText(range)
+
+    return {
+      list,
+      approx
+    }
+  }
+
+  getApproxText(range: Range): HighlightRangeInfo | undefined {
+    if (!range) {
+      return undefined
+    }
+
+    const approx = this._highlightRange.getSelector(range)
+    return approx
+  }
+
+  getElementsList(range: Range): SelectTextInfo[] {
+    if (!range) {
+      return []
+    }
+
+    const selectedInfo: SelectTextInfo[] = []
+
+    const isNodeFullyInRange = (node: Node) => {
+      const nodeRange = document.createRange()
+      nodeRange.selectNodeContents(node)
+      return range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
+    }
+
+    const isNodePartiallyInRange = (node: Node) => range.intersectsNode(node)
+
+    const processTextNode = (textNode: Text) => {
+      if (!isNodePartiallyInRange(textNode)) return
+
+      let startOffset = textNode === range.startContainer ? range.startOffset : 0
+      let endOffset = textNode === range.endContainer ? range.endOffset : textNode.length
+      startOffset = Math.max(0, Math.min(startOffset, textNode.length))
+      endOffset = Math.max(startOffset, Math.min(endOffset, textNode.length))
+
+      if (endOffset > startOffset) {
+        selectedInfo.push({
+          type: 'text',
+          node: textNode,
+          startOffset,
+          endOffset,
+          text: textNode.textContent!.slice(startOffset, endOffset)
+        })
+      }
+    }
+
+    const processNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() || '').length > 0) {
+        processTextNode(node as Text)
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement
+        if (element.tagName === 'IMG' && isNodeFullyInRange(element)) {
+          selectedInfo.push({ type: 'image', src: (element as HTMLImageElement).src, ele: element })
+        }
+        if (isNodePartiallyInRange(element)) {
+          for (const child of element.childNodes) processNode(child)
+        }
+      }
+    }
+
+    processNode(range.commonAncestorContainer)
+    return selectedInfo.length > 0 && !selectedInfo.every(item => item.type === 'text' && item.text.trim().length === 0) ? selectedInfo : []
+  }
+
   updateCurrentMarkItemInfo(info: MarkItemInfo | null) {
     this._currentMarkItemInfo.value = info
   }
@@ -308,7 +402,7 @@ export class MarkManager {
     }
   }
 
-  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, comment?: string, replyToId?: number) {
+  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
@@ -319,7 +413,8 @@ export class MarkManager {
           type,
           source: value,
           parent_id: replyToId,
-          select_content: this._selectContent.value
+          select_content: this._selectContent.value,
+          approx_source: approx
         }
       })
       return res || null
@@ -336,7 +431,7 @@ export class MarkManager {
   private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<number, MarkCommentInfo> {
     const commentMap = new Map<number, MarkCommentInfo>()
     for (const mark of markList) {
-      if (mark.type === MarkType.COMMENT || mark.type === MarkType.REPLY) {
+      if (mark.type === MarkType.COMMENT || mark.type === MarkType.REPLY || mark.type === MarkType.ORIGIN_COMMENT) {
         const comment = {
           markId: mark.id,
           comment: mark.comment,
@@ -344,12 +439,14 @@ export class MarkManager {
           username: userMap.get(mark.user_id)?.username || '',
           avatar: userMap.get(mark.user_id)?.avatar || '',
           isDeleted: mark.is_deleted,
-          children: mark.type === MarkType.COMMENT ? [] : [],
+          children: [],
           createdAt: new Date(mark.created_at),
           rootId: mark.root_id,
           showInput: false,
-          loading: false
+          loading: false,
+          operateLoading: false
         }
+
         commentMap.set(mark.id, comment)
       }
     }
@@ -379,22 +476,24 @@ export class MarkManager {
     for (const mark of markList) {
       const userId = mark.user_id
       const source = mark.source
-      if (typeof source === 'number') continue
+      if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
+      if (!mark.approx_source || Object.keys(mark.approx_source).length === 0) continue // 插件划线针对旧版本划线直接过滤
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
       if (!markInfoItem) {
-        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [] }
+        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
         infoItems.push(markInfoItem)
       }
 
-      if (mark.type === MarkType.EXTENSIONS_LINE) {
+      if (mark.type === MarkType.LINE || mark.type === MarkType.ORIGIN_LINE) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if (mark.type === MarkType.EXTENSIONS_COMMENT) {
+      } else if (mark.type === MarkType.COMMENT || mark.type === MarkType.ORIGIN_COMMENT) {
         const comment = commentMap.get(mark.id)
         if (comment) markInfoItem.comments.push(comment)
       }
     }
+
     return infoItems
   }
 
@@ -414,6 +513,32 @@ export class MarkManager {
 
     const infoItem = this._markItemInfos.find(item => item.id === id)
     if (!infoItem) return
+
+    if ((!infoItem.approx || Object.keys(infoItem.approx).length === 0) && infoItem.source.length > 0) {
+      // 这里兼容无approx的数据
+
+      try {
+        const walker = document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
+
+        let firstTextNode: Text | null = null
+        let lastTextNode: Text | null = null
+        while (walker.nextNode()) {
+          const node = walker.currentNode as Text
+          if (!firstTextNode) firstTextNode = node
+          lastTextNode = node
+        }
+
+        if (firstTextNode && lastTextNode) {
+          const range = document.createRange()
+          range.setStart(firstTextNode, 0)
+          range.setEnd(lastTextNode, lastTextNode.length)
+
+          infoItem.approx = this.getApproxText(range)!
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
     this._currentMarkItemInfo.value = infoItem
     this.showPanel()

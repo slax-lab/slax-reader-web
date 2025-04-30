@@ -33,10 +33,9 @@ import { onUnmounted } from 'vue'
 
 import DotLoading from './DotLoading.vue'
 
-import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
-
 import { RequestError } from '@commons/utils/request'
 
+import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'

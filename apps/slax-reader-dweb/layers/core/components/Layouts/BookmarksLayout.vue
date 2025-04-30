@@ -7,7 +7,7 @@
           <div class="items-wrapper">
             <img src="@images/logo-sm.png" alt="" />
             <span class="title">{{ $t('common.app.name') }}</span>
-            <ProIcon />
+            <ClientOnly><ProIcon /></ClientOnly>
           </div>
         </div>
         <div class="inbox blank">

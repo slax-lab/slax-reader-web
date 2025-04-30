@@ -28,7 +28,7 @@
           <div class="header">
             <div class="left">
               <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-              <ProIcon />
+              <ClientOnly><ProIcon /></ClientOnly>
             </div>
             <ClientOnly>
               <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
@@ -92,7 +92,7 @@ import UserNotification, { UserNotificationIconStyle } from '#layers/core/compon
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
 import { formatDate } from '@commons/utils/date'
-import { isClient } from '@commons/utils/is'
+import { isClient, isServer } from '@commons/utils/is'
 import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -236,9 +236,10 @@ const {
     data.value && (detail.value = data.value)
 
     try {
-      defineOgImageComponent('Share', {
-        title: `${detail.value?.title || ''}`
-      })
+      isServer &&
+        defineOgImageComponent('Share', {
+          title: `${detail.value?.title || ''}`
+        })
 
       defineSeo()
     } catch (error) {
