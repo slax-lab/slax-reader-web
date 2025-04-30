@@ -10,7 +10,7 @@
     <div class="header">
       <div class="left">
         <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-        <ProIcon />
+        <ClientOnly><ProIcon /></ClientOnly>
       </div>
       <div class="right">
         <ClientOnly>

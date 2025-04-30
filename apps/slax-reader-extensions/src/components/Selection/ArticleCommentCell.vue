@@ -14,8 +14,11 @@
       <div class="comment-footer">
         <span class="date">{{ showCreateTime(comment) }}</span>
         <div class="operates" v-if="comment.markId !== 0 && !comment.loading">
-          <button class="reply-btn group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
-          <button class="delete-btn group-hover/comment:!opacity-100" v-if="canDeleteComment(comment)" @click="commentDeleteClick(comment)"></button>
+          <template v-if="!comment.operateLoading">
+            <button class="reply-btn group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
+            <button class="delete-btn group-hover/comment:!opacity-100" v-if="canDeleteComment(comment)" @click="commentDeleteClick(comment)"></button>
+          </template>
+          <div class="i-svg-spinners:180-ring-with-bg ml-10px text-16px text-#999" v-else-if="comment.operateLoading"></div>
         </div>
       </div>
     </div>
@@ -35,12 +38,15 @@
           <div class="comment-footer">
             <span class="date">{{ showCreateTime(comment) }}</span>
             <div class="operates" v-if="childComment.markId !== 0 && !childComment.loading">
-              <button class="reply-btn group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
-              <button
-                class="delete-btn group-hover/child:!opacity-100"
-                v-if="!childComment.isDeleted && canDeleteComment(childComment)"
-                @click="commentDeleteClick(childComment)"
-              ></button>
+              <template v-if="!childComment.operateLoading">
+                <button class="reply-btn group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
+                <button
+                  class="delete-btn group-hover/child:!opacity-100"
+                  v-if="!childComment.isDeleted && canDeleteComment(childComment)"
+                  @click="commentDeleteClick(childComment)"
+                ></button>
+              </template>
+              <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999" v-else-if="childComment.operateLoading"></div>
             </div>
           </div>
           <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
@@ -93,7 +99,7 @@ const showCreateTime = (comment: MarkCommentInfo) => {
 }
 
 const canDeleteComment = (comment: MarkCommentInfo) => {
-  return props.userId === comment.userId
+  return props.userId === comment.userId && !comment.isDeleted
 }
 
 const replyComment = (comment: MarkCommentInfo) => {
@@ -106,6 +112,7 @@ const getCommentPlaceholder = (comment: MarkCommentInfo) => {
 }
 
 const commentDeleteClick = (comment: MarkCommentInfo) => {
+  comment.operateLoading = true
   emits('commentDelete', comment)
 }
 

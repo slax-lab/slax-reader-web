@@ -1,4 +1,4 @@
-import type { MarkPathApprox, MarkPathItem, MarkType } from '@commons/types/interface'
+import type { MarkPathApprox, MarkPathItem } from '@commons/types/interface'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 
 export enum MenuType {
@@ -14,8 +14,7 @@ export interface MarkItemInfo {
   source: MarkPathItem[]
   stroke: { mark_id?: number; userId: number }[]
   comments: MarkCommentInfo[]
-  approx?: MarkPathApprox
-  type: MarkType
+  approx?: MarkPathApprox // 网页端需要兼容旧划线版本
 }
 
 export type MarkCommentInfo = {
@@ -38,6 +37,7 @@ export type MarkCommentInfo = {
   // 针对界面相关的控制属性
   showInput: boolean
   loading: boolean
+  operateLoading: boolean
 }
 
 export interface SelectionConfig {
@@ -55,7 +55,6 @@ export interface StrokeSelectionMeta {
   info: MarkItemInfo
   comment?: string
   replyToId?: number
-  approx: MarkPathApprox
 }
 
 export interface DrawMarkBaseInfo {
@@ -65,3 +64,17 @@ export interface DrawMarkBaseInfo {
   isSelfStroke: boolean
   isHighlighted?: boolean
 }
+
+export type SelectTextInfo =
+  | {
+      type: 'text'
+      startOffset: number
+      endOffset: number
+      text: string
+      node?: Node
+    }
+  | {
+      type: 'image'
+      src: string
+      ele: Element
+    }

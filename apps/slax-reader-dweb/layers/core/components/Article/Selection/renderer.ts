@@ -3,7 +3,6 @@ import { HighlightRange } from '@commons/utils/range'
 
 import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
 import type { MarkPathItem } from '@commons/types/interface'
-import { MarkType } from '@commons/types/interface'
 import { useUserStore } from '#layers/core/stores/user'
 
 export class MarkRenderer {
@@ -12,9 +11,11 @@ export class MarkRenderer {
   constructor(private _config: SelectionConfig) {}
 
   async drawMark(info: MarkItemInfo, action: 'create' | 'update' = 'create') {
-    const isSelfStroke = !!info.stroke.find(item => item.userId === useUserStore().userInfo?.userId)
-    const isStroke = info.stroke.length > 0
+    const userId = useUserStore().userInfo?.userId
+
     const isComment = info.comments.length > 0
+    const isStroke = info.stroke.length > 0
+    const isSelfStroke = !!info.stroke.find(item => item.userId === userId)
 
     if (action === 'create') {
       const baseInfo = {
@@ -23,25 +24,28 @@ export class MarkRenderer {
         isComment,
         isSelfStroke
       } as DrawMarkBaseInfo
-      if (info.type === MarkType.COMMENT || info.type === MarkType.LINE) {
-        for (const markItem of info.source) {
-          if (!isStroke && !isComment) continue
 
-          const infos = this.transferNodeInfos(markItem)
-          for (const infoItem of infos) {
-            if (infoItem.type === 'image') {
-              this.addImageMark({ ...baseInfo, ele: infoItem.ele as HTMLImageElement })
-              continue
-            }
-            this.addMark({ ...baseInfo, node: infoItem.node, start: infoItem.start, end: infoItem.end })
+      let drawMark = false
+      for (const markItem of info.source) {
+        if (!isStroke && !isComment) continue
+
+        const infos = this.transferNodeInfos(markItem)
+        for (const infoItem of infos) {
+          if (infoItem.type === 'image') {
+            this.addImageMark({ ...baseInfo, ele: infoItem.ele as HTMLImageElement })
+            continue
           }
+          this.addMark({ ...baseInfo, node: infoItem.node, start: infoItem.start, end: infoItem.end })
         }
-      } else if (info.type === MarkType.ORIGIN_COMMENT || info.type === MarkType.ORIGIN_LINE) {
-        const rangeSvc = new HighlightRange(window.document)
-        const newRange = rangeSvc.getRange(info.approx!)
-        console.log(`${info.type}`, newRange, info.approx)
+
+        drawMark = infos.length > 0
+      }
+
+      if (!drawMark && info.approx) {
+        const rangeSvc = new HighlightRange(window.document, this._config.monitorDom!)
+        const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
-          this.addMarks(newRange, baseInfo)
+          this.addMarksInRange(newRange, baseInfo)
         }
       }
     } else {
@@ -63,7 +67,7 @@ export class MarkRenderer {
     return info.id
   }
 
-  addMarks(range: Range, baseInfo: DrawMarkBaseInfo) {
+  addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
     if (range.startContainer === range.endContainer) {
       this.addMark({
         ...baseInfo,
