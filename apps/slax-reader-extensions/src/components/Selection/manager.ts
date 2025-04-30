@@ -77,7 +77,8 @@ export class MarkManager {
           createdAt: new Date(),
           children: [],
           showInput: false,
-          loading: true
+          loading: true,
+          operateLoading: false
         }
       : null
 
@@ -160,7 +161,7 @@ export class MarkManager {
     const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
 
-    const removeMarkOrComment = () => {
+    const removeMarkOrComment = async () => {
       for (const [idx, comment] of markInfoItem.comments.entries()) {
         if (comment.markId === markId) {
           const keepMarks = !!comment.children.find(item => !item.isDeleted)
@@ -168,19 +169,24 @@ export class MarkManager {
             markInfoItem.comments[idx].isDeleted = true
           } else {
             markInfoItem.comments.splice(idx, 1)
-            const index = this._markItemInfos.findIndex(item => item.id === id)
-            this._markItemInfos.splice(index, 1)
           }
 
-          markInfoItem.comments = [...markInfoItem.comments]
-          return
+          break
         }
+
         for (const child of comment.children) {
           if (child.markId === markId) {
             child.isDeleted = true
-            return
+            break
           }
         }
+      }
+
+      await this.renderer.drawMark(markInfoItem, 'update')
+
+      if (markInfoItem.stroke.length === 0 && markInfoItem.comments.length === 0) {
+        const index = this._markItemInfos.findIndex(item => item.id === markInfoItem.id)
+        this._markItemInfos.splice(index, 1)
       }
     }
 
@@ -191,7 +197,8 @@ export class MarkManager {
         url: RESTMethodPath.DELETE_MARK,
         body: { bm_id: bookmarkId, mark_id: markId }
       })
-      removeMarkOrComment()
+
+      await removeMarkOrComment()
     } catch (e) {
       console.error(e)
     }
@@ -256,6 +263,7 @@ export class MarkManager {
     const userInfo = this.config.userInfo
     if (!userInfo) return
 
+    const currentMarkItemInfo = this._currentMarkItemInfo.value
     SelectionModal.showPanel({
       container: this.config.containerDom!,
       articleDom: this.config.monitorDom!,
@@ -276,8 +284,10 @@ export class MarkManager {
       },
       commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
       dismissCallback: () => {
-        this._currentMarkItemInfo.value = null
-        this._selectContent.value = []
+        if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
+          this.updateCurrentMarkItemInfo(null)
+          this.clearSelectContent()
+        }
       }
     })
   }
@@ -318,7 +328,6 @@ export class MarkManager {
       return undefined
     }
 
-    debugger
     const approx = this._highlightRange.getSelector(range)
     return approx
   }
@@ -434,7 +443,8 @@ export class MarkManager {
           createdAt: new Date(mark.created_at),
           rootId: mark.root_id,
           showInput: false,
-          loading: false
+          loading: false,
+          operateLoading: false
         }
 
         commentMap.set(mark.id, comment)
