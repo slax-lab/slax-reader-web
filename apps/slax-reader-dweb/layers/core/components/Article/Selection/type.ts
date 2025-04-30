@@ -37,6 +37,7 @@ export type MarkCommentInfo = {
   // 针对界面相关的控制属性
   showInput: boolean
   loading: boolean
+  operateLoading: boolean
 }
 
 export interface SelectionConfig {
