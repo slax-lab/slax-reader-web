@@ -116,12 +116,21 @@ export default defineBackground(() => {
     if (tab.status !== 'complete') return
 
     try {
-      const tabInfo = await browser.tabs.get(tabId)
-      if (tabInfo && tab.url) {
-        await bookmarkService.checkAndUpdateBookmarkStatus(tabId, tab.url)
+      if (!tab.url) {
+        return
       }
 
-      userToken && BrowserService.notifyUrlUpdate(tab, tab.url || '')
+      const url = new URL(tab.url)
+      const isValid = ['http:', 'https:'].includes(url.protocol)
+      if (!isValid) {
+        return
+      }
+
+      const tabInfo = await browser.tabs.get(tabId)
+      if (tabInfo) {
+        await bookmarkService.checkAndUpdateBookmarkStatus(tabId, tab.url)
+        userToken && BrowserService.notifyUrlUpdate(tab, tab.url || '')
+      }
     } catch (error) {
       console.error(`Error checking tab with id: ${tabId}`, error)
     }

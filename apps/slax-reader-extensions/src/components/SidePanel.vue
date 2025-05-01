@@ -126,7 +126,10 @@ const loadingText = ref('收藏中')
 const isLoading = ref(false)
 const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
+
 let articleSelection: ArticleSelection | null = null
+
+const needExamine = ref(false)
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -333,12 +336,13 @@ const panelClick = async (type: PanelItemType) => {
     return
   }
 
-  const userInfo = await tryGetUserInfo()
+  const userInfo = await tryGetUserInfo(needExamine.value)
 
   isSummaryShowing.value = false
   isChatbotShowing.value = false
 
-  if (!(await examineSideBarAction(type, userInfo))) {
+  needExamine.value = !(await examineSideBarAction(type, userInfo))
+  if (needExamine.value) {
     return
   }
 
@@ -394,9 +398,10 @@ const getWebSiteInfo = () => {
   return r as AddBookmarkReq
 }
 
-const tryGetUserInfo = async () => {
+const tryGetUserInfo = async (refresh = false) => {
   const res = await queryBackground<UserInfo>({
-    action: MessageTypeAction.QueryUserInfo
+    action: MessageTypeAction.QueryUserInfo,
+    refresh
   })
 
   if (!res || !res.success) {
