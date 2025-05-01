@@ -19,7 +19,6 @@ export type MessageType =
         | MessageTypeAction.HideCollectPopup
         | MessageTypeAction.OpenWelcome
         | MessageTypeAction.CheckLogined
-        | MessageTypeAction.QueryUserInfo
     }
   | {
       action: MessageTypeAction.RecordBookmark
@@ -38,6 +37,10 @@ export type MessageType =
   | {
       action: MessageTypeAction.PageUrlUpdate
       url: string
+    }
+  | {
+      action: MessageTypeAction.QueryUserInfo
+      refresh?: boolean
     }
 
 export enum BookmarkActionType {

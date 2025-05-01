@@ -40,7 +40,7 @@ export class MessageHandler {
         return true
 
       case MessageTypeAction.QueryUserInfo:
-        this.handleQueryUserInfo(sendResponse)
+        this.handleQueryUserInfo(receiveMessage, sendResponse)
         return true
     }
 
@@ -98,7 +98,7 @@ export class MessageHandler {
     }
   }
 
-  private async handleQueryUserInfo(sendResponse: (response?: unknown) => void) {
+  private async handleQueryUserInfo(message: Extract<MessageType, { action: MessageTypeAction.QueryUserInfo }>, sendResponse: (response?: unknown) => void) {
     try {
       const userInfo = await this.authService.queryUserInfo()
       sendResponse({ success: true, data: userInfo })
