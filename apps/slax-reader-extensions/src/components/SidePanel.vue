@@ -270,10 +270,6 @@ const updateBookmarkStatus = async () => {
 const loadSelection = async () => {
   unloadSelection()
 
-  if (!bookmarkId.value) {
-    return
-  }
-
   if (!isSlaxWebsite(window.location.href)) {
     const markList = bookmarkId.value ? await getBookmarkMarkList(bookmarkId.value) : null
     const userInfo = await tryGetUserInfo()
