@@ -5,6 +5,8 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { UserInfo } from '@commons/types/interface'
 
 export class AuthService {
+  private userInfoPromise: Promise<UserInfo | null> | null = null
+
   constructor(private storageService: StorageService) {}
 
   async checkLogin(): Promise<boolean> {
@@ -30,17 +32,37 @@ export class AuthService {
     return true
   }
 
-  async queryUserInfo(): Promise<UserInfo | null> {
+  async queryUserInfo(refresh?: boolean): Promise<UserInfo | null> {
+    if (refresh) {
+      return await this.fetchUserInfo(true)
+    }
+
+    if (this.userInfoPromise) {
+      return this.userInfoPromise
+    }
+
+    this.userInfoPromise = this.fetchUserInfo(false)
+
+    try {
+      return await this.userInfoPromise
+    } finally {
+      this.userInfoPromise = null
+    }
+  }
+
+  private async fetchUserInfo(refresh: boolean): Promise<UserInfo | null> {
     if (!(await this.storageService.getToken())) {
       return null
     }
 
-    const cache = await this.storageService.getUserInfo()
-    const meta = await this.storageService.getUserInfoMeta()
-    const duration = Date.now() - (meta?.lastUpdated || 0)
+    if (!refresh) {
+      const cache = await this.storageService.getUserInfo()
+      const meta = await this.storageService.getUserInfoMeta()
+      const duration = Date.now() - (meta?.lastUpdated || 0)
 
-    if (cache && duration < CONFIG.CACHE_DURATION_MS) {
-      return cache
+      if (cache && duration < CONFIG.CACHE_DURATION_MS) {
+        return cache
+      }
     }
 
     try {
