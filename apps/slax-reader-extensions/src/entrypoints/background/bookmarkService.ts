@@ -102,6 +102,7 @@ export class BookmarkService {
       return null
     }
 
+    console.log('querychangeSyncTime', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -122,6 +123,7 @@ export class BookmarkService {
       return
     }
 
+    console.log('updatechangeSyncTime', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -140,6 +142,7 @@ export class BookmarkService {
       return 0
     }
 
+    console.log('queryBookmarkChange', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -160,6 +163,7 @@ export class BookmarkService {
       return
     }
 
+    console.log('addBookmarkChanges', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -183,6 +187,7 @@ export class BookmarkService {
       return
     }
 
+    console.log('addBookmarkActionChanges', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -247,6 +252,7 @@ export class BookmarkService {
       return
     }
 
+    console.log('deleteBookmarkChange', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
