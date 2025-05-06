@@ -1,12 +1,14 @@
 <template>
   <div class="ai-summaries">
+    <div class="dark-trigger" ref="darkTrigger" />
     <div class="operate-container">
       <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
         <span>{{ $t('common.operate.summary_refresh') }}</span>
       </button>
       <i class="seperator"></i>
       <button class="close" @click="closeModal">
-        <img src="@images/button-dialog-close.png" />
+        <img v-if="!isDark()" src="@images/button-dialog-close.png" />
+        <img v-else src="@images/button-dialog-close-dark.png" />
       </button>
     </div>
     <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
@@ -14,11 +16,13 @@
         <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
         <div class="switch" v-if="done && summaries.length > 1">
           <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
-            <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
           </button>
           <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
           <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
-            <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
           </button>
         </div>
       </div>
@@ -116,6 +120,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 const emits = defineEmits(['navigatedText', 'dismiss'])
+const darkTrigger = ref<HTMLDivElement>()
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
@@ -188,6 +193,15 @@ watch(
     }
   }
 )
+
+const isDark = () => {
+  if (!darkTrigger.value) {
+    return false
+  }
+
+  const style = window.getComputedStyle(darkTrigger.value)
+  return style.opacity === '1'
+}
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0
@@ -553,6 +567,10 @@ $copyButtonXOffset: 20px;
 
 .ai-summaries {
   --style: min-h-screen relative;
+
+  .dark-trigger {
+    --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
+  }
 
   .bg-container {
     --style: w-full h-full flex flex-col rounded-4;
