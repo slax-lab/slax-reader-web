@@ -42,4 +42,9 @@ export class BrowserService {
     const message = { action: MessageTypeAction.PageUrlUpdate, url }
     await browser.tabs.sendMessage(tab.id!, message)
   }
+
+  static async notifyBookmarkStatusUpdate(tab: Browser.tabs.Tab): Promise<void> {
+    const message = { action: MessageTypeAction.BookmarkStatusRefresh }
+    await browser.tabs.sendMessage(tab.id!, message)
+  }
 }

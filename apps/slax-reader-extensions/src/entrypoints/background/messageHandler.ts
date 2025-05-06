@@ -1,4 +1,4 @@
-import { type MessageType, MessageTypeAction } from '@/config'
+import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
 
 import type { AuthService } from './authService'
 import type { BookmarkService } from './bookmarkService'
@@ -40,7 +40,7 @@ export class MessageHandler {
         return true
 
       case MessageTypeAction.QueryUserInfo:
-        this.handleQueryUserInfo(sendResponse)
+        this.handleQueryUserInfo(receiveMessage, sendResponse)
         return true
     }
 
@@ -50,7 +50,19 @@ export class MessageHandler {
   private async handleRecordBookmark(message: Extract<MessageType, { action: MessageTypeAction.RecordBookmark }>, sender: Browser.runtime.MessageSender): Promise<void> {
     try {
       if (sender.tab?.id) {
+        const hashUrl = md5(message.url)
+        if (!hashUrl) {
+          throw Error('Invalid URL')
+        }
+
+        if (message.actionType === BookmarkActionType.ADD) {
+          await this.bookmarkService.addBookmarkChanges([{ hashUrl, bookmarkId: message.bookmarkId }])
+        } else if (message.actionType === BookmarkActionType.DELETE) {
+          await this.bookmarkService.deleteBookmarkChanges([hashUrl])
+        }
+
         await this.bookmarkService.checkAndUpdateBookmarkStatus(sender.tab.id, message.url)
+        await BrowserService.notifyBookmarkStatusUpdate(sender.tab)
       }
     } catch (error) {
       console.error('Error handling change bookmark:', error)
@@ -98,7 +110,7 @@ export class MessageHandler {
     }
   }
 
-  private async handleQueryUserInfo(sendResponse: (response?: unknown) => void) {
+  private async handleQueryUserInfo(message: Extract<MessageType, { action: MessageTypeAction.QueryUserInfo }>, sendResponse: (response?: unknown) => void) {
     try {
       const userInfo = await this.authService.queryUserInfo()
       sendResponse({ success: true, data: userInfo })

@@ -126,7 +126,10 @@ const loadingText = ref('收藏中')
 const isLoading = ref(false)
 const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
+
 let articleSelection: ArticleSelection | null = null
+
+const needExamine = ref(false)
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -137,7 +140,7 @@ const appStatusText = computed(() => {
 })
 
 const needHidden = computed(() => {
-  return isSlaxWebsite(currentUrl.value)
+  return isSlaxWebsite(currentUrl.value) || bookmarkId.value === 0
 })
 
 useDraggable(draggble, {
@@ -204,6 +207,13 @@ props.browser.runtime.onMessage.addListener(
           updateBookmarkStatus()
           currentUrl.value = url
         }
+
+        break
+      }
+      case MessageTypeAction.BookmarkStatusRefresh: {
+        updateBookmarkStatus()
+
+        break
       }
     }
 
@@ -267,11 +277,7 @@ const updateBookmarkStatus = async () => {
 const loadSelection = async () => {
   unloadSelection()
 
-  if (!bookmarkId.value) {
-    return
-  }
-
-  if (!isSlaxWebsite(window.location.href)) {
+  if (!needHidden.value) {
     const markList = bookmarkId.value ? await getBookmarkMarkList(bookmarkId.value) : null
     const userInfo = await tryGetUserInfo()
 
@@ -333,12 +339,13 @@ const panelClick = async (type: PanelItemType) => {
     return
   }
 
-  const userInfo = await tryGetUserInfo()
+  const userInfo = await tryGetUserInfo(needExamine.value)
 
   isSummaryShowing.value = false
   isChatbotShowing.value = false
 
-  if (!(await examineSideBarAction(type, userInfo))) {
+  needExamine.value = !(await examineSideBarAction(type, userInfo))
+  if (needExamine.value) {
     return
   }
 
@@ -394,9 +401,10 @@ const getWebSiteInfo = () => {
   return r as AddBookmarkReq
 }
 
-const tryGetUserInfo = async () => {
+const tryGetUserInfo = async (refresh = false) => {
   const res = await queryBackground<UserInfo>({
-    action: MessageTypeAction.QueryUserInfo
+    action: MessageTypeAction.QueryUserInfo,
+    refresh
   })
 
   if (!res || !res.success) {

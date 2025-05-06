@@ -12,7 +12,7 @@ export interface BookmarkChange {
 }
 
 export interface BookmarkActionChange extends BookmarkChange {
-  action: BookmarkActionChangelog['log_action']
+  action: BookmarkActionChangelog['action']
 }
 
 export interface BookmarkDBChange {
