@@ -414,7 +414,7 @@ export interface BookmarkChangelog {
 }
 
 export interface BookmarkActionChangelog extends BookmarkChangelog {
-  log_action: 'add' | 'delete' | 'update'
+  action: 'add' | 'delete' | 'update'
 }
 export interface BookmarkSocketChangelog extends BookmarkActionChangelog {
   created_at: string
