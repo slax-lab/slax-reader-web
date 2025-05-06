@@ -85,24 +85,28 @@ export class ArticleSelection {
   private async handleMouseUp(e: MouseEvent | TouchEvent) {
     this.monitor.clearMouseListenerTry()
 
-    const selection = window.getSelection()
-    if (!selection || !selection.rangeCount) {
-      this.manager.updateCurrentMarkItemInfo(null)
-      return
-    }
-
-    const range = selection.getRangeAt(0)
-    const { list, approx } = this.manager.getElementInfo(range)
-
-    if (!list || list.length === 0 || !approx) {
-      this.manager.updateCurrentMarkItemInfo(null)
-      return
-    }
-
-    const source = this.getMarkPathItems(list)
-    if (!source) return
-
     setTimeout(() => {
+      if (SelectionModal.isPanelExist(this.config.containerDom!)) {
+        return
+      }
+
+      const selection = window.getSelection()
+      if (!selection || !selection.rangeCount) {
+        this.manager.updateCurrentMarkItemInfo(null)
+        return
+      }
+
+      const range = selection.getRangeAt(0)
+      const { list, approx } = this.manager.getElementInfo(range)
+
+      if (!list || list.length === 0 || !approx) {
+        this.manager.updateCurrentMarkItemInfo(null)
+        return
+      }
+
+      const source = this.getMarkPathItems(list)
+      if (!source) return
+
       const markInfoItem = this.manager.getMarkItemInfos().find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
       if (markInfoItem) {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
