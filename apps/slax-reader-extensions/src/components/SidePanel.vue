@@ -140,7 +140,7 @@ const appStatusText = computed(() => {
 })
 
 const needHidden = computed(() => {
-  return isSlaxWebsite(currentUrl.value)
+  return isSlaxWebsite(currentUrl.value) || bookmarkId.value === 0
 })
 
 useDraggable(draggble, {
@@ -207,6 +207,13 @@ props.browser.runtime.onMessage.addListener(
           updateBookmarkStatus()
           currentUrl.value = url
         }
+
+        break
+      }
+      case MessageTypeAction.BookmarkStatusRefresh: {
+        updateBookmarkStatus()
+
+        break
       }
     }
 
@@ -270,7 +277,7 @@ const updateBookmarkStatus = async () => {
 const loadSelection = async () => {
   unloadSelection()
 
-  if (!isSlaxWebsite(window.location.href)) {
+  if (!needHidden.value) {
     const markList = bookmarkId.value ? await getBookmarkMarkList(bookmarkId.value) : null
     const userInfo = await tryGetUserInfo()
 

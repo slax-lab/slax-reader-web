@@ -8,7 +8,8 @@ export enum MessageTypeAction {
   AddBookmarkChange = 'add-bookmark-change',
   CheckLogined = 'check-logined',
   QueryUserInfo = 'query-user-info',
-  PageUrlUpdate = 'page-url-update'
+  PageUrlUpdate = 'page-url-update',
+  BookmarkStatusRefresh = 'bookmark-status-refresh'
 }
 
 export type MessageType =
@@ -19,12 +20,12 @@ export type MessageType =
         | MessageTypeAction.HideCollectPopup
         | MessageTypeAction.OpenWelcome
         | MessageTypeAction.CheckLogined
+        | MessageTypeAction.BookmarkStatusRefresh
     }
-  | {
+  | ({
       action: MessageTypeAction.RecordBookmark
       url: string
-      actionType: BookmarkActionType
-    }
+    } & ({ actionType: BookmarkActionType.ADD; bookmarkId: number } | { actionType: BookmarkActionType.DELETE }))
   | {
       action: MessageTypeAction.QueryBookmarkChange
       url: string

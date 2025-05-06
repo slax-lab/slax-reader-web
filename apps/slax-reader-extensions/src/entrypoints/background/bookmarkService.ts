@@ -181,6 +181,28 @@ export class BookmarkService {
     }
   }
 
+  async deleteBookmarkChanges(hashUrls: string[]): Promise<void> {
+    const userInfo = await this.authService.queryUserInfo()
+    if (!userInfo) {
+      return
+    }
+
+    const dbService = new UserIndexedDBService()
+    try {
+      await dbService.initialize()
+      await dbService.deleteBookmarkChanges(
+        hashUrls.map(hashUrl => ({
+          user_id: userInfo.userId,
+          hash_url: hashUrl
+        }))
+      )
+    } catch (error) {
+      console.error('Error deleting bookmark changes:', error)
+    } finally {
+      await dbService.close()
+    }
+  }
+
   async addBookmarkActionChanges(changes: BookmarkActionChange[]): Promise<void> {
     const userInfo = await this.authService.queryUserInfo()
     if (!userInfo) {
@@ -331,9 +353,20 @@ export class BookmarkService {
         const changelog = data.data
         const syncTime = await this.querychangeSyncTime()
         const createAt = Number(new Date(changelog.created_at))
+
+        let tasks: Promise<unknown>[] = []
         if (syncTime && createAt > syncTime) {
-          await Promise.allSettled([this.updatechangeSyncTime(createAt), this.addBookmarkChanges([{ hashUrl: md5(changelog.target_url), bookmarkId: changelog.bookmark_id }])])
+          tasks.push(this.updatechangeSyncTime(createAt))
+
+          if (changelog.action === 'add' || changelog.action === 'update') {
+            tasks.push(this.addBookmarkChanges([{ hashUrl: md5(changelog.target_url), bookmarkId: changelog.bookmark_id }]))
+          } else if (changelog.action === 'delete') {
+            console.log('delete bookmark changes', changelog)
+            tasks.push(this.deleteBookmarkChanges([md5(changelog.target_url)]))
+          }
         }
+
+        tasks.length > 0 && (await Promise.allSettled(tasks))
       }
     })
 
