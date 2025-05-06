@@ -14,7 +14,6 @@ const isNullRect = (rect: DOMRect) => {
 
 const isPanelExist = (container?: HTMLDivElement) => {
   const articleSelectionPanel = (container || document).querySelector(`.${panelKey}`) as HTMLElement
-  console.log('articleSelectionPanel', articleSelectionPanel)
   if (articleSelectionPanel) {
     return true
   }

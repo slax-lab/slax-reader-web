@@ -102,7 +102,6 @@ export class BookmarkService {
       return null
     }
 
-    console.log('querychangeSyncTime', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -123,7 +122,6 @@ export class BookmarkService {
       return
     }
 
-    console.log('updatechangeSyncTime', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -142,7 +140,6 @@ export class BookmarkService {
       return 0
     }
 
-    console.log('queryBookmarkChange', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -163,7 +160,6 @@ export class BookmarkService {
       return
     }
 
-    console.log('addBookmarkChanges', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -209,7 +205,6 @@ export class BookmarkService {
       return
     }
 
-    console.log('addBookmarkActionChanges', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -274,7 +269,6 @@ export class BookmarkService {
       return
     }
 
-    console.log('deleteBookmarkChange', userInfo)
     const dbService = new UserIndexedDBService()
 
     try {
@@ -361,7 +355,6 @@ export class BookmarkService {
           if (changelog.action === 'add' || changelog.action === 'update') {
             tasks.push(this.addBookmarkChanges([{ hashUrl: md5(changelog.target_url), bookmarkId: changelog.bookmark_id }]))
           } else if (changelog.action === 'delete') {
-            console.log('delete bookmark changes', changelog)
             tasks.push(this.deleteBookmarkChanges([md5(changelog.target_url)]))
           }
         }
