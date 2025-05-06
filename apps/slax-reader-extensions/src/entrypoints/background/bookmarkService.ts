@@ -85,7 +85,7 @@ export class BookmarkService {
         logs.reverse().map(item => ({
           hashUrl: md5(item.target_url),
           bookmarkId: item.bookmark_id,
-          action: item.log_action
+          action: item.action
         }))
       )
 
