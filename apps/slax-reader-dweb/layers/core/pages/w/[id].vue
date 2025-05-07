@@ -226,10 +226,10 @@ initInline()
 
 <style lang="scss" scoped>
 .raw-web {
-  --style: w-full h-100vh flex flex-col;
+  --style: relative w-full h-100vh flex flex-col;
 
   .header {
-    --style: 'w-full h-[var(--header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'absolute top-0 left-0 w-full h-[var(--header-height)] z-10 p-0 flex items-center shrink-0 justify-between select-none bg-#f5f5f3';
 
     .left {
       --style: ml-40px h-full flex items-center relative;
@@ -260,7 +260,7 @@ initInline()
   }
 
   .content-wrapper {
-    --style: relative size-full flex-1 flex justify-between items-center;
+    --style: 'relative w-full h-full pt-[var(--header-height)] flex justify-between items-center';
     .iframe-wrapper {
       --style: size-full border-none;
 
