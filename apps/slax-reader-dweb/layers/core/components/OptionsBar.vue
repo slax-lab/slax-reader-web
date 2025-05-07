@@ -39,7 +39,7 @@ selectedIndex.value = props.defaultSelecedIndex
 const optionClick = (index: number) => {
   if (index !== selectedIndex.value) {
     selectedIndex.value = index
-    emits('optionSelected', props.options[index])
+    emits('optionSelected', index)
   }
 
   showOptions.value = false
