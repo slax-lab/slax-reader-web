@@ -1,12 +1,16 @@
 /// <reference lib="WebWorker" />
 import { NotificationWorker } from './sw'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { clientsClaim } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
 import { CacheFirst, NetworkFirst, Strategy } from 'workbox-strategies'
 
 declare const self: ServiceWorkerGlobalScope
+
+self.skipWaiting()
+clientsClaim()
 
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)

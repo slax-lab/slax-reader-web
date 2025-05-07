@@ -5,8 +5,20 @@ import ArticleSelectionPanel from './ArticleSelectionPanel.vue'
 
 import type { MarkItemInfo, MenuType } from './type'
 
+const menusKey = `slax-reader-article-selection-menus-container`
+const panelKey = `slax-reader-article-selection-panel-container`
+
 const isNullRect = (rect: DOMRect) => {
   return !rect || (rect.width === 0 && rect.height === 0 && rect.top === 0 && rect.left === 0)
+}
+
+const isPanelExist = (container?: HTMLDivElement) => {
+  const articleSelectionPanel = (container || document).querySelector(`.${panelKey}`) as HTMLElement
+  if (articleSelectionPanel) {
+    return true
+  }
+
+  return false
 }
 
 const showMenus = (options: {
@@ -18,19 +30,17 @@ const showMenus = (options: {
   noActionCallback?: () => void
 }) => {
   const { container, event, allowAction, callback, positionCallback, noActionCallback } = options
-  const key = `article-selection-menus-container`
-  const panelKey = `article-selection-panel-container`
-  if (container.querySelector(`.${panelKey}`)) {
+  if (isPanelExist(container)) {
     return
   }
 
-  let articleSelectionMenus = container.querySelector(`.${key}`) as HTMLElement
+  let articleSelectionMenus = container.querySelector(`.${menusKey}`) as HTMLElement
   if (articleSelectionMenus) {
     articleSelectionMenus.remove()
   }
 
   articleSelectionMenus = document.createElement('div')
-  articleSelectionMenus.classList.add(key)
+  articleSelectionMenus.classList.add(menusKey)
   articleSelectionMenus.style.setProperty('z-index', `${999}`)
   articleSelectionMenus.style.setProperty('position', `absolute`)
 
@@ -117,15 +127,13 @@ const showPanel = (options: {
 }) => {
   const { container, articleDom, info, allowAction, bookmarkUserId, actionCallback, commentDeleteCallback, dismissCallback } = options
 
-  const key = `article-selection-panel-container`
-
-  let articleSelectionPanel = container.querySelector(`.${key}`) as HTMLElement
+  let articleSelectionPanel = container.querySelector(`.${panelKey}`) as HTMLElement
   if (articleSelectionPanel) {
     articleSelectionPanel.remove()
   }
 
   articleSelectionPanel = document.createElement('div')
-  articleSelectionPanel.classList.add(key)
+  articleSelectionPanel.classList.add(panelKey)
   articleSelectionPanel.style.setProperty('z-index', `${999}`)
   articleSelectionPanel.style.setProperty('position', `absolute`)
 
@@ -218,6 +226,7 @@ const showPanel = (options: {
 }
 
 export default {
+  isPanelExist,
   showMenus,
   showPanel
 }

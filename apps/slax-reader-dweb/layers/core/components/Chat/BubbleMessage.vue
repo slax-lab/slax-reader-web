@@ -29,10 +29,12 @@
             </div>
             <div class="operate group-hover:!opacity-100">
               <button class="left" @click="linksLeftOperateClick">
-                <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
+                <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+                <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
               </button>
               <button class="right" @click="linksRightOperateClick">
-                <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
+                <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+                <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
               </button>
             </div>
           </div>
@@ -49,7 +51,8 @@
           <div class="related-question-content">
             <div class="question" v-for="question in content.questions" :key="question.content" @click="questionClick(question)">
               <span class="text">{{ question.content }}</span>
-              <i class="bg-[url('@images/button-tiny-bottom-search.png')]"></i>
+              <i v-if="!isDark()" class="bg-[url('@images/button-tiny-bottom-search.png')]"></i>
+              <i v-else class="bg-[url('@images/button-tiny-bottom-search-dark.png')]" />
             </div>
           </div>
         </div>
@@ -57,9 +60,11 @@
     </div>
     <div class="btns-container" v-if="showCopyBtn">
       <button class="copy-btn" @click="copyBtnClick">
-        <img src="@images/button-tiny-copy.png" />
+        <img v-if="!isDark()" src="@images/button-tiny-copy.png" />
+        <img v-else src="@images/button-tiny-copy-dark.png" />
       </button>
     </div>
+    <div class="dark-trigger" ref="darkTrigger" />
   </div>
 </template>
 
@@ -78,6 +83,8 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
+const darkTrigger = ref<HTMLDivElement>()
+
 const showCopyBtn = computed(() => {
   const isBuffering = props.message.isBuffering
   const isLeftMessage = props.message.direction === 'left'
@@ -88,6 +95,15 @@ const showCopyBtn = computed(() => {
 const showQuoteImage = computed(() => {
   return props.message.quote && props.message.quote.data.length > 0 && !!props.message.quote.data.find(item => item.type === 'image')
 })
+
+const isDark = () => {
+  if (!darkTrigger.value) {
+    return false
+  }
+
+  const style = window.getComputedStyle(darkTrigger.value)
+  return style.opacity === '1'
+}
 
 const parseHref = (href: string) => {
   const url = new URL(href)
@@ -171,28 +187,37 @@ const quoteClick = (quote: QuoteData) => {
 
 <style lang="scss" scoped>
 .bubble-message {
-  --style: relative bg-#F5F5F3 min-h-10 min-w-300px rounded-8px p-16px;
+  --style: relative min-h-10 min-w-300px rounded-8px p-16px;
+  --style: 'bg-#F5F5F3 dark:bg-#1F1F1FFF';
+
+  .dark-trigger {
+    --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
+  }
 
   &.copyable {
     --style: '!pb-48px';
   }
 
   &.left {
-    --style: ml-0 mr-auto justify-start bg-#F5F5F3 text-(#333) mr-50px;
+    --style: ml-0 mr-auto justify-start mr-50px;
+    --style: 'bg-#F5F5F3 text-#333 dark:(bg-transparent text-#fff)';
   }
 
   &.right {
-    --style: mr-0 my-8px ml-auto justify-end bg-#333 text-(#fcfcfc) min-w-auto max-w-366px;
+    --style: mr-0 my-8px ml-auto justify-end min-w-auto max-w-366px;
+    --style: 'bg-#333 text-#fcfcfc dark:(bg-#333 text-#ffffffe6)';
   }
 
-  & > * {
+  & > *:not(.dark-trigger) {
     --style: 'not-first:mt-16px';
   }
 
   .quote-container {
     --style: flex items-center justify-between cursor-pointer;
     .quote {
-      --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px #fcfcfc99);
+      --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px);
+      --style: 'text-#fcfcfc99 dark:text-#ffffff66';
+
       i.img {
         --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
       }
@@ -206,49 +231,50 @@ const quoteClick = (quote: QuoteData) => {
   .text {
     --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line;
 
-    &::v-deep(& :not(code)) {
-      --style: m-0 text-#0f1419;
+    &:deep(& :not(code)) {
+      --style: m-0;
+      --style: 'text-#0f1419 dark:text-#FFFFFFE6';
     }
 
-    &::v-deep(.hljs) {
-      --style: bg-#33333314;
+    &:deep(.hljs) {
+      --style: 'bg-#33333314 dark:bg-#FFFFFFE6';
     }
 
-    &::v-deep(pre) {
+    &:deep(pre) {
       --style: mt-16px;
     }
 
-    &::v-deep(h1) {
+    &:deep(h1) {
       --style: 'font-bold text-(20px) line-height-28px not-first:mt-32px';
     }
 
-    &::v-deep(h2) {
+    &:deep(h2) {
       --style: 'font-bold text-(16px) line-height-22px not-first:mt-22px';
     }
 
-    &::v-deep(h3),
-    &::v-deep(h4),
-    &::v-deep(h5) {
+    &:deep(h3),
+    &:deep(h4),
+    &:deep(h5) {
       --style: 'font-bold text-(15px) not-first:mt-12px';
     }
 
     // 非标题类内容，在前面有内容时才增加间距
-    &::v-deep(* + ul),
-    &::v-deep(* + ol) {
+    &:deep(* + ul),
+    &:deep(* + ol) {
       --style: mt-10px;
       margin-top: 10px;
     }
 
-    &::v-deep(li) {
+    &:deep(li) {
       --style: relative pl-20px box-border font-normal text-(14px) line-height-20px whitespace-normal;
     }
 
-    &::v-deep(ul),
-    &::v-deep(ol) {
+    &:deep(ul),
+    &:deep(ol) {
       --style: list-none whitespace-normal;
     }
 
-    &::v-deep(ul) {
+    &:deep(ul) {
       --style: pl-0 flex flex-col;
       li {
         &::marker {
@@ -274,7 +300,7 @@ const quoteClick = (quote: QuoteData) => {
       }
     }
 
-    &::v-deep(ol) {
+    &:deep(ol) {
       --style: pl-0 flex flex-col;
       counter-reset: list-counter;
 
@@ -295,26 +321,26 @@ const quoteClick = (quote: QuoteData) => {
       }
     }
 
-    &::v-deep(a) {
+    &:deep(a) {
       --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
     }
 
-    &::v-deep(table) {
+    &:deep(table) {
       --style: border-collapse;
     }
 
-    &::v-deep(thead),
-    &::v-deep(td),
-    &::v-deep(tr),
-    &::v-deep(th) {
+    &:deep(thead),
+    &:deep(td),
+    &:deep(tr),
+    &:deep(th) {
       --style: border-(1px solid #9999991a) p-4px text-align-center;
     }
 
-    &::v-deep(* + p) {
+    &:deep(* + p) {
       --style: mt-22px;
     }
 
-    &::v-deep(code) {
+    &:deep(code) {
       font-family: 'Courier New', Courier, monospace !important;
 
       * {
@@ -327,17 +353,20 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full;
 
     .links-title {
-      --style: text-(12px #999) line-height-17px;
+      --style: text-(12px) line-height-17px;
+      --style: 'text-#999 dark:text-#999999ff';
     }
 
     .links-content {
       --style: mt-6px w-full relative;
       &::before {
-        --style: content-empty absolute w-5px h-full right-0px top-0 bg-gradient-to-l from-#F5F5F3 to-transprent z-2;
+        --style: content-empty absolute w-5px h-full right-0px top-0 bg-gradient-to-l to-transprent z-2;
+        --style: 'from-#F5F5F3 dark:from-#262626FF';
       }
 
       &::after {
-        --style: content-empty absolute w-5px h-full -left-5px top-0 bg-gradient-to-r from-#F5F5F3 to-transprent z-2;
+        --style: content-empty absolute w-5px h-full -left-5px top-0 bg-gradient-to-r to-transprent z-2;
+        --style: 'from-#F5F5F3 dark:from-#262626FF';
       }
 
       .content-wrapper {
@@ -347,14 +376,21 @@ const quoteClick = (quote: QuoteData) => {
           --style: hidden;
         }
         .link-content {
-          --style: 'flex flex-col justify-between p-8px w-160px h-69px bg-#ffffffcc border-(1px solid #9999991a) shrink-0 rounded-4px not-first:ml-8px cursor-pointer transition-all duration-250 hover:(bg-#ffffff)';
+          --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px not-first:ml-8px cursor-pointer transition-all duration-250';
+          --style: 'bg-#ffffffcc border-#9999991a dark:(bg-#1F1F1FFF border-#FFFFFF0A)';
+
+          &:hover {
+            --style: 'bg-#ffffff dark:bg-#191919FF';
+          }
 
           .title {
-            --style: text-(12px #333) line-height-17px line-clamp-2;
+            --style: text-(12px) line-height-17px line-clamp-2;
+            --style: 'text-#333 dark:text-#ffffff99';
           }
 
           .href {
-            --style: flex items-center text-(12px #999);
+            --style: flex items-center text-(12px);
+            --style: 'text-#999 dark:text-#ffffff33';
 
             i {
               --style: w-9px h-8px;
@@ -395,7 +431,8 @@ const quoteClick = (quote: QuoteData) => {
   .tips {
     --style: flex items-center;
     span {
-      --style: text-(12px #999) line-height-17px;
+      --style: text-(12px) line-height-17px;
+      --style: 'text-#999 dark:text-#ffffff99';
 
       &.loading {
         animation: loading 1.5s linear infinite;
@@ -420,7 +457,8 @@ const quoteClick = (quote: QuoteData) => {
   .related-question {
     --style: max-w-366px;
     .related-question-title {
-      --style: text-(12px #999) line-height-17px;
+      --style: text-(12px) line-height-17px;
+      --style: 'text-#999 dark:text-#ffffff66';
     }
 
     .related-question-content {
@@ -429,11 +467,13 @@ const quoteClick = (quote: QuoteData) => {
         --style: 'py-0px pl-16px flex items-center justify-between relative not-first:mt-10px cursor-pointer';
 
         &::before {
-          --style: content-empty absolute left-0 top-1/2 w-4px h-4px bg-#a8b1cd -translate-y-1/2 rounded-2px;
+          --style: content-empty absolute left-0 top-1/2 w-4px h-4px -translate-y-1/2 rounded-2px;
+          --style: 'bg-#a8b1cd dark:bg-#ffffff66';
         }
 
         span {
-          --style: text-(15px #333) line-height-22px;
+          --style: text-(15px) line-height-22px;
+          --style: 'text-#333 dark:text-#ffffff99';
         }
 
         i {

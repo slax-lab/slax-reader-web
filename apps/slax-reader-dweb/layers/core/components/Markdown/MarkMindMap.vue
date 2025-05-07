@@ -1,7 +1,7 @@
 <template>
-  <div class="mark-mind-map" ref="container" :style="{ opacity: data.length > 0 ? 1 : 0, background: isFullscreen ? '#fff' : 'transparent' }">
+  <div class="mark-mind-map" ref="container" :style="{ opacity: data.length > 0 ? 1 : 0 }">
     <svg class="mind-svg" ref="svg"></svg>
-    <div class="mind-toolbar" v-if="props.showToolbar">
+    <div class="mind-toolbar" v-if="props.showToolbar && !downloading">
       <div class="item" v-for="icon in toolbarIcons" :key="icon.id" @click="toolbarClick(icon)">
         <div class="icon-bg"></div>
         <svg v-html="icon.svg"></svg>
@@ -75,11 +75,11 @@ const toolbarIcons = computed<ToolbarIcon[]>(() => {
   const icons: ToolbarIcon[] = [
     {
       id: 'scale-up',
-      svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke="#333" stroke-width="4" stroke-linejoin="round"/><path d="M21 15L21 27" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.0156 21.0156L27 21" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke-width="4" stroke-linejoin="round"/><path d="M21 15L21 27" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.0156 21.0156L27 21" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     },
     {
       id: 'scale-down',
-      svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke="#333" stroke-width="4" stroke-linejoin="round"/><path d="M15 21L27 21" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke-width="4" stroke-linejoin="round"/><path d="M15 21L27 21" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     }
   ]
 
@@ -88,18 +88,18 @@ const toolbarIcons = computed<ToolbarIcon[]>(() => {
       !isFullscreen.value
         ? {
             id: 'fullscreen',
-            svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M33 6H42V15" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 33V42H33" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 42H6V33" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 15V6H15" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M33 6H42V15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 33V42H33" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 42H6V33" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 15V6H15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
           }
         : {
             id: 'fullscreen-exit',
-            svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M33 6V15H42" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6V15H6" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 42V33H6" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 42V33H41.8995" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M33 6V15H42" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6V15H6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 42V33H6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 42V33H41.8995" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
           }
     )
   }
 
   icons.push({
     id: 'download',
-    svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M6 24.0083V42H42V24" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 23L24 32L15 23" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M23.9917 6V32" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    svg: '<svg width="100%" height="100%" viewBox="0 0 48 48" fill="none"><path d="M6 24.0083V42H42V24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 23L24 32L15 23" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M23.9917 6V32" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   })
 
   return icons
@@ -243,45 +243,8 @@ const update = async () => {
   const { root } = transformer.transform(props.data)
   markmind.value.setData(root, {
     style: () => `
-      .mark-mind-map .markmap-foreign {
-        font-family:
-          PingFangSC,
-          PingFang SC;
-        font-weight: 400;
-        font-size: 12px;
-        color: #333333;
-        line-height: 20px;
-      }
-      .mark-mind-map .markmap-foreign > div {
-        display: flex;
-        align-items: center;
-      }
-      .mark-mind-map .slax_link {
-        margin-left: 6px;
-        user-select: none;
+    .mark-mind-map .slax_link {
         display: ${props.hideAnchor ? 'none' : 'inline-block'};
-        cursor: pointer;
-        text-decoration: none !important;
-        vertical-align: middle;
-        height: 16px;
-        padding: 0 5px;
-        font-family:
-          PingFangSC,
-          PingFang SC;
-        font-weight: 500;
-        font-size: 10px;
-        line-height: 16px;
-        background-color: rgba(22, 185, 152, 0.12) !important;
-        border-radius: 3px;
-        color: #333333 !important;
-        transition:
-          background-color 0.15s ease-in-out,
-          color 0.15s ease-in-out;
-      }
-
-      .mark-mind-map .slax_link:hover {
-        background-color: #475467 !important;
-        color: #fff !important;
       }
     `
   })
@@ -378,22 +341,42 @@ defineExpose({
 <style lang="scss" scoped>
 .mark-mind-map {
   --style: relative w-full h-full;
+  --style: 'bg-#f5f5f3 dark:bg-#262626';
 
   .mind-svg {
     --style: absolute w-full h-full top-0 left-0;
+
+    &:deep(.markmap-foreign) {
+      --style: font-400 text-12px line-height-20px;
+      --style: 'text-#333 dark:text-#ffffffcc';
+      & > div {
+        --style: flex items-center;
+      }
+    }
+
+    &:deep(.slax_link) {
+      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounded-3px transition-colors duration-150;
+      --style: '!decoration-none !bg-#16b9981f !text-#333 dark:!bg-#16b9981f dark:!text-#ffffffcc';
+
+      &:hover {
+        --style: '!bg-#475467 !text-#fff';
+      }
+    }
   }
 
   .mind-toolbar {
     --style: absolute select-none flex items-center bottom-1/10 left-1/2 -translate-x-1/2;
 
     .item {
-      --style: 'cursor-pointer relative w-20px h-20px p-12pxtransition-transform duration-200 ease-in-out not-first:ml-5 hover:scale-110';
+      --style: 'cursor-pointer relative w-20px h-20px p-12px transition-transform duration-200 ease-in-out not-first:ml-5 hover:scale-110';
       .icon-bg {
-        --style: absolute top-0 left-0 bg-#f5f5f3 filter-blur-10 w-full h-full;
+        --style: absolute top-0 left-0 filter-blur-10 w-full h-full;
+        --style: 'bg-#f5f5f3 dark:bg-#FFFFFF33';
       }
 
       svg {
-        --style: 'absolute w-full h-full z-1 transform-colors duration-200 hover:text-emerald';
+        --style: absolute top-0 left-0 w-full h-full z-1 transform-colors duration-200;
+        --style: 'hover:text-emerald stroke-#333 dark:stroke-#ffffffe6';
         div {
           --style: w-full h-full;
         }

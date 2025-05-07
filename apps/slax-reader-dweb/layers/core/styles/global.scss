@@ -59,3 +59,7 @@ button {
 .opacity-leave-active {
   --style: transition-all duration-250 ease-in-out;
 }
+
+:root {
+  --header-height: 44px;
+}
