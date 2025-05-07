@@ -463,6 +463,7 @@ const handleDrawMark = async () => {
       ownerUserId: bookmarkUserId.value,
       containerDom: bookmarkArticle.value,
       monitorDom: articleDetail.value,
+      currentSource: 's',
       postQuoteDataHandler: (data: QuoteData) => {
         emits('chatBotQuote', data)
       }

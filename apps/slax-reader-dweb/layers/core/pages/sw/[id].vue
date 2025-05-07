@@ -34,14 +34,63 @@
 
       <div class="comment-section">
         <div class="comment-header">
-          <h3>评论列表</h3>
+          <h3>观点看法</h3>
         </div>
         <div class="comment-list">
-          <div class="comment-empty">暂无评论</div>
+          <div class="comment-item" v-for="comment in getCommentList()" :key="comment.id">
+            <div class="comment-item-wrapper" v-if="[MarkType.COMMENT, MarkType.REPLY].includes(comment.type)">
+              <div class="comment-item-header">
+                <div class="comment-item-header-left">
+                  <img :src="getUserInfo(comment.user_id)?.avatar" alt="avatar" />
+                  <span>{{ getUserInfo(comment.user_id)?.username }}</span>
+                </div>
+                <div class="comment-item-header-right">
+                  <span>{{ getCommentTime(comment) }}</span>
+                </div>
+              </div>
+              <div class="comment-item-reply" v-if="comment.type === MarkType.REPLY && comment.parent">
+                <div class="comment-item-reply-header">
+                  <div class="comment-item-reply-header-left">
+                    <img :src="getUserInfo(comment.parent.user_id)?.avatar" alt="avatar" />
+                    <span>{{ getUserInfo(comment.parent.user_id)?.username }}</span>
+                  </div>
+                  <div class="comment-item-reply-header-right">
+                    <span>{{ getCommentTime(comment.parent) }}</span>
+                  </div>
+                  <div class="comment-item-reply-content">
+                    <p>{{ comment.parent.comment }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="comment-item-content">
+                <p>{{ comment.comment }}</p>
+              </div>
+              <div class="comment-item-footer">
+                <button class="comment-item-footer-button" @click="replyQuoteComment = comment">回复</button>
+                <button class="comment-item-footer-button" v-if="canDeleteComment(comment.user_id)" @click="deleteComment(comment)">删除</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="comment-input">
-          <textarea placeholder="写下你的评论..." rows="3"></textarea>
-          <button class="submit-btn">发送</button>
+          <div class="comment-input-quote" v-if="!!replyQuoteComment">
+            <div class="comment-input-quote-header">
+              <span>> {{ replyQuoteComment.comment }}</span>
+            </div>
+            <div class="comment-input-quote-close">
+              <button class="comment-input-quote-close-button" @click="replyQuoteComment = null">x</button>
+            </div>
+          </div>
+          <div class="comment-input-selection" v-if="!!commentInputSelection">
+            <div class="comment-input-selection-header">
+              <span>{{ commentInputSelection.selectionText }}</span>
+            </div>
+            <div class="comment-input-selection-close">
+              <button class="comment-input-selection-close-button" @click="commentInputSelection = null">x</button>
+            </div>
+          </div>
+          <textarea placeholder="Input your comment..." rows="3" v-model="commentInputText"></textarea>
+          <button class="submit-btn" @click="submitComment">Submit</button>
         </div>
       </div>
     </div>
@@ -52,12 +101,16 @@
 import OperatesBar from '#layers/core/components/global/OperatesBar.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
 
+import { getUUID } from '@commons/utils/random'
+import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 import { RequestMethodType } from '@commons/utils/request'
 
 import { ArticleSelection } from '../../components/Article/Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
-import type { InlineBookmarkDetail } from '@commons/types/interface'
+import type { InlineBookmarkDetail, MarkInfo, MarkSelectContent } from '@commons/types/interface'
+import { MarkType } from '@commons/types/interface'
 import { registerComponents, SelectionMenusElement } from '#layers/core/components/Article/CEComponents'
+import type { QuoteData } from '#layers/core/components/Chat/type'
 import { useUserStore } from '#layers/core/stores/user'
 
 const route = useRoute()
@@ -68,6 +121,13 @@ const iframeDocument = ref<Document | null>(null)
 const iframeWindow = ref<Window | null>(null)
 const inlineBookmarkDetail = ref<InlineBookmarkDetail | null>(null)
 const articleSelection = ref<ArticleSelection | null>(null)
+const menus = ref<InstanceType<typeof SelectionMenusElement> | null>(null)
+const replyQuoteComment = ref<MarkInfo | null>(null)
+const commentInputSelection = ref<{ selectionText: string; path: string; approx: HighlightRangeInfo } | null>(null)
+const highlightRange = ref<HighlightRange | null>(null)
+const commentInputText = ref('')
+
+const { t } = useI18n()
 
 const userStore = useUserStore()
 const user = ref(userStore.userInfo || null)
@@ -80,7 +140,14 @@ const navigateToNotification = () => {
   router.push('/notifications')
 }
 
-const highligText = () => {}
+const canDeleteComment = (commentUserId: number) => {
+  return commentUserId === user?.value?.userId || inlineBookmarkDetail.value?.owner_user_id === user?.value?.userId
+}
+
+const deleteComment = (comment: MarkInfo) => {
+  // TODO 需要获取到comment的id
+  articleSelection.value!.manager.deleteComment('', comment.id)
+}
 
 const emitEventCopy = (selection: Selection) => {
   const clipboardObj = navigator.clipboard
@@ -91,7 +158,64 @@ const emitEventCopy = (selection: Selection) => {
   clipboardObj.writeText(text)
 }
 
-const highlightMarks = async () => {}
+const getCommentList = () => {
+  return inlineBookmarkDetail.value?.marks.mark_list
+    .filter(item => item.type === MarkType.COMMENT || item.type === MarkType.REPLY || item.type === MarkType.ORIGIN_COMMENT || item.type === MarkType.ORIGIN_LINE)
+    .map(item => ({
+      ...item,
+      parent: getCommentParent(item)
+    }))
+}
+
+const getCommentTime = (comment: MarkInfo) => {
+  const now = new Date()
+  const publishTime = new Date(comment.created_at)
+  const diffTime = now.getTime() - publishTime.getTime()
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  // xx小时前 / xx分钟前 / 刚刚
+  if (diffDays === 0) {
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60))
+    if (diffHours > 0) {
+      return `${diffHours} ${t('component.article_selection.hours_ago')}`
+    }
+    const diffMinutes = Math.floor(diffTime / (1000 * 60))
+    if (diffMinutes > 0) {
+      return `${diffMinutes} ${t('component.article_selection.minutes_ago')}`
+    }
+    return t('component.article_selection.just_now')
+  }
+  return publishTime.toDateString()
+}
+
+const getUserInfo = (userId: number) => {
+  return inlineBookmarkDetail.value?.marks.user_list[userId]
+}
+
+const getCommentParent = (comment: MarkInfo) => {
+  return inlineBookmarkDetail.value?.marks.mark_list.find(item => item.id === comment.parent_id)
+}
+
+const highlightMarks = async () => {
+  if (!iframeDocument.value!.body) return
+
+  articleSelection.value = new ArticleSelection({
+    shareCode: id,
+    allowAction: inlineBookmarkDetail.value?.share_info.allow_action || false,
+    ownerUserId: inlineBookmarkDetail.value?.owner_user_id || 0,
+    containerDom: iframeDocument.value!.body as HTMLDivElement,
+    monitorDom: iframeDocument.value!.body as HTMLDivElement,
+    currentSource: 'w',
+    postQuoteDataHandler: (data: QuoteData) => {
+      console.log('chatBotQuote', data)
+    }
+  })
+
+  if (inlineBookmarkDetail.value?.marks) {
+    articleSelection.value.drawMark(inlineBookmarkDetail.value?.marks)
+  }
+
+  articleSelection.value.startMonitor()
+}
 
 const loadInlineBookmarkDetail = async () => {
   const res = await request.get<InlineBookmarkDetail>({
@@ -105,9 +229,57 @@ const loadInlineBookmarkDetail = async () => {
   inlineBookmarkDetail.value = res
 }
 
-const emitEventStroke = (selection: Selection) => {}
+const emitEventStroke = async (selection: Selection) => {
+  console.log('emitEventStroke', selection)
 
-const emitEventComment = (selection: Selection) => {}
+  const approx = highlightRange.value!.getSelector(selection.getRangeAt(0))
+
+  // TODO 补上path路径
+  await articleSelection.value!.manager.strokeSelection({
+    info: {
+      id: getUUID(),
+      source: [],
+      stroke: [{ mark_id: 0, userId: user.value?.userId || 0 }],
+      comments: [],
+      type: MarkType.ORIGIN_LINE,
+      approx: approx
+    }
+  })
+}
+
+const emitEventComment = (selection: Selection) => {
+  const range = selection.getRangeAt(0)
+  const approx = highlightRange.value!.getSelector(range)
+
+  commentInputSelection.value = {
+    selectionText: selection.toString(),
+    path: '',
+    approx: approx
+  }
+}
+
+const submitComment = async () => {
+  if (!commentInputText.value) return
+
+  await articleSelection
+    .value!.manager.strokeSelection({
+      info: {
+        id: getUUID(),
+        source: [],
+        stroke: [{ mark_id: 0, userId: user.value?.userId || 0 }],
+        comments: [],
+        type: MarkType.ORIGIN_COMMENT,
+        approx: commentInputSelection.value?.approx ?? undefined
+      },
+      comment: commentInputText.value,
+      replyToId: replyQuoteComment.value?.id ?? undefined
+    })
+    .then(() => {
+      commentInputText.value = ''
+      replyQuoteComment.value = null
+      commentInputSelection.value = null
+    })
+}
 
 const handleEventMessage = (e: MessageEvent) => {
   const selection = iframeWindow.value!.getSelection()
@@ -153,11 +325,11 @@ const injectInlineScript = async () => {
     })
   }
 
-  const menus = new SelectionMenusElement({
+  menus.value = new SelectionMenusElement({
     allowAction: true
   })
   //@ts-ignore
-  menus.appear = true
+  menus.value.appear = true
 
   const innerDom = iframeDocument.value!.createElement('div')
   innerDom.style.cssText = 'position: relative; width: 100%; height: 0px; margin: 0px; padding: 0px; border: 0px;'
@@ -167,7 +339,7 @@ const injectInlineScript = async () => {
   const menusContainer = iframeDocument.value!.createElement('div')
   menusContainer.style.cssText = 'position: absolute;'
   innerDom.appendChild(menusContainer)
-  menusContainer.appendChild(menus)
+  menusContainer.appendChild(menus.value)
 
   // show menus when mouse up
   iframeDocument.value!.addEventListener(
@@ -199,6 +371,8 @@ const injectInlineScript = async () => {
 
   // get event message from iframe
   window.addEventListener('message', handleEventMessage)
+
+  highlightRange.value = new HighlightRange(window.document, iframeDocument.value!.body as HTMLElement)
 }
 
 const initInlineScript = async () => {
@@ -425,13 +599,6 @@ initInline()
   padding: 16px;
 }
 
-.comment-section .comment-list .comment-empty {
-  color: #999;
-  text-align: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-
 .comment-section .comment-input {
   padding: 16px;
   border-top: 1px solid #f0f0f0;
@@ -472,6 +639,269 @@ initInline()
 .list-loading-enter-from,
 .list-loading-leave-to {
   transform: translateY(-10px);
+}
+
+.comment-section .comment-list .comment-item {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-section .comment-list .comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-section .comment-list .comment-item-wrapper {
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.comment-section .comment-list .comment-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-section .comment-list .comment-item-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.comment-section .comment-list .comment-item-header-left img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 8px;
+  object-fit: cover;
+}
+
+.comment-section .comment-list .comment-item-header-left span {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.comment-section .comment-list .comment-item-header-right span {
+  font-size: 12px;
+  color: #999;
+}
+
+.comment-section .comment-list .comment-item-content {
+  margin-top: 8px;
+}
+
+.comment-section .comment-list .comment-item-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  word-break: break-word;
+}
+
+/* Reply styles */
+.comment-section .comment-list .comment-item-reply {
+  margin: 8px 0;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+}
+
+.comment-section .comment-list .comment-item-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.comment-section .comment-list .comment-item-reply-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.comment-section .comment-list .comment-item-reply-header-left img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 6px;
+  object-fit: cover;
+}
+
+.comment-section .comment-list .comment-item-reply-header-left span {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+.comment-section .comment-list .comment-item-reply-header-right span {
+  font-size: 11px;
+  color: #999;
+}
+
+.comment-section .comment-list .comment-item-reply-content {
+  margin-top: 8px;
+}
+
+.comment-section .comment-list .comment-item-reply-header .comment-item-content {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.comment-section .comment-list .comment-item-reply-header .comment-item-content p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #555;
+  font-style: italic;
+  word-break: break-word;
+  padding-left: 26px; /* Aligns with the username, accounting for avatar width + margin */
+}
+
+.comment-section .comment-list .comment-item-footer {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    visibility 0s,
+    opacity 0.2s ease;
+  margin-top: 8px;
+}
+
+.comment-section .comment-list .comment-item:hover .comment-item-footer {
+  visibility: visible;
+  opacity: 1;
+}
+
+.comment-section .comment-list .comment-item-footer-button {
+  background: none;
+  border: none;
+  color: #16b998;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-right: 8px;
+  border-radius: 4px;
+}
+
+.comment-section .comment-list .comment-item-footer-button:hover {
+  background-color: #f0f8f6;
+}
+
+.comment-section .comment-input .comment-input-quote {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  border-left: 3px solid #16b998;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.comment-section .comment-input .comment-input-quote-header {
+  flex: 1;
+}
+
+.comment-section .comment-input .comment-input-quote-header span {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.comment-section .comment-input .comment-input-quote-close {
+  margin-left: 8px;
+}
+
+.comment-section .comment-input .comment-input-quote-close-button {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  transition: background-color 0.2s ease;
+}
+
+.comment-section .comment-input .comment-input-quote-close-button:hover {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+.comment-section .comment-input .comment-input-quote-close-button i {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.comment-section .comment-input .comment-input-selection {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  border-left: 3px solid #16b998;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.comment-section .comment-input .comment-input-selection-header {
+  flex: 1;
+}
+
+.comment-section .comment-input .comment-input-selection-header span {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.comment-section .comment-input .comment-input-selection-close {
+  margin-left: 8px;
+}
+
+.comment-section .comment-input .comment-input-selection-close-button {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  transition: background-color 0.2s ease;
+}
+
+.comment-section .comment-input .comment-input-selection-close-button:hover {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+.comment-section .comment-input .comment-input-selection-close-button i {
+  font-size: 12px;
+  line-height: 1;
 }
 </style>
 

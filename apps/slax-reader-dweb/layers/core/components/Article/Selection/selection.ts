@@ -7,11 +7,11 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
-import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
+import { type MarkDetail, type MarkPathItem, MarkType } from '@commons/types/interface'
 
 export class ArticleSelection {
-  private monitor: SelectionMonitor
-  private manager: MarkManager
+  public monitor: SelectionMonitor
+  public manager: MarkManager
   private renderer: MarkRenderer
 
   constructor(config: SelectionConfig) {
@@ -105,9 +105,9 @@ export class ArticleSelection {
       }
 
       const currentMark = this.manager.currentMarkItemInfo
-      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
+      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark, source)) return
 
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
+      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx, type: MarkType.REPLY })
       this.manager.clearSelectContent()
 
       list.forEach(item => {

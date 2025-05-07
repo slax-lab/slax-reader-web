@@ -92,6 +92,23 @@ export interface BookmarkItem {
   type: 'shortcut' | 'article'
 }
 
+export interface BookmarkBriefDetail {
+  target_url: string
+  created_at: Date
+  updated_at: Date
+  title: string
+  host_url: string
+  site_name: string
+  content_icon: string
+  content_cover: string
+  content_word_count: number
+  description: string
+  byline: string
+  status: string
+  published_at: Date
+  marks: MarkDetail
+}
+
 export interface InlineBookmarkDetail {
   title: string
   target_url: string
@@ -102,6 +119,7 @@ export interface InlineBookmarkDetail {
     avatar: string
     show_userinfo: boolean
   }
+  owner_user_id: number
 }
 
 export interface ShareBookmarkDetail {

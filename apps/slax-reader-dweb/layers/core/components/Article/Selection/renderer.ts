@@ -69,7 +69,7 @@ export class MarkRenderer {
 
   addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
     if (range.startContainer === range.endContainer) {
-      this.addMark({
+      this.addMarkInline({
         ...baseInfo,
         node: range.startContainer,
         start: range.startOffset,
@@ -82,7 +82,7 @@ export class MarkRenderer {
 
     if (nodes.length > 0) {
       if (nodes[0] === range.startContainer) {
-        this.addMark({
+        this.addMarkInline({
           ...baseInfo,
           node: nodes[0],
           start: range.startOffset,
@@ -91,7 +91,7 @@ export class MarkRenderer {
       }
 
       for (let i = 1; i < nodes.length - 1; i++) {
-        this.addMark({
+        this.addMarkInline({
           ...baseInfo,
           node: nodes[i],
           start: 0,
@@ -100,7 +100,7 @@ export class MarkRenderer {
       }
 
       if (nodes.length > 1 && nodes[nodes.length - 1] === range.endContainer) {
-        this.addMark({
+        this.addMarkInline({
           ...baseInfo,
           node: nodes[nodes.length - 1],
           start: 0,
@@ -120,6 +120,17 @@ export class MarkRenderer {
           return NodeFilter.FILTER_REJECT
         }
 
+        let parent = node.parentNode
+        while (parent) {
+          if (parent.nodeType === Node.ELEMENT_NODE) {
+            const tagName = (parent as Element).tagName
+            if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(tagName)) {
+              return NodeFilter.FILTER_REJECT
+            }
+          }
+          parent = parent.parentNode
+        }
+
         const nodeRange = document.createRange()
         nodeRange.selectNode(node)
 
@@ -133,16 +144,108 @@ export class MarkRenderer {
     while ((node = walker.nextNode())) {
       if (node.textContent && node.textContent.trim() !== '') {
         nodes.push(node)
-        console.log('Found text node:', {
-          content: node.textContent,
-          parentNode: node.parentNode ? node.parentNode.nodeName : 'none',
-          nodeType: node.nodeType
-        })
       }
     }
 
-    console.log('Found nodes in range:', nodes.length)
     return nodes
+  }
+
+  addImageMarkInline(info: DrawMarkBaseInfo & { ele: HTMLImageElement }) {
+    const { id, ele, isStroke, isComment, isSelfStroke, isHighlighted } = info
+    const mark = document.createElement('slax-mark')
+    mark.dataset.uuid = id
+
+    mark.style.padding = '0'
+    mark.style.position = 'relative'
+    mark.style.display = 'inline-block'
+
+    if (isStroke) {
+      mark.classList.add('stroke')
+      mark.style.border = '2px solid #f6af69'
+    }
+
+    if (isComment) {
+      mark.classList.add('comment')
+      mark.style.border = '2px dashed #f6af69'
+    }
+
+    if (isSelfStroke) {
+      mark.classList.add('self-stroke')
+    }
+
+    if (isHighlighted) {
+      mark.classList.add('highlighted')
+      mark.style.backgroundColor = '#fcf4e8'
+    }
+
+    mark.style.position = 'relative'
+    const afterStyle = document.createElement('style')
+    afterStyle.textContent = `
+      slax-mark[data-uuid="${id}"]::after {
+        content: '···';
+        position: absolute;
+        height: 25px;
+        width: 25px;
+        padding-left: 0;
+        padding-right: 0;
+        border-radius: 50%;
+        background-color: #f6af69ee;
+        right: -5px;
+        top: -5px;
+        line-height: 25px;
+        color: #fff;
+        font-size: 15px;
+        text-align: center;
+        transition: transform 250ms;
+      }
+    `
+    document.head.appendChild(afterStyle)
+
+    mark.onclick = e => {
+      const target = e.target as HTMLElement
+      if (target && this._handleMarkClickHandler) this._handleMarkClickHandler(target)
+      e.stopPropagation()
+    }
+
+    ele.parentElement?.insertBefore(mark, ele)
+    ele.remove()
+    mark.appendChild(ele)
+  }
+
+  addMarkInline(info: DrawMarkBaseInfo & { node: Node; start: number; end: number }) {
+    const { id, node, start, end, isStroke, isComment, isSelfStroke, isHighlighted } = info
+    const range = document.createRange()
+    range.setStart(node, start)
+    range.setEnd(node, end)
+    const mark = document.createElement('slax-mark')
+    mark.dataset.uuid = id
+
+    mark.style.color = 'inherit'
+    mark.style.position = 'relative'
+    mark.style.transition = 'color 250ms'
+
+    if (isStroke) {
+      mark.classList.add('stroke')
+      mark.style.cursor = 'pointer'
+      mark.style.borderBottom = isSelfStroke ? '1.5px solid #f6af69' : '1.5px dashed #f6af69'
+    }
+
+    if (isComment) {
+      mark.classList.add('comment')
+      mark.style.cursor = 'pointer'
+      mark.style.borderBottom = '1.5px dashed #f6af69'
+    }
+
+    if (isSelfStroke) {
+      mark.classList.add('self-stroke')
+    }
+
+    if (isHighlighted) {
+      mark.classList.add('highlighted')
+      mark.style.backgroundColor = '#fcf4e8'
+    }
+
+    range.surroundContents(mark)
   }
 
   addMark(info: DrawMarkBaseInfo & { node: Node; start: number; end: number }) {
@@ -228,12 +331,12 @@ export class MarkRenderer {
   }
 
   getAllTextNodes(element: HTMLElement): Node[] {
-    const unsupportTags = ['UNSUPPORT-VIDEO']
+    const unsupportTags = ['UNSUPPORT-VIDEO', 'SCRIPT', 'STYLE', 'NOSCRIPT']
     const textNodes: Node[] = []
     const traverse = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         textNodes.push(node)
-      } else if (unsupportTags.indexOf(node.nodeName) === -1) {
+      } else if (node.nodeType === Node.ELEMENT_NODE && unsupportTags.indexOf((node as Element).tagName) === -1) {
         node.childNodes.forEach(child => traverse(child))
       }
     }

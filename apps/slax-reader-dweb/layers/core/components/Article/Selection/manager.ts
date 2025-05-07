@@ -39,10 +39,14 @@ export class MarkManager {
 
   async drawMarks(marks: MarkDetail) {
     const userMap = this.createUserMap(marks.user_list)
+    console.log(`marks.mark_list`, marks.mark_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
     this._markItemInfos = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    await this.renderAllMarks()
+    console.log('drawMarks', this._markItemInfos)
+    for (const info of this._markItemInfos) {
+      await this.renderer.drawMark(info)
+    }
   }
 
   async strokeSelection(meta: StrokeSelectionMeta) {
@@ -52,9 +56,11 @@ export class MarkManager {
     const markItems = info.source
     const userInfo = useUserStore().userInfo
 
-    if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
-      return info.id
-    }
+    // TODO 需要检查这个逻辑修复的具体内容是什么
+    // if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
+    //   console.log('strokeSelection return info.id', info.id)
+    //   return info.id
+    // }
 
     const infoItem = info
     const replyToComment = replyToId && replyToId !== 0 ? this.findCommentById(replyToId, infoItem) : null
@@ -236,6 +242,7 @@ export class MarkManager {
   }
 
   checkMarkSourceIsSame(mark1: MarkPathItem[], mark2: MarkPathItem[]) {
+    // TODO: 需要使其兼容approx的情况
     if (mark1.length !== mark2.length) return false
 
     for (let i = 0; i < mark1.length; i++) {
@@ -395,12 +402,6 @@ export class MarkManager {
     this._selectContent.value = []
   }
 
-  private async renderAllMarks() {
-    for (const info of this._markItemInfos) {
-      await this.renderer.drawMark(info)
-    }
-  }
-
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
@@ -476,11 +477,13 @@ export class MarkManager {
       const userId = mark.user_id
       const source = mark.source
       if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
+      if ((mark.type === MarkType.ORIGIN_LINE || mark.type === MarkType.ORIGIN_COMMENT) && !mark.approx_source) continue
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
+
       if (!markInfoItem) {
-        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
+        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source, type: mark.type }
         infoItems.push(markInfoItem)
       }
 
