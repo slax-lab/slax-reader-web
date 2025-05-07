@@ -105,7 +105,7 @@ export class ArticleSelection {
       }
 
       const currentMark = this.manager.currentMarkItemInfo
-      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark, source)) return
+      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
       this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx, type: MarkType.REPLY })
       this.manager.clearSelectContent()
