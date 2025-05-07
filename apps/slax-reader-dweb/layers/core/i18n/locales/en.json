@@ -594,6 +594,7 @@
       "import_third_party_data": "Import third-party data",
       "import_time": "Import time",
       "language": "Language:",
+      "ai_language": "AI Response Language:",
       "language_en": "En",
       "language_zh": "Chinese",
       "my_subscriptions": "My subscriptions",

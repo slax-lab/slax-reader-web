@@ -331,6 +331,7 @@ export interface UserDetailInfo {
   share_collect: UserShareCollectInfo
   stripe_connect: StripeAccountInfo
   aff_code?: string
+  ai_lang: string
 }
 
 export interface UserShareCollectInfo {
