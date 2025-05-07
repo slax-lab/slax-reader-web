@@ -155,7 +155,7 @@
       }
     },
     "user": {
-      "language": "语言:",
+      "language": "界面语言:",
       "personal_info": "个人信息",
       "subscription_preferences": "订阅偏好",
       "subscription_description": "订阅后，您可以体验完整的 AI 功能，包括内容解析和 AI 助手",
