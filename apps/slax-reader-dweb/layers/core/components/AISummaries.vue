@@ -5,11 +5,13 @@
       <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
         <span>{{ $t('common.operate.summary_refresh') }}</span>
       </button>
-      <i class="seperator"></i>
-      <button class="close" @click="closeModal">
-        <img v-if="!isDark()" src="@images/button-dialog-close.png" />
-        <img v-else src="@images/button-dialog-close-dark.png" />
-      </button>
+      <template v-if="!closeButtonHidden">
+        <i class="seperator"></i>
+        <button class="close" @click="closeModal">
+          <img v-if="!isDark()" src="@images/button-dialog-close.png" />
+          <img v-else src="@images/button-dialog-close-dark.png" />
+        </button>
+      </template>
     </div>
     <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
       <div class="header">
@@ -113,6 +115,10 @@ const props = defineProps({
     type: String
   },
   isAppeared: {
+    required: false,
+    type: Boolean
+  },
+  closeButtonHidden: {
     required: false,
     type: Boolean
   }

@@ -7,7 +7,7 @@
         <img v-else src="@images/panel-item-chatbot-dark.png" alt="" />
         <span>{{ $t('component.chat_bot.hello') }}</span>
       </div>
-      <button class="close" @click="closeModal">
+      <button v-if="!closeButtonHidden" class="close" @click="closeModal">
         <img v-if="!isDark()" src="@images/button-dialog-close.png" />
         <img v-else src="@images/button-dialog-close-dark.png" />
       </button>
@@ -87,6 +87,10 @@ const props = defineProps({
     required: false
   },
   isAppeared: {
+    required: false,
+    type: Boolean
+  },
+  closeButtonHidden: {
     required: false,
     type: Boolean
   }

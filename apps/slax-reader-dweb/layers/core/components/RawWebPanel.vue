@@ -4,12 +4,26 @@
       <div v-if="showPanel" class="sidecontent-wrapper" ref="sidecontent" :style="showPanel && contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
         <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
-          <div class="sidebar-content">
-            <div class="dark px-20px py-4px">
-              <AISummaries :isAppeared="showPanel" :content-selector="'body'" @navigated-text="() => false" />
+          <div class="sidebar-wrapper">
+            <div class="sidebar-content">
+              <Transition name="opacity">
+                <div v-show="selectedType === PanelItemType.AI" class="dark px-20px py-4px">
+                  <AISummaries :is-appeared="showPanel && selectedType === PanelItemType.AI" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
+                </div>
+              </Transition>
+              <Transition name="opacity">
+                <div v-show="selectedType === PanelItemType.Chat" class="dark size-full">
+                  <ChatBot :is-appeared="showPanel && selectedType === PanelItemType.Chat" :close-button-hidden="true" ref="chatbot" />
+                </div>
+              </Transition>
             </div>
           </div>
           <div class="sidebar-panel">
+            <div class="operate-button top">
+              <button class="close" @click="showPanel = false">
+                <img src="@images/button-dialog-close-dark.png" />
+              </button>
+            </div>
             <div class="panel-buttons">
               <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
                 <button @click="panelClick(panel.type)">
@@ -26,6 +40,11 @@
                   </div>
                 </button>
               </div>
+            </div>
+            <div class="operate-button bottom">
+              <button class="feedback" @click="feedbackClick">
+                <img src="@images/button-feedback-icon-dark.png" />
+              </button>
             </div>
           </div>
         </div>
@@ -49,8 +68,10 @@
 
 <script lang="ts" setup>
 import AISummaries from '#layers/core/components/AISummaries.vue'
+import ChatBot from '#layers/core/components/Chat/ChatBot.vue'
 
 import { type Position, useDraggable } from '@vueuse/core'
+import { showShareConfigModal } from '#layers/core/components/Modal'
 
 enum PanelItemType {
   'AI' = 'ai',
@@ -68,6 +89,7 @@ interface PanelItem {
 }
 
 const emits = defineEmits(['isDragging'])
+const { t } = useI18n()
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
@@ -119,13 +141,33 @@ watch(
 )
 
 const panelClick = async (type: PanelItemType) => {
+  if (type === PanelItemType.Share) {
+    showShareConfigModal({
+      bookmarkId: 0,
+      title: 'test'
+    })
+
+    return
+  }
+
+  if (selectedType.value === type) {
+    showPanel.value = !showPanel.value
+    return
+  }
+
   selectedType.value = type
-  showPanel.value = !showPanel.value
-  // if (type === 'ai') {
-  //   showPanel.value = !showPanel.value
-  // } else {
-  //   showPanel.value = false
-  // }
+  showPanel.value = true
+}
+
+const feedbackClick = () => {
+  showFeedbackView(
+    {
+      type: BookmarkType.Normal,
+      title: t('page.bookmarks_detail.no_title'),
+      bmId: 0
+    },
+    'bookmark'
+  )
 }
 </script>
 
@@ -151,6 +193,36 @@ const panelClick = async (type: PanelItemType) => {
     .sidebar-panel {
       --style: absolute top-0 right-0 h-full w-48px border-l-(1px solid #ffffff0f) flex items-center justify-between;
       --style: 'dark:bg-red';
+
+      .operate-button {
+        --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center overflow-hidden;
+
+        &.top {
+          --style: top-27px;
+        }
+
+        &.bottom {
+          --style: bottom-24px;
+        }
+
+        button {
+          --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+        }
+
+        .close {
+          --style: size-16px flex-center;
+          img {
+            --style: w-full select-none;
+          }
+        }
+
+        .feedback {
+          --style: size-24px flex-center;
+          img {
+            --style: w-full select-none;
+          }
+        }
+      }
 
       .panel-buttons {
         --style: border-t-(1px solid #ffffff0f) border-b-(1px solid #ffffff0f) py-16px w-full;
@@ -196,8 +268,12 @@ const panelClick = async (type: PanelItemType) => {
       }
     }
 
-    .sidebar-content {
-      --style: h-full pr-48px overflow-auto;
+    .sidebar-wrapper {
+      --style: h-full pr-48px flex flex-col;
+
+      .sidebar-content {
+        --style: size-full overflow-auto;
+      }
     }
   }
 }
