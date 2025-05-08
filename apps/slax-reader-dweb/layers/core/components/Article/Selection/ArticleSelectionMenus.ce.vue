@@ -1,7 +1,14 @@
 <template>
   <Transition name="opacity" @after-leave="onAfterLeave">
     <div :class="{ dark: dark }" v-show="appear">
-      <div class="article-selection-menus" v-on-click-outside="handleClickOutside">
+      <div
+        class="article-selection-menus"
+        v-click-outside="{
+          handler: handleClickOutside,
+          exclude: () => [articleSelectionMenus]
+        }"
+        ref="articleSelectionMenus"
+      >
         <button class="menu" v-for="menu in menus" :key="menu.id" @click="e => handleClick(menu.id, e)">
           <img :src="menu.icon" />
           <span>{{ menu.name }}</span>
@@ -12,11 +19,12 @@
 </template>
 
 <script lang="ts" setup>
+import { ClickOutside } from '@commons/utils/directive'
+
 import { MenuType } from './type'
-import { vOnClickOutside } from '@vueuse/components'
+// import { vOnClickOutside } from '@vueuse/components'
 import { showLoginModal } from '#layers/core/components/Modal'
 import { useUserStore } from '#layers/core/stores/user'
-
 interface MenuItem {
   id: MenuType
   name: string
@@ -34,6 +42,9 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['action', 'dismiss', 'noAction'])
+
+const vClickOutside = ClickOutside
+const articleSelectionMenus = useTemplateRef('articleSelectionMenus')
 const menus = ref<MenuItem[]>([])
 const appear = ref(false)
 
