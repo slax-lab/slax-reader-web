@@ -4,7 +4,11 @@ const isValidId = (id: string) => {
 }
 
 export const getElementFullSelector = (element: HTMLElement, ignoreEles?: string[], baseParentEle?: Element) => {
-  if (!(element instanceof Element)) {
+  if (!element.ownerDocument.defaultView) {
+    return ''
+  }
+
+  if (!(element instanceof element.ownerDocument.defaultView.Element)) {
     return ''
   }
 
