@@ -1,7 +1,6 @@
 import { defineCustomElement } from 'vue'
 
 import PhotoSwiperDots from './PhotoSwiperDots.ce.vue'
-import SelectionMenus from './SelectionMenus.ce.vue'
 import TweetFooterInfo from './tweet/TweetFooterInfo.ce.vue'
 import TweetUserInfo from './tweet/TweetUserInfo.ce.vue'
 import UnsupportedVideo from './UnsupportedVideo.ce.vue'
@@ -25,8 +24,7 @@ export const registerComponents = () => {
     'unsupported-video': UnsupportedVideoElement,
     'photo-swiper-dots': PhotoSwiperDotsElement,
     'tweet-user-info': TweetUserInfoElement,
-    'twwet-footer-info': TweetFooterInfoElement,
-    'selection-menus': SelectionMenusElement
+    'twwet-footer-info': TweetFooterInfoElement
   }
 
   Object.entries(refs).forEach(([key, value]) => {
@@ -45,4 +43,3 @@ export const UnsupportedVideoElement = defineCustomElement(UnsupportedVideo)
 export const PhotoSwiperDotsElement = defineCustomElement(PhotoSwiperDots)
 export const TweetUserInfoElement = defineCustomElement(TweetUserInfo)
 export const TweetFooterInfoElement = defineCustomElement(TweetFooterInfo)
-export const SelectionMenusElement = defineCustomElement(SelectionMenus)
