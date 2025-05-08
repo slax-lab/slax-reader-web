@@ -42,6 +42,16 @@
   </div>
 </template>
 
+<script lang="ts">
+const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
+  const { children, ...detail } = comment
+  return {
+    ...detail,
+    children: children.map(convertComment)
+  }
+}
+</script>
+
 <script lang="ts" setup>
 import ArticleCommentCell from './ArticleCommentCell.vue'
 
@@ -61,6 +71,14 @@ const props = defineProps({
     required: true,
     type: Object as PropType<MarkCommentInfo[]>
   },
+  infos: {
+    required: false,
+    type: Object as PropType<MarkItemInfo[]>
+  },
+  currentInfo: {
+    required: false,
+    type: Object as PropType<MarkItemInfo>
+  },
   bookmarkUserId: {
     required: true,
     type: Number
@@ -76,7 +94,7 @@ const emits = defineEmits(['action'])
 const { t } = useI18n()
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = ref(t('component.article_selection.placeholder'))
-const markComments = ref<MarkCommentInfo[]>([])
+const markComments = ref<MarkCommentInfo[]>(props.comments.map(item => convertComment(item)))
 const compositionAppear = ref(false)
 const textarea = ref<HTMLTextAreaElement>()
 const commentsWrapper = ref<HTMLDivElement>()
@@ -111,7 +129,7 @@ watch(
     }
   },
   {
-    deep: true
+    // deep: true
   }
 )
 
@@ -192,14 +210,6 @@ const handleInput = () => {
 
   textarea.value.style.height = '22px'
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
-}
-
-const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
-  const { children, ...detail } = comment
-  return {
-    ...detail,
-    children: children.map(convertComment)
-  }
 }
 
 const replyComment = (options: { replyToId: number; comment: string }) => {
