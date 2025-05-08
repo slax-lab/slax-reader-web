@@ -38,7 +38,7 @@
         <div class="quote">
           <template v-if="showQuoteImage">
             <i v-if="!isDark()" class="img bg-[url('@images/tiny-image-icon.png')]"></i>
-            <i v-else class="img bg-[url('@images/tiny-image-icon-dark.png')]"></i>
+            <i v-else class="img bg-[url('@images/tiny-image-icon.png')]"></i>
           </template>
           <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
         </div>
@@ -670,7 +670,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 .chat-bot {
-  --style: relative w-full h-full flex flex-col justify-stretch items-center overflow-hidden z-3 rounded-4;
+  --style: w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4;
   --style: 'bg-#fcfcfc dark:bg-#262626';
 
   .dark-trigger {
