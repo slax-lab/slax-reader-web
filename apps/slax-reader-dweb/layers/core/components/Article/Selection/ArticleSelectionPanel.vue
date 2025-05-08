@@ -1,49 +1,56 @@
 <template>
   <Transition name="opacity" @afterLeave="onAfterLeave">
-    <div class="article-selection-comment" v-show="appear" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
-      <div class="header">
-        <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
-        <button class="close" @click="closeModal">
-          <img src="@images/button-dialog-close.png" />
-        </button>
-      </div>
-      <div class="menus" v-if="info.id">
-        <button class="menu" v-for="menu in menus" :key="menu.id" @click="e => handleClick(menu.id, e)">
-          <img :src="menu.icon" />
-          <span>{{ menu.name }}</span>
-        </button>
-      </div>
-      <div class="comments" v-if="markComments.length > 0">
-        <div class="comments-wrapper" :style="commentsHeight ? { 'max-height': `${commentsHeight}px` } : {}" ref="commentsWrapper">
-          <TransitionGroup name="opacity">
-            <ArticleCommentCell
-              v-for="(comment, index) in markComments"
-              :key="index"
-              :comment="comment"
-              :bookmarkUserId="bookmarkUserId"
-              @replyComment="replyComment"
-              @commentDelete="commentDelete"
-            />
-          </TransitionGroup>
+    <div :class="{ dark }" v-show="appear">
+      <div class="article-selection-comment" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
+        <div class="header">
+          <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
+          <button class="close" @click="closeModal">
+            <img v-if="!dark" src="@images/button-dialog-close.png" />
+            <img v-else src="@images/button-dialog-close-dark.png" />
+          </button>
         </div>
-      </div>
-      <Transition name="input">
-        <div class="comment-input" v-show="showInput">
-          <div class="comment-input-wrapper">
-            <textarea
-              ref="textarea"
-              v-model="inputText"
-              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-              :placeholder="textareaPlaceholder"
-              @compositionstart="compositionstart"
-              @compositionend="compositionend"
-              @input="handleInput"
-            >
-            </textarea>
-            <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
+        <div class="menus" v-if="info.id">
+          <button class="menu" v-for="menu in menus" :key="menu.id" @click="e => handleClick(menu.id, e)">
+            <img :src="menu.icon" />
+            <span>{{ menu.name }}</span>
+          </button>
+        </div>
+        <div class="comments" v-if="markComments.length > 0">
+          <div class="comments-wrapper" :style="commentsHeight ? { 'max-height': `${commentsHeight}px` } : {}" ref="commentsWrapper">
+            <TransitionGroup name="opacity">
+              <ArticleCommentCell
+                v-for="(comment, index) in markComments"
+                :key="index"
+                :comment="comment"
+                :bookmarkUserId="bookmarkUserId"
+                @replyComment="replyComment"
+                @commentDelete="commentDelete"
+              />
+            </TransitionGroup>
           </div>
         </div>
-      </Transition>
+        <Transition name="input">
+          <div class="comment-input" v-show="showInput">
+            <div class="comment-input-wrapper">
+              <textarea
+                ref="textarea"
+                v-model="inputText"
+                v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+                :placeholder="textareaPlaceholder"
+                @compositionstart="compositionstart"
+                @compositionend="compositionend"
+                @input="handleInput"
+              >
+              </textarea>
+              <button
+                :class="{ disabled: !sendable }"
+                class="bg-[url('@images/button-tiny-send.png')] dark:bg-[url('@images/button-tiny-send-dark.png')]"
+                @click="sendMessage"
+              ></button>
+            </div>
+          </div>
+        </Transition>
+      </div>
     </div>
   </Transition>
 </template>
@@ -86,6 +93,10 @@ const props = defineProps({
   allowAction: {
     required: true,
     type: Boolean
+  },
+  dark: {
+    type: Boolean,
+    required: false
   }
 })
 
@@ -113,7 +124,7 @@ const menus = computed<MenuItem[]>(() => {
     {
       id: MenuType.Copy,
       name: t('common.operate.copy'),
-      icon: new URL('@images/menu-copy-icon.png', import.meta.url).href
+      icon: !props.dark ? new URL('@images/menu-copy-icon.png', import.meta.url).href : new URL('@images/menu-copy-icon-dark.png', import.meta.url).href
     }
   ]
 
@@ -124,17 +135,17 @@ const menus = computed<MenuItem[]>(() => {
           ? {
               id: MenuType.Stroke_Delete,
               name: t('common.operate.delete_line'),
-              icon: new URL('@images/menu-stroke-delete-icon.png', import.meta.url).href
+              icon: !props.dark ? new URL('@images/menu-stroke-delete-icon.png', import.meta.url).href : new URL('@images/menu-stroke-delete-icon-dark.png', import.meta.url).href
             }
           : {
               id: MenuType.Stroke,
               name: t('common.operate.line'),
-              icon: new URL('@images/menu-stroke-icon.png', import.meta.url).href
+              icon: !props.dark ? new URL('@images/menu-stroke-icon.png', import.meta.url).href : new URL('@images/menu-stroke-icon-dark.png', import.meta.url).href
             },
         {
           id: MenuType.Comment,
           name: t('common.operate.comment'),
-          icon: new URL('@images/menu-comment-icon.png', import.meta.url).href
+          icon: !props.dark ? new URL('@images/menu-comment-icon.png', import.meta.url).href : new URL('@images/menu-comment-icon-dark.png', import.meta.url).href
         }
       ]
     )
@@ -143,7 +154,7 @@ const menus = computed<MenuItem[]>(() => {
   menus.push({
     id: MenuType.Chatbot,
     name: t('common.operate.chatbot'),
-    icon: new URL('@images/menu-chatbot-icon.png', import.meta.url).href
+    icon: !props.dark ? new URL('@images/menu-chatbot-icon.png', import.meta.url).href : new URL('@images/menu-chatbot-icon-dark.png', import.meta.url).href
   })
 
   return menus
@@ -383,12 +394,14 @@ defineExpose({
 
 <style lang="scss" scoped>
 .article-selection-comment {
-  --style: w-400px max-w-screen px-16px pt-20px pb-16px bg-#f5f5f3 rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
+  --style: w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
+  --style: 'bg-#f5f5f3 dark:bg-#262626';
 
   .header {
     --style: relative text-align-center min-h-11px;
     span {
-      --style: text-(16px #333) line-height-16px font-600;
+      --style: text-(16px) line-height-16px font-600;
+      --style: 'text-#333 dark:text-#ffffff66';
     }
 
     .close {
@@ -400,17 +413,23 @@ defineExpose({
   }
 
   .menus {
-    --style: mt-22px p-4px bg-#fcfcfc rounded-8px flex items-center;
+    --style: mt-22px p-4px rounded-8px flex items-center;
+    --style: 'bg-#fcfcfc dark:bg-#333333';
 
     .menu {
-      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center hover:(bg-#f5f5f3) active:(scale-105) transition-all duration-250';
+      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-250';
+
+      &:hover {
+        --style: 'bg-#f5f5f3 dark:bg-#262626';
+      }
 
       img {
         --style: w-24px h-24px object-fit;
       }
 
       span {
-        --style: mt-6px text-(13px #999) line-height-18px;
+        --style: mt-6px text-(13px) line-height-18px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
   }
@@ -418,12 +437,17 @@ defineExpose({
   .comment-input {
     --style: mt-10px max-h-300px overflow-hidden;
     .comment-input-wrapper {
-      --style: pl-16px pt-16px pr-20px pb-14px w-full relative bg-#fff border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between;
+      --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between;
+      --style: 'bg-#fff dark:bg-#1a1a1aff';
+
       textarea {
-        --style: resize-none min-h-40px max-h-200px text-(16px #333) line-height-24px;
+        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px;
+        --style: 'text-#333 dark:text-#ffffffcc';
+
         &::placeholder,
         &::-webkit-input-placeholder {
-          --style: text-(16px #999) line-height-24px;
+          --style: text-(16px) line-height-24px;
+          --style: 'text-#999 dark:text-#ffffff66';
         }
       }
 
@@ -460,7 +484,8 @@ defineExpose({
 
       &::before,
       &::after {
-        --style: z-2 content-empty absolute h-6px w-full left-0 from-#F5F5F3 to-transprent;
+        --style: z-2 content-empty absolute h-6px w-full left-0 to-transprent;
+        --style: 'from-#F5F5F3 dark:from-#262626';
       }
 
       &::before {
