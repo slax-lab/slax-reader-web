@@ -1,23 +1,27 @@
 import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
 
 import type { QuoteData } from '../../Chat/type'
+import { Base } from './base'
 import { MarkManager } from './manager'
-import SelectionModal from './modal'
+import { MarkModal } from './modal'
 import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
 import { type MarkDetail, type MarkPathItem, MarkType } from '@commons/types/interface'
 
-export class ArticleSelection {
+export class ArticleSelection extends Base {
   public monitor: SelectionMonitor
   public manager: MarkManager
   private renderer: MarkRenderer
+  private modal: MarkModal
 
   constructor(config: SelectionConfig) {
-    this.renderer = new MarkRenderer(config)
-    this.manager = new MarkManager(config, this.renderer, this.findQuote.bind(this))
-    this.monitor = new SelectionMonitor(config.monitorDom, this.handleMouseUp.bind(this))
+    super(config)
+    this.modal = new MarkModal(this.config)
+    this.renderer = new MarkRenderer(this.config)
+    this.manager = new MarkManager(this.config, this.renderer, this.modal, this.findQuote.bind(this))
+    this.monitor = new SelectionMonitor(this.config, this.handleMouseUp.bind(this))
   }
 
   startMonitor() {
@@ -34,12 +38,12 @@ export class ArticleSelection {
 
   findQuote(quote: QuoteData) {
     if (quote.source.selection) {
-      const selection = window.getSelection()
+      const selection = this.getSelection()
       selection?.removeAllRanges()
       selection?.addRange(quote.source.selection)
       quote.source.selection.startContainer.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
     } else if (quote.source.paths) {
-      Array.from(document.querySelectorAll(`slax-mark[data-uuid="0"]`) || []).forEach(removeOuterTag)
+      Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="0"]`) || []).forEach(removeOuterTag)
       const baseInfo = { id: '0', isStroke: false, isComment: false, isSelfStroke: false, isHighlighted: true }
       for (const markItem of quote.source.paths) {
         const infos = this.renderer.transferNodeInfos(markItem)
@@ -52,7 +56,7 @@ export class ArticleSelection {
         }
       }
 
-      const slaxMarks = Array.from(document.querySelectorAll(`slax-mark[data-uuid="0"]`))
+      const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="0"]`))
       if (slaxMarks.length === 0) return
 
       slaxMarks[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
@@ -62,7 +66,7 @@ export class ArticleSelection {
       }
       ;['mousedown', 'touchstart'].forEach(event => this.config.monitorDom?.addEventListener(event, clickHandler))
     } else {
-      const slaxMarks = Array.from(document.querySelectorAll(`slax-mark[data-uuid="${quote.source.id}"]`))
+      const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="${quote.source.id}"]`))
       if (slaxMarks.length === 0) return
 
       slaxMarks.forEach(mark => mark.classList.add('highlighted'))
@@ -80,11 +84,11 @@ export class ArticleSelection {
     this.monitor.clearMouseListenerTry()
 
     setTimeout(() => {
-      if (SelectionModal.isPanelExist(this.config.containerDom!)) {
+      if (this.modal.isPanelExist(this.config.containerDom!)) {
         return
       }
 
-      const selection = window.getSelection()
+      const selection = this.getSelection()
       if (!selection || !selection.rangeCount) {
         this.manager.updateCurrentMarkItemInfo(null)
         return
@@ -130,9 +134,7 @@ export class ArticleSelection {
       })
 
       let menusY = 0
-      SelectionModal.showMenus({
-        container: this.config.containerDom!,
-        allowAction: this.config.allowAction,
+      this.modal.showMenus({
         event: e,
         callback: (type: MenuType, event: MouseEvent) => {
           const currentInfo = this.manager.currentMarkItemInfo
@@ -148,7 +150,7 @@ export class ArticleSelection {
             this.manager.showPanel({ fallbackYOffset: menusY })
           } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
             const quote: QuoteData = { source: {}, data: this.manager.createQuote(currentInfo.source) }
-            const selection = window.getSelection()
+            const selection = this.getSelection()
             const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
             const selected = this.manager.getElementsList(range!)
 
@@ -177,7 +179,7 @@ export class ArticleSelection {
 
   private getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
     const markItems: MarkPathItem[] = []
-    const ele = this.config.monitorDom?.querySelector('.html-text')
+    const ele = !this.config.iframe ? this.config.monitorDom?.querySelector('.html-text') : null
     for (const info of infos) {
       if (info.type === 'text') {
         const selector = getElementFullSelector(info.node!.parentElement!, ['slax-mark'], ele!) // 假设存在此方法
@@ -202,17 +204,17 @@ export class ArticleSelection {
   }
 
   private clearSelection() {
-    const selection = window.getSelection()
+    const selection = this.getSelection()
     if (selection) selection.removeAllRanges()
     this.manager.updateCurrentMarkItemInfo(null)
     this.manager.clearSelectContent()
   }
 
-  get isMonitoring() {
-    return this.monitor.isMonitoring
+  private getSelection() {
+    return this.window.getSelection()
   }
 
-  private get config() {
-    return this.renderer.config
+  get isMonitoring() {
+    return this.monitor.isMonitoring
   }
 }

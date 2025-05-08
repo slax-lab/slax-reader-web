@@ -1,7 +1,8 @@
 import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 
 import type { QuoteData } from '../../Chat/type'
-import SelectionModal from './modal'
+import { Base } from './base'
+import { MarkModal } from './modal'
 import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
 import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
@@ -20,7 +21,7 @@ import CursorToast from '#layers/core/components/CursorToast'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 import { useUserStore } from '#layers/core/stores/user'
 
-export class MarkManager {
+export class MarkManager extends Base {
   private _markItemInfos: MarkItemInfo[] = []
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
@@ -28,13 +29,15 @@ export class MarkManager {
   private _highlightRange: HighlightRange
 
   constructor(
-    private config: SelectionConfig,
+    config: SelectionConfig,
     private renderer: MarkRenderer,
+    private modal: MarkModal,
     findQuote: (quote: QuoteData) => void
   ) {
+    super(config)
     this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
     this._findQuote = findQuote
-    this._highlightRange = new HighlightRange(document)
+    this._highlightRange = new HighlightRange(this.document)
   }
 
   async drawMarks(marks: MarkDetail) {
@@ -215,7 +218,7 @@ export class MarkManager {
       const infos = this.renderer.transferNodeInfos(markItem)
       for (const info of infos) {
         if (info.type === 'image') continue
-        const range = document.createRange()
+        const range = this.document.createRange()
         range.setStart(info.node, info.start)
         range.setEnd(info.node, info.end)
 
@@ -269,33 +272,33 @@ export class MarkManager {
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
 
-    const currentMarkItemInfo = this._currentMarkItemInfo.value
-    SelectionModal.showPanel({
-      container: this.config.containerDom!,
-      articleDom: this.config.monitorDom!,
-      info: this._currentMarkItemInfo.value,
-      bookmarkUserId: this.config.ownerUserId,
-      allowAction: this.config.allowAction,
-      fallbackYOffset: options?.fallbackYOffset || 0,
-      actionCallback: (type, meta) => {
-        if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
-        else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
-        else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
-        else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
-        else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
-          this.config.postQuoteDataHandler(quote)
-          this._findQuote(quote)
+    if (!this.config.iframe) {
+      const currentMarkItemInfo = this._currentMarkItemInfo.value
+      this.modal.showPanel({
+        info: this._currentMarkItemInfo.value,
+        fallbackYOffset: options?.fallbackYOffset || 0,
+        actionCallback: (type, meta) => {
+          if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
+          else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
+          else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
+          else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
+          else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
+            const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
+            this.config.postQuoteDataHandler(quote)
+            this._findQuote(quote)
+          }
+        },
+        commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
+        dismissCallback: () => {
+          if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
+            this.updateCurrentMarkItemInfo(null)
+            this.clearSelectContent()
+          }
         }
-      },
-      commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
-      dismissCallback: () => {
-        if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
-          this.updateCurrentMarkItemInfo(null)
-          this.clearSelectContent()
-        }
-      }
-    })
+      })
+    } else if (this.config.showPanelHandler) {
+      this.config.showPanelHandler(this._markItemInfos, this._currentMarkItemInfo.value)
+    }
   }
 
   createQuote(items: MarkPathItem[]): QuoteData['data'] {
@@ -309,7 +312,7 @@ export class MarkManager {
       const text = infos
         .map(info => {
           if (info.type === 'image') return ''
-          const range = document.createRange()
+          const range = this.document.createRange()
           range.setStart(info.node, info.start)
           range.setEnd(info.node, info.end)
           return range.toString()
@@ -346,7 +349,7 @@ export class MarkManager {
     const selectedInfo: SelectTextInfo[] = []
 
     const isNodeFullyInRange = (node: Node) => {
-      const nodeRange = document.createRange()
+      const nodeRange = this.document.createRange()
       nodeRange.selectNodeContents(node)
       return range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
     }
@@ -519,7 +522,7 @@ export class MarkManager {
       // 这里兼容无approx的数据
 
       try {
-        const walker = document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
+        const walker = this.document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
 
         let firstTextNode: Text | null = null
         let lastTextNode: Text | null = null
@@ -530,7 +533,7 @@ export class MarkManager {
         }
 
         if (firstTextNode && lastTextNode) {
-          const range = document.createRange()
+          const range = this.document.createRange()
           range.setStart(firstTextNode, 0)
           range.setEnd(lastTextNode, lastTextNode.length)
 
@@ -545,15 +548,15 @@ export class MarkManager {
     this.showPanel()
   }
 
+  getMarkItemInfos() {
+    return this._markItemInfos
+  }
+
   get currentMarkItemInfo() {
     return this._currentMarkItemInfo.value
   }
 
   get selectContent() {
     return this._selectContent.value
-  }
-
-  getMarkItemInfos() {
-    return this._markItemInfos
   }
 }
