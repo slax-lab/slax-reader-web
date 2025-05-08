@@ -1,10 +1,12 @@
 <template>
   <Transition name="opacity" @after-leave="onAfterLeave">
-    <div class="article-selection-menus" v-show="appear" v-on-click-outside="handleClickOutside">
-      <button class="menu" v-for="menu in menus" :key="menu.id" @click="e => handleClick(menu.id, e)">
-        <img :src="menu.icon" />
-        <span>{{ menu.name }}</span>
-      </button>
+    <div :class="{ dark: dark }" v-show="appear">
+      <div class="article-selection-menus" v-on-click-outside="handleClickOutside">
+        <button class="menu" v-for="menu in menus" :key="menu.id" @click="e => handleClick(menu.id, e)">
+          <img :src="menu.icon" />
+          <span>{{ menu.name }}</span>
+        </button>
+      </div>
     </div>
   </Transition>
 </template>
@@ -21,7 +23,16 @@ interface MenuItem {
   icon: string
 }
 
-const props = defineProps(['allowAction'])
+const props = defineProps({
+  allowAction: {
+    type: Boolean,
+    required: false
+  },
+  dark: {
+    type: Boolean,
+    required: false
+  }
+})
 const emits = defineEmits(['action', 'dismiss', 'noAction'])
 const menus = ref<MenuItem[]>([])
 const appear = ref(false)
@@ -35,7 +46,7 @@ const updateMenus = () => {
     {
       id: MenuType.Copy,
       name: t('common.operate.copy'),
-      icon: new URL('@images/menu-copy-icon.png', import.meta.url).href
+      icon: !props.dark ? new URL('@images/menu-copy-icon.png', import.meta.url).href : new URL('@images/menu-copy-icon-dark.png', import.meta.url).href
     }
   ]
   if (props.allowAction) {
@@ -44,12 +55,12 @@ const updateMenus = () => {
         {
           id: MenuType.Stroke,
           name: t('common.operate.line'),
-          icon: new URL('@images/menu-stroke-icon.png', import.meta.url).href
+          icon: !props.dark ? new URL('@images/menu-stroke-icon.png', import.meta.url).href : new URL('@images/menu-stroke-icon-dark.png', import.meta.url).href
         },
         {
           id: MenuType.Comment,
           name: t('common.operate.comment'),
-          icon: new URL('@images/menu-comment-icon.png', import.meta.url).href
+          icon: !props.dark ? new URL('@images/menu-comment-icon.png', import.meta.url).href : new URL('@images/menu-comment-icon-dark.png', import.meta.url).href
         }
       ]
     )
@@ -58,7 +69,7 @@ const updateMenus = () => {
   menus.value.push({
     id: MenuType.Chatbot,
     name: t('common.operate.chatbot'),
-    icon: new URL('@images/menu-chatbot-icon.png', import.meta.url).href
+    icon: !props.dark ? new URL('@images/menu-chatbot-icon.png', import.meta.url).href : new URL('@images/menu-chatbot-icon-dark.png', import.meta.url).href
   })
 }
 
@@ -97,18 +108,26 @@ onUnmounted(() => {})
 </script>
 
 <style lang="scss" scoped>
+@use '#layers/core/styles/global.scss' as *;
+
 .article-selection-menus {
-  --style: p-4px bg-#fff shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center;
+  --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center;
+  --style: ' bg-#fff dark:bg-#333333FF';
 
   .menu {
     --style: 'px-12px py-8px rounded-6px cursor-pointer flex items-center hover:(bg-#f5f5f3) active:(scale-105) transition-all duration-250';
+
+    &:hover {
+      --style: 'bg-#f5f5f3 dark:bg-#262626';
+    }
 
     img {
       --style: w-24px h-24px object-fit;
     }
 
     span {
-      --style: ml-2px text-(13px #999) line-height-18px shrink-0;
+      --style: ml-2px text-(13px) line-height-18px shrink-0;
+      --style: 'text-#999 dark:text-#ffffff66';
     }
   }
 }

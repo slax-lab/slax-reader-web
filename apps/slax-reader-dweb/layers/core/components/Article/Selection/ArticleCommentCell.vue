@@ -15,8 +15,15 @@
         <span class="date">{{ showCreateTime(comment) }}</span>
         <div class="operates" v-if="comment.markId !== 0 && !comment.loading">
           <template v-if="!comment.operateLoading">
-            <button class="reply-btn group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
-            <button class="delete-btn group-hover/comment:!opacity-100" v-if="canDeleteComment(comment)" @click="commentDeleteClick(comment)"></button>
+            <button
+              class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
+              @click="replyComment(comment)"
+            ></button>
+            <button
+              class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/comment:!opacity-100"
+              v-if="canDeleteComment(comment)"
+              @click="commentDeleteClick(comment)"
+            ></button>
           </template>
           <div class="i-svg-spinners:180-ring-with-bg ml-10px text-16px text-#999" v-else-if="comment.operateLoading"></div>
         </div>
@@ -39,9 +46,12 @@
             <span class="date">{{ showCreateTime(comment) }}</span>
             <div class="operates" v-if="childComment.markId !== 0 && !childComment.loading">
               <template v-if="!childComment.operateLoading">
-                <button class="reply-btn group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
                 <button
-                  class="delete-btn group-hover/child:!opacity-100"
+                  class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/child:!opacity-100"
+                  @click="replyComment(childComment)"
+                ></button>
+                <button
+                  class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/child:!opacity-100"
                   v-if="!childComment.isDeleted && canDeleteComment(childComment)"
                   @click="commentDeleteClick(childComment)"
                 ></button>
@@ -141,7 +151,8 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 
 <style lang="scss" scoped>
 .article-comment-cell {
-  --style: 'px-16px pt-16px pb-20px rounded-8px bg-#fff not-first:mt-8px';
+  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px';
+  --style: 'bg-#fff dark:bg-#333333FF';
 
   .comment-header {
     --style: flex justify-between items-center;
@@ -153,7 +164,8 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       }
 
       span {
-        --style: ml-8px text-(13px #999) line-height-18px;
+        --style: ml-8px text-(13px) line-height-18px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
 
@@ -167,28 +179,22 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   }
 
   .comment-content {
-    --style: text-(16px #333) line-height-24px whitespace-pre-line;
+    --style: text-(16px) line-height-24px whitespace-pre-line;
+    --style: 'text-#333 dark:text-#ffffffcc';
   }
 
   .comment-footer {
     --style: mt-4px flex items-center justify-between;
 
     .date {
-      --style: text-(13px #999) line-height-18px select-none;
+      --style: text-(13px) line-height-18px select-none;
+      --style: 'text-#999 dark:text-#999999ff';
     }
 
     .operates {
       --style: flex-center;
       button {
         --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-250';
-      }
-
-      .reply-btn {
-        background-image: url('@images/tiny-comment-icon.png');
-      }
-
-      .delete-btn {
-        background-image: url('@images/tiny-delete-red-outline-icon.png');
       }
     }
   }
@@ -202,20 +208,19 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       .child-comment-content {
         --style: text-(14px) line-height-22px whitespace-pre-line;
 
-        .child-username {
-          --style: text-#999 select-none;
+        .child-username,
+        .parent-username {
+          --style: select-none;
+          --style: 'text-#999 dark:text-#FFFFFF66';
         }
 
         .reply-text {
-          --style: text-#333 select-none;
-        }
-
-        .parent-username {
-          --style: text-#999 select-none;
+          --style: select-none;
+          --style: 'text-#333 dark:text-#FFFFFFCC';
         }
 
         .comment-content-text {
-          --style: text-#333;
+          --style: 'text-#333 dark:text-#FFFFFFCC';
         }
       }
     }
