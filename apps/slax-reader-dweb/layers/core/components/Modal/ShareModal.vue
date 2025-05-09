@@ -44,6 +44,13 @@
   </div>
 </template>
 
+<script lang="ts">
+export enum ShareModalType {
+  Bookmark = 'bookmark',
+  Original = 'original'
+}
+</script>
+
 <script lang="ts" setup>
 import { copyText } from '@commons/utils/string'
 
@@ -60,6 +67,11 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+  type: {
+    required: false,
+    type: String,
+    default: ShareModalType.Bookmark
   }
 })
 
@@ -216,7 +228,8 @@ const closeShare = async () => {
 }
 
 const getShareUrl = (hashcode: string) => {
-  return `${$config.SHARE_BASE_URL}/s/${hashcode}`
+  const concatString = props.type === ShareModalType.Original ? 'sw' : 's'
+  return `${$config.SHARE_BASE_URL}/${concatString}/${hashcode}`
 }
 
 const closeModal = () => {

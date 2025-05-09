@@ -168,18 +168,6 @@ watch(
 )
 
 watch(
-  () => props.isAppeared,
-  value => {
-    if (value && !loading.value && !done.value) {
-      checkAndLoadSummaries()
-    }
-  },
-  {
-    flush: 'sync'
-  }
-)
-
-watch(
   () => loading.value,
   (value, oldValue) => {
     if (value === oldValue) {
@@ -566,6 +554,19 @@ const copyContent = async () => {
 const closeModal = () => {
   emits('dismiss')
 }
+
+watch(
+  () => props.isAppeared,
+  value => {
+    if (value && !loading.value && !done.value) {
+      checkAndLoadSummaries()
+    }
+  },
+  {
+    flush: 'sync',
+    immediate: true
+  }
+)
 </script>
 
 <style lang="scss" scoped>

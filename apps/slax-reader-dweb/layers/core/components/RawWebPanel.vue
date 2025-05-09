@@ -80,6 +80,12 @@ interface PanelItem {
   hovered: boolean
 }
 
+const props = defineProps({
+  enableShare: {
+    type: Boolean,
+    default: false
+  }
+})
 const emits = defineEmits(['isDragging', 'selectedTypeUpdate'])
 
 const minContentWidth = 500
@@ -105,15 +111,18 @@ const panelItems = ref<PanelItem[]>([
     selectedIcon: new URL('@images/panel-item-chatbot-selected-dark.png', import.meta.url).href,
     title: 'Chat',
     hovered: false
-  },
-  {
+  }
+])
+
+if (props.enableShare) {
+  panelItems.value.push({
     type: PanelItemType.Share,
     icon: new URL('@images/panel-item-share-dark.png', import.meta.url).href,
     highlighedIcon: new URL('@images/panel-item-share-highlighted-dark.png', import.meta.url).href,
     title: 'Share',
     hovered: false
-  }
-])
+  })
+}
 
 const { isDragging } = useDraggable(draggble, {
   onMove: (position: Position) => {
@@ -271,6 +280,11 @@ const feedbackClick = () => {
 
       .sidebar-content {
         --style: size-full overflow-auto;
+
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          --style: hidden;
+        }
       }
     }
   }

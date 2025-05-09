@@ -2,7 +2,7 @@ import EditName from './EditName.vue'
 import EditTag from './EditTag.vue'
 import Feedback from './Feedback.vue'
 import LoginModal from './LoginModal.vue'
-import ShareModal from './ShareModal.vue'
+import ShareModal, { ShareModalType } from './ShareModal.vue'
 
 export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number> }) => {
   const app = modalBootloader({
@@ -70,12 +70,13 @@ export const showLoginModal = (options: { redirect?: string }) => {
   })
 }
 
-export const showShareConfigModal = (options: { bookmarkId: number; title: string }) => {
+export const showShareConfigModal = (options: { bookmarkId: number; title: string; type?: ShareModalType }) => {
   const app = modalBootloader({
     ele: ShareModal,
     props: {
       bookmarkId: options.bookmarkId,
       title: options.title,
+      type: options.type || ShareModalType.Bookmark,
       onDismiss: () => {
         app.unmount()
         app._container?.remove()
