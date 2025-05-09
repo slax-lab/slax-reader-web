@@ -53,7 +53,7 @@ const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
 </script>
 
 <script lang="ts" setup>
-import ArticleCommentCell from './ArticleCommentCell.vue'
+import ArticleCommentCell from './ArticleCommentCell.ce.vue'
 
 import { type MarkCommentInfo, type MarkItemInfo } from './type'
 import { vOnKeyStroke } from '@vueuse/components'

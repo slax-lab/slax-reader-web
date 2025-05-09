@@ -6,16 +6,8 @@
         <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
           <div class="sidebar-wrapper">
             <div class="sidebar-content">
-              <Transition name="opacity">
-                <div v-show="selectedType === PanelItemType.AI" class="dark px-20px py-4px">
-                  <AISummaries :is-appeared="showPanel && selectedType === PanelItemType.AI" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
-                </div>
-              </Transition>
-              <Transition name="opacity">
-                <div v-show="selectedType === PanelItemType.Chat" class="dark size-full">
-                  <ChatBot :is-appeared="showPanel && selectedType === PanelItemType.Chat" :close-button-hidden="true" ref="chatbot" />
-                </div>
-              </Transition>
+              <slot name="ai"></slot>
+              <slot name="chat"></slot>
             </div>
           </div>
           <div class="sidebar-panel">
@@ -66,18 +58,18 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import AISummaries from '#layers/core/components/AISummaries.vue'
-import ChatBot from '#layers/core/components/Chat/ChatBot.vue'
-
-import { type Position, useDraggable } from '@vueuse/core'
-import { showShareConfigModal } from '#layers/core/components/Modal'
-
-enum PanelItemType {
+<script lang="ts">
+export enum PanelItemType {
   'AI' = 'ai',
   'Chat' = 'chat',
-  'Share' = 'share'
+  'Share' = 'share',
+  'Comment' = 'comment',
+  'Feedback' = 'feedback'
 }
+</script>
+
+<script lang="ts" setup>
+import { type Position, useDraggable } from '@vueuse/core'
 
 interface PanelItem {
   type: PanelItemType
@@ -88,8 +80,7 @@ interface PanelItem {
   hovered: boolean
 }
 
-const emits = defineEmits(['isDragging'])
-const { t } = useI18n()
+const emits = defineEmits(['isDragging', 'selectedTypeUpdate'])
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
@@ -140,13 +131,26 @@ watch(
   }
 )
 
+watch(
+  () => showPanel.value,
+  val => {
+    if (!val) {
+      selectedType.value = ''
+    }
+  }
+)
+
+watch(
+  () => selectedType.value,
+  val => {
+    emits('selectedTypeUpdate', val)
+  }
+)
+
 const panelClick = async (type: PanelItemType) => {
   if (type === PanelItemType.Share) {
-    showShareConfigModal({
-      bookmarkId: 0,
-      title: 'test'
-    })
-
+    selectedType.value = ''
+    selectedType.value = type
     return
   }
 
@@ -160,24 +164,18 @@ const panelClick = async (type: PanelItemType) => {
 }
 
 const feedbackClick = () => {
-  showFeedbackView(
-    {
-      type: BookmarkType.Normal,
-      title: t('page.bookmarks_detail.no_title'),
-      bmId: 0
-    },
-    'bookmark'
-  )
+  selectedType.value = PanelItemType.Feedback
 }
 </script>
 
 <style lang="scss" scoped>
 .raw-web-panel {
-  --style: h-full relatie;
+  --style: h-full relative;
 }
 
 .sidecontent-wrapper {
-  --style: w-0 h-full bg-#262626 relative z-2;
+  --style: w-0 h-full bg-#262626 z-2;
+  --style: 'max-md:(absolute right-0) md:(relative)';
 
   .drag {
     --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
@@ -280,7 +278,7 @@ const feedbackClick = () => {
 
 .raw-web-panel {
   .web-sidebar {
-    --style: z-1 absolute right-0px top-1/2 -translate-y-1/2 w-52px h-144px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+    --style: z-1 absolute right-0px top-1/2 -translate-y-1/2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
 
     &::before {
       --style: content-empty absolute left-full top-0 w-10px h-full bg-#262626;

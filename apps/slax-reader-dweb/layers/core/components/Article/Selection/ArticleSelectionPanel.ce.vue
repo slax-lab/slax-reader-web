@@ -157,7 +157,6 @@ const onUpdatePositionHandler = (position: Position) => {
 }
 
 const updateLocation = (pos: Position) => {
-  console.log('updateLocation', pos)
   position.value.x = pos.x
   position.value.y = pos.y
 
@@ -493,10 +492,10 @@ defineExpose({
     --style: mt-10px max-h-300px overflow-hidden;
     .comment-input-wrapper {
       --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between;
-      --style: 'bg-#fff dark:bg-#1a1a1aff';
+      --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1a1a1aff border-#1a1a1aff)';
 
       textarea {
-        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px;
+        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px bg-transparent;
         --style: 'text-#333 dark:text-#ffffffcc';
 
         &::placeholder,
