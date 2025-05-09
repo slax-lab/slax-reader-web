@@ -8,7 +8,16 @@ import { createStyleWithSearchRules } from '@commons/utils/dom'
 import { Base } from './base'
 import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
 
-const styleElement = createStyleWithSearchRules(['.i-svg-', '.bg-['])
+let styleElement: HTMLStyleElement | null = null
+const checkStyleElement = () => {
+  if (!styleElement) {
+    createStyleWithSearchRules(['.i-svg-', '.bg-[']).then(style => {
+      styleElement = style
+    })
+  }
+}
+
+checkStyleElement()
 
 const ArticleSelectionMenusElement = defineCustomElement(ArticleSelectionMenus)
 const ArticleSelectionPanelElement = defineCustomElement(ArticleSelectionPanel)
@@ -20,6 +29,15 @@ const panelKey = `slax-reader-article-selection-panel-container`
 
 const isNullRect = (rect: DOMRect) => {
   return !rect || (rect.width === 0 && rect.height === 0 && rect.top === 0 && rect.left === 0)
+}
+
+const resetElement = (element: HTMLElement) => {
+  element.style.padding = '0px'
+  element.style.border = '0px'
+  element.style.width = 'auto'
+  element.style.height = 'auto'
+  element.style.background = 'transparent'
+  element.style.backgroundColor = 'transparent'
 }
 
 export class MarkModal extends Base {
@@ -65,11 +83,7 @@ export class MarkModal extends Base {
         bgDom = this.document.createElement('div')
         bgDom.classList.add(`${menusKey}-bg`)
         bgDom.style.position = 'relative'
-        bgDom.style.width = '100%'
-        bgDom.style.height = '0px'
-        bgDom.style.margin = '0px'
-        bgDom.style.padding = '0px'
-        bgDom.style.border = '0px'
+        resetElement(bgDom)
         this.document.documentElement.insertBefore(bgDom, this.document.body)
       }
 
@@ -82,13 +96,7 @@ export class MarkModal extends Base {
       articleSelectionMenus.classList.add(menusKey)
       articleSelectionMenus.style.zIndex = '999'
       articleSelectionMenus.style.position = 'absolute'
-      articleSelectionMenus.style.padding = '0px'
-      articleSelectionMenus.style.border = '0px'
-      articleSelectionMenus.style.width = 'auto'
-      articleSelectionMenus.style.height = 'auto'
-      articleSelectionMenus.style.background = 'transparent'
-      articleSelectionMenus.style.backgroundColor = 'transparent'
-
+      resetElement(articleSelectionMenus)
       bgDom.appendChild(articleSelectionMenus)
     }
 
@@ -194,6 +202,8 @@ export class MarkModal extends Base {
     commentDeleteCallback?: (id: string, markId: number) => void
     dismissCallback?: () => void
   }) => {
+    checkStyleElement()
+
     const { info, actionCallback, commentDeleteCallback, dismissCallback } = options
     const { containerDom, allowAction, ownerUserId } = this.config
     if (!containerDom) {
@@ -211,6 +221,7 @@ export class MarkModal extends Base {
     articleSelectionPanel.classList.add(panelKey)
     articleSelectionPanel.style.setProperty('z-index', `${999}`)
     articleSelectionPanel.style.setProperty('position', isFixedPosition ? 'fixed' : `absolute`)
+    resetElement(articleSelectionPanel)
 
     containerDom.appendChild(articleSelectionPanel)
 
@@ -219,13 +230,17 @@ export class MarkModal extends Base {
     let panel: InstanceType<typeof ArticleSelectionPanel> | null = null
 
     const getIdealOffset = (position: { x: number; y: number }) => {
+      const bodyRect = this.document.body.getBoundingClientRect()
       const panelRect = articleSelectionPanel.getBoundingClientRect()
+
+      const biasOffsetX = isFixedPosition ? this.window.scrollX + bodyRect.left : 0
+      const biasOffsetY = isFixedPosition ? this.window.scrollY + bodyRect.top : 0
 
       let { x, y } = position
       const panelWidth = panelRect.width || 400
       const panelHeight = panelRect.height || 300
-      const screenWidth = this.window.innerWidth
-      const screenHeight = this.window.innerHeight
+      const screenWidth = this.window.innerWidth - biasOffsetY
+      const screenHeight = this.window.innerHeight - biasOffsetX
       if (x + panelWidth > screenWidth) {
         x = screenWidth - panelWidth
       }
@@ -245,6 +260,7 @@ export class MarkModal extends Base {
       const panelRect = articleSelectionPanel.getBoundingClientRect()
 
       if (!isFixedPosition) {
+        // TODO: 这里运算后续可以用 updateLocation 整合起来
         if (panelRect && articleRect) {
           let offsetX = articleRect.width + 60
           if (articleRect.left + offsetX + panelRect.width > window.innerWidth) {
@@ -269,11 +285,14 @@ export class MarkModal extends Base {
           }
         }
       } else {
-        const position = getIdealOffset({ x: panelRect.left, y: panelRect.y })
+        const biasOffsetX = isFixedPosition ? this.window.scrollX + containerRect.left : 0
+        const biasOffsetY = isFixedPosition ? this.window.scrollY + containerRect.top : 0
+
+        const position = getIdealOffset({ x: panelRect.left - biasOffsetX, y: panelRect.y - biasOffsetY })
         panel?.updateLocation(position)
       }
 
-      panel?.maxHeightUpdate(Math.min(containerRect.height, innerHeight * 0.8))
+      panel?.maxHeightUpdate(Math.min(containerRect.top + containerRect.height, innerHeight * 0.8))
     }
 
     const panelElement = new ArticleSelectionPanelElement({
@@ -335,18 +354,35 @@ export class MarkModal extends Base {
       const range = selection.getRangeAt(0)
       const rect = range?.getBoundingClientRect()
       const containerRect = containerDom.getBoundingClientRect()
-
       const isZeroRect = isNullRect(rect)
-      if (isZeroRect && range.startContainer instanceof HTMLElement) {
-        topOffset = range.startContainer.getBoundingClientRect().top - containerRect.top + 10
-      } else if (!isZeroRect) {
-        topOffset = rect.top - containerRect.top - 50
-      }
 
-      if (isZeroRect && range.startContainer instanceof HTMLElement) {
-        leftOffset = range.startContainer.getBoundingClientRect().left + 10
-      } else if (!isZeroRect) {
-        leftOffset = rect.left - 50
+      if (!isFixedPosition) {
+        if (isZeroRect && range.startContainer instanceof HTMLElement) {
+          topOffset = range.startContainer.getBoundingClientRect().top - containerRect.top + 10
+        } else if (!isZeroRect) {
+          topOffset = rect.top - containerRect.top - 50
+        }
+
+        if (isZeroRect && range.startContainer instanceof HTMLElement) {
+          leftOffset = range.startContainer.getBoundingClientRect().left + 10
+        } else if (!isZeroRect) {
+          leftOffset = rect.left - 50
+        }
+      } else {
+        const biasOffsetX = this.window.scrollX + containerRect.left
+        const biasOffsetY = this.window.scrollY + containerRect.top
+
+        if (isZeroRect && range.startContainer instanceof HTMLElement) {
+          topOffset = range.startContainer.getBoundingClientRect().top - biasOffsetY - 10
+        } else if (!isZeroRect) {
+          topOffset = rect.top - biasOffsetY + 50
+        }
+
+        if (isZeroRect && range.startContainer instanceof HTMLElement) {
+          leftOffset = range.startContainer.getBoundingClientRect().left - biasOffsetX + 10
+        } else if (!isZeroRect) {
+          leftOffset = rect.left - biasOffsetX - 50
+        }
       }
     }
 
@@ -369,7 +405,7 @@ export class MarkModal extends Base {
         panel.positionConfirmedHandler()
       }
 
-      panelElement.shadowRoot?.appendChild(styleElement)
+      styleElement && panelElement.shadowRoot?.appendChild(styleElement)
     })
   }
 }

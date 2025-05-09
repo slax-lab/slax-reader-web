@@ -71,7 +71,7 @@ export class MarkRenderer extends Base {
   }
 
   addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
-    const markHandler = this.config.iframe ? this.addMarkInline.bind(this) : this.addMark.bind(this)
+    const markHandler = this.addMark.bind(this)
 
     if (range.startContainer === range.endContainer) {
       markHandler({
