@@ -1,13 +1,19 @@
-import { createApp, defineCustomElement } from 'vue'
+import { defineCustomElement } from 'vue'
 
 import ArticleSelectionMenus from './ArticleSelectionMenus.ce.vue'
-import ArticleSelectionPanel from './ArticleSelectionPanel.vue'
+import ArticleSelectionPanel from './ArticleSelectionPanel.ce.vue'
+
+import { createStyleWithSearchRules } from '@commons/utils/dom'
 
 import { Base } from './base'
 import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
 
+const styleElement = createStyleWithSearchRules(['.i-svg-', '.bg-['])
+
 const ArticleSelectionMenusElement = defineCustomElement(ArticleSelectionMenus)
+const ArticleSelectionPanelElement = defineCustomElement(ArticleSelectionPanel)
 customElements.define('article-seletion-menus', ArticleSelectionMenusElement)
+customElements.define('article-seletion-panel', ArticleSelectionPanelElement)
 
 const menusKey = `slax-reader-article-selection-menus-container`
 const panelKey = `slax-reader-article-selection-panel-container`
@@ -180,6 +186,7 @@ export class MarkModal extends Base {
     })
   }
 
+  // TODO: 这里的逻辑需要优化
   showPanel = (options: {
     info: MarkItemInfo
     fallbackYOffset: number
@@ -198,10 +205,12 @@ export class MarkModal extends Base {
       articleSelectionPanel.remove()
     }
 
+    const isFixedPosition = !!this.config.iframe
+
     articleSelectionPanel = this.document.createElement('div')
     articleSelectionPanel.classList.add(panelKey)
     articleSelectionPanel.style.setProperty('z-index', `${999}`)
-    articleSelectionPanel.style.setProperty('position', `absolute`)
+    articleSelectionPanel.style.setProperty('position', isFixedPosition ? 'fixed' : `absolute`)
 
     containerDom.appendChild(articleSelectionPanel)
 
@@ -209,63 +218,117 @@ export class MarkModal extends Base {
     let initedTopHeight = 0
     let panel: InstanceType<typeof ArticleSelectionPanel> | null = null
 
+    const getIdealOffset = (position: { x: number; y: number }) => {
+      const panelRect = articleSelectionPanel.getBoundingClientRect()
+
+      let { x, y } = position
+      const panelWidth = panelRect.width || 400
+      const panelHeight = panelRect.height || 300
+      const screenWidth = this.window.innerWidth
+      const screenHeight = this.window.innerHeight
+      if (x + panelWidth > screenWidth) {
+        x = screenWidth - panelWidth
+      }
+
+      if (y + panelHeight > screenHeight) {
+        y = screenHeight - panelHeight
+      }
+
+      return { x, y }
+    }
+
     // 因为有不止一处用到这块逻辑因此抽离出来
     const updatePanelOffset = () => {
-      const innerHeight = window.innerHeight
+      const innerHeight = this.window.innerHeight
       const containerRect = containerDom.getBoundingClientRect()
-      const panelRect = articleSelectionPanel.getBoundingClientRect()
       const articleRect = containerDom.getBoundingClientRect()
-      if (panelRect && articleRect) {
-        let offsetX = articleRect.width + 60
-        if (articleRect.left + offsetX + panelRect.width > window.innerWidth) {
-          offsetX -= articleRect.left + offsetX + panelRect.width - window.innerWidth
-        }
+      const panelRect = articleSelectionPanel.getBoundingClientRect()
 
-        articleSelectionPanel.style.setProperty('left', `${offsetX}px`)
+      if (!isFixedPosition) {
+        if (panelRect && articleRect) {
+          let offsetX = articleRect.width + 60
+          if (articleRect.left + offsetX + panelRect.width > window.innerWidth) {
+            offsetX -= articleRect.left + offsetX + panelRect.width - window.innerWidth
+          }
 
-        if (panelRect.top + panelRect.height > containerRect.top + containerRect.height) {
-          const topOffset = Math.max(0, containerRect.height - panelRect.height)
-          articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
-        } else {
-          if (panelRect.top - containerRect.top !== initedTopHeight) {
-            const isOverflowBefore = initedTopHeight + containerRect.top + panelRect.height > containerRect.top + containerRect.height
-            if (isOverflowBefore) {
-              const topOffset = Math.max(0, containerRect.height - panelRect.height)
-              articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
-            } else {
-              articleSelectionPanel.style.setProperty('top', `${initedTopHeight}px`)
+          articleSelectionPanel.style.setProperty('left', `${offsetX}px`)
+
+          if (panelRect.top + panelRect.height > containerRect.top + containerRect.height) {
+            const topOffset = Math.max(0, containerRect.height - panelRect.height)
+            articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
+          } else {
+            if (panelRect.top - containerRect.top !== initedTopHeight) {
+              const isOverflowBefore = initedTopHeight + containerRect.top + panelRect.height > containerRect.top + containerRect.height
+              if (isOverflowBefore) {
+                const topOffset = Math.max(0, containerRect.height - panelRect.height)
+                articleSelectionPanel.style.setProperty('top', `${topOffset}px`)
+              } else {
+                articleSelectionPanel.style.setProperty('top', `${initedTopHeight}px`)
+              }
             }
           }
         }
+      } else {
+        const position = getIdealOffset({ x: panelRect.left, y: panelRect.y })
+        panel?.updateLocation(position)
       }
 
       panel?.maxHeightUpdate(Math.min(containerRect.height, innerHeight * 0.8))
     }
 
-    const app = createApp(ArticleSelectionPanel, {
+    const panelElement = new ArticleSelectionPanelElement({
       info,
-      ownerUserId,
+      bookmarkUserId: ownerUserId,
       allowAction,
-      onDismiss: () => {
-        app.unmount()
-        articleSelectionPanel.remove()
-        dismissCallback && dismissCallback()
-      },
-      onAction: (type: MenuType, meta: { comment: string; info: MarkItemInfo; event: MouseEvent }) => {
-        actionCallback && actionCallback(type, meta)
-      },
-      onCommentDelete: (params: { id: string; markId: number }) => {
-        commentDeleteCallback && commentDeleteCallback(params.id, params.markId)
-      },
-      onWindowResize: () => {
-        updatePanelOffset()
-      }
+      dark: !!this.config.iframe,
+      allowDrag: !!this.config.iframe
     })
 
-    panel = app.mount(articleSelectionPanel) as InstanceType<typeof ArticleSelectionPanel>
-    const selection = window.getSelection()
+    const onDismiss = () => {
+      articleSelectionPanel.remove()
+      dismissCallback && dismissCallback()
+    }
+    const onAction = (type: MenuType, meta: { comment: string; info: MarkItemInfo; event: MouseEvent }) => {
+      actionCallback && actionCallback(type, meta)
+    }
+
+    const onCommentDelete = (params: { id: string; markId: number }) => {
+      commentDeleteCallback && commentDeleteCallback(params.id, params.markId)
+    }
+
+    const onWindowResize = () => {
+      updatePanelOffset()
+    }
+
+    const onLocationUpdate = (params: { x: number; y: number }) => {
+      const { x, y } = params
+      articleSelectionPanel.style.setProperty('top', `${y}px`)
+      articleSelectionPanel.style.setProperty('left', `${x}px`)
+    }
+
+    panelElement.addEventListener('dismiss', onDismiss)
+    panelElement.addEventListener('action', (e: Event) => {
+      const customEvent = e as CustomEvent<[MenuType, { comment: string; info: MarkItemInfo; event: MouseEvent }]>
+      onAction(customEvent.detail[0], customEvent.detail[1])
+    })
+
+    panelElement.addEventListener('commentDelete', (e: Event) => {
+      const customEvent = e as CustomEvent<[{ id: string; markId: number }]>
+      onCommentDelete(customEvent.detail[0])
+    })
+
+    panelElement.addEventListener('windowResize', onWindowResize)
+    panelElement.addEventListener('locationUpdate', (e: Event) => {
+      const customEvent = e as CustomEvent<[{ x: number; y: number }]>
+      onLocationUpdate(customEvent.detail[0])
+    })
+
+    articleSelectionPanel.appendChild(panelElement)
+    panel = panelElement as unknown as InstanceType<typeof ArticleSelectionPanel>
+    const selection = this.window.getSelection()
 
     let topOffset = 0
+    let leftOffset = 0
     if (!selection || !selection.rangeCount) {
       topOffset = options.fallbackYOffset
     } else {
@@ -279,16 +342,34 @@ export class MarkModal extends Base {
       } else if (!isZeroRect) {
         topOffset = rect.top - containerRect.top - 50
       }
+
+      if (isZeroRect && range.startContainer instanceof HTMLElement) {
+        leftOffset = range.startContainer.getBoundingClientRect().left + 10
+      } else if (!isZeroRect) {
+        leftOffset = rect.left - 50
+      }
     }
 
-    initedTopHeight = topOffset
-    const top = topOffset > 0 ? `${topOffset}px` : ''
-    articleSelectionPanel.style.setProperty('top', top)
+    if (!isFixedPosition) {
+      initedTopHeight = topOffset
+      const top = topOffset > 0 ? `${topOffset}px` : ''
+      articleSelectionPanel.style.setProperty('top', top)
+    }
 
     nextTick(() => {
-      updatePanelOffset()
+      if (isFixedPosition) {
+        const panelRect = articleSelectionPanel.getBoundingClientRect()
+        leftOffset = Math.max(0, leftOffset - (panelRect.width * 1) / 4)
 
-      panel.positionConfirmedHandler()
+        const position = getIdealOffset({ x: leftOffset, y: topOffset })
+
+        panel.updateLocation(position)
+      } else {
+        updatePanelOffset()
+        panel.positionConfirmedHandler()
+      }
+
+      panelElement.shadowRoot?.appendChild(styleElement)
     })
   }
 }

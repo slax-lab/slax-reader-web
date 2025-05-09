@@ -50,9 +50,7 @@ export interface SelectionConfig {
   ownerUserId: number
   allowAction: boolean
   iframe?: HTMLIFrameElement
-  showPanelHandler?: (markItemInfos: MarkItemInfo[], currentMarkItemInfo: MarkItemInfo) => void
   postQuoteDataHandler: (data: QuoteData) => void
-  currentSource: 's' | 'w'
 }
 
 export interface StrokeSelectionMeta {

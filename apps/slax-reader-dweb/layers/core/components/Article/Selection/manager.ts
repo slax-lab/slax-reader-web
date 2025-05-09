@@ -106,7 +106,17 @@ export class MarkManager extends Base {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.COMMENT) : MarkType.LINE
+    const getType = (type: 'comment' | 'reply' | 'line') => {
+      if (type === 'comment') {
+        return !!this.config.iframe ? MarkType.ORIGIN_COMMENT : MarkType.COMMENT
+      } else if (type === 'reply') {
+        return MarkType.REPLY
+      } else {
+        return !!this.config.iframe ? MarkType.ORIGIN_LINE : MarkType.LINE
+      }
+    }
+
+    const markType = commentItem ? (replyToId ? getType('reply') : getType('comment')) : getType('line')
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
     const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
@@ -272,33 +282,29 @@ export class MarkManager extends Base {
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
 
-    if (!this.config.iframe) {
-      const currentMarkItemInfo = this._currentMarkItemInfo.value
-      this.modal.showPanel({
-        info: this._currentMarkItemInfo.value,
-        fallbackYOffset: options?.fallbackYOffset || 0,
-        actionCallback: (type, meta) => {
-          if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
-          else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
-          else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
-          else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
-          else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-            const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
-            this.config.postQuoteDataHandler(quote)
-            this._findQuote(quote)
-          }
-        },
-        commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
-        dismissCallback: () => {
-          if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
-            this.updateCurrentMarkItemInfo(null)
-            this.clearSelectContent()
-          }
+    const currentMarkItemInfo = this._currentMarkItemInfo.value
+    this.modal.showPanel({
+      info: this._currentMarkItemInfo.value,
+      fallbackYOffset: options?.fallbackYOffset || 0,
+      actionCallback: (type, meta) => {
+        if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
+        else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
+        else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
+        else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
+        else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
+          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
+          this.config.postQuoteDataHandler(quote)
+          this._findQuote(quote)
         }
-      })
-    } else if (this.config.showPanelHandler) {
-      this.config.showPanelHandler(this._markItemInfos, this._currentMarkItemInfo.value)
-    }
+      },
+      commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
+      dismissCallback: () => {
+        if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
+          this.updateCurrentMarkItemInfo(null)
+          this.clearSelectContent()
+        }
+      }
+    })
   }
 
   createQuote(items: MarkPathItem[]): QuoteData['data'] {
@@ -434,7 +440,7 @@ export class MarkManager extends Base {
   private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<number, MarkCommentInfo> {
     const commentMap = new Map<number, MarkCommentInfo>()
     for (const mark of markList) {
-      if (mark.type === MarkType.COMMENT || mark.type === MarkType.REPLY || mark.type === MarkType.ORIGIN_COMMENT) {
+      if ([MarkType.COMMENT, MarkType.REPLY, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = {
           markId: mark.id,
           comment: mark.comment,
@@ -480,7 +486,7 @@ export class MarkManager extends Base {
       const userId = mark.user_id
       const source = mark.source
       if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
-      if ((mark.type === MarkType.ORIGIN_LINE || mark.type === MarkType.ORIGIN_COMMENT) && !mark.approx_source) continue
+      if ([MarkType.ORIGIN_LINE, MarkType.ORIGIN_COMMENT].includes(mark.type) && !mark.approx_source) continue
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
@@ -490,9 +496,9 @@ export class MarkManager extends Base {
         infoItems.push(markInfoItem)
       }
 
-      if (mark.type === MarkType.LINE || mark.type === MarkType.ORIGIN_LINE) {
+      if ([MarkType.LINE, MarkType.ORIGIN_LINE].includes(mark.type)) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if (mark.type === MarkType.COMMENT || mark.type === MarkType.ORIGIN_COMMENT) {
+      } else if ([MarkType.COMMENT, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.id)
         if (comment) markInfoItem.comments.push(comment)
       }
