@@ -87,10 +87,6 @@ export const useDraggable = (target: Ref<HTMLElement | undefined>, options: UseD
 
   const applyPosition = () => {
     if (!target.value) return
-
-    target.value.style.position = 'absolute'
-    target.value.style.left = `${position.value.x}px`
-    target.value.style.top = `${position.value.y}px`
   }
 
   const reset = () => {

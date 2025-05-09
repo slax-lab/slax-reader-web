@@ -142,7 +142,7 @@ export const getElementOwnerWindow = (el: HTMLElement): Window => {
   return doc.defaultView || window
 }
 
-export const createStyleWithSearchRules = (searchRules: string[]) => {
+export const createStyleWithSearchRules = async (searchRules: string[]) => {
   const styleElement = document.createElement('style')
 
   if (!searchRules || searchRules.length === 0) {
@@ -169,8 +169,21 @@ export const createStyleWithSearchRules = (searchRules: string[]) => {
       if (style.ownerNode && style.ownerNode.textContent) {
         styleElement.textContent += style.ownerNode.textContent + '\n'
       } else {
-        for (let i = 0; i < style.cssRules.length; i++) {
-          styleElement.textContent += style.cssRules[i].cssText + '\n'
+        const link = style.ownerNode as HTMLLinkElement
+
+        let success = false
+        try {
+          const response = await fetch(link.href)
+          const cssText = await response.text()
+          styleElement.textContent += cssText + '\n'
+
+          success = true
+        } finally {
+          if (!success) {
+            for (let i = 0; i < style.cssRules.length; i++) {
+              styleElement.textContent += style.cssRules[i].cssText + '\n'
+            }
+          }
         }
       }
     } catch (e) {}
