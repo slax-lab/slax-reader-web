@@ -22,7 +22,6 @@
 import { ClickOutside } from '@commons/utils/directive'
 
 import { MenuType } from './type'
-// import { vOnClickOutside } from '@vueuse/components'
 import { showLoginModal } from '#layers/core/components/Modal'
 import { useUserStore } from '#layers/core/stores/user'
 interface MenuItem {

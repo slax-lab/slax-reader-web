@@ -139,6 +139,8 @@ const sendMessage = () => {
 </script>
 
 <style lang="scss" scoped>
+@use '#layers/core/styles/global.scss' as *;
+
 .article-comment-input {
   --style: max-h-300px overflow-hidden;
   .comment-input-wrapper {

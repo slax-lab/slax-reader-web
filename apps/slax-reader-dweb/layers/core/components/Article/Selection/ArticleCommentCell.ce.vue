@@ -7,7 +7,7 @@
           <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
         </div>
         <div class="right">
-          <div class="i-svg-spinners:180-ring-with-bg text-18px text-#999" v-if="comment.markId === 0 || comment.loading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg size-16px text-18px text-#999" v-if="comment.markId === 0 || comment.loading"></div>
         </div>
       </div>
       <div class="comment-content">{{ comment.isDeleted ? t('component.article_selection.comment_deleted') : comment.comment }}</div>
@@ -16,7 +16,7 @@
         <div class="operates" v-if="comment.markId !== 0 && !comment.loading">
           <template v-if="!comment.operateLoading">
             <button
-              class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
+              class="reply bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
               @click="replyComment(comment)"
             ></button>
             <button
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import ArticleCommentInput from './ArticleCommentInput.vue'
+import ArticleCommentInput from './ArticleCommentInput.ce.vue'
 
 import { formatDate } from '@commons/utils/date'
 
@@ -150,6 +150,8 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 </script>
 
 <style lang="scss" scoped>
+@use '#layers/core/styles/global.scss' as *;
+
 .article-comment-cell {
   --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px';
   --style: 'bg-#fff dark:bg-#333333FF';

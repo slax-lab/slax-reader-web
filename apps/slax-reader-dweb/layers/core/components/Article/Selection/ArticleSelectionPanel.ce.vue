@@ -1,7 +1,16 @@
 <template>
   <Transition name="opacity" @afterLeave="onAfterLeave">
     <div :class="{ dark }" v-show="appear">
-      <div class="article-selection-comment" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
+      <div
+        class="article-selection-comment"
+        v-click-outside="{
+          handler: closeModal,
+          exclude: () => [articleSelectionPanel]
+        }"
+        v-resize-observer="[resizeHandler, {}]"
+        ref="articleSelectionPanel"
+      >
+        <div class="draggable" ref="draggable" v-if="allowDrag"></div>
         <div class="header">
           <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
           <button class="close" @click="closeModal">
@@ -56,10 +65,13 @@
 </template>
 
 <script lang="ts" setup>
-import ArticleCommentCell from './ArticleCommentCell.vue'
+import ArticleCommentCell from './ArticleCommentCell.ce.vue'
+
+import { ClickOutside } from '@commons/utils/directive'
+import { type Position, useDraggable } from '@commons/utils/draggable'
 
 import { type MarkCommentInfo, type MarkItemInfo, MenuType } from './type'
-import { vOnClickOutside, vOnKeyStroke, vResizeObserver } from '@vueuse/components'
+import { vOnKeyStroke, vResizeObserver } from '@vueuse/components'
 import { useResizeObserver } from '@vueuse/core'
 import { showLoginModal } from '#layers/core/components/Modal'
 import { useUserStore } from '#layers/core/stores/user'
@@ -75,7 +87,10 @@ const t = (text: string) => {
   return useNuxtApp().$i18n.t(text)
 }
 
+const vClickOutside = ClickOutside
+
 const appear = ref(false)
+const articleSelectionPanel = useTemplateRef('articleSelectionPanel')
 const commentsWrapper = ref<HTMLDivElement>()
 const props = defineProps({
   isAppeared: {
@@ -97,10 +112,14 @@ const props = defineProps({
   dark: {
     type: Boolean,
     required: false
+  },
+  allowDrag: {
+    type: Boolean,
+    required: false
   }
 })
 
-const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize'])
+const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize', 'locationUpdate'])
 
 const userId = useUserStore().userInfo?.userId || 0
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
@@ -115,6 +134,35 @@ const sendable = computed(() => {
 
 const maxHeight = ref(0)
 const markComments = ref<MarkCommentInfo[]>([])
+
+const draggable = ref<HTMLDivElement>()
+const lastPosition = ref<{ x: number; y: number } | null>(null)
+
+const { position, reset } = useDraggable(draggable, {
+  initialPosition: lastPosition.value ? lastPosition.value : { x: 0, y: 0 },
+  onDrag: pos => {
+    onUpdatePositionHandler(pos)
+  }
+})
+
+const onUpdatePositionHandler = (position: Position) => {
+  if (lastPosition.value !== null) {
+    if (Math.abs(lastPosition.value.x - position.x) > 300 || Math.abs(lastPosition.value.y - position.y) > 300) {
+      return
+    }
+  }
+
+  lastPosition.value = { x: position.x, y: position.y }
+  emits('locationUpdate', position)
+}
+
+const updateLocation = (pos: Position) => {
+  console.log('updateLocation', pos)
+  position.value.x = pos.x
+  position.value.y = pos.y
+
+  onUpdatePositionHandler(pos)
+}
 
 const commentsHeight = computed(() => {
   return Math.max(0, maxHeight.value - 200)
@@ -388,14 +436,21 @@ const cancelReply = () => {
 
 defineExpose({
   positionConfirmedHandler,
-  maxHeightUpdate
+  maxHeightUpdate,
+  updateLocation
 })
 </script>
 
 <style lang="scss" scoped>
+@use '#layers/core/styles/global.scss' as *;
+
 .article-selection-comment {
   --style: w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
   --style: 'bg-#f5f5f3 dark:bg-#262626';
+
+  .draggable {
+    --style: absolute top-0 left-0 w-full h-20px cursor-grab z-0;
+  }
 
   .header {
     --style: relative text-align-center min-h-11px;
