@@ -212,6 +212,10 @@ watch(
   value => {
     if (!value) {
       showInput.value = false
+    } else {
+      nextTick(() => {
+        textarea.value?.focus()
+      })
     }
   },
   {
@@ -227,6 +231,9 @@ watch(
         textarea.value?.focus()
       })
     }
+  },
+  {
+    immediate: true
   }
 )
 

@@ -344,7 +344,20 @@ const handleData = (text: string) => {
 }
 
 const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
-  const domElement = document.querySelector(props.contentSelector || '') || document.body
+  let domElement = document.querySelector(props.contentSelector || '') || document.body
+  let contentDocument = document
+  let contentWindow = window
+
+  if (domElement instanceof HTMLIFrameElement) {
+    const iframeDocument = domElement.contentDocument
+    const iframeWindow = domElement.contentWindow
+    if (iframeDocument && iframeWindow) {
+      contentWindow = iframeWindow as Window & typeof globalThis
+      contentDocument = iframeDocument
+      domElement = iframeDocument.body
+    }
+  }
+
   const elements = findMatchingElement(text, domElement)
   if (elements.length === 0) {
     text = text.replaceAll('-', ' ')
@@ -370,11 +383,11 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
     }
 
     const element = elements[currentSearchAnchor.index]
-    if (!(element instanceof HTMLElement)) {
+    if (!(element instanceof contentWindow.HTMLElement)) {
       return false
     }
 
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
+    const walker = contentDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
     let currentNode
     const nodes: Node[] = []
     while ((currentNode = walker.nextNode())) {
@@ -410,10 +423,10 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
       return true
     }
 
-    const range = document.createRange()
+    const range = contentDocument.createRange()
     startNode && range.setStart(startNode, 0)
     endNode && range.setEnd(endNode, endNode.nodeValue?.length || 0)
-    const selection = window.getSelection()
+    const selection = contentWindow.getSelection()
     selection?.removeAllRanges()
     selection?.addRange(range)
 

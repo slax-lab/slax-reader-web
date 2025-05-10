@@ -152,7 +152,11 @@ watch(
   () => selectedType.value,
   (val, oldVal) => {
     emits('selectedTypeUpdate', val, (valid: boolean) => {
-      !valid && (selectedType.value = oldVal)
+      if (!valid) {
+        selectedType.value = oldVal
+
+        oldVal === '' && (showPanel.value = false)
+      }
     })
   }
 )
@@ -200,7 +204,6 @@ const feedbackClick = () => {
 
     .sidebar-panel {
       --style: absolute top-0 right-0 h-full w-48px border-l-(1px solid #ffffff0f) flex items-center justify-between;
-      --style: 'dark:bg-red';
 
       .operate-button {
         --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center overflow-hidden;
@@ -225,7 +228,7 @@ const feedbackClick = () => {
         }
 
         .feedback {
-          --style: size-24px flex-center;
+          --style: w-18px h-auto flex-center;
           img {
             --style: w-full select-none;
           }
