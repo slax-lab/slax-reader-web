@@ -17,7 +17,7 @@
         <template v-slot:header>
           <div class="header">
             <div class="left">
-              <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
+              <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
               <ClientOnly><ProIcon /></ClientOnly>
             </div>
             <div class="right" v-if="!isTrashedBookmark && !isInvalidBookmark">

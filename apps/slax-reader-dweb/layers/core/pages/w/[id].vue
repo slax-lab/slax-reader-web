@@ -4,7 +4,7 @@
       <div class="left">
         <div class="items-wrapper">
           <img src="@images/logo-sm.png" alt="" />
-          <span class="title">{{ $t('common.app.name') }}</span>
+          <span class="title" @click="navigateToBookmarks">{{ $t('common.app.name') }}</span>
           <ClientOnly><ProIcon /></ClientOnly>
         </div>
       </div>
@@ -26,26 +26,27 @@
         <div class="iframe-mask" v-if="isDragging" @click.stop></div>
         <div class="iframe-mask" v-if="isLoading"><div class="i-svg-spinners:90-ring text-50px color-slate"></div></div>
       </div>
-      <RawWebPanel v-if="bookmarkBriefInfo" ref="rawWebPanel" :enable-share="true" @is-dragging="val => (isDragging = val)" @selectedTypeUpdate="val => (selectedType = val)">
-        <template #ai>
+      <RawWebPanel
+        v-if="bookmarkBriefInfo"
+        ref="rawWebPanel"
+        v-model:show="isPanelShowing"
+        :enable-share="true"
+        @is-dragging="val => (isDragging = val)"
+        @selectedTypeUpdate="selectedTypeUpdate"
+      >
+        <template #sidebar>
           <Transition name="opacity">
-            <div v-show="selectedType === PanelItemType.AI" class="dark px-20px py-4px">
-              <AISummaries
-                :bookmark-id="Number(id)"
-                :is-appeared="selectedType === PanelItemType.AI"
-                :close-button-hidden="true"
-                :content-selector="'body'"
-                @navigated-text="() => false"
-              />
+            <div v-show="summariesExpanded" class="dark px-20px py-4px">
+              <AISummaries :bookmark-id="Number(id)" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
             </div>
           </Transition>
-        </template>
-        <template #chat>
-          <Transition name="opacity">
-            <div v-show="selectedType === PanelItemType.Chat" class="dark size-full">
-              <ChatBot :bookmark-id="Number(id)" :is-appeared="selectedType === PanelItemType.Chat" :close-button-hidden="true" ref="chatbot" />
-            </div>
-          </Transition>
+          <template v-if="!isSubscriptionExpired">
+            <Transition name="opacity">
+              <div v-show="botExpanded" class="dark size-full">
+                <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" />
+              </div>
+            </Transition>
+          </template>
         </template>
       </RawWebPanel>
     </div>
@@ -62,17 +63,15 @@ import RawWebPanel, { PanelItemType } from '#layers/core/components/RawWebPanel.
 
 import { RequestMethodType } from '@commons/utils/request'
 
+import { useWebBookmark, useWebBookmarkDetail } from '../../composables/bookmark/useWebBookmark'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkBriefDetail } from '@commons/types/interface'
 import { ArticleSelection } from '#layers/core/components/Article/Selection/selection'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 import { showShareConfigModal } from '#layers/core/components/Modal'
-import { useUserStore } from '#layers/core/stores/user'
 import markCss from '#layers/core/styles/mark.css?raw'
 
 const route = useRoute()
-const router = useRouter()
-const { t } = useI18n()
 
 const id = String(route.params.id)
 const iframeRef = ref<HTMLIFrameElement | null>(null)
@@ -81,66 +80,27 @@ const iframeWindow = ref<Window | null>(null)
 const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 const articleSelection = ref<ArticleSelection | null>(null)
 const rawWebPanel = ref<InstanceType<typeof RawWebPanel>>()
+const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const isLoading = ref(false)
 const isDragging = ref(false)
-const userStore = useUserStore()
-const user = ref(userStore.userInfo || null)
-const selectedType = ref<PanelItemType | ''>('')
+
+const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(bookmarkBriefInfo)
 
 const { injectCssToIframe } = useIframeStyles(iframeRef, markCss)
-
-watch(
-  () => selectedType.value,
-  val => {
-    if (val === PanelItemType.Feedback) {
-      showFeedbackView(
-        {
-          type: BookmarkType.Normal,
-          title: bookmarkBriefInfo.value?.title || window.document.title || t('page.bookmarks_detail.no_title'),
-          bmId: Number(id)
-        },
-        'parse_error'
-      )
-    } else if (val === PanelItemType.Share) {
-      showShareConfigModal({
-        bookmarkId: Number(id),
-        title: window.document.title,
-        type: ShareModalType.Original
-      })
-    }
-  }
-)
-
-const navigateToBookmarks = () => {
-  router.push('/')
-}
-
-const navigateToNotification = () => {
-  router.push('/notifications')
-}
-
-const emitEventCopy = (selection: Selection) => {
-  const clipboardObj = navigator.clipboard
-  if (!clipboardObj) return
-
-  const range = selection.getRangeAt(0)
-  const text = range.toString()
-  clipboardObj.writeText(text)
-}
 
 const highlightMarks = async () => {
   if (!iframeDocument.value!.body) return
 
   articleSelection.value = new ArticleSelection({
     bookmarkId: Number(id),
-    allowAction: true,
-    ownerUserId: user.value?.userId || 0,
+    allowAction: allowAction.value,
+    ownerUserId: bookmarkUserId.value,
     containerDom: iframeDocument.value!.body as HTMLDivElement,
     monitorDom: iframeDocument.value!.body as HTMLDivElement,
     iframe: iframeRef.value!,
     postQuoteDataHandler: (data: QuoteData) => {
-      console.log('chatBotQuote', data)
+      chatBotQuote(data)
     }
   })
 
@@ -232,6 +192,26 @@ const initInlineScript = async () => {
   })
 }
 
+const selectedTypeUpdate = (type: PanelItemType, handler?: (valid: boolean) => void) => {
+  let valid = true
+
+  if (type === PanelItemType.Feedback) {
+    showFeedback()
+  } else if (type === PanelItemType.Share) {
+    showShareConfigModal({
+      bookmarkId: Number(id),
+      title: window.document.title,
+      type: ShareModalType.Original
+    })
+  } else if (type === PanelItemType.Chat) {
+    valid = showChatbot()
+  } else if (type === PanelItemType.AI) {
+    valid = showAnalyzed()
+  }
+
+  handler && handler(valid)
+}
+
 const initInline = async () => {
   await initInlineScript()
   await loadInlineBookmarkDetail()
@@ -239,7 +219,31 @@ const initInline = async () => {
   await highlightMarks()
 }
 
-initInline()
+const {
+  user,
+  isSubscriptionExpired,
+  isPanelShowing,
+  summariesExpanded,
+  botExpanded,
+  showAnalyzed,
+  showChatbot,
+  chatBotQuote,
+  showFeedback,
+  navigateToNotification,
+  navigateToBookmarks
+} = useWebBookmark({
+  chatbot,
+  typeOptions: () => {
+    return {
+      type: BookmarkType.Normal,
+      title: title.value,
+      bmId: Number(id)
+    }
+  },
+  initialRequestTask: async () => {
+    await initInline()
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -253,7 +257,7 @@ initInline()
       --style: ml-40px h-full flex items-center relative;
 
       .items-wrapper {
-        --style: absolute top-0 left-0 h-full flex items-center;
+        --style: absolute top-0 left-0 h-full flex items-center select-none;
 
         & > * {
           --style: 'not-first:ml-8px shrink-0';
@@ -264,7 +268,7 @@ initInline()
         }
 
         .title {
-          --style: font-semibold text-(#16b998 15px) line-height-21px;
+          --style: font-semibold text-(#16b998 15px) line-height-21px cursor-pointer;
         }
       }
     }
