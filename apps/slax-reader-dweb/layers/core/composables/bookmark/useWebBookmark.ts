@@ -89,6 +89,8 @@ export const useWebBookmark = (options: WebBookmarkOptions) => {
       if (!res) {
         return
       }
+    } else if (botExpanded.value && !isPanelShowing.value) {
+      isPanelShowing.value = true
     }
 
     const handleQuote = () => {
