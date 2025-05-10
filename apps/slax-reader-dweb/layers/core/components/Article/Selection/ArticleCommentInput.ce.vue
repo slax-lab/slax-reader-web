@@ -12,7 +12,7 @@
           @input="handleInput"
         >
         </textarea>
-        <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
+        <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')] dark:bg-[url('@images/button-tiny-send-dark.png')]" @click="sendMessage"></button>
       </div>
     </div>
   </Transition>
@@ -139,15 +139,21 @@ const sendMessage = () => {
 </script>
 
 <style lang="scss" scoped>
+@use '#layers/core/styles/global.scss' as *;
+
 .article-comment-input {
   --style: max-h-300px overflow-hidden;
   .comment-input-wrapper {
-    --style: p-8px w-full relative bg-#fff border-(1px solid #ecf0f5) rounded-8px flex flex-row justify-between;
+    --style: p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between;
+    --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1A1A1AFF border-#1a1a1aff)';
     textarea {
-      --style: resize-none min-h-20px max-h-200px text-(14px #333) line-height-20px flex-1;
+      --style: resize-none min-h-20px max-h-200px text-(14px #333) line-height-20px flex-1 bg-transparent;
+      --style: 'text-#333 dark:text-#ffffffcc';
+
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(14px #999) line-height-20px;
+        --style: text-(14px) line-height-20px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
 

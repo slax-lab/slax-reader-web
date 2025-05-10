@@ -44,6 +44,13 @@
   </div>
 </template>
 
+<script lang="ts">
+export enum ShareModalType {
+  Bookmark = 'bookmark',
+  Original = 'original'
+}
+</script>
+
 <script lang="ts" setup>
 import { copyText } from '@commons/utils/string'
 
@@ -60,6 +67,11 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+  type: {
+    required: false,
+    type: String,
+    default: ShareModalType.Bookmark
   }
 })
 
@@ -115,43 +127,45 @@ onMounted(() => {
 
 const getShareInfo = async () => {
   isLoading.value = true
-  const res = await request.get<ShareDetailInfo>({
-    url: RESTMethodPath.EXISTS_SHARE_BOOKMARK,
-    query: {
-      bookmark_id: String(props.bookmarkId)
+  try {
+    const res = await request.get<ShareDetailInfo>({
+      url: RESTMethodPath.EXISTS_SHARE_BOOKMARK,
+      query: {
+        bookmark_id: String(props.bookmarkId)
+      }
+    })
+    if (!res) {
+      Toast.showToast({
+        text: t('common.tips.share_failed'),
+        type: ToastType.Error
+      })
+      isSwitched.value = false
+      return
     }
-  })
-  if (!res) {
-    Toast.showToast({
-      text: t('common.tips.share_failed'),
-      type: ToastType.Error
-    })
-    isSwitched.value = false
-    return
-  }
 
-  if (res.share_code.length === 0) {
-    await updateShare({
-      commentLine: true,
-      userInfo: true,
-      allowAction: true
-    })
+    if (res.share_code.length === 0) {
+      await updateShare({
+        commentLine: true,
+        userInfo: true,
+        allowAction: true
+      })
 
-    isSwitched.value = true
-    isLoading.value = false
+      isSwitched.value = true
+      isLoading.value = false
 
-    return
-  }
+      return
+    }
 
-  isSwitched.value = res.share_code.length > 0
+    isSwitched.value = res.share_code.length > 0
 
-  const [commentLine, userInfo, allowAction] = options.value
-  commentLine.selected = res.show_comment_line
-  userInfo.selected = res.show_userinfo
-  allowAction.selected = res.allow_action
-  if (isSwitched.value) {
-    shareLinkUrl.value = getShareUrl(res.share_code)
-  }
+    const [commentLine, userInfo, allowAction] = options.value
+    commentLine.selected = res.show_comment_line
+    userInfo.selected = res.show_userinfo
+    allowAction.selected = res.allow_action
+    if (isSwitched.value) {
+      shareLinkUrl.value = getShareUrl(res.share_code)
+    }
+  } catch (error) {}
 
   isLoading.value = false
 }
@@ -214,7 +228,8 @@ const closeShare = async () => {
 }
 
 const getShareUrl = (hashcode: string) => {
-  return `${$config.SHARE_BASE_URL}/s/${hashcode}`
+  const concatString = props.type === ShareModalType.Original ? 'sw' : 's'
+  return `${$config.SHARE_BASE_URL}/${concatString}/${hashcode}`
 }
 
 const closeModal = () => {

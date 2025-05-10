@@ -154,8 +154,8 @@ const showPanel = (options: {
       x = screenWidth - panelWidth
     }
 
-    if (x + panelHeight > screenHeight) {
-      x = screenHeight - panelHeight
+    if (y + panelHeight > screenHeight) {
+      y = screenHeight - panelHeight
     }
 
     return { x, y }

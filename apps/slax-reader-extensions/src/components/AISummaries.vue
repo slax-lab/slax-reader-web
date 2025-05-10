@@ -9,7 +9,7 @@
         <img src="@/assets/button-dialog-close.png" />
       </button>
     </div>
-    <div class="summaries-container" v-if="!loading && markdownText.length > 0">
+    <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
       <div class="header">
         <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
         <div class="switch" v-if="done && summaries.length > 1">
@@ -50,11 +50,11 @@
         </div>
       </div>
     </div>
-    <div class="empty" v-else-if="!loading && markdownText.length === 0">
+    <div class="empty bg-container" v-else-if="!loading && markdownText.length === 0">
       <span>{{ $t('component.ai_summaries.click_to_interpret') }}</span>
       <div class="button" @click="checkAndLoadSummaries()">{{ $t('component.ai_summaries.interpret') }}</div>
     </div>
-    <div class="loading" v-else-if="loading">
+    <div class="loading bg-container" v-else-if="loading">
       <span>{{ loadingTitle }}</span>
       <div class="placeholder">
         <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
@@ -569,15 +569,16 @@ $copyButtonXOffset: 20px;
 .ai-summaries {
   --style: min-h-screen relative;
 
-  & > div:not(.operate-container) {
-    --style: w-full h-full flex flex-col bg-#262626;
+  .bg-container {
+    --style: w-full h-full flex flex-col rounded-4;
+    --style: 'bg-#fcfcfc dark:bg-#262626';
   }
 
   .operate-container {
-    --style: absolute top-24px right-40px flex-center;
+    --style: absolute top-20px right-20px flex-center;
 
     button {
-      --style: ' hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
     }
 
     .close {
@@ -595,7 +596,8 @@ $copyButtonXOffset: 20px;
     }
 
     .seperator {
-      --style: mx-10px w-1px h-10px bg-#333333 invisible;
+      --style: mx-10px w-1px h-10px invisible;
+      --style: 'bg-#D6D6D6 dark:bg-#333';
     }
 
     button + .seperator {
@@ -605,9 +607,11 @@ $copyButtonXOffset: 20px;
 
   .summaries-container {
     --style: items-center overflow-y-auto;
+    --style: 'bg-#f5f5f3 dark:bg-transparent';
 
     .header {
-      --style: w-full p-x-40px pt-24px pb-0 flex items-center;
+      --style: w-full pt-20px px-20px flex items-center;
+      --style: 'bg-#fcfcfc dark:bg-transparent';
 
       .title {
         --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
@@ -644,147 +648,82 @@ $copyButtonXOffset: 20px;
         }
 
         span {
-          --style: text-(12px #ffffff66) line-height-16px;
+          --style: text-12px line-height-16px;
+          --style: 'text-#333 dark:text-#ffffff66';
         }
       }
     }
 
     .content {
-      --style: w-full flex-1 box-border;
+      --style: w-full flex-1;
 
       & > div {
         --style: w-full overflow-auto;
       }
 
       .text-content {
-        --style: px-40px pt-24px pb-32px relative bg-#262626 rounded-b-4;
+        --style: px-20px pt-24px pb-32px relative rounded-b-4;
+        --style: 'bg-#fcfcfc dark:bg-#262626';
 
         .text-container {
-          position: relative;
-          height: 0;
-          overflow: hidden;
+          --style: relative h-0 overflow-hidden;
 
           &::before {
-            z-index: 2;
-            content: '';
-            background: linear-gradient(0deg, #262626, transparent);
-            position: absolute;
-            bottom: 0;
-            height: 20px;
-            width: 100%;
-            left: 0;
+            --style: z-2 content-empty bg-gradient-to-t to-transparent absolute left-0 bottom-0 w-full h-20px;
+            --style: 'from-#fcfcfc dark:from-#262626';
           }
         }
 
         .loading-bottom {
-          position: absolute;
-          box-sizing: border-box;
-          width: 100%;
-          padding-top: 24px + 32px;
-          padding-left: 4px + 40px;
-          left: 0;
-          top: 100%;
-          transition: top 0.25s ease-in-out;
+          --style: 'absolute left-0 top-full left-0 pt-[calc(24px+32px)] pl-[calc(4px+20px)] transition-top duration-250';
         }
       }
 
       .map-content {
-        position: relative;
-        box-sizing: border-box;
-        padding: 0;
-        min-height: 500px;
-        background-color: #262626;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        --style: relative p-0 min-h-500px flex flex-col justify-between;
+        --style: 'bg-#f5f5f3 dark:bg-#262626';
 
         .map-header {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          box-sizing: border-box;
-          padding: 40px 40px 5px;
-          z-index: 1;
-          background-color: #262626;
+          --style: absolute top-0 left-0 w-full pt-40px pb-5px px-20px z-1;
+          --style: 'bg-#f5f5f3 dark:bg-#262626';
+
           .title {
-            font-family:
-              PingFangSC,
-              PingFang SC;
-            font-weight: 600;
-            font-size: 16px;
-            color: #ffffffe6;
-            line-height: 22px;
+            --style: font-600 text-16px line-height-22px;
+            --style: 'text-#0f1419 dark:text-#ffffffe6';
           }
 
           .description {
-            margin-top: 4px;
-            box-sizing: border-box;
-            font-family:
-              PingFangSC,
-              PingFang SC;
-            font-weight: 400;
-            font-size: 13px;
-            color: #ffffffcc;
-            line-height: 20px;
-          }
-
-          &::before {
-            content: '';
-            background: linear-gradient(0deg, transparent, #262626);
-            position: absolute;
-            bottom: -20px;
-            height: 20px;
-            width: 100%;
-            left: 0;
+            --style: mt-4px font-400 text-13px line-height-20px;
+            --style: 'text-#808080 dark:text-#ffffffcc';
           }
         }
 
         // eslint-disable-next-line vue-scoped-css/no-unused-selector
         .mark-mind-map {
-          flex: 1;
+          --style: flex-1;
         }
       }
     }
   }
 
   .empty {
-    --style: '!h-100vh select-none justify-center items-center';
+    --style: h-100vh select-none justify-center items-center;
 
     span {
-      --style: font-400 text-(14px #ffffff66) line-height-20px;
-      font-family:
-        PingFangSC,
-        PingFang SC;
+      --style: font-400 text-14px line-height-20px;
+      --style: 'text-#999999 dark:text-#ffffff66';
     }
 
     .button {
-      --style: mt-24px w-200px h-48px rounded-6 text-(16px #fff) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
-      margin-top: 24px;
-      width: 200px;
-      height: 48px;
-      border-radius: 24px;
-      font-family:
-        PingFangSC,
-        PingFang SC;
-      font-weight: 600;
-      font-size: 16px;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      color: white;
-      background-color: #16b998;
-      transition: background-color 0.15s ease-in-out;
+      --style: mt-24px w-200px h-48px rounded-24px text-(16px #fff) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
 
       &:hover {
-        background-color: #16b998aa;
+        --style: bg-#16b998aa;
       }
     }
   }
   .loading {
-    --style: min-h-screen py-24px px-40px select-none box-border;
+    --style: min-h-screen py-24px px-20px select-none;
 
     span {
       --style: font-500 text-(14px #16b998) line-height-20px text-align-left;
@@ -794,23 +733,8 @@ $copyButtonXOffset: 20px;
       --style: mt-24px w-full flex flex-col;
 
       .row {
-        --style: 'w-full h-16px rounded-1 not-first:mt-10px';
-        background: linear-gradient(90deg, #ffffff33, #ffffff11);
-        animation: loading 1.5s linear infinite;
-      }
-    }
-
-    @keyframes loading {
-      0% {
-        opacity: 100%;
-      }
-
-      50% {
-        opacity: 50%;
-      }
-
-      100% {
-        opacity: 100%;
+        --style: w-full h-16px rounded-1 animate-pulse;
+        --style: 'not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
       }
     }
   }

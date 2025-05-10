@@ -29,7 +29,6 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
   max-width: 40px;
 
   .icon {
-    width: 40px;
     height: 40px;
     flex-shrink: 0;
     display: flex;

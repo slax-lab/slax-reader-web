@@ -56,7 +56,8 @@
       "placeholder": "Post your opinion",
       "reply": "Reply to...",
       "title": "Post a comment",
-      "comment_placeholder": "Reply to $1"
+      "comment_placeholder": "Reply to $1",
+      "perceptions": "Perceptions"
     },
     "share_modal": {
       "copy_link": "Copy link",

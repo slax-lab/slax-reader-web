@@ -48,7 +48,9 @@ export default defineConfig({
     }
   ],
   presets: [
-    presetWind3(),
+    presetWind3({
+      dark: 'class'
+    }),
     presetAttributify(),
     presetIcons({
       scale: 1

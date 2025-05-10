@@ -56,7 +56,8 @@
       "just_now": "刚刚",
       "minutes_ago": "分钟前",
       "hours_ago": "小时前",
-      "comment_placeholder": "回复 $1"
+      "comment_placeholder": "回复 $1",
+      "perceptions": "看法"
     },
     "share_modal": {
       "title": "分享",

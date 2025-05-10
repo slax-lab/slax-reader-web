@@ -1,11 +1,14 @@
-export class SelectionMonitor {
+import { Base } from './base'
+import type { SelectionConfig } from './type'
+
+export class SelectionMonitor extends Base {
   private _isMonitoring = false
+  private _monitorDom: HTMLElement | null = null
   private _mouseUpHandler: (e: MouseEvent | TouchEvent) => void
 
-  constructor(
-    private _monitorDom: HTMLElement | null,
-    mouseUpHandler: (e: MouseEvent | TouchEvent) => void
-  ) {
+  constructor(config: SelectionConfig, mouseUpHandler: (e: MouseEvent | TouchEvent) => void) {
+    super(config)
+    this._monitorDom = this.config.monitorDom || null
     this._mouseUpHandler = mouseUpHandler
   }
 
@@ -29,19 +32,19 @@ export class SelectionMonitor {
   }
 
   clearMouseListenerTry() {
-    document.removeEventListener('mouseup', this.mouseUpHandler)
+    this.document.removeEventListener('mouseup', this.mouseUpHandler)
     this._monitorDom?.removeEventListener('mouseenter', this.handleMouseEnter)
     this._monitorDom?.removeEventListener('mouseleave', this.handleMouseLeave)
   }
 
   private handleMouseEnter = () => {
-    document.removeEventListener('mouseup', this.mouseUpHandler)
-    document.removeEventListener('touchend', this.mouseUpHandler)
+    this.document.removeEventListener('mouseup', this.mouseUpHandler)
+    this.document.removeEventListener('touchend', this.mouseUpHandler)
   }
 
   private handleMouseLeave = () => {
-    document.addEventListener('mouseup', this.mouseUpHandler)
-    document.addEventListener('touchend', this.mouseUpHandler)
+    this.document.addEventListener('mouseup', this.mouseUpHandler)
+    this.document.addEventListener('touchend', this.mouseUpHandler)
   }
 
   private handleMouseDown = () => {

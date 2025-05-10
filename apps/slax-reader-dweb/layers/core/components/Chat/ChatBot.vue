@@ -1,61 +1,67 @@
 <template>
-  <Transition name="chat">
-    <div class="chat-bot" ref="chat" v-show="isAppeared">
-      <div class="chat-header">
-        <div class="chat-title">
-          <img src="@images/panel-item-chatbot.png" alt="" />
-          <span>{{ $t('component.chat_bot.hello') }}</span>
-        </div>
-        <button class="close" @click="closeModal">
-          <img src="@images/button-dialog-close.png" />
-        </button>
+  <div class="chat-bot" ref="chat">
+    <div class="dark-trigger" ref="darkTrigger" />
+    <div class="chat-header">
+      <div class="chat-title">
+        <img v-if="!isDark()" src="@images/panel-item-chatbot.png" alt="" />
+        <img v-else src="@images/panel-item-chatbot-dark.png" alt="" />
+        <span>{{ $t('component.chat_bot.hello') }}</span>
       </div>
-      <div class="messages-container">
-        <div class="messages" ref="messages">
-          <div class="message" v-for="message in messageList" :key="message.id">
-            <template v-if="message.type === 'question'">
-              <QuestionMessage :question="message" @question-click="questionClick" />
-            </template>
-            <template v-if="message.type === 'bubble'">
-              <BubbleMessage :message="message" @question-click="relatedQuestionClick" @quote-click="quoteClick" />
-            </template>
-            <template v-if="message.type === 'tips'">
-              <TipsMessage :tips="message" />
-            </template>
-          </div>
-          <div class="message" v-if="bufferMessage">
-            <BubbleMessage :message="bufferMessage" />
-          </div>
-          <div class="loading" v-if="isChatting">
-            <DotLoading indicate-color="#3333333d" />
-          </div>
+      <button v-if="!closeButtonHidden" class="close" @click="closeModal">
+        <img v-if="!isDark()" src="@images/button-dialog-close.png" />
+        <img v-else src="@images/button-dialog-close-dark.png" />
+      </button>
+    </div>
+    <div class="messages-container">
+      <div class="messages" ref="messages">
+        <div class="message" v-for="message in messageList" :key="message.id">
+          <template v-if="message.type === 'question'">
+            <QuestionMessage :question="message" @question-click="questionClick" />
+          </template>
+          <template v-if="message.type === 'bubble'">
+            <BubbleMessage :message="message" @question-click="relatedQuestionClick" @quote-click="quoteClick" />
+          </template>
+          <template v-if="message.type === 'tips'">
+            <TipsMessage :tips="message" />
+          </template>
         </div>
-      </div>
-      <div class="bottom-container">
-        <div class="quote-container" v-if="quoteInfo && quoteInfo.data.length > 0">
-          <div class="quote">
-            <i class="img bg-[url('@images/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
-            <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
-          </div>
-          <button class="bg-[url('@images/button-circle-close.png')]" @click="closeQuote"></button>
+        <div class="message" v-if="bufferMessage">
+          <BubbleMessage :message="bufferMessage" />
         </div>
-        <div class="input-container">
-          <div class="textarea-wrapper">
-            <textarea
-              ref="textarea"
-              v-model="inputText"
-              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-              :placeholder="textareaPlaceholder"
-              @compositionstart="compositionstart"
-              @compositionend="compositionend"
-              @input="handleInput"
-            ></textarea>
-            <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
-          </div>
+        <div class="loading" v-if="isChatting">
+          <DotLoading indicate-color="#3333333d" />
         </div>
       </div>
     </div>
-  </Transition>
+    <div class="bottom-container">
+      <div class="quote-container" v-if="quoteInfo && quoteInfo.data.length > 0">
+        <div class="quote">
+          <template v-if="showQuoteImage">
+            <i v-if="!isDark()" class="img bg-[url('@images/tiny-image-icon.png')]"></i>
+            <i v-else class="img bg-[url('@images/tiny-image-icon.png')]"></i>
+          </template>
+          <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
+        </div>
+        <button v-if="!isDark()" class="bg-[url('@images/button-circle-close.png')]" @click="closeQuote"></button>
+        <button v-else class="bg-[url('@images/button-circle-close-dark.png')]" @click="closeQuote"></button>
+      </div>
+      <div class="input-container">
+        <div class="textarea-wrapper">
+          <textarea
+            ref="textarea"
+            v-model="inputText"
+            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            :placeholder="textareaPlaceholder"
+            @compositionstart="compositionstart"
+            @compositionend="compositionend"
+            @input="handleInput"
+          ></textarea>
+          <button v-if="!isDark()" :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
+          <button v-else :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send-dark.png')]" @click="sendMessage"></button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -81,6 +87,10 @@ const props = defineProps({
     required: false
   },
   isAppeared: {
+    required: false,
+    type: Boolean
+  },
+  closeButtonHidden: {
     required: false,
     type: Boolean
   }
@@ -219,6 +229,7 @@ const isInited = ref(false)
 const chat = ref<HTMLDivElement>()
 const messages = ref<HTMLDivElement>()
 const textarea = ref<HTMLTextAreaElement>()
+const darkTrigger = ref<HTMLDivElement>()
 const inputText = ref('')
 const isChatting = ref(false)
 const messageList = ref<MessageItem[]>([])
@@ -245,9 +256,9 @@ watch(
     }
 
     if (value) {
-      nextTick(() => {
+      setTimeout(() => {
         textarea.value?.focus()
-      })
+      }, 500)
     }
   },
   {
@@ -263,6 +274,15 @@ onMounted(() => {
 onUnmounted(() => {
   bot.destruct()
 })
+
+const isDark = () => {
+  if (!darkTrigger.value) {
+    return false
+  }
+
+  const style = window.getComputedStyle(darkTrigger.value)
+  return style.opacity === '1'
+}
 
 const handleInput = () => {
   if (!textarea.value) {
@@ -650,7 +670,12 @@ defineExpose({
 
 <style lang="scss" scoped>
 .chat-bot {
-  --style: w-full h-full bg-#fcfcfc flex flex-col justify-stretch items-center overflow-hidden z-3 rounded-4;
+  --style: w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4;
+  --style: 'bg-#fcfcfc dark:bg-#262626';
+
+  .dark-trigger {
+    --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
+  }
 
   .chat-header {
     --style: w-full h-54px pt-20px pb-10px px-16px flex justify-between items-center;
@@ -679,7 +704,8 @@ defineExpose({
     --style: relative flex-1 w-full h-full overflow-hidden;
     &::before,
     &::after {
-      --style: z-2 content-empty absolute h-10px w-full left-0 from-#fcfcfc to-transprent;
+      --style: z-2 content-empty absolute h-10px w-full left-0 to-transprent;
+      --style: 'from-#fcfcfc dark:from-#262626';
     }
 
     &::before {
@@ -710,9 +736,13 @@ defineExpose({
   .bottom-container {
     --style: w-full;
     .quote-container {
-      --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid #ecf0f5);
+      --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid);
+      --style: 'border-t-#ecf0f5 dark:border-t-#ffffff0f';
+
       .quote {
-        --style: pl-8px border-l-(2px solid #0f141914) line-clamp-2 text-(15px #0f141999) break-all;
+        --style: pl-8px border-l-(2px solid) line-clamp-2 text-15px break-all;
+        --style: 'border-l-#0f141914 text-#0f141999 dark:border-l-#ffffff14 dark:(text-#ffffff66)';
+
         i.img {
           --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
         }
@@ -736,16 +766,19 @@ defineExpose({
 
     .input-container {
       --style: w-full p-12px rounded-1 overflow-hidden;
+      --style: 'dark:bg-#262626FF';
 
       .textarea-wrapper {
-        --style: w-full h-full relative border-(2px solid #ecf0f5) rounded-8px py-16px pl-16px pr-64px flex;
+        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex;
+        --style: 'border-#ecf0f5 dark:(border-#1f1f1fff bg-#1f1f1fff)';
 
         textarea {
-          --style: w-full min-h-22px max-h-88px h-22px resize-none text-(15px #333) line-height-22px bg-transparent;
+          --style: w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent;
+          --style: 'text-#333 dark:text-#ffffffe6';
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(15px #999) line-height-21px;
+            --style: text-15px line-height-21px;
           }
         }
 
@@ -789,15 +822,5 @@ defineExpose({
 // eslint-disable-next-line vue-scoped-css/no-unused-selector
 textarea.shake {
   animation: shake 0.5s;
-}
-
-.chat-leave-to,
-.chat-enter-from {
-  --style: 'opacity-0';
-}
-
-.chat-enter-active,
-.chat-leave-active {
-  --style: transition-opacity duration-250 ease-in-out;
 }
 </style>

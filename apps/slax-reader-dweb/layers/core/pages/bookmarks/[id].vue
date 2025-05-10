@@ -17,7 +17,7 @@
         <template v-slot:header>
           <div class="header">
             <div class="left">
-              <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
+              <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
               <ClientOnly><ProIcon /></ClientOnly>
             </div>
             <div class="right" v-if="!isTrashedBookmark && !isInvalidBookmark">
@@ -50,14 +50,16 @@
       </DetailLayout>
       <template v-if="canView">
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <AISummaries
-            v-if="bmId"
-            :bookmarkId="bmId"
-            :is-appeared="summariesExpanded"
-            :content-selector="'.bookmark-detail .detail'"
-            @navigated-text="navigateToText"
-            @dismiss="summariesExpanded = false"
-          />
+          <ClientOnly>
+            <AISummaries
+              v-if="bmId"
+              :bookmarkId="bmId"
+              :is-appeared="summariesExpanded"
+              :content-selector="'.bookmark-detail .detail'"
+              @navigated-text="navigateToText"
+              @dismiss="summariesExpanded = false"
+            />
+          </ClientOnly>
         </SidebarLayout>
         <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
           <ChatBot ref="chatbot" :bookmarkId="bmId" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />

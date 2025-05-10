@@ -1,7 +1,7 @@
 <template>
   <Transition name="opacity" @afterLeave="onAfterLeave">
     <div v-show="appear" class="article-selection-comment" ref="commentPanel" v-on-click-outside="closeModal" v-resize-observer="[resizeHandler, {}]">
-      <div class="draggable" ref="draggble"></div>
+      <div class="draggable" ref="draggable"></div>
       <div class="header">
         <span v-if="!info.id">{{ $t('component.article_selection.title') }}</span>
         <button class="close" @click="closeModal">
@@ -106,10 +106,10 @@ const sendable = computed(() => {
 const maxHeight = ref(0)
 const markComments = ref<MarkCommentInfo[]>([])
 
-const draggble = ref<HTMLDivElement>()
+const draggable = ref<HTMLDivElement>()
 
 const lastPosition = ref<{ x: number; y: number } | null>(null)
-const { x, y } = useDraggable(draggble, {
+const { x, y } = useDraggable(draggable, {
   initialValue: lastPosition.value ? lastPosition.value : { x: 0, y: 0 },
   onMove: (position: Position) => {
     onUpdatePositionHandler(position)

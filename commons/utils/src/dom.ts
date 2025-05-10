@@ -4,7 +4,11 @@ const isValidId = (id: string) => {
 }
 
 export const getElementFullSelector = (element: HTMLElement, ignoreEles?: string[], baseParentEle?: Element) => {
-  if (!(element instanceof Element)) {
+  if (!element.ownerDocument.defaultView) {
+    return ''
+  }
+
+  if (!(element instanceof element.ownerDocument.defaultView.Element)) {
     return ''
   }
 
@@ -114,4 +118,76 @@ export const removeOuterTag = (dom: Element) => {
   }
 
   parentNode.removeChild(dom)
+}
+
+export const getElementOwnerDocument = (el: HTMLElement): Document => {
+  if (el.ownerDocument) {
+    return el.ownerDocument
+  }
+
+  let node: Node | null = el
+  while (node && node.parentNode) {
+    node = node.parentNode
+  }
+
+  if (node && node.nodeType === Node.DOCUMENT_NODE) {
+    return node as Document
+  }
+
+  return document
+}
+
+export const getElementOwnerWindow = (el: HTMLElement): Window => {
+  const doc = getElementOwnerDocument(el)
+  return doc.defaultView || window
+}
+
+export const createStyleWithSearchRules = async (searchRules: string[]) => {
+  const styleElement = document.createElement('style')
+
+  if (!searchRules || searchRules.length === 0) {
+    return styleElement
+  }
+
+  const injectStyles = Array.from(document.styleSheets).filter(sheet => {
+    try {
+      return (
+        sheet.cssRules.length > 0 &&
+        Array.from(sheet.cssRules).some(rule =>
+          searchRules.some(item => {
+            return rule.cssText.includes(item)
+          })
+        )
+      )
+    } catch (e) {
+      return false
+    }
+  })
+
+  for (const style of injectStyles) {
+    try {
+      if (style.ownerNode && style.ownerNode.textContent) {
+        styleElement.textContent += style.ownerNode.textContent + '\n'
+      } else {
+        const link = style.ownerNode as HTMLLinkElement
+
+        let success = false
+        try {
+          const response = await fetch(link.href)
+          const cssText = await response.text()
+          styleElement.textContent += cssText + '\n'
+
+          success = true
+        } finally {
+          if (!success) {
+            for (let i = 0; i < style.cssRules.length; i++) {
+              styleElement.textContent += style.cssRules[i].cssText + '\n'
+            }
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  return styleElement
 }

@@ -20,7 +20,8 @@
     "./dom": "./src/dom.ts",
     "./mouse": "./src/mouse.ts",
     "./socket": "./src/socket.ts",
-    "./range": "./src/range.ts"
+    "./range": "./src/range.ts",
+    "./draggable": "./src/draggable.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

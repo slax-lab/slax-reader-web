@@ -72,51 +72,57 @@ const handleAnchors = () => {
 
 <style lang="scss" scoped>
 .markdown-text {
-  --primaryTextColor: #ffffffe6;
-  --secondaryTextColor: #ffffffcc;
   .markdown-content {
     --style: flex flex-col;
-    &::v-deep(*) {
-      --style: m-0 $primaryTextColor;
+    &:deep(*) {
+      --style: m-0;
+      --style: 'text-#0f1419 dark:text-#ffffffe6';
     }
 
-    &::v-deep(h1) {
-      --style: font-bold text-(20px $primaryTextColor) line-height-28px 'not-first:mt-32px';
+    &:deep(h1) {
+      --style: font-bold text-20px line-height-28px;
+      --style: 'not-first:mt-32px text-0f1419 dark:text-#ffffffe6';
     }
 
-    &::v-deep(h2) {
-      --style: font-bold text-(16px $secondaryTextColor) line-height-22px mt-32px;
+    &:deep(h2) {
+      --style: font-bold text-16px line-height-22px mt-32px;
+      --style: 'text-#0f1419 dark:text-#ffffffcc';
     }
 
-    &::v-deep(h3),
-    &::v-deep(h4),
-    &::v-deep(h5) {
-      --style: font-bold text-(12px $secondaryTextColor) mt-20px;
+    &:deep(h3),
+    &:deep(h4),
+    &:deep(h5) {
+      --style: font-bold text-12px mt-20px;
+      --style: 'text-#0f1419 dark:text-#ffffffcc';
     }
 
     // 非标题类内容，在前面有内容时才增加间距
-    &::v-deep(* + ul),
-    &::v-deep(* + ol),
-    &::v-deep(li > ul),
-    &::v-deep(li > ol) {
+    &:deep(* + ul),
+    &:deep(* + ol),
+    &:deep(li > ul),
+    &:deep(li > ol) {
       --style: mt-16px;
     }
 
-    &::v-deep(ul) {
+    &:deep(ul) {
       --style: pl-0 flex flex-col list-none;
       li {
-        --style: relative pl-20px box-border font-normal text-(14px #ffffff99) line-height-20px;
+        --style: relative pl-20px box-border font-normal text-14px line-height-20px;
+        --style: 'text-#333333 dark:text-#ffffff99';
 
         &::marker {
-          --style: content-none hidden text-#A8B1CD66;
+          --style: content-none hidden;
+          --style: 'text-#a8b1cd dark:text-#A8B1CD66';
         }
 
         & li {
           &::marker {
-            --style: content-none hidden text-#A8B1CD66;
+            --style: content-none hidden;
+            --style: 'text-#a8b1cd dark:text-#A8B1CD66';
           }
           &:before {
-            --style: box-border top-8px left-4px w-4px h-4px border border-#A8B1CD66 border-solid bg-#A8B1CD66;
+            --style: box-border top-8px left-4px w-4px h-4px border border-solid;
+            --style: 'bg-#fff border-#a8b1cd dark:bg-#A8B1CD66 dark:border-#A8B1CD66';
           }
         }
 
@@ -125,45 +131,27 @@ const handleAnchors = () => {
         }
 
         &:before {
-          --style: absolute top-8px left-4px w-4px h-4px bg-#A8B1CD66 content-empty rounded;
+          --style: absolute top-8px left-4px w-4px h-4px content-empty rounded;
+          --style: 'bg-#a8b1cd dark:bg-#A8B1CD66';
         }
       }
     }
 
-    &::v-deep(a) {
+    &:deep(a) {
       --style: -top-1px relative text-#5080a8;
     }
 
-    &::v-deep(a:not(.slax_link)) {
+    &:deep(a:not(.slax_link)) {
       color: #5080a8;
     }
 
-    &::v-deep(.slax_link) {
-      margin-left: 0px;
-      user-select: none;
-      display: inline-flex;
-      cursor: pointer;
-      text-decoration: none !important;
-      vertical-align: middle;
-      height: 16px;
-      padding: 0 5px;
-      font-family:
-        PingFangSC,
-        PingFang SC;
-      font-weight: 500;
-      font-size: 10px;
-      line-height: 16px;
-      background-color: rgba(22, 185, 152, 0.12);
-      border-radius: 3px;
-      color: #ffffff99;
-      transition:
-        background-color 0.15s ease-in-out,
-        color 0.15s ease-in-out;
+    &:deep(.slax_link) {
+      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-10px rounded-3px transition-colors duration-150;
+      --style: '!decoration-none bg-#16b9981f text-#333333  dark:text-#ffffff99';
     }
 
-    &::v-deep(.slax_link:hover) {
-      background-color: #475467;
-      color: #fff !important;
+    &:deep(.slax_link:hover) {
+      --style: 'bg-#475467 !text-#fff';
     }
   }
 }

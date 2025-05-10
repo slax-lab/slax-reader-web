@@ -48,6 +48,7 @@ export interface SelectionConfig {
   collection?: { code: string; cb_id: number }
   ownerUserId: number
   allowAction: boolean
+  iframe?: HTMLIFrameElement
   postQuoteDataHandler: (data: QuoteData) => void
 }
 

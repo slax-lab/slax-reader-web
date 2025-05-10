@@ -50,6 +50,9 @@ export default defineNuxtConfig({
       { code: 'en', iso: 'en-US', file: 'en.json' }
     ],
     lazy: true,
-    defaultLocale: 'en'
+    defaultLocale: 'en',
+    bundle: {
+      optimizeTranslationDirective: false
+    }
   }
 })

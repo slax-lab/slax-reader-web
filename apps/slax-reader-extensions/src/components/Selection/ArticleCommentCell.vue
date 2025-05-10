@@ -189,16 +189,13 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       .child-comment-content {
         --style: text-(14px) line-height-22px whitespace-pre-line;
 
-        .child-username {
+        .child-username,
+        .parent-username {
           --style: text-#FFFFFF66 select-none;
         }
 
         .reply-text {
           --style: text-#FFFFFFCC select-none;
-        }
-
-        .parent-username {
-          --style: text-#FFFFFF66 select-none;
         }
 
         .comment-content-text {
