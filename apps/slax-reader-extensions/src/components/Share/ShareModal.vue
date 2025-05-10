@@ -208,7 +208,7 @@ const closeShare = async () => {
 }
 
 const getShareUrl = (hashcode: string) => {
-  return `${process.env.SHARE_BASE_URL}/s/${hashcode}`
+  return `${process.env.SHARE_BASE_URL}/sw/${hashcode}`
 }
 
 const closeModal = () => {

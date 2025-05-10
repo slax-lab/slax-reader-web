@@ -4,6 +4,7 @@ import ArticleSelectionMenus from './ArticleSelectionMenus.ce.vue'
 import ArticleSelectionPanel from './ArticleSelectionPanel.ce.vue'
 
 import { createStyleWithSearchRules } from '@commons/utils/dom'
+import { isClient } from '@commons/utils/is'
 
 import { Base } from './base'
 import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
@@ -21,8 +22,11 @@ checkStyleElement()
 
 const ArticleSelectionMenusElement = defineCustomElement(ArticleSelectionMenus)
 const ArticleSelectionPanelElement = defineCustomElement(ArticleSelectionPanel)
-customElements.define('article-seletion-menus', ArticleSelectionMenusElement)
-customElements.define('article-seletion-panel', ArticleSelectionPanelElement)
+
+if (isClient) {
+  customElements.define('article-seletion-menus', ArticleSelectionMenusElement)
+  customElements.define('article-seletion-panel', ArticleSelectionPanelElement)
+}
 
 const menusKey = `slax-reader-article-selection-menus-container`
 const panelKey = `slax-reader-article-selection-panel-container`
