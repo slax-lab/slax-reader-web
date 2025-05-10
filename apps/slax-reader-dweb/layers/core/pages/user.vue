@@ -15,6 +15,15 @@
             </div>
           </div>
         </div>
+        <div class="locale">
+          <span class="title">{{ $t('page.user.ai_response_language') }}</span>
+          <div class="options">
+            <div class="option" v-for="(radio, index) in aiResponseLanguages" :key="radio.value">
+              <button class="radio" :class="{ selected: index === aiResponseLanguageIndex }" @click="aiResponseLanguageSelect(radio.value)"></button>
+              <span>{{ radio.name }}</span>
+            </div>
+          </div>
+        </div>
         <section>
           <div class="title">{{ $t('page.user.personal_info') }}</div>
           <div class="info" v-if="!loading">
@@ -76,6 +85,17 @@ const radios = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
+const aiResponseLanguages = computed<{ name: string; value: string }[]>(() => [
+  {
+    name: t('page.user.language_en'),
+    value: 'en'
+  },
+  {
+    name: t('page.user.language_zh'),
+    value: 'zh'
+  }
+])
+
 if (userStore.currentLocale !== locale.value) {
   userStore.changeLocale(locale.value)
 }
@@ -91,6 +111,10 @@ onMounted(async () => {
 
 const radioIndex = computed(() => {
   return radios.value.findIndex(radio => radio.value === userStore.currentLocale) || 0
+})
+
+const aiResponseLanguageIndex = computed(() => {
+  return aiResponseLanguages.value.findIndex(radio => radio.value === userInfo.value?.ai_lang) || 0
 })
 
 const getUserDetailInfo = async () => {
@@ -110,6 +134,17 @@ const navigateToBookmarks = () => {
 
 const navigateToTelegramChannel = () => {
   window.open(`https://t.me/slax_app`)
+}
+
+const aiResponseLanguageSelect = async (locale: string) => {
+  await request.post({
+    url: RESTMethodPath.USER_INFO_SETTING,
+    body: {
+      key: 'ai_lang',
+      value: locale
+    }
+  })
+  await getUserDetailInfo()
 }
 
 const localeSelect = (locale: string) => {
