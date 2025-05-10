@@ -15,12 +15,12 @@
         <span class="">{{ title }}</span>
       </div>
       <div class="content" v-show="!isLoading">
-        <div class="slax-buttons collected" v-if="bookmarkId > 0">
+        <div class="slax-buttons collected" v-if="bookmarkId > 0 && false">
           <button class="source" @click="checkSource">{{ t('click_to_view') }}</button>
           <i class="seperator"></i>
           <button class="remove" @click="deleteBookmark">{{ t('removal') }}</button>
         </div>
-        <div class="slax-buttons uncollect" v-else>
+        <div class="slax-buttons uncollect" v-else-if="bookmarkId === 0">
           <button class="add" @click="addBookmark">{{ t('recollection') }}</button>
         </div>
       </div>

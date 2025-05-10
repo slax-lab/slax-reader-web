@@ -1,21 +1,33 @@
 import { SlaxWebSocket } from '@commons/utils/socket'
 
 import type { AuthService } from './authService'
+import { BrowserService } from './browserService'
 import { CONFIG } from './config'
 import { UserIndexedDBService } from './indexedDB'
 import type { StorageService } from './storageService'
 import type { BookmarkActionChange, BookmarkChange, BookmarkDBChange, BookmarkSocketData } from './types'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkActionChangelog, BookmarkChangelog, BookmarkChangelogResp } from '@commons/types/interface'
+import { useDebounceFn, type UseDebounceFnReturn } from '@vueuse/core'
 import md5 from 'md5'
 
 export class BookmarkService {
   private socket: SlaxWebSocket | null = null
+  private tmpNotifyUrlCaches: string[] = []
+  private debounceNotifyTabs: UseDebounceFnReturn<() => void>
 
   constructor(
     private storageService: StorageService,
     private authService: AuthService
-  ) {}
+  ) {
+    this.debounceNotifyTabs = useDebounceFn(
+      () => {
+        this.notfifyTabs()
+      },
+      500,
+      { maxWait: 5000 }
+    )
+  }
 
   async updateAllBookmarkChanges(): Promise<void> {
     if (!(await this.storageService.getToken())) {
@@ -91,6 +103,8 @@ export class BookmarkService {
 
       const syncTime = Number(time)
       syncTime && (await this.updatechangeSyncTime(syncTime))
+
+      this.notifyUrl(logs.map(item => item.target_url))
     } catch (error) {
       console.error('Error updating partial bookmark changes:', error)
     }
@@ -360,6 +374,8 @@ export class BookmarkService {
         }
 
         tasks.length > 0 && (await Promise.allSettled(tasks))
+
+        this.notifyUrl([changelog.target_url])
       }
     })
 
@@ -383,6 +399,44 @@ export class BookmarkService {
 
     this.socket?.close(1000, 'Normal closure')
     this.socket = null
+  }
+
+  notifyUrl(urls: string[]) {
+    if (!urls || urls.length === 0) {
+      return
+    }
+
+    this.tmpNotifyUrlCaches = [...new Set([...this.tmpNotifyUrlCaches, ...urls])]
+    this.debounceNotifyTabs()
+  }
+
+  async notfifyTabs() {
+    if (this.tmpNotifyUrlCaches.length === 0) {
+      return
+    }
+
+    try {
+      const tabs = await chrome.tabs.query({})
+      for (const tab of tabs) {
+        if (!tab.id || !tab.url || (!tab.url.startsWith('http://') && !tab.url.startsWith('https://')) || tab.status !== 'complete') {
+          continue
+        }
+
+        if (!this.tmpNotifyUrlCaches.includes(tab.url)) {
+          continue
+        }
+
+        try {
+          await BrowserService.notifyBookmarkStatusUpdate(tab)
+        } catch (err) {
+          console.warn(`Could not send to tab ${tab.id}: ${err}`)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to query tabs:', err)
+    }
+
+    this.tmpNotifyUrlCaches.length = 0
   }
 
   async checkSocket() {

@@ -49,8 +49,8 @@
       </div>
     </div>
   </div>
-  <div class="menus" ref="menus"></div>
-  <div class="share" ref="share"></div>
+  <div class="slax-menus" ref="menus"></div>
+  <div class="slax-custom-container" ref="share"></div>
 </template>
 
 <script lang="ts" setup>
