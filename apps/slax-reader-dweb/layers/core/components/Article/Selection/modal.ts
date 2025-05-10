@@ -65,7 +65,9 @@ export class MarkModal extends Base {
 
     let articleSelectionMenus: HTMLElement | null = null
 
-    if (!this.config.iframe) {
+    const isInIframe = !!this.config.iframe
+
+    if (!isInIframe) {
       articleSelectionMenus = containerDom.querySelector(`.${menusKey}`) as HTMLElement
       if (articleSelectionMenus) {
         articleSelectionMenus.remove()
@@ -106,7 +108,7 @@ export class MarkModal extends Base {
 
     const menusElement = new ArticleSelectionMenusElement({
       allowAction,
-      dark: !!this.config.iframe
+      dark: !!isInIframe
     })
 
     const onDismiss = () => {
@@ -139,12 +141,12 @@ export class MarkModal extends Base {
       return
     }
 
-    const MEvent = this.config.iframe ? (this.window as Window & typeof globalThis).MouseEvent : MouseEvent
+    const MEvent = isInIframe ? (this.window as Window & typeof globalThis).MouseEvent : MouseEvent
 
     let offsetX = 0
     let offsetY = 0
 
-    if (!this.config.iframe) {
+    if (!isInIframe) {
       offsetX = event instanceof MEvent ? (event as MouseEvent).clientX : (event as TouchEvent).changedTouches[0].clientX
       offsetY = event instanceof MEvent ? (event as MouseEvent).clientY : (event as TouchEvent).changedTouches[0].clientY
 
@@ -153,7 +155,7 @@ export class MarkModal extends Base {
         offsetY -= bookmarkRect.top
       }
     } else {
-      const bodyRect = this.config.iframe.contentDocument?.body.getBoundingClientRect()
+      const bodyRect = this.config.iframe?.contentDocument?.body.getBoundingClientRect()
       const rangeRect = range.getBoundingClientRect()
       offsetX = rangeRect.left - (bodyRect?.left || 0)
       offsetY = rangeRect.top - (bodyRect?.top || 0)
@@ -173,7 +175,7 @@ export class MarkModal extends Base {
         }
       }
 
-      if (!this.config.iframe) {
+      if (!isInIframe) {
         const articleRect = containerDom.getBoundingClientRect()
         if (articleRect) {
           offsetX -= articleRect.left
@@ -183,6 +185,18 @@ export class MarkModal extends Base {
 
           if (offsetX + menuRect.width > articleRect.width) {
             offsetX = articleRect.width - menuRect.width
+          }
+        }
+      } else {
+        const bodyRect = this.config.iframe?.contentDocument?.body.getBoundingClientRect()
+
+        if (offsetX < 0) {
+          offsetX = 0
+        }
+
+        if (bodyRect) {
+          if (offsetX + menuRect.width > bodyRect.width) {
+            offsetX = bodyRect.width - menuRect.width
           }
         }
       }
