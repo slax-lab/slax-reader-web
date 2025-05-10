@@ -77,16 +77,22 @@ export class HighlightRange {
   }
 
   private calculateSimilarity(str1: string, str2: string) {
+    const match = this.calculateSimilarityMatch(str1, str2)
+    if (!match) return 0
+
+    return 1 - match.errors / str1.length
+  }
+
+  private calculateSimilarityMatch(str1: string, str2: string) {
     const maxErrors = Math.floor(Math.max(str1.length, str2.length) * 0.3)
     const variable1 = str1.length < str2.length ? str2 : str1
     const variable2 = str1.length < str2.length ? str1 : str2
 
     const matches = search(variable1, variable2, maxErrors)
-    if (matches.length === 0) return 0
+    if (matches.length === 0) return null
 
     const bestMatch = matches.reduce((best, current) => (current.errors < best.errors ? current : best), matches[0])
-
-    return 1 - bestMatch.errors / str1.length
+    return bestMatch
   }
 
   private calculateContextScore(text: string, start: number, end: number, expectedContext: string) {
@@ -152,9 +158,21 @@ export class HighlightRange {
     // if exact is not null and actualText is not equal to exact, and similarity is less than 0.9, return null
     if (item.exact && actualText !== item.exact && this.calculateSimilarity(actualText, item.exact) < 0.9) return null
 
+    const bestMatch = this.calculateSimilarityMatch(actualText, item.exact)
+    const biasOffsetStart = bestMatch?.start || 0
+    const biasOffsetEnd = bestMatch?.end || 0
+    const biasLength = biasOffsetEnd - biasOffsetStart
+
+    let startOffset = item.position_start
+    let endOffset = item.position_end
+    if (biasLength > 0 && item.position_start + biasOffsetStart < item.position_end) {
+      startOffset = item.position_start + biasOffsetStart
+      endOffset = Math.min(item.position_start + biasOffsetStart + biasLength, endOffset)
+    }
+
     const range = this.doc.createRange()
-    const startInfo = this.getNodeAndOffsetAtPosition(item.position_start)
-    const endInfo = this.getNodeAndOffsetAtPosition(item.position_end)
+    const startInfo = this.getNodeAndOffsetAtPosition(startOffset)
+    const endInfo = this.getNodeAndOffsetAtPosition(endOffset)
 
     if (!startInfo || !endInfo) return null
 
@@ -208,7 +226,7 @@ export class HighlightRange {
   }
 
   public getRange(item: HighlightRangeInfo) {
-    for (const func of [this.getRangeByPosition, this.getRangeByFuzzy, this.getRangeByQuote]) {
+    for (const func of [this.getRangeByFuzzy, this.getRangeByQuote]) {
       const range = func.bind(this)(item)
       if (range) return range
     }
