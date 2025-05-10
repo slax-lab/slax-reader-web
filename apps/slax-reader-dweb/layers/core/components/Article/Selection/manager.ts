@@ -292,7 +292,7 @@ export class MarkManager extends Base {
         else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
         else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
+          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source, meta.info.approx) }
           this.config.postQuoteDataHandler(quote)
           this._findQuote(quote)
         }
@@ -307,24 +307,34 @@ export class MarkManager extends Base {
     })
   }
 
-  createQuote(items: MarkPathItem[]): QuoteData['data'] {
+  createQuote(items: MarkPathItem[], approx?: MarkPathApprox): QuoteData['data'] {
     return items.map(item => {
       if (item.type === 'image') {
         const infos = this.renderer.transferNodeInfos(item)
         const content = infos.length > 0 && infos[0].type === 'image' ? (infos[0].ele as HTMLImageElement).src : ''
         return { type: 'image', content }
       }
+
       const infos = this.renderer.transferNodeInfos(item)
-      const text = infos
-        .map(info => {
-          if (info.type === 'image') return ''
-          const range = this.document.createRange()
-          range.setStart(info.node, info.start)
-          range.setEnd(info.node, info.end)
-          return range.toString()
-        })
-        .join('')
-      return { type: 'text', content: text }
+
+      if (infos.length > 0) {
+        const text = infos
+          .map(info => {
+            if (info.type === 'image') return ''
+            const range = this.document.createRange()
+            range.setStart(info.node, info.start)
+            range.setEnd(info.node, info.end)
+            return range.toString()
+          })
+          .join('')
+        return { type: 'text', content: text }
+      } else if (approx) {
+        const rangeSvc = new HighlightRange(window.document)
+        const range = rangeSvc.getRange(approx)
+        return { type: 'text', content: range?.toString() || '' }
+      }
+
+      return { type: 'text', content: '' }
     })
   }
 
