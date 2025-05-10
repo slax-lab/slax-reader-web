@@ -6,8 +6,7 @@
         <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
           <div class="sidebar-wrapper">
             <div class="sidebar-content">
-              <slot name="ai"></slot>
-              <slot name="chat"></slot>
+              <slot name="sidebar"></slot>
             </div>
           </div>
           <div class="sidebar-panel">
@@ -94,7 +93,7 @@ const sidecontent = useTemplateRef<HTMLDivElement>('sidecontent')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
 const selectedType = ref<PanelItemType | ''>('')
 
-const showPanel = ref(false)
+const showPanel = defineModel('show')
 const panelItems = ref<PanelItem[]>([
   {
     type: PanelItemType.AI,
@@ -151,8 +150,10 @@ watch(
 
 watch(
   () => selectedType.value,
-  val => {
-    emits('selectedTypeUpdate', val)
+  (val, oldVal) => {
+    emits('selectedTypeUpdate', val, (valid: boolean) => {
+      !valid && (selectedType.value = oldVal)
+    })
   }
 )
 
