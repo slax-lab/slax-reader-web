@@ -502,7 +502,7 @@ export class MarkManager extends Base {
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
 
       if (!markInfoItem) {
-        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source, type: mark.type }
+        markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
         infoItems.push(markInfoItem)
       }
 

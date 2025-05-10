@@ -1,4 +1,4 @@
-import type { MarkPathApprox, MarkPathItem, MarkType } from '@commons/types/interface'
+import type { MarkPathApprox, MarkPathItem } from '@commons/types/interface'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 
 export enum MenuType {
@@ -15,7 +15,6 @@ export interface MarkItemInfo {
   stroke: { mark_id?: number; userId: number }[]
   comments: MarkCommentInfo[]
   approx?: MarkPathApprox // 网页端需要兼容旧划线版本
-  type: MarkType
 }
 
 export type MarkCommentInfo = {

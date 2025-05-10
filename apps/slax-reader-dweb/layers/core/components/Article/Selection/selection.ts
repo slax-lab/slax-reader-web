@@ -11,8 +11,8 @@ import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
 import { type MarkDetail, type MarkPathItem, MarkType } from '@commons/types/interface'
 
 export class ArticleSelection extends Base {
-  public monitor: SelectionMonitor
-  public manager: MarkManager
+  private monitor: SelectionMonitor
+  private manager: MarkManager
   private renderer: MarkRenderer
   private modal: MarkModal
 
@@ -115,7 +115,7 @@ export class ArticleSelection extends Base {
       const currentMark = this.manager.currentMarkItemInfo
       if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx, type: MarkType.REPLY })
+      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
       this.manager.clearSelectContent()
 
       list.forEach(item => {
