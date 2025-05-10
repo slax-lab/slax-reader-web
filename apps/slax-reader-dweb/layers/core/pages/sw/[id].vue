@@ -37,13 +37,13 @@
         <template #sidebar>
           <Transition name="opacity">
             <div v-show="summariesExpanded" class="dark px-20px py-4px">
-              <AISummaries :bookmark-id="Number(id)" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
+              <AISummaries :share-code="id" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
             </div>
           </Transition>
           <template v-if="!isSubscriptionExpired">
             <Transition name="opacity">
               <div v-show="botExpanded" class="dark size-full">
-                <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" />
+                <ChatBot ref="chatbot" :share-code="id" :is-appeared="botExpanded" :close-button-hidden="true" />
               </div>
             </Transition>
           </template>
@@ -93,7 +93,7 @@ const highlightMarks = async () => {
   if (!iframeDocument.value!.body) return
 
   articleSelection.value = new ArticleSelection({
-    bookmarkId: Number(id),
+    shareCode: id,
     allowAction: allowAction.value,
     ownerUserId: bookmarkUserId.value,
     containerDom: iframeDocument.value!.body as HTMLDivElement,

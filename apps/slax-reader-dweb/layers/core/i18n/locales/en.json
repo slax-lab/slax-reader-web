@@ -80,7 +80,8 @@
       "unarchive": "Unarchive",
       "unsubscribe": "Unsubscribe",
       "view_source": "Source",
-      "view_source_all": "View all"
+      "view_source_all": "View all",
+      "snapshot": "Snapshot"
     },
     "payment": {
       "completed": "Payment Completed",
