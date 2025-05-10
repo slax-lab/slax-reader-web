@@ -17,10 +17,6 @@ interface WebBookmarkOptions {
 }
 
 export const useWebBookmark = (options: WebBookmarkOptions) => {
-  const y = (() => {
-    return isClient ? useScroll(window, { behavior: 'smooth', throttle: 10 }).y : ref(0)
-  })()
-
   const userStore = useUserStore()
   const user = ref<UserInfo | null>(userStore.userInfo)
   const isPanelShowing = ref(false) // 记录侧边栏是否展开

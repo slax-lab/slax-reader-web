@@ -32,13 +32,30 @@
         <div class="cell-footer">
           <span class="date">{{ dateString }}</span>
           <i class="seperator"></i>
-          <button class="href" @click="clickHref">
-            <img v-if="bookmark.type === 'shortcut'" src="@images/tiny-href-fill-icon.png" />
-            <img v-else src="@images/tiny-link-outline-icon.png" />
-            <span class="ml-4px">
-              {{ getSiteName() }}
-            </span>
-          </button>
+          <template v-if="bookmark.type === 'shortcut'">
+            <button class="href" @click="clickHref">
+              <img src="@images/tiny-href-fill-icon.png" />
+              <span class="ml-4px">
+                {{ getSiteName() }}
+              </span>
+            </button>
+          </template>
+          <template v-else>
+            <button class="href" @click="clickHref">
+              <img src="@images/tiny-link-outline-icon.png" />
+              <span class="ml-4px">
+                {{ getSiteName() }}
+              </span>
+            </button>
+            <i class="seperator"></i>
+            <button class="href" @click="clickCache">
+              <img src="@images/tiny-link-outline-icon.png" />
+              <span class="ml-4px">
+                {{ $t('common.operate.snapshot') }}
+              </span>
+            </button>
+          </template>
+
           <template v-if="!isSubscribe">
             <template v-if="!isTrashed">
               <button class="edit" @click="clickEdit">{{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}</button>
@@ -169,7 +186,7 @@ const clickTitle = () => {
   }
 
   pwaOpen({
-    url: '/bookmarks/' + String(bookmark.value.id)
+    url: '/w/' + String(bookmark.value.id)
   })
 }
 
@@ -179,6 +196,21 @@ const clickHref = () => {
   }
 
   window.open(urlString.value, '_blank')
+}
+
+const clickCache = () => {
+  if (isRequesting.value) {
+    return
+  }
+
+  if (bookmark.value.status !== 'success') {
+    clickHref()
+    return
+  }
+
+  pwaOpen({
+    url: '/bookmarks/' + String(bookmark.value.id)
+  })
 }
 
 const clickEdit = () => {

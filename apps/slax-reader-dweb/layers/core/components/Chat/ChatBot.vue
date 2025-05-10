@@ -719,6 +719,11 @@ defineExpose({
     .messages {
       --style: w-full h-full py-10px overflow-auto;
 
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        --style: hidden;
+      }
+
       .message {
         --style: 'not-first:mt-8px flex items-center px-12px';
       }

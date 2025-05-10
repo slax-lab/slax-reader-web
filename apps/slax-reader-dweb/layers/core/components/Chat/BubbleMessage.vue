@@ -487,7 +487,13 @@ const quoteClick = (quote: QuoteData) => {
     --style: absolute left-16px bottom-16px flex;
 
     .copy-btn {
-      --style: 'w-16px h-16px flex-center rounded-3px bg-contain hover:(bg-#ebebeb scale-105) active:(scale-110) transition-all duration-250 ease-in-out';
+      --style: 'w-16px h-16px flex-center rounded-3px bg-contain active:(scale-110) transition-all duration-250 ease-in-out';
+
+      &:hover {
+        --style: scale-105;
+        --style: 'bg-#ebebeb dark:bg-#1F1F1F';
+      }
+
       img {
         --style: w-full h-full object-contain;
       }

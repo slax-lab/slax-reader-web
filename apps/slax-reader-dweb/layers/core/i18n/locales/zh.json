@@ -565,7 +565,8 @@
       "view_source_all": "查看全部",
       "forward": "转发",
       "like": "点赞",
-      "search": "搜索"
+      "search": "搜索",
+      "snapshot": "快照"
     },
     "tips": {
       "archive_success": "内容已归档",
