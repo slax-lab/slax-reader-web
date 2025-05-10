@@ -37,13 +37,19 @@
         <template #sidebar>
           <Transition name="opacity">
             <div v-show="summariesExpanded" class="dark px-20px py-4px">
-              <AISummaries :bookmark-id="Number(id)" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'body'" @navigated-text="() => false" />
+              <AISummaries
+                :bookmark-id="Number(id)"
+                :is-appeared="summariesExpanded"
+                :close-button-hidden="true"
+                :content-selector="'iframe#content'"
+                @navigated-text="() => false"
+              />
             </div>
           </Transition>
           <template v-if="!isSubscriptionExpired">
             <Transition name="opacity">
               <div v-show="botExpanded" class="dark size-full">
-                <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" />
+                <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" @find-quote="findQuote" />
               </div>
             </Transition>
           </template>
@@ -128,6 +134,10 @@ const loadInlineBookmarkDetail = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+const findQuote = (quote: QuoteData) => {
+  articleSelection.value?.findQuote(quote)
 }
 
 const injectInlineScript = async () => {
