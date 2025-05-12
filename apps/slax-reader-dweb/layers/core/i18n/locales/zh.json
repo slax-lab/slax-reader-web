@@ -155,7 +155,7 @@
       }
     },
     "user": {
-      "language": "语言:",
+      "language": "界面语言:",
       "ai_response_language": "AI 回应语言:",
       "personal_info": "个人信息",
       "subscription_preferences": "订阅偏好",

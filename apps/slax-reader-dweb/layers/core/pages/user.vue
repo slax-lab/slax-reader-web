@@ -6,13 +6,10 @@
         <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
       </div>
       <div class="detail">
-        <div class="locale">
-          <span class="title">{{ $t('page.user.language') }}</span>
-          <div class="options">
-            <div class="option" v-for="(radio, index) in radios" :key="radio.value">
-              <button class="radio" :class="{ selected: index === radioIndex }" @click="localeSelect(radio.value)"></button>
-              <span>{{ radio.name }}</span>
-            </div>
+        <div class="options-select">
+          <div class="locale">
+            <span class="title">{{ $t('page.user.language') }}</span>
+            <OptionsBar :options="radios.map(radio => radio.name)" v-model:index="radioIndex" @option-selected="localeSelect" />
           </div>
         </div>
         <div class="locale">
@@ -55,6 +52,7 @@
 
 <script lang="ts" setup>
 import NavigateStyleButton from '#layers/core/components/NavigateStyleButton.vue'
+import OptionsBar from '#layers/core/components/OptionsBar.vue'
 import UserImportSection from '#layers/core/components/UserImportSection.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -147,8 +145,9 @@ const aiResponseLanguageSelect = async (locale: string) => {
   await getUserDetailInfo()
 }
 
-const localeSelect = (locale: string) => {
-  userStore.changeLocale(locale)
+const localeSelect = (index: number) => {
+  const radio = radios.value[index]
+  userStore.changeLocale(radio.value)
 }
 </script>
 
@@ -167,36 +166,17 @@ const localeSelect = (locale: string) => {
     }
 
     .detail {
-      .locale {
-        --style: mt-24px flex items-center justify-start;
+      .options-select {
+        .locale {
+          --style: mt-24px flex items-center justify-start;
 
-        .title {
-          --style: text-(14px #333) line-height-20px;
-        }
-
-        .options {
-          --style: ml-20px flex items-center jusitfy-start;
-
-          .option {
-            --style: 'flex-center not-first:ml-20px';
-
-            button {
-              background: center / contain url('@images/button-radio-unselect.png');
-              --style: size-12px;
-              &.selected {
-                background: center / contain url('@images/button-radio-selected.png');
-              }
-            }
-
-            span {
-              --style: ml-8px text-(14px #333) line-height-20px;
-            }
+          .title {
+            --style: text-(14px #333) line-height-20px mr-16px;
           }
         }
       }
-
       section {
-        --style: 'mt-48px not-first:mt-60px';
+        --style: 'not-first:mt-60px';
         .title {
           --style: font-600 text-(24px #0f1419) line-height-33px text-left select-none;
         }
