@@ -9,16 +9,12 @@
         <div class="options-select">
           <div class="locale">
             <span class="title">{{ $t('page.user.language') }}</span>
-            <OptionsBar :options="radios.map(radio => radio.name)" v-model:index="radioIndex" @option-selected="localeSelect" />
+            <OptionsBar :options="languageOptions.map(option => option.name)" v-model:index="languageOptionIndex" @option-selected="localeSelect" />
           </div>
-        </div>
-        <div class="locale">
-          <span class="title">{{ $t('page.user.ai_response_language') }}</span>
-          <div class="options">
-            <div class="option" v-for="(radio, index) in aiResponseLanguages" :key="radio.value">
-              <button class="radio" :class="{ selected: index === aiResponseLanguageIndex }" @click="aiResponseLanguageSelect(radio.value)"></button>
-              <span>{{ radio.name }}</span>
-            </div>
+          <div class="ai-locale" v-if="userInfo">
+            <AILanguageTips />
+            <span class="title">{{ $t('page.user.ai_response_language') }}</span>
+            <OptionsBar :options="aiLanguageOptions.map(option => option.name)" v-model:index="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
           </div>
         </div>
         <section>
@@ -53,6 +49,7 @@
 <script lang="ts" setup>
 import NavigateStyleButton from '#layers/core/components/NavigateStyleButton.vue'
 import OptionsBar from '#layers/core/components/OptionsBar.vue'
+import AILanguageTips from '#layers/core/components/Tips/AILanguageTips.vue'
 import UserImportSection from '#layers/core/components/UserImportSection.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -72,7 +69,7 @@ const avatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).hr
 const userInfo = ref<UserDetailInfo>()
 const loading = ref(true)
 
-const radios = computed<{ name: string; value: string }[]>(() => [
+const languageOptions = computed<{ name: string; value: string }[]>(() => [
   {
     name: t('page.user.language_en'),
     value: 'en'
@@ -83,7 +80,7 @@ const radios = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
-const aiResponseLanguages = computed<{ name: string; value: string }[]>(() => [
+const aiLanguageOptions = computed<{ name: string; value: string }[]>(() => [
   {
     name: t('page.user.language_en'),
     value: 'en'
@@ -107,12 +104,12 @@ onMounted(async () => {
   finish()
 })
 
-const radioIndex = computed(() => {
-  return radios.value.findIndex(radio => radio.value === userStore.currentLocale) || 0
+const languageOptionIndex = computed(() => {
+  return languageOptions.value.findIndex(option => option.value === userStore.currentLocale) || 0
 })
 
-const aiResponseLanguageIndex = computed(() => {
-  return aiResponseLanguages.value.findIndex(radio => radio.value === userInfo.value?.ai_lang) || 0
+const aiLanguageOptionIndex = computed(() => {
+  return aiLanguageOptions.value.findIndex(option => option.value === userInfo.value?.ai_lang) || 0
 })
 
 const getUserDetailInfo = async () => {
@@ -134,7 +131,9 @@ const navigateToTelegramChannel = () => {
   window.open(`https://t.me/slax_app`)
 }
 
-const aiResponseLanguageSelect = async (locale: string) => {
+const aiResponseLanguageSelect = async (index: number) => {
+  const locale = aiLanguageOptions.value[index]
+
   await request.post({
     url: RESTMethodPath.USER_INFO_SETTING,
     body: {
@@ -146,8 +145,8 @@ const aiResponseLanguageSelect = async (locale: string) => {
 }
 
 const localeSelect = (index: number) => {
-  const radio = radios.value[index]
-  userStore.changeLocale(radio.value)
+  const option = languageOptions.value[index]
+  userStore.changeLocale(option.value)
 }
 </script>
 
@@ -167,11 +166,23 @@ const localeSelect = (index: number) => {
 
     .detail {
       .options-select {
-        .locale {
+        --style: flex;
+
+        & > * {
+          --style: 'not-first:ml-48px';
+        }
+
+        .locale,
+        .ai-locale {
           --style: mt-24px flex items-center justify-start;
 
           .title {
             --style: text-(14px #333) line-height-20px mr-16px;
+          }
+
+          // eslint-disable-next-line vue-scoped-css/no-unused-selector
+          div + .title {
+            --style: ml-4px;
           }
         }
       }
