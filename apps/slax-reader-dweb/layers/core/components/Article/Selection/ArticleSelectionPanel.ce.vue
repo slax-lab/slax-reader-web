@@ -443,7 +443,8 @@ const cancelReply = () => {
 defineExpose({
   positionConfirmedHandler,
   maxHeightUpdate,
-  updateLocation
+  updateLocation,
+  closeModal
 })
 </script>
 

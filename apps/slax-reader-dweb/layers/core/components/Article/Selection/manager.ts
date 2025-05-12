@@ -174,6 +174,7 @@ export class MarkManager extends Base {
       this._markItemInfos.splice(index, 1)
     }
     await this.renderer.drawMark(info, 'update')
+    await this.modal.dismissPanel()
   }
 
   async deleteComment(id: string, markId: number) {
