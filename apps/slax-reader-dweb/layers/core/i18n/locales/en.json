@@ -72,6 +72,7 @@
       "save": "Save",
       "search": "Search",
       "share": "Share",
+      "snapshot": "Snapshot",
       "submit": "Submit",
       "subscribe": "Subscribe",
       "summary_refresh": "Re-generate",
@@ -80,8 +81,7 @@
       "unarchive": "Unarchive",
       "unsubscribe": "Unsubscribe",
       "view_source": "Source",
-      "view_source_all": "View all",
-      "snapshot": "Snapshot"
+      "view_source_all": "View all"
     },
     "payment": {
       "completed": "Payment Completed",
@@ -105,12 +105,13 @@
     },
     "tips": {
       "access_unavailable": {
-        "title": "This is private content and cannot be viewed",
         "desc": "Please contact the publisher to get the correct sharing address",
-        "footer": "(Content page upper right corner - Share - Copy link)"
+        "footer": "(Content page upper right corner - Share - Copy link)",
+        "title": "This is private content and cannot be viewed"
       },
       "add_tag_failed": "Add tag failed",
       "add_url_success": "Link added",
+      "ai_response_language": "AI Response Language",
       "archive_success": "Content has been Archived",
       "copy_content_success": "Content copied successfully",
       "delete_tag_failed": "Delete tag failed",
@@ -132,8 +133,12 @@
     }
   },
   "component": {
-    "bookmark_tags": {
-      "placeholder": "Enter new tag (press Enter to confirm)"
+    "add_url_top_modal": {
+      "add_url": {
+        "button": "Add",
+        "placeholder": "Paste the link you want to add here",
+        "title": "Add URL"
+      }
     },
     "ai_summaries": {
       "click_to_expand": "Click the colored dots to expand/collapse nodes",
@@ -144,17 +149,23 @@
       "processing": "Content is being analyzed",
       "title": "Analysis Results"
     },
+    "article_ce_tweet": {
+      "followers": "Followers",
+      "followings": "Following",
+      "location": "Location: ",
+      "website": "Website: "
+    },
     "article_selection": {
-      "comment_failed": "Comment failed",
-      "stroke_failed": "Highlight failed",
       "comment_deleted": "Comment deleted",
+      "comment_failed": "Comment failed",
+      "comment_placeholder": "Reply to {username}",
       "hours_ago": "hours ago",
       "just_now": "Just now",
       "minutes_ago": "minutes ago",
       "placeholder": "Post your opinion",
       "reply": "Reply to...",
-      "title": "Post a comment",
-      "comment_placeholder": "Reply to {username}"
+      "stroke_failed": "Highlight failed",
+      "title": "Post a comment"
     },
     "bookmark_article": {
       "no_title": "No Title",
@@ -165,25 +176,13 @@
       "no_title": "No Title",
       "shortcut": "link to:"
     },
-    "add_url_top_modal": {
-      "add_url": {
-        "button": "Add",
-        "placeholder": "Paste the link you want to add here",
-        "title": "Add URL"
-      }
-    },
-    "notification_cell": {
-      "comment_title": "{username} commented:",
-      "reply_title": "{username} replied to you:"
+    "bookmark_tags": {
+      "placeholder": "Enter new tag (press Enter to confirm)"
     },
     "cancel_collection_modal": {
       "removecollection": "Remove from my collections",
       "subtitle": "You'll have access until {date}. After that, you won't be charged",
       "title": "Unsubscribe from collection {name} ?"
-    },
-    "chat_bubble_message": {
-      "links_source": "Information source:",
-      "related_questions": "Related:"
     },
     "chat_bot": {
       "access_complete": "Access complete",
@@ -196,8 +195,50 @@
       "{tips}_accessing": "\"{tips}\" Accessing...",
       "{tips}_searching": "\"{tips}\" Searching..."
     },
+    "chat_bubble_message": {
+      "links_source": "Information source:",
+      "related_questions": "Related:"
+    },
     "chat_tips_message": {
       "generate_question_title": "You might want to ask..."
+    },
+    "collection_header": {
+      "filter_collection_title": "Content of \"{title}\":",
+      "loading": "Collections loading...",
+      "no_collects": "No subscription collections",
+      "subscribe_url": "Subscription link: "
+    },
+    "copy_button": {
+      "copy_content": "Copy content"
+    },
+    "edit_name_modal": {
+      "placeholder": "Enter title",
+      "title": "Edit title"
+    },
+    "edit_tag": {
+      "delete": "Delete tag",
+      "title": "Edit tag"
+    },
+    "feedback": {
+      "placeholder": "Please describe the problem you are experiencing...",
+      "title": "Your feedback will help us improve"
+    },
+    "install_extension_tips": {
+      "descript": "After installation, simply click on the plugin icon to bookmark the URL.",
+      "install": "Go to install",
+      "title": "Install Extension"
+    },
+    "login_view": {
+      "google_login": "Google Login",
+      "share_page_login_tips": "You are not logged in, please log in first",
+      "title": "Create your account, get to know us~"
+    },
+    "notification_cell": {
+      "comment_title": "{username} commented:",
+      "reply_title": "{username} replied to you:"
+    },
+    "notification_header": {
+      "title": "All notifications"
     },
     "owner_setting": {
       "charge_percent": "(Including service management fee ratio: {value})",
@@ -225,59 +266,6 @@
         "share": "Share Option",
         "subscribe": "Subscription Setting"
       }
-    },
-    "stripe_pay_setting": {
-      "country_select": {
-        "subtitle": "Cannot be changed after selection",
-        "title": "Select country，"
-      },
-      "guideline": {
-        "create_title": "Create Stripe account",
-        "status": {
-          "active": "Active",
-          "filling": "Filling",
-          "pending": "Pending",
-          "reviewing": "Reviewing"
-        },
-        "title": "Stripe Merchant Settings Process",
-        "update_title": "Complete Stripe merchant information"
-      },
-      "receive": {
-        "available": "Available for receiving payment",
-        "unavailable": "Unavailable for receiving payment"
-      },
-      "withdraw": {
-        "available": "Available for withdrawal",
-        "unavailable": "Unavailable for withdrawal"
-      }
-    },
-    "copy_button": {
-      "copy_content": "Copy content"
-    },
-    "edit_name_modal": {
-      "placeholder": "Enter title",
-      "title": "Edit title"
-    },
-    "edit_tag": {
-      "delete": "Delete tag",
-      "title": "Edit tag"
-    },
-    "feedback": {
-      "placeholder": "Please describe the problem you are experiencing...",
-      "title": "Your feedback will help us improve"
-    },
-    "install_extension_tips": {
-      "descript": "After installation, simply click on the plugin icon to bookmark the URL.",
-      "install": "Go to install",
-      "title": "Install Extension"
-    },
-    "login_view": {
-      "google_login": "Google Login",
-      "share_page_login_tips": "You are not logged in, please log in first",
-      "title": "Create your account, get to know us~"
-    },
-    "notification_header": {
-      "title": "All notifications"
     },
     "payment": {
       "subscribe_successful": "Subscription successful!",
@@ -344,6 +332,9 @@
       "placeholder": "Enter what you want to find",
       "semantic_relative": "Semantic related {value}%"
     },
+    "share_bubble_tips": {
+      "text": "Share with friends"
+    },
     "share_modal": {
       "copy_link": "Copy link",
       "copy_success": "Copied!",
@@ -355,14 +346,30 @@
       "revoke_tips": "Shared link access been revoked",
       "title": "Share"
     },
-    "share_bubble_tips": {
-      "text": "Share with friends"
-    },
-    "collection_header": {
-      "filter_collection_title": "Content of \"{title}\":",
-      "loading": "Collections loading...",
-      "no_collects": "No subscription collections",
-      "subscribe_url": "Subscription link: "
+    "stripe_pay_setting": {
+      "country_select": {
+        "subtitle": "Cannot be changed after selection",
+        "title": "Select country，"
+      },
+      "guideline": {
+        "create_title": "Create Stripe account",
+        "status": {
+          "active": "Active",
+          "filling": "Filling",
+          "pending": "Pending",
+          "reviewing": "Reviewing"
+        },
+        "title": "Stripe Merchant Settings Process",
+        "update_title": "Complete Stripe merchant information"
+      },
+      "receive": {
+        "available": "Available for receiving payment",
+        "unavailable": "Unavailable for receiving payment"
+      },
+      "withdraw": {
+        "available": "Available for withdrawal",
+        "unavailable": "Unavailable for withdrawal"
+      }
     },
     "subscribe_collection_button": {
       "processing": "Status updating"
@@ -376,12 +383,6 @@
       "add_tag_placeholder": "Enter new tag",
       "filter_tag_title": "Content under the \"{title}\" tag:",
       "loading": "Tags loading..."
-    },
-    "article_ce_tweet": {
-      "followers": "Followers",
-      "followings": "Following",
-      "location": "Location: ",
-      "website": "Website: "
     },
     "user_notification": {
       "no_message": "No message",
@@ -407,11 +408,6 @@
       "share_bookmark_tips": "Shared by { user } on { date }",
       "trash_bookmark_restore": "Restore to Inbox",
       "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days."
-    },
-    "share_detail": {
-      "share_text": "{user} shared on {date}",
-      "transfer_save": "Collect Link",
-      "transfered_save": "Collected"
     },
     "bookmarks_index": {
       "add_url": "Add",
@@ -563,11 +559,17 @@
       "slogan_left_bracket": " ",
       "slogan_right_bracket": " "
     },
+    "share_detail": {
+      "share_text": "{user} shared on {date}",
+      "transfer_save": "Collect Link",
+      "transfered_save": "Collected"
+    },
     "slug": {
       "back_home": "Go back home",
       "title": "Page not found"
     },
     "user": {
+      "ai_response_language": "AI Response Language:",
       "batches_progress": "Progress",
       "business_name": "Business name:",
       "business_type": "Business type",
@@ -595,7 +597,6 @@
       "import_third_party_data": "Import third-party data",
       "import_time": "Import time",
       "language": "Language:",
-      "ai_response_language": "AI Response Language:",
       "language_en": "En",
       "language_zh": "Chinese",
       "my_subscriptions": "My subscriptions",
