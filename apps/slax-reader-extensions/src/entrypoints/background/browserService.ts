@@ -40,7 +40,12 @@ export class BrowserService {
 
   static async notifyUrlUpdate(tab: Browser.tabs.Tab, url: string): Promise<void> {
     const message = { action: MessageTypeAction.PageUrlUpdate, url }
-    await browser.tabs.sendMessage(tab.id!, message)
+
+    try {
+      await browser.tabs.sendMessage(tab.id!, message)
+    } catch (error) {
+      console.error('Error sending message to content script:', error)
+    }
   }
 
   static async notifyBookmarkStatusUpdate(tab: Browser.tabs.Tab): Promise<void> {

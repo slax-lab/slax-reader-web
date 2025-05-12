@@ -31,8 +31,9 @@
         ref="rawWebPanel"
         v-model:show="isPanelShowing"
         :enable-share="true"
+        :panel-type="panelType || undefined"
+        @selectedType="selectedType"
         @is-dragging="val => (isDragging = val)"
-        @selectedTypeUpdate="selectedTypeUpdate"
       >
         <template #sidebar>
           <Transition name="opacity">
@@ -60,18 +61,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ShareModalType } from '../../components/Modal/ShareModal.vue'
 import AISummaries from '#layers/core/components/AISummaries.vue'
 import ChatBot from '#layers/core/components/Chat/ChatBot.vue'
 import OperatesBar from '#layers/core/components/global/OperatesBar.vue'
+import { ShareModalType } from '#layers/core/components/Modal/ShareModal.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import RawWebPanel, { PanelItemType } from '#layers/core/components/RawWebPanel.vue'
+import RawWebPanel from '#layers/core/components/RawWebPanel.vue'
 
 import { RequestMethodType } from '@commons/utils/request'
 
-import { useWebBookmark, useWebBookmarkDetail } from '../../composables/bookmark/useWebBookmark'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkBriefDetail } from '@commons/types/interface'
+import { PanelItemType, useWebBookmark, useWebBookmarkDetail } from '#layers/core//composables/bookmark/useWebBookmark'
 import { ArticleSelection } from '#layers/core/components/Article/Selection/selection'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 import { showShareConfigModal } from '#layers/core/components/Modal'
@@ -87,7 +88,6 @@ const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 const articleSelection = ref<ArticleSelection | null>(null)
 const rawWebPanel = ref<InstanceType<typeof RawWebPanel>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
-
 const isLoading = ref(false)
 const isDragging = ref(false)
 
@@ -202,8 +202,11 @@ const initInlineScript = async () => {
   })
 }
 
-const selectedTypeUpdate = (type: PanelItemType, handler?: (valid: boolean) => void) => {
-  let valid = true
+const selectedType = (type: PanelItemType) => {
+  if (panelType.value === type && [PanelItemType.AI, PanelItemType.Chat].includes(type)) {
+    isPanelShowing.value = !isPanelShowing.value
+    return
+  }
 
   if (type === PanelItemType.Feedback) {
     showFeedback()
@@ -214,12 +217,10 @@ const selectedTypeUpdate = (type: PanelItemType, handler?: (valid: boolean) => v
       type: ShareModalType.Original
     })
   } else if (type === PanelItemType.Chat) {
-    valid = showChatbot()
+    showChatbot()
   } else if (type === PanelItemType.AI) {
-    valid = showAnalyzed()
+    showAnalyzed()
   }
-
-  handler && handler(valid)
 }
 
 const initInline = async () => {
@@ -233,6 +234,7 @@ const {
   user,
   isSubscriptionExpired,
   isPanelShowing,
+  panelType,
   summariesExpanded,
   botExpanded,
   showAnalyzed,

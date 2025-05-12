@@ -45,6 +45,8 @@ const resetElement = (element: HTMLElement) => {
 }
 
 export class MarkModal extends Base {
+  currentPanel: InstanceType<typeof ArticleSelectionPanel> | null = null
+
   constructor(config: SelectionConfig) {
     super(config)
   }
@@ -52,6 +54,12 @@ export class MarkModal extends Base {
   isPanelExist = (container?: HTMLDivElement) => {
     const articleSelectionPanel = (container || this.document).querySelector(`.${panelKey}`) as HTMLElement
     return !!articleSelectionPanel
+  }
+
+  dismissPanel = () => {
+    if (this.currentPanel) {
+      this.currentPanel.closeModal()
+    }
   }
 
   showMenus = (options: {
@@ -324,6 +332,7 @@ export class MarkModal extends Base {
     const onDismiss = () => {
       articleSelectionPanel.remove()
       dismissCallback && dismissCallback()
+      this.currentPanel = null
     }
     const onAction = (type: MenuType, meta: { comment: string; info: MarkItemInfo; event: MouseEvent }) => {
       actionCallback && actionCallback(type, meta)
@@ -362,6 +371,7 @@ export class MarkModal extends Base {
 
     articleSelectionPanel.appendChild(panelElement)
     panel = panelElement as unknown as InstanceType<typeof ArticleSelectionPanel>
+    this.currentPanel = panel
     const selection = this.window.getSelection()
 
     let topOffset = 0

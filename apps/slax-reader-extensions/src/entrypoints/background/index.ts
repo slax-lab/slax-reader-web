@@ -63,6 +63,20 @@ export default defineBackground(() => {
     console.log(`Extension installed, reason: ${reason}, browser: ${import.meta.env.BROWSER}`)
     console.log(`Runtime: ${!!browser.runtime} \nCookie: ${!!browser.cookies} \nTabs: ${!!browser.tabs} \nContextMenus: ${!!browser.contextMenus} \nAction: ${!!browser.action}`)
 
+    try {
+      const cookieToken = await browser.cookies.get({
+        url: `https://${cookieHost}`,
+        name: process.env.COOKIE_TOKEN_NAME || ''
+      })
+
+      if (cookieToken) {
+        userToken.value = cookieToken.value
+        await storageService.setToken(userToken.value)
+      }
+    } catch (error) {
+      console.error('Error getting cookie token:', error)
+    }
+
     if (!(await storageService.getToken())) {
       reason === 'install' && BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
     } else {

@@ -20,7 +20,7 @@
                 <button @click="panelClick(panel.type)">
                   <div class="icon-wrapper">
                     <div class="icon">
-                      <template v-if="panel.type !== selectedType || !panel.selectedIcon">
+                      <template v-if="panel.type !== panelType || !panel.selectedIcon">
                         <img class="normal" :src="panel.icon" alt="" />
                         <img class="highlighted" :src="panel.highlighedIcon" alt="" />
                       </template>
@@ -57,18 +57,9 @@
   </div>
 </template>
 
-<script lang="ts">
-export enum PanelItemType {
-  'AI' = 'ai',
-  'Chat' = 'chat',
-  'Share' = 'share',
-  'Comment' = 'comment',
-  'Feedback' = 'feedback'
-}
-</script>
-
 <script lang="ts" setup>
 import { type Position, useDraggable } from '@vueuse/core'
+import { PanelItemType } from '#layers/core/composables/bookmark/useWebBookmark'
 
 interface PanelItem {
   type: PanelItemType
@@ -80,18 +71,23 @@ interface PanelItem {
 }
 
 const props = defineProps({
+  panelType: {
+    type: String,
+    default: null,
+    required: true
+  },
   enableShare: {
     type: Boolean,
     default: false
   }
 })
-const emits = defineEmits(['isDragging', 'selectedTypeUpdate'])
+
+const emits = defineEmits(['isDragging', 'selectedType'])
 
 const minContentWidth = 500
 const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
 const sidecontent = useTemplateRef<HTMLDivElement>('sidecontent')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
-const selectedType = ref<PanelItemType | ''>('')
 
 const showPanel = defineModel('show')
 const panelItems = ref<PanelItem[]>([
@@ -139,46 +135,12 @@ watch(
   }
 )
 
-watch(
-  () => showPanel.value,
-  val => {
-    if (!val) {
-      selectedType.value = ''
-    }
-  }
-)
-
-watch(
-  () => selectedType.value,
-  (val, oldVal) => {
-    emits('selectedTypeUpdate', val, (valid: boolean) => {
-      if (!valid) {
-        selectedType.value = oldVal
-
-        oldVal === '' && (showPanel.value = false)
-      }
-    })
-  }
-)
-
 const panelClick = async (type: PanelItemType) => {
-  if (type === PanelItemType.Share) {
-    selectedType.value = ''
-    selectedType.value = type
-    return
-  }
-
-  if (selectedType.value === type) {
-    showPanel.value = !showPanel.value
-    return
-  }
-
-  selectedType.value = type
-  showPanel.value = true
+  emits('selectedType', type)
 }
 
 const feedbackClick = () => {
-  selectedType.value = PanelItemType.Feedback
+  panelClick(PanelItemType.Feedback)
 }
 </script>
 

@@ -16,9 +16,18 @@ interface WebBookmarkOptions {
   initialTasksCompleted?: () => void
 }
 
+export enum PanelItemType {
+  'AI' = 'ai',
+  'Chat' = 'chat',
+  'Share' = 'share',
+  'Comment' = 'comment',
+  'Feedback' = 'feedback'
+}
+
 export const useWebBookmark = (options: WebBookmarkOptions) => {
   const userStore = useUserStore()
   const user = ref<UserInfo | null>(userStore.userInfo)
+  const panelType = ref<PanelItemType | null>(null)
   const isPanelShowing = ref(false) // 记录侧边栏是否展开
   const summariesExpanded = ref(false) // 标记摘要是否展开
   const botExpanded = ref(false) // 标记chatbot是否展开
@@ -52,13 +61,21 @@ export const useWebBookmark = (options: WebBookmarkOptions) => {
     }
   )
 
+  watch(
+    () => panelType.value,
+    val => {
+      summariesExpanded.value = val === PanelItemType.AI
+      botExpanded.value = val === PanelItemType.Chat
+    }
+  )
+
   const showAnalyzed = () => {
     if (!loginVerify()) {
-      return false
+      return
     }
 
-    botExpanded.value = false
-    summariesExpanded.value = true
+    panelType.value = PanelItemType.AI
+
     const options = typeOptions()
     if (summariesExpanded.value) {
       logAnalyzed(options, userStore.user?.userId || 0)
@@ -69,11 +86,10 @@ export const useWebBookmark = (options: WebBookmarkOptions) => {
 
   const showChatbot = () => {
     if (!loginVerify() || checkSubscriptionExpired()) {
-      return false
+      return
     }
 
-    summariesExpanded.value = false
-    botExpanded.value = true
+    panelType.value = PanelItemType.Chat
 
     const options = typeOptions()
     if (botExpanded.value) {
@@ -155,6 +171,7 @@ export const useWebBookmark = (options: WebBookmarkOptions) => {
     isSubscriptionExpired,
     redirectHref,
     isPanelShowing,
+    panelType,
     summariesExpanded,
     botExpanded,
     showAnalyzed,

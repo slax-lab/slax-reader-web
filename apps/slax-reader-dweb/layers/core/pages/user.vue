@@ -6,22 +6,15 @@
         <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
       </div>
       <div class="detail">
-        <div class="locale">
-          <span class="title">{{ $t('page.user.language') }}</span>
-          <div class="options">
-            <div class="option" v-for="(radio, index) in radios" :key="radio.value">
-              <button class="radio" :class="{ selected: index === radioIndex }" @click="localeSelect(radio.value)"></button>
-              <span>{{ radio.name }}</span>
-            </div>
+        <div class="options-select">
+          <div class="locale">
+            <span class="title">{{ $t('page.user.language') }}</span>
+            <OptionsBar :options="languageOptions.map(option => option.name)" v-model:index="languageOptionIndex" @option-selected="localeSelect" />
           </div>
-        </div>
-        <div class="locale">
-          <span class="title">{{ $t('page.user.ai_response_language') }}</span>
-          <div class="options">
-            <div class="option" v-for="(radio, index) in aiResponseLanguages" :key="radio.value">
-              <button class="radio" :class="{ selected: index === aiResponseLanguageIndex }" @click="aiResponseLanguageSelect(radio.value)"></button>
-              <span>{{ radio.name }}</span>
-            </div>
+          <div class="ai-locale" v-if="userInfo">
+            <AILanguageTips />
+            <span class="title">{{ $t('page.user.ai_response_language') }}</span>
+            <OptionsBar :options="aiLanguageOptions.map(option => option.name)" v-model:index="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
           </div>
         </div>
         <section>
@@ -55,6 +48,8 @@
 
 <script lang="ts" setup>
 import NavigateStyleButton from '#layers/core/components/NavigateStyleButton.vue'
+import OptionsBar from '#layers/core/components/OptionsBar.vue'
+import AILanguageTips from '#layers/core/components/Tips/AILanguageTips.vue'
 import UserImportSection from '#layers/core/components/UserImportSection.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -74,7 +69,7 @@ const avatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).hr
 const userInfo = ref<UserDetailInfo>()
 const loading = ref(true)
 
-const radios = computed<{ name: string; value: string }[]>(() => [
+const languageOptions = computed<{ name: string; value: string }[]>(() => [
   {
     name: t('page.user.language_en'),
     value: 'en'
@@ -85,7 +80,7 @@ const radios = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
-const aiResponseLanguages = computed<{ name: string; value: string }[]>(() => [
+const aiLanguageOptions = computed<{ name: string; value: string }[]>(() => [
   {
     name: t('page.user.language_en'),
     value: 'en'
@@ -109,12 +104,12 @@ onMounted(async () => {
   finish()
 })
 
-const radioIndex = computed(() => {
-  return radios.value.findIndex(radio => radio.value === userStore.currentLocale) || 0
+const languageOptionIndex = computed(() => {
+  return languageOptions.value.findIndex(option => option.value === userStore.currentLocale) || 0
 })
 
-const aiResponseLanguageIndex = computed(() => {
-  return aiResponseLanguages.value.findIndex(radio => radio.value === userInfo.value?.ai_lang) || 0
+const aiLanguageOptionIndex = computed(() => {
+  return aiLanguageOptions.value.findIndex(option => option.value === userInfo.value?.ai_lang) || 0
 })
 
 const getUserDetailInfo = async () => {
@@ -136,7 +131,9 @@ const navigateToTelegramChannel = () => {
   window.open(`https://t.me/slax_app`)
 }
 
-const aiResponseLanguageSelect = async (locale: string) => {
+const aiResponseLanguageSelect = async (index: number) => {
+  const locale = aiLanguageOptions.value[index]
+
   await request.post({
     url: RESTMethodPath.USER_INFO_SETTING,
     body: {
@@ -147,8 +144,9 @@ const aiResponseLanguageSelect = async (locale: string) => {
   await getUserDetailInfo()
 }
 
-const localeSelect = (locale: string) => {
-  userStore.changeLocale(locale)
+const localeSelect = (index: number) => {
+  const option = languageOptions.value[index]
+  userStore.changeLocale(option.value)
 }
 </script>
 
@@ -167,36 +165,29 @@ const localeSelect = (locale: string) => {
     }
 
     .detail {
-      .locale {
-        --style: mt-24px flex items-center justify-start;
+      .options-select {
+        --style: flex;
 
-        .title {
-          --style: text-(14px #333) line-height-20px;
+        & > * {
+          --style: 'not-first:ml-48px';
         }
 
-        .options {
-          --style: ml-20px flex items-center jusitfy-start;
+        .locale,
+        .ai-locale {
+          --style: mt-24px flex items-center justify-start;
 
-          .option {
-            --style: 'flex-center not-first:ml-20px';
+          .title {
+            --style: text-(14px #333) line-height-20px mr-16px;
+          }
 
-            button {
-              background: center / contain url('@images/button-radio-unselect.png');
-              --style: size-12px;
-              &.selected {
-                background: center / contain url('@images/button-radio-selected.png');
-              }
-            }
-
-            span {
-              --style: ml-8px text-(14px #333) line-height-20px;
-            }
+          // eslint-disable-next-line vue-scoped-css/no-unused-selector
+          div + .title {
+            --style: ml-4px;
           }
         }
       }
-
       section {
-        --style: 'mt-48px not-first:mt-60px';
+        --style: 'not-first:mt-60px';
         .title {
           --style: font-600 text-(24px #0f1419) line-height-33px text-left select-none;
         }
