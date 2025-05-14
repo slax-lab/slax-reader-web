@@ -31,7 +31,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-vue', '@wxt-dev/analytics/module', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
   manifest: {
     name: 'Slax Reader',
-    version: '1.5.0',
+    version: '1.5.3',
     description: 'An AI-powered browser extension that generates outlines and highlights key points to enhance your web reading experience.',
     default_locale: 'en',
     permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus', 'alarms'],
