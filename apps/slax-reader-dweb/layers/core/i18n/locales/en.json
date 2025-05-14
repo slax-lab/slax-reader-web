@@ -106,7 +106,8 @@
     "tips": {
       "access_unavailable": {
         "desc": "Please contact the publisher to get the correct sharing address",
-        "footer": "(Content page upper right corner - Share - Copy link)",
+        "bookmark_footer": "(Content page upper right corner - Share - Copy link)",
+        "web_footer": "(Web page side panel - Share - Copy link)",
         "title": "This is private content and cannot be viewed"
       },
       "add_tag_failed": "Add tag failed",

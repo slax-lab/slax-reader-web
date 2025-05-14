@@ -10,46 +10,58 @@
       </div>
       <div class="right">
         <ClientOnly>
-          <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+          <UserNotification v-if="user" @checkAll="navigateToNotification" />
           <OperatesBar />
         </ClientOnly>
       </div>
     </div>
     <div class="content-wrapper">
-      <div class="iframe-wrapper">
-        <iframe
-          id="content"
-          ref="iframeRef"
-          sandbox="allow-downloads allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts allow-same-origin allow-forms"
-          class="iframe-content"
-        ></iframe>
-        <div class="iframe-mask" v-if="isDragging" @click.stop></div>
-        <div class="iframe-mask" v-if="isLoading"><div class="i-svg-spinners:90-ring text-50px color-slate"></div></div>
-      </div>
-      <RawWebPanel
-        v-if="inlineBookmarkDetail"
-        ref="rawWebPanel"
-        v-model:show="isPanelShowing"
-        :enable-share="false"
-        :panel-type="panelType || undefined"
-        @selectedType="selectedType"
-        @is-dragging="val => (isDragging = val)"
-      >
-        <template #sidebar>
-          <Transition name="opacity">
-            <div v-show="summariesExpanded" class="dark px-20px py-4px">
-              <AISummaries :share-code="id" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'iframe#content'" @navigated-text="() => false" />
-            </div>
-          </Transition>
-          <template v-if="!isSubscriptionExpired">
+      <template v-if="inlineBookmarkDetail">
+        <NuxtLoadingIndicator color="#16b998" />
+        <div class="iframe-wrapper">
+          <iframe
+            id="content"
+            ref="iframeRef"
+            sandbox="allow-downloads allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts allow-same-origin allow-forms"
+            class="iframe-content"
+          ></iframe>
+          <div class="iframe-mask" v-if="isDragging" @click.stop></div>
+        </div>
+        <RawWebPanel
+          v-if="inlineBookmarkDetail"
+          ref="rawWebPanel"
+          v-model:show="isPanelShowing"
+          :enable-share="false"
+          :panel-type="panelType || undefined"
+          @selectedType="selectedType"
+          @is-dragging="val => (isDragging = val)"
+        >
+          <template #sidebar>
             <Transition name="opacity">
-              <div v-show="botExpanded" class="dark size-full">
-                <ChatBot ref="chatbot" :share-code="id" :is-appeared="botExpanded" :close-button-hidden="true" @find-quote="findQuote" />
+              <div v-show="summariesExpanded" class="dark px-20px py-4px">
+                <AISummaries :share-code="id" :is-appeared="summariesExpanded" :close-button-hidden="true" :content-selector="'iframe#content'" @navigated-text="() => false" />
               </div>
             </Transition>
+            <template v-if="!isSubscriptionExpired">
+              <Transition name="opacity">
+                <div v-show="botExpanded" class="dark size-full">
+                  <ChatBot ref="chatbot" :share-code="id" :is-appeared="botExpanded" :close-button-hidden="true" @find-quote="findQuote" />
+                </div>
+              </Transition>
+            </template>
           </template>
-        </template>
-      </RawWebPanel>
+        </RawWebPanel>
+      </template>
+      <template v-else>
+        <ClientOnly>
+          <div class="status">
+            <div class="loading" v-if="isLoading">
+              <div class="i-svg-spinners:90-ring w-1em"></div>
+              <span class="ml-5">{{ $t('page.bookmarks_detail.loading') }}</span>
+            </div>
+          </div>
+        </ClientOnly>
+      </template>
     </div>
   </div>
 </template>
@@ -59,7 +71,7 @@ import AISummaries from '#layers/core/components/AISummaries.vue'
 import ChatBot from '#layers/core/components/Chat/ChatBot.vue'
 import OperatesBar from '#layers/core/components/global/OperatesBar.vue'
 import { ShareModalType } from '#layers/core/components/Modal/ShareModal.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
+import UserNotification from '#layers/core/components/Notification/UserNotification.vue'
 import RawWebPanel from '#layers/core/components/RawWebPanel.vue'
 
 import { RequestMethodType } from '@commons/utils/request'
@@ -88,6 +100,12 @@ const isDragging = ref(false)
 const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(inlineBookmarkDetail)
 
 const { injectCssToIframe } = useIframeStyles(iframeRef, markCss)
+
+const { progress, start, finish, clear } = useLoadingIndicator({
+  duration: 5000,
+  throttle: 200,
+  estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50)
+})
 
 const highlightMarks = async () => {
   if (!iframeDocument.value!.body) return
@@ -220,8 +238,10 @@ const selectedType = (type: PanelItemType) => {
 const initInline = async () => {
   await initInlineScript()
   await loadInlineBookmarkDetail()
+  start()
   await injectInlineScript()
   await highlightMarks()
+  finish()
 }
 
 const {
@@ -299,6 +319,14 @@ const {
 
     .iframe-mask {
       --style: absolute inset-0 flex items-center justify-center;
+    }
+
+    .status {
+      --style: fixed inset-0 flex-center select-none text-(slate lg);
+
+      .loading {
+        --style: relative p-10 flex-1 flex-center max-w-3xl min-h-screenz-100;
+      }
     }
   }
 }

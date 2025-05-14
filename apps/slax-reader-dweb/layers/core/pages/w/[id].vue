@@ -10,52 +10,70 @@
       </div>
       <div class="right">
         <ClientOnly>
-          <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+          <UserNotification v-if="user" @checkAll="navigateToNotification" />
           <OperatesBar />
         </ClientOnly>
       </div>
     </div>
     <div class="content-wrapper">
-      <div class="iframe-wrapper">
-        <iframe
-          id="content"
-          ref="iframeRef"
-          sandbox="allow-downloads allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts allow-same-origin allow-forms"
-          class="iframe-content"
-        ></iframe>
-        <div class="iframe-mask" v-if="isDragging" @click.stop></div>
-        <div class="iframe-mask" v-if="isLoading"><div class="i-svg-spinners:90-ring text-50px color-slate"></div></div>
-      </div>
-      <RawWebPanel
-        v-if="bookmarkBriefInfo"
-        ref="rawWebPanel"
-        v-model:show="isPanelShowing"
-        :enable-share="true"
-        :panel-type="panelType || undefined"
-        @selectedType="selectedType"
-        @is-dragging="val => (isDragging = val)"
-      >
-        <template #sidebar>
-          <Transition name="opacity">
-            <div v-show="summariesExpanded" class="dark px-20px py-4px">
-              <AISummaries
-                :bookmark-id="Number(id)"
-                :is-appeared="summariesExpanded"
-                :close-button-hidden="true"
-                :content-selector="'iframe#content'"
-                @navigated-text="() => false"
-              />
-            </div>
-          </Transition>
-          <template v-if="!isSubscriptionExpired">
+      <template v-if="bookmarkBriefInfo && !isInvalidBookmark">
+        <NuxtLoadingIndicator color="#16b998" />
+        <div class="iframe-wrapper">
+          <iframe
+            id="content"
+            ref="iframeRef"
+            sandbox="allow-downloads allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts allow-same-origin allow-forms"
+            class="iframe-content"
+          ></iframe>
+          <div class="iframe-mask" v-if="isDragging" @click.stop></div>
+        </div>
+        <RawWebPanel
+          v-if="bookmarkBriefInfo"
+          ref="rawWebPanel"
+          v-model:show="isPanelShowing"
+          :enable-share="true"
+          :panel-type="panelType || undefined"
+          @selectedType="selectedType"
+          @is-dragging="val => (isDragging = val)"
+        >
+          <template #sidebar>
             <Transition name="opacity">
-              <div v-show="botExpanded" class="dark size-full">
-                <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" @find-quote="findQuote" />
+              <div v-show="summariesExpanded" class="dark px-20px py-4px">
+                <AISummaries
+                  :bookmark-id="Number(id)"
+                  :is-appeared="summariesExpanded"
+                  :close-button-hidden="true"
+                  :content-selector="'iframe#content'"
+                  @navigated-text="() => false"
+                />
               </div>
             </Transition>
+            <template v-if="!isSubscriptionExpired">
+              <Transition name="opacity">
+                <div v-show="botExpanded" class="dark size-full">
+                  <ChatBot ref="chatbot" :bookmark-id="Number(id)" :is-appeared="botExpanded" :close-button-hidden="true" @find-quote="findQuote" />
+                </div>
+              </Transition>
+            </template>
           </template>
-        </template>
-      </RawWebPanel>
+        </RawWebPanel>
+      </template>
+      <template v-else>
+        <ClientOnly>
+          <div class="status" v-if="!bookmarkBriefInfo || isInvalidBookmark">
+            <div class="loading" v-if="isLoading">
+              <div class="i-svg-spinners:90-ring w-1em"></div>
+              <span class="ml-5">{{ $t('page.bookmarks_detail.loading') }}</span>
+            </div>
+            <div class="invalid" v-else-if="isInvalidBookmark">
+              <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
+              <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+              <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+              <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
+            </div>
+          </div>
+        </ClientOnly>
+      </template>
     </div>
   </div>
 </template>
@@ -65,10 +83,10 @@ import AISummaries from '#layers/core/components/AISummaries.vue'
 import ChatBot from '#layers/core/components/Chat/ChatBot.vue'
 import OperatesBar from '#layers/core/components/global/OperatesBar.vue'
 import { ShareModalType } from '#layers/core/components/Modal/ShareModal.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
+import UserNotification from '#layers/core/components/Notification/UserNotification.vue'
 import RawWebPanel from '#layers/core/components/RawWebPanel.vue'
 
-import { RequestMethodType } from '@commons/utils/request'
+import { RequestError, RequestMethodType } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkBriefDetail } from '@commons/types/interface'
@@ -90,10 +108,17 @@ const rawWebPanel = ref<InstanceType<typeof RawWebPanel>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isLoading = ref(false)
 const isDragging = ref(false)
+const isInvalidBookmark = ref(false)
 
 const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(bookmarkBriefInfo)
 
 const { injectCssToIframe } = useIframeStyles(iframeRef, markCss)
+
+const { progress, start, finish, clear } = useLoadingIndicator({
+  duration: 5000,
+  throttle: 200,
+  estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50)
+})
 
 const highlightMarks = async () => {
   if (!iframeDocument.value!.body) return
@@ -127,6 +152,11 @@ const loadInlineBookmarkDetail = async () => {
       method: RequestMethodType.get,
       query: {
         bookmark_id: id
+      },
+      errorInterceptors: err => {
+        if (err instanceof RequestError && err.code === 400) {
+          isInvalidBookmark.value = true
+        }
       }
     })
     if (!res) throw new Error('loadInlineBookmarkDetail failed')
@@ -226,8 +256,10 @@ const selectedType = (type: PanelItemType) => {
 const initInline = async () => {
   await initInlineScript()
   await loadInlineBookmarkDetail()
+  start()
   await injectInlineScript()
   await highlightMarks()
+  finish()
 }
 
 const {
@@ -305,6 +337,19 @@ const {
 
     .iframe-mask {
       --style: absolute inset-0 flex items-center justify-center;
+    }
+
+    .status {
+      --style: fixed inset-0 flex-center select-none text-(slate lg);
+
+      .loading,
+      .invalid {
+        --style: relative p-10 flex-1 flex-center max-w-3xl min-h-screenz-100;
+      }
+
+      .invalid {
+        --style: flex-col;
+      }
     }
   }
 }
