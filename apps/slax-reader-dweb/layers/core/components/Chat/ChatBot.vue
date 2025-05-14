@@ -678,7 +678,8 @@ defineExpose({
   }
 
   .chat-header {
-    --style: w-full h-54px pt-20px pb-10px px-16px flex justify-between items-center;
+    --style: w-full pt-20px px-16px flex justify-between items-center relative;
+    --style: 'h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
       --style: flex items-center select-none;
@@ -698,10 +699,26 @@ defineExpose({
         --style: w-full select-none;
       }
     }
+
+    &:before,
+    &:after {
+      --style: content-empty absolute left-16px right-16px h-1px;
+      --style: 'bg-transparent dark:bg-#FFFFFF0F';
+    }
+
+    &:before {
+      --style: bottom-0;
+    }
+
+    &:after {
+      --style: bottom-2px;
+    }
   }
 
   .messages-container {
-    --style: relative flex-1 w-full h-full overflow-hidden;
+    --style: relative flex-1 w-full h-full px-4px overflow-hidden;
+    --style: 'dark:pt-15px';
+
     &::before,
     &::after {
       --style: z-2 content-empty absolute h-10px w-full left-0 to-transprent;

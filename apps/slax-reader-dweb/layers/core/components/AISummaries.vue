@@ -633,8 +633,22 @@ $copyButtonXOffset: 20px;
     --style: 'bg-#f5f5f3 dark:bg-transparent';
 
     .header {
-      --style: w-full pt-20px px-20px flex items-center;
-      --style: 'bg-#fcfcfc dark:bg-transparent';
+      --style: relative w-full pt-20px px-20px flex items-center;
+      --style: 'bg-#fcfcfc dark:(bg-transparent pb-25px)';
+
+      &:before,
+      &:after {
+        --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F;
+        --style: 'bg-transparent dark:bg-#FFFFFF0F';
+      }
+
+      &:before {
+        --style: bottom-0;
+      }
+
+      &:after {
+        --style: bottom-2px;
+      }
 
       .title {
         --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
