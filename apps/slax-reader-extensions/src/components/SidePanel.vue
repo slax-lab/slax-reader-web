@@ -115,7 +115,7 @@ const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 400
-const contentWidth = ref(Math.max(window.innerWidth / 3, minContentWidth))
+const contentWidth = ref(Math.min(window.innerWidth / 3, minContentWidth))
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')
