@@ -35,15 +35,9 @@
             </div>
           </Transition>
           <Transition name="sidepanel">
-            <ChatBot
-              v-show="isChatbotShowing"
-              :key="currentUrl"
-              ref="chatbot"
-              :bookmarkId="bookmarkId"
-              :isAppeared="isChatbotShowing"
-              @dismiss="closePanel"
-              @find-quote="findQuote"
-            />
+            <div class="dark size-full" v-show="isChatbotShowing">
+              <ChatBot :key="currentUrl" ref="chatbot" :bookmarkId="bookmarkId" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
+            </div>
           </Transition>
         </div>
       </div>
