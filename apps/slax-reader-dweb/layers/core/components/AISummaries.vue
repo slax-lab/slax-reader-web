@@ -598,7 +598,7 @@ $copyButtonXOffset: 20px;
   }
 
   .operate-container {
-    --style: absolute top-20px right-20px flex-center;
+    --style: z-1 absolute top-20px right-20px flex-center;
 
     button {
       --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
