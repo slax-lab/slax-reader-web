@@ -106,7 +106,8 @@
     "tips": {
       "access_unavailable": {
         "desc": "请联系发布者获取正确的分享地址",
-        "footer": "（内容页右上角 - 分享 - 复制链接）",
+        "bookmark_footer": "（内容页右上角 - 分享 - 复制链接）",
+        "web_footer": "（代理页侧边栏 - 分享 - 复制链接）",
         "title": "这是私密内容，无法查看"
       },
       "add_tag_failed": "添加标签失败",

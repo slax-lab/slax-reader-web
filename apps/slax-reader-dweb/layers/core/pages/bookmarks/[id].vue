@@ -79,7 +79,7 @@
           <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
           <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
           <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.footer') }}</span>
+          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
         </div>
         <div class="processing" v-else-if="detail?.status === 'pending'">
           <div class="i-svg-spinners:clock mt-1px w-1em"></div>
