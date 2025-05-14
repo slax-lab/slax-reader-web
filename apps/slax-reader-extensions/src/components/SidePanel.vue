@@ -114,7 +114,7 @@ const draggble = useTemplateRef<HTMLDivElement>('draggble')
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
-const minContentWidth = 400
+const minContentWidth = 560
 const contentWidth = ref(Math.min(window.innerWidth / 3, minContentWidth))
 
 const bookmarkId = ref(0)

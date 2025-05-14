@@ -251,8 +251,8 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     method: RequestMethodType.post,
     body: {
       bmId: props.bookmarkId ? props.bookmarkId : undefined,
-      shareCode: props.shareCode ? props.shareCode : undefined,
-      ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
+      share_code: props.shareCode ? props.shareCode : undefined,
+      ...(props.collection ? { collection_code: props.collection?.code, cb_id: props.collection?.cbId } : undefined),
       force: refresh
     }
   })
