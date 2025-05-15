@@ -6,8 +6,13 @@
           <button @click="panelClick(panel.type)">
             <div class="icon-wrapper">
               <div class="icon">
-                <img class="normal" :src="panel.icon" alt="" />
-                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                  <img class="normal" :src="panel.icon" alt="" />
+                  <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                </template>
+                <template v-else>
+                  <img class="selected" :src="panel.selectedIcon" alt="" />
+                </template>
               </div>
             </div>
             <span>{{ panel.title }}</span>
@@ -53,8 +58,10 @@ import ChatBot from './Chat/ChatBot.vue'
 
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
+import aiSelectedImage from '~/assets/panel-item-ai-selected.png'
 import chatbotImage from '~/assets/panel-item-chatbot.png'
 import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
+import chatbotSelectedImage from '~/assets/panel-item-chatbot-selected.png'
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
@@ -81,8 +88,10 @@ interface PanelItem {
   type: PanelItemType
   icon: string
   highlighedIcon: string
+  selectedIcon?: string
   title: string
   hovered: boolean
+  isSelected?: () => boolean
 }
 
 const props = defineProps({
@@ -96,9 +105,25 @@ const isCollected = ref(false)
 const isLocked = useScrollLock(window)
 
 const panelItems = ref<PanelItem[]>([
-  { type: PanelItemType.AI, icon: aiImage, highlighedIcon: aiHighlightedImage, title: 'AI', hovered: false },
-  { type: PanelItemType.Chat, icon: chatbotImage, highlighedIcon: chatbotHighlightedImage, title: 'Chat', hovered: false },
-  { type: PanelItemType.Share, icon: shareImage, highlighedIcon: shareHighlightedImage, title: 'Share', hovered: false }
+  {
+    type: PanelItemType.AI,
+    icon: aiImage,
+    highlighedIcon: aiHighlightedImage,
+    selectedIcon: aiSelectedImage,
+    title: $t('component.sidebar.ai'),
+    hovered: false,
+    isSelected: () => isSummaryShowing.value
+  },
+  {
+    type: PanelItemType.Chat,
+    icon: chatbotImage,
+    highlighedIcon: chatbotHighlightedImage,
+    selectedIcon: chatbotSelectedImage,
+    title: $t('component.sidebar.chat'),
+    hovered: false,
+    isSelected: () => isChatbotShowing.value
+  },
+  { type: PanelItemType.Share, icon: shareImage, highlighedIcon: shareHighlightedImage, title: $t('component.sidebar.share'), hovered: false }
 ])
 
 const panelContainer = ref<HTMLDivElement>()
@@ -118,7 +143,7 @@ const currentUrl = ref(window.location.href)
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
 
-const loadingText = ref('收藏中')
+const loadingText = ref($t('component.sidebar.collecting'))
 const isLoading = ref(false)
 const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
@@ -132,7 +157,7 @@ const showPanel = computed(() => {
 })
 
 const appStatusText = computed(() => {
-  return isLoading.value ? loadingTitle.value : isCollected ? '查看收藏' : '收藏内容'
+  return isLoading.value ? loadingTitle.value : isCollected ? $t('component.sidebar.view_collection_detail') : $t('component.sidebar.collect_content')
 })
 
 const needHidden = computed(() => {

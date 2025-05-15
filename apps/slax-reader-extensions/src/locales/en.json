@@ -16,6 +16,14 @@
   "shortcut_settings": "Shortcut Settings",
   "slax_collection_list": "Slax Collection List",
   "component": {
+    "sidebar": {
+      "view_collection_detail": "View Collection",
+      "collect_content": "Collect",
+      "collecting": "Collecting",
+      "share": "Share",
+      "ai": "AI",
+      "chat": "Chat"
+    },
     "ai_summaries": {
       "click_to_expand": "Click the colored dots to expand/collapse nodes",
       "click_to_interpret": "Click the button to interpret this article",

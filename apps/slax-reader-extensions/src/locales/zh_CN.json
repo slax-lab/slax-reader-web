@@ -16,6 +16,14 @@
   "shortcut_settings": "快捷键设置",
   "slax_collection_list": "Slax 收藏列表",
   "component": {
+    "sidebar": {
+      "view_collection_detail": "查看收藏",
+      "collect_content": "收藏内容",
+      "collecting": "收藏中",
+      "share": "分享",
+      "ai": "AI",
+      "chat": "Chat"
+    },
     "ai_summaries": {
       "title": "解析结果",
       "mindmap": "思维导图",
