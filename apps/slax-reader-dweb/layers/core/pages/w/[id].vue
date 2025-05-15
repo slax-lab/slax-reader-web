@@ -32,7 +32,7 @@
           ref="rawWebPanel"
           v-model:show="isPanelShowing"
           :enable-share="true"
-          :panel-type="panelType || undefined"
+          :panel-type="panelType"
           @selectedType="selectedType"
           @is-dragging="val => (isDragging = val)"
         >

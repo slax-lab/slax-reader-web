@@ -73,7 +73,6 @@ interface PanelItem {
 const props = defineProps({
   panelType: {
     type: String,
-    default: null,
     required: true
   },
   enableShare: {
