@@ -101,8 +101,8 @@ export default defineNuxtConfig({
       '/s/**': { ssr: true, prerender: false },
       '/bookmarks/**': { ssr: false, prerender: false },
       '/b': { redirect: '/bookmarks' },
-      '/w/**': { ssr: false, prerender: false },
-      '/sw/**': { ssr: false, prerender: false }
+      '/w/**': { ssr: false, prerender: false, redirect: '/bookmarks' },
+      '/sw/**': { ssr: false, prerender: false, redirect: '/bookmarks' }
     },
     cloudflare: {
       pages: {
