@@ -50,7 +50,7 @@ import { copyText } from '@commons/utils/string'
 import Toast, { ToastType } from '../Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { ShareDetailInfo } from '@commons/types/interface'
-import { useScrollLock } from '@vueuse/core'
+import { onKeyStroke, useScrollLock } from '@vueuse/core'
 
 const props = defineProps({
   bookmarkId: {
@@ -91,6 +91,11 @@ const options = ref<{ title: string; selected: boolean }[]>([
 ])
 
 isLocked.value = true
+
+onKeyStroke('Escape', e => {
+  e.preventDefault()
+  closeModal()
+})
 
 watch(
   () => isSwitched.value,

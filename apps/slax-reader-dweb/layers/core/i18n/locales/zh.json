@@ -105,10 +105,10 @@
     },
     "tips": {
       "access_unavailable": {
-        "desc": "请联系发布者获取正确的分享地址",
         "bookmark_footer": "（内容页右上角 - 分享 - 复制链接）",
-        "web_footer": "（代理页侧边栏 - 分享 - 复制链接）",
-        "title": "这是私密内容，无法查看"
+        "desc": "请联系发布者获取正确的分享地址",
+        "title": "这是私密内容，无法查看",
+        "web_footer": "（代理页侧边栏 - 分享 - 复制链接）"
       },
       "add_tag_failed": "添加标签失败",
       "add_url_success": "链接已添加",
@@ -117,6 +117,7 @@
       "copy_content_success": "内容复制成功",
       "delete_tag_failed": "删除标签失败",
       "editname_success": "标题成功编辑",
+      "fetch_error": "请求失败",
       "get_tag_list_failed": "获取标签列表失败",
       "operate_failed": "操作失败",
       "refetch_success": "已重新开始抓取",

@@ -2,7 +2,7 @@ import { getElementFullSelector, removeOuterTag } from '@commons/utils/dom'
 
 import type { QuoteData } from '../Chat/type'
 import { MarkManager } from './manager'
-import SelectionModal from './modal'
+import { MarkModal } from './modal'
 import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
@@ -13,12 +13,14 @@ export class ArticleSelection {
   private monitor: SelectionMonitor
   private manager: MarkManager
   private renderer: MarkRenderer
+  private modal: MarkModal
   private _config: SelectionConfig
 
   constructor(config: SelectionConfig) {
     this._config = config
+    this.modal = new MarkModal()
     this.renderer = new MarkRenderer(config)
-    this.manager = new MarkManager(config, this.renderer, this.findQuote.bind(this))
+    this.manager = new MarkManager(config, this.renderer, this.modal, this.findQuote.bind(this))
     this.monitor = new SelectionMonitor(config.monitorDom, this.handleMouseUp.bind(this))
   }
 
@@ -86,7 +88,7 @@ export class ArticleSelection {
     this.monitor.clearMouseListenerTry()
 
     setTimeout(() => {
-      if (SelectionModal.isPanelExist(this.config.containerDom!)) {
+      if (this.modal.isPanelExist(this.config.containerDom!)) {
         return
       }
 
@@ -136,7 +138,7 @@ export class ArticleSelection {
       })
 
       let menusY = 0
-      SelectionModal.showMenus({
+      this.modal.showMenus({
         container: this.config.containerDom!,
         allowAction: this.config.allowAction,
         event: e,

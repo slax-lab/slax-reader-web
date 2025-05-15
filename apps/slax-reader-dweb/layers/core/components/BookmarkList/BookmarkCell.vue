@@ -15,6 +15,7 @@
             :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
             @input="handleInput"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            v-on-click-outside="updateBookmarkTitle"
           />
           <template v-if="!isTrashed && !isSubscribe">
             <button
@@ -88,7 +89,7 @@ import { urlHttpString } from '@commons/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, EmptyBookmarkResp } from '@commons/types/interface'
-import { vOnKeyStroke } from '@vueuse/components'
+import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 import { formatDate } from '@vueuse/core'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 
@@ -185,9 +186,15 @@ const clickTitle = () => {
     return
   }
 
-  pwaOpen({
-    url: '/w/' + String(bookmark.value.id)
-  })
+  if (document?.querySelector('slax-reader-panel')) {
+    // pwaOpen({
+    //   url: '/w/' + String(bookmark.value.id)
+    // })
+
+    clickHref()
+  } else {
+    clickCache()
+  }
 }
 
 const clickHref = () => {
@@ -356,6 +363,10 @@ const onKeyDown = (e: KeyboardEvent) => {
     return
   }
 
+  updateBookmarkTitle()
+}
+
+const updateBookmarkTitle = () => {
   if (editingTitle.value === bookmark.value.alias_title) {
     isEditingTitle.value = false
     return

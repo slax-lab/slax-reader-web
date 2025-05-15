@@ -2,7 +2,7 @@ import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 
 import type { QuoteData } from '../Chat/type'
 import Toast, { ToastType } from '../Toast'
-import SelectionModal from './modal'
+import { MarkModal } from './modal'
 import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
 import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
@@ -28,6 +28,7 @@ export class MarkManager {
   constructor(
     private config: SelectionConfig,
     private renderer: MarkRenderer,
+    private modal: MarkModal,
     findQuote: (quote: QuoteData) => void
   ) {
     this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
@@ -155,6 +156,7 @@ export class MarkManager {
       this._markItemInfos.splice(index, 1)
     }
     await this.renderer.drawMark(info, 'update')
+    await this.modal.dismissPanel()
   }
 
   async deleteComment(id: string, markId: number) {
@@ -264,7 +266,7 @@ export class MarkManager {
     if (!userInfo) return
 
     const currentMarkItemInfo = this._currentMarkItemInfo.value
-    SelectionModal.showPanel({
+    this.modal.showPanel({
       container: this.config.containerDom!,
       articleDom: this.config.monitorDom!,
       info: this._currentMarkItemInfo.value,

@@ -27,7 +27,7 @@ export enum PanelItemType {
 export const useWebBookmark = (options: WebBookmarkOptions) => {
   const userStore = useUserStore()
   const user = ref<UserInfo | null>(userStore.userInfo)
-  const panelType = ref<PanelItemType | null>(null)
+  const panelType = ref<PanelItemType | ''>('')
   const isPanelShowing = ref(false) // 记录侧边栏是否展开
   const summariesExpanded = ref(false) // 标记摘要是否展开
   const botExpanded = ref(false) // 标记chatbot是否展开

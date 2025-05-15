@@ -73,7 +73,6 @@ interface PanelItem {
 const props = defineProps({
   panelType: {
     type: String,
-    default: null,
     required: true
   },
   enableShare: {
@@ -295,7 +294,7 @@ const feedbackClick = () => {
         }
 
         &:hover {
-          --style: '!max-w-108px';
+          --style: '!max-w-160px';
 
           .icon {
             .normal {
