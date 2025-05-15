@@ -201,6 +201,10 @@ const addBookmark = async () => {
     }
 
     showTips(i18n.t('collection_failed'))
+  } finally {
+    setTimeout(() => {
+      closePopup()
+    }, 2000)
   }
 }
 
