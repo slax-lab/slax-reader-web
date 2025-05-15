@@ -105,10 +105,10 @@
     },
     "tips": {
       "access_unavailable": {
-        "desc": "Please contact the publisher to get the correct sharing address",
         "bookmark_footer": "(Content page upper right corner - Share - Copy link)",
-        "web_footer": "(Web page side panel - Share - Copy link)",
-        "title": "This is private content and cannot be viewed"
+        "desc": "Please contact the publisher to get the correct sharing address",
+        "title": "This is private content and cannot be viewed",
+        "web_footer": "(Web page side panel - Share - Copy link)"
       },
       "add_tag_failed": "Add tag failed",
       "add_url_success": "Link added",
@@ -117,6 +117,7 @@
       "copy_content_success": "Content copied successfully",
       "delete_tag_failed": "Delete tag failed",
       "editname_success": "Title edited successfully",
+      "fetch_error": "Request failed",
       "get_tag_list_failed": "Get tag list failed",
       "operate_failed": "Operation failed",
       "refetch_success": "Re-fetch started",
