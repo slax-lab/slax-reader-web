@@ -16,7 +16,7 @@
       </div>
     </div>
     <div class="content-wrapper">
-      <template v-if="bookmarkBriefInfo && !isInvalidBookmark">
+      <template v-if="canView">
         <NuxtLoadingIndicator color="#16b998" />
         <div class="iframe-wrapper">
           <iframe
@@ -60,7 +60,7 @@
       </template>
       <template v-else>
         <ClientOnly>
-          <div class="status" v-if="!bookmarkBriefInfo || isInvalidBookmark">
+          <div class="status">
             <div class="loading" v-if="isLoading">
               <div class="i-svg-spinners:90-ring w-1em"></div>
               <span class="ml-5">{{ $t('page.bookmarks_detail.loading') }}</span>
@@ -70,6 +70,10 @@
               <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
               <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
               <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
+            </div>
+            <div class="refresh" v-else-if="isNeedRefresh">
+              <span>{{ $t('common.tips.fetch_error') }}</span>
+              <button @click="refreshIframe">{{ $t('common.operate.refetch') }}</button>
             </div>
           </div>
         </ClientOnly>
@@ -109,6 +113,11 @@ const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isLoading = ref(false)
 const isDragging = ref(false)
 const isInvalidBookmark = ref(false)
+const isNeedRefresh = ref(false)
+
+const canView = computed(() => {
+  return bookmarkBriefInfo.value && !isLoading.value && !isInvalidBookmark.value && !isNeedRefresh.value
+})
 
 const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(bookmarkBriefInfo)
 
@@ -170,6 +179,57 @@ const findQuote = (quote: QuoteData) => {
   articleSelection.value?.findQuote(quote)
 }
 
+const selectedType = (type: PanelItemType) => {
+  if (panelType.value === type && [PanelItemType.AI, PanelItemType.Chat].includes(type)) {
+    isPanelShowing.value = !isPanelShowing.value
+    return
+  }
+
+  if (type === PanelItemType.Feedback) {
+    showFeedback()
+  } else if (type === PanelItemType.Share) {
+    showShareConfigModal({
+      bookmarkId: Number(id),
+      title: window.document.title,
+      type: ShareModalType.Original
+    })
+  } else if (type === PanelItemType.Chat) {
+    showChatbot()
+  } else if (type === PanelItemType.AI) {
+    showAnalyzed()
+  }
+}
+
+const checkIframeContentValid = () => {
+  if (!iframeRef.value) {
+    return false
+  }
+
+  const iframeContent = iframeRef.value.contentDocument?.body.innerText
+  if (!iframeContent) {
+    return false
+  }
+
+  try {
+    const res = JSON.parse(iframeContent)
+    if (res && 'error' in res && 'url' in res && 'proxyUrl' in res && 'timestamp' in res && 'details' in res) {
+      const isInvalid = res.url === bookmarkBriefInfo.value!.target_url
+      return !isInvalid
+    }
+  } catch (e) {
+    return true
+  }
+
+  return true
+}
+
+const refreshIframe = () => {
+  if (!isNeedRefresh.value) return
+
+  isNeedRefresh.value = false
+  requestAndInjectIframe()
+}
+
 const injectInlineScript = async () => {
   document.title = `Slax Reader - ${bookmarkBriefInfo.value?.title}`
   iframeRef.value!.src = `/w/liveproxy/mp_/${bookmarkBriefInfo.value!.target_url}`
@@ -184,6 +244,11 @@ const injectInlineScript = async () => {
 
   if (!iframeRef.value) throw new Error('iframeRef is not supported')
 
+  if (!checkIframeContentValid()) {
+    isNeedRefresh.value = true
+    return false
+  }
+
   iframeDocument.value = iframeRef.value.contentDocument
   iframeWindow.value = iframeRef.value.contentWindow
 
@@ -197,11 +262,15 @@ const injectInlineScript = async () => {
     })
   }
 
-  new MutationObserver(function (mutations) {
-    window.document.title = 'Slax Reader - ' + mutations[0].target.textContent || ''
-  }).observe(iframeDocument.value?.querySelector('title')!, { subtree: true, characterData: true, childList: true })
+  const titleEle = iframeDocument.value?.querySelector('title')
+  titleEle &&
+    new MutationObserver(function (mutations) {
+      window.document.title = 'Slax Reader - ' + mutations[0].target.textContent || ''
+    }).observe(titleEle, { subtree: true, characterData: true, childList: true })
 
   injectCssToIframe()
+
+  return true
 }
 
 const initInlineScript = async () => {
@@ -232,34 +301,17 @@ const initInlineScript = async () => {
   })
 }
 
-const selectedType = (type: PanelItemType) => {
-  if (panelType.value === type && [PanelItemType.AI, PanelItemType.Chat].includes(type)) {
-    isPanelShowing.value = !isPanelShowing.value
-    return
-  }
-
-  if (type === PanelItemType.Feedback) {
-    showFeedback()
-  } else if (type === PanelItemType.Share) {
-    showShareConfigModal({
-      bookmarkId: Number(id),
-      title: window.document.title,
-      type: ShareModalType.Original
-    })
-  } else if (type === PanelItemType.Chat) {
-    showChatbot()
-  } else if (type === PanelItemType.AI) {
-    showAnalyzed()
-  }
+const requestAndInjectIframe = async () => {
+  start()
+  const res = await injectInlineScript()
+  res && (await highlightMarks())
+  finish()
 }
 
 const initInline = async () => {
   await initInlineScript()
   await loadInlineBookmarkDetail()
-  start()
-  await injectInlineScript()
-  await highlightMarks()
-  finish()
+  await requestAndInjectIframe()
 }
 
 const {
@@ -343,12 +395,24 @@ const {
       --style: fixed inset-0 flex-center select-none text-(slate lg);
 
       .loading,
-      .invalid {
+      .invalid,
+      .refresh {
         --style: relative p-10 flex-1 flex-center max-w-3xl min-h-screenz-100;
       }
 
-      .invalid {
+      .invalid,
+      .refresh {
         --style: flex-col;
+      }
+
+      .refresh {
+        span {
+          --style: mt-16px text-(14px #999) line-height-20px;
+        }
+
+        button {
+          --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+        }
       }
     }
   }
