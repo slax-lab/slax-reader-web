@@ -539,7 +539,7 @@ const checkSource = () => {
           }
 
           &:hover {
-            --style: '!max-w-108px';
+            --style: '!max-w-160px';
 
             .icon {
               .normal {
