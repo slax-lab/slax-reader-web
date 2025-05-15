@@ -17,7 +17,7 @@
   "slax_collection_list": "Slax Collection List",
   "component": {
     "sidebar": {
-      "view_collection_detail": "View Collection",
+      "view_collection_detail": "View Cache",
       "collect_content": "Collect",
       "collecting": "Collecting",
       "share": "Share",
