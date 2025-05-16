@@ -542,13 +542,13 @@
           "version": "v1.3"
         },
         "5": {
-          "1": "Slax Reader is now open source",
+          "1": "Slax Reader is now open source! 🎉",
           "version": "v1.4"
         },
         "6": {
-          "1": "Browser extension supports in-page highlighting, comments, sharing, and AI features",
-          "2": "Added AI output language customization",
-          "3": "Invite-code subscriptions now available",
+          "1": "[Feature] Browser Extension Highlighting, Commenting, and AI Chatting on original web page",
+          "2": "[Feature] Language settings for AI features",
+          "3": "[Feature] Subscription via Invite Codes",
           "version": "v1.5"
         },
         "head": "Current Version ({version})"
