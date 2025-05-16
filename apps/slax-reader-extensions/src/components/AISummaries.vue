@@ -159,7 +159,7 @@ watch(
 watch(
   () => props.isAppeared,
   value => {
-    if (value && !loading.value && !done.value) {
+    if (value && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
     }
   },
