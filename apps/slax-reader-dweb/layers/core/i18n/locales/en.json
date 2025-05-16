@@ -541,6 +541,16 @@
           "5": "AI analysis is free",
           "version": "v1.3"
         },
+        "5": {
+          "1": "Slax Reader is now open source",
+          "version": "v1.4"
+        },
+        "6": {
+          "1": "Browser extension supports in-page highlighting, comments, sharing, and AI features",
+          "2": "Added AI output language customization",
+          "3": "Invite-code subscriptions now available",
+          "version": "v1.5"
+        },
         "head": "Current Version ({version})"
       },
       "posters": {

@@ -18,7 +18,15 @@ const { t } = useI18n()
 
 const timelines = computed(() => [
   {
-    version: t('page.index.history_notes.head', { version: t('page.index.history_notes.4.version') }),
+    version: t('page.index.history_notes.head', { version: t('page.index.history_notes.6.version') }),
+    content: [t('page.index.history_notes.6.1'), t('page.index.history_notes.6.2'), t('page.index.history_notes.6.3')]
+  },
+  {
+    version: t('page.index.history_notes.5.version'),
+    content: [t('page.index.history_notes.5.1')]
+  },
+  {
+    version: t('page.index.history_notes.4.version'),
     content: [
       t('page.index.history_notes.4.1'),
       t('page.index.history_notes.4.2'),
