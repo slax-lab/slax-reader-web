@@ -250,7 +250,7 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
     method: RequestMethodType.post,
     body: {
-      bmId: props.bookmarkId ? props.bookmarkId : undefined,
+      bm_id: props.bookmarkId ? props.bookmarkId : undefined,
       share_code: props.shareCode ? props.shareCode : undefined,
       ...(props.collection ? { collection_code: props.collection?.code, cb_id: props.collection?.cbId } : undefined),
       force: refresh

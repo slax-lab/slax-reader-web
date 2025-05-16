@@ -223,25 +223,24 @@ export class ChatBot {
 
       messages.push({ role: 'user', content: params.content })
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
-        collection: this.collection ? this.collection : undefined,
+        bm_id: this.bookmarkId ? this.bookmarkId : undefined,
+        share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages,
         quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined
       }
     } else if (params.type === ChatParamsType.QUESTIONS) {
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        bm_id: this.bookmarkId ? this.bookmarkId : undefined,
+        share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages: [{ role: 'assistant', tool_calls: [{ id: '1', type: 'function', function: { name: 'generateQuestion' } }] }]
       }
     } else if (params.type === ChatParamsType.ASK) {
       return {
-        bmId: this.bookmarkId ? this.bookmarkId : undefined,
-        shareCode: this.shareCode ? this.shareCode : undefined,
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        bm_id: this.bookmarkId ? this.bookmarkId : undefined,
+        share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages: [
           {
             role: 'assistant',

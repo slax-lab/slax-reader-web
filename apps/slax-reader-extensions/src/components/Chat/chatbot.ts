@@ -234,26 +234,26 @@ export class ChatBot {
 
       messages.push({ role: 'user', content: params.content })
       return {
-        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
-        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        ...(this.bookmarkId ? { bm_id: this.bookmarkId } : {}),
+        ...(this.shareCode ? { share_code: this.shareCode } : {}),
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages,
         quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined
       }
     } else if (params.type === ChatParamsType.QUESTIONS) {
       return {
-        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
-        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        ...(this.bookmarkId ? { bm_id: this.bookmarkId } : {}),
+        ...(this.shareCode ? { share_code: this.shareCode } : {}),
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages: [{ role: 'assistant', tool_calls: [{ id: '1', type: 'function', function: { name: 'generateQuestion' } }] }]
       }
     } else if (params.type === ChatParamsType.ASK) {
       return {
-        ...(this.bookmarkId ? { bmId: this.bookmarkId } : {}),
-        ...(this.shareCode ? { shareCode: this.shareCode } : {}),
-        ...(this.collection ? { collectionCode: this.collection.code, cbId: this.collection.cbId } : {}),
+        ...(this.bookmarkId ? { bm_id: this.bookmarkId } : {}),
+        ...(this.shareCode ? { share_code: this.shareCode } : {}),
+        ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         ...(this.raw ? { title: this.raw.title, raw_content: this.raw.raw_content } : {}),
         messages: [
           {
