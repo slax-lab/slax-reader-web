@@ -424,7 +424,7 @@
       "no_more": "No more",
       "starred": "Starred",
       "topics": "Topics",
-      "trash_no_more": "Bookmarks moved to trash more then 7 days ago are permanently deleted.",
+      "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original"
     },
     "c_detail": {
