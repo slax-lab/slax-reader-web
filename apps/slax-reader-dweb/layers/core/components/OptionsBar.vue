@@ -1,6 +1,6 @@
 <template>
   <div class="options-bar">
-    <div class="bar-container" @click="showOptions = !showOptions">
+    <div class="bar-container" @click="showOptions = !showOptions" v-on-click-outside="closePopup">
       <span class="title">{{ options[selectedIndex] }}</span>
       <i class="bg-[url('@images/button-tiny-bottom-arrow.png')]"></i>
     </div>
@@ -17,6 +17,8 @@
 </template>
 
 <script lang="ts" setup>
+import { vOnClickOutside } from '@vueuse/components'
+
 const props = defineProps({
   options: {
     required: true,
@@ -40,6 +42,14 @@ const optionClick = (index: number) => {
   if (index !== selectedIndex.value) {
     selectedIndex.value = index
     emits('optionSelected', index)
+  }
+
+  showOptions.value = false
+}
+
+const closePopup = () => {
+  if (!showOptions.value) {
+    return
   }
 
   showOptions.value = false
