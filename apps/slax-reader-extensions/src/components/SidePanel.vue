@@ -1,5 +1,5 @@
 <template>
-  <div class="side-panel" v-on-click-outside="closePanel" v-if="!needHidden">
+  <div class="side-panel" v-if="!needHidden">
     <div class="panel-container" ref="panelContainer" :class="{ appear: showPanel }">
       <div class="panel-sidebar">
         <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
@@ -33,7 +33,7 @@
       </div>
       <div class="panel-content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="drag" ref="draggble" />
-        <div class="panel-content-wrapper">
+        <div class="panel-content-wrapper" :class="{ dragging: isDragging }">
           <Transition name="sidepanel">
             <div class="dark px-20px pt-4px" v-show="isSummaryShowing">
               <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
@@ -164,7 +164,7 @@ const needHidden = computed(() => {
   return isSlaxWebsite(currentUrl.value) || bookmarkId.value === 0
 })
 
-useDraggable(draggble, {
+const { isDragging } = useDraggable(draggble, {
   onMove: (position: Position) => {
     const windowWidth = window.innerWidth
     const left = position.x
@@ -572,6 +572,10 @@ const checkSource = () => {
 
       .panel-content-wrapper {
         --style: w-full h-full overflow-auto;
+
+        &.dragging {
+          --style: select-none;
+        }
       }
     }
   }
