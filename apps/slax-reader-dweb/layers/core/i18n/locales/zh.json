@@ -633,9 +633,9 @@
       "stripe_setup_notice": "Slax Reader 将通过 Stripe 账户进行支付、提现等操作，需要你补充 Stripe 账户资料",
       "stripe_status": "Stripe 状态：",
       "subscribe": {
-        "expired": "订阅到期时间",
-        "first": "初次订阅时间",
-        "next_payment": "下次收款时间",
+        "expired": "订阅到期时间：",
+        "first": "初次订阅时间：",
+        "next_payment": "下次收款时间：",
         "no": "没有订阅",
         "subscripted_pro": "已订阅 Pro 版",
         "subscripted_trail_pro": "已订阅试用 Pro 版"
