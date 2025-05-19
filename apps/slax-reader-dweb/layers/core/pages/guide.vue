@@ -37,6 +37,9 @@
             <GoogleLoginButton />
           </div>
         </div>
+        <div class="guide-footer" v-else>
+          <button class="use" @click="logoClick">{{ $t('page.guide.use') }}</button>
+        </div>
       </div>
     </div>
   </div>
@@ -203,6 +206,18 @@ const logoClick = () => {
       // eslint-disable-next-line vue-scoped-css/no-unused-selector
       .google-login-button {
         --style: w-274px;
+      }
+    }
+
+    .use {
+      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+
+      &:not(.disabled):hover {
+        --style: bg-#14a689;
+      }
+
+      &:not(.disabled):active {
+        --style: scale-105;
       }
     }
   }
