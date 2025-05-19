@@ -33,6 +33,7 @@ Huge thanks to all project contributors and the open-source community!
 ## Trademark Notice
 
 "Slax Reader" and its logo are trademarks of Slax Lab. Use of the name, logo, or related trademarks for commercial purposes requires prior written permission. See the project’s [trademark policy](https://github.com/slax-lab/slax-reader-web/blob/main/TRADEMARK.md) for more.
+
 ## License
 
 Slax Reader is open-sourced under the [Apache License 2.0](https://github.com/slax-lab/slax-reader-web/blob/main/LICENSE).
