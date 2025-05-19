@@ -24,7 +24,7 @@ const props = defineProps({
     required: true,
     type: Array as PropType<string[]>
   },
-  defaultSelecedIndex: {
+  defaultSelectedIndex: {
     required: false,
     type: Number,
     default: 0
@@ -36,7 +36,18 @@ const emits = defineEmits(['optionSelected'])
 const selectedIndex = defineModel<number>('index', { default: 0 })
 const showOptions = ref(false)
 
-selectedIndex.value = props.defaultSelecedIndex
+selectedIndex.value = props.defaultSelectedIndex
+
+watch(
+  () => props.defaultSelectedIndex,
+  newValue => {
+    if (selectedIndex.value === newValue) {
+      return
+    }
+
+    selectedIndex.value = newValue
+  }
+)
 
 const optionClick = (index: number) => {
   if (index !== selectedIndex.value) {
