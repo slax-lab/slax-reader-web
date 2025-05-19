@@ -138,7 +138,7 @@ const aiResponseLanguageSelect = async (index: number) => {
     url: RESTMethodPath.USER_INFO_SETTING,
     body: {
       key: 'ai_lang',
-      value: locale
+      value: locale.value
     }
   })
   await getUserDetailInfo()
