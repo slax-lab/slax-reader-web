@@ -14,6 +14,10 @@
     sans-serif;
   box-sizing: border-box;
   print-color-adjust: exact !important;
+
+  &::selection {
+    background: #16b998aa;
+  }
 }
 
 button {
