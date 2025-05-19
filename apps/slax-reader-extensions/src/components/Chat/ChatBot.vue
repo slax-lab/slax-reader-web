@@ -254,9 +254,10 @@ watch(
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
 
-      bot.chat({
-        type: ChatParamsType.QUESTIONS
-      })
+      // 调整逻辑为进入Chat后默认不生成问题了
+      // bot.chat({
+      //   type: ChatParamsType.QUESTIONS
+      // })
     }
 
     if (value) {
