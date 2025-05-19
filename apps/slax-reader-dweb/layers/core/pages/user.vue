@@ -9,12 +9,12 @@
         <div class="options-select">
           <div class="locale">
             <span class="title">{{ $t('page.user.language') }}</span>
-            <OptionsBar :options="languageOptions.map(option => option.name)" v-model:index="languageOptionIndex" @option-selected="localeSelect" />
+            <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
           </div>
           <div class="ai-locale" v-if="userInfo">
             <AILanguageTips />
             <span class="title">{{ $t('page.user.ai_response_language') }}</span>
-            <OptionsBar :options="aiLanguageOptions.map(option => option.name)" v-model:index="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
+            <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
           </div>
         </div>
         <section>
@@ -138,7 +138,7 @@ const aiResponseLanguageSelect = async (index: number) => {
     url: RESTMethodPath.USER_INFO_SETTING,
     body: {
       key: 'ai_lang',
-      value: locale
+      value: locale.value
     }
   })
   await getUserDetailInfo()

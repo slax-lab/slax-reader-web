@@ -269,15 +269,6 @@ const {
   }
 })
 
-watch(
-  () => user.value,
-  (value, oldValue) => {
-    if (value && value.userId !== oldValue?.userId) {
-      checkShowTransferButton()
-    }
-  }
-)
-
 const checkShowTransferButton = () => {
   request
     .post<BookmarkExistsResp>({
@@ -289,6 +280,18 @@ const checkShowTransferButton = () => {
     .then(res => {
       isShowTransferButton.value = !res?.exists
     })
+}
+
+if (isClient) {
+  watch(
+    () => user.value,
+    (value, oldValue) => {
+      if (value && value.userId !== oldValue?.userId) {
+        checkShowTransferButton()
+      }
+    },
+    { immediate: true }
+  )
 }
 
 const loadMarks = async () => {

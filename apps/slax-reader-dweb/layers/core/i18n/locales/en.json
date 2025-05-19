@@ -424,7 +424,7 @@
       "no_more": "No more",
       "starred": "Starred",
       "topics": "Topics",
-      "trash_no_more": "Bookmarks moved to trash more then 7 days ago are permanently deleted.",
+      "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original"
     },
     "c_detail": {
@@ -452,7 +452,8 @@
       },
       "operate_title": "Get started:",
       "subtitle": "The following details will help you better use the product",
-      "title": "Welcome to Slax Reader"
+      "title": "Welcome to Slax Reader",
+      "use": "Get started"
     },
     "index": {
       "cards": {
