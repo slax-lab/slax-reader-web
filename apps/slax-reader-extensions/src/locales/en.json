@@ -6,24 +6,22 @@
   "collection_in_progress": "Collecting",
   "collection_not_supported": "Collection Not Supported on This Page",
   "collection_successful": "Collected",
-  "extended_settings": "Extended Settings",
-  "not_collected": "Not Collected",
-  "recollection": "Collect Again",
-  "removal": "Discard",
-  "removal_failed": "Removal Failed",
-  "removal_in_progress": "Removing",
-  "removal_successful": "Removed",
-  "shortcut_settings": "Shortcut Settings",
-  "slax_collection_list": "Slax Collection List",
-  "component": {
-    "sidebar": {
-      "view_collection_detail": "View Cache",
-      "collect_content": "Collect",
-      "collecting": "Collecting",
-      "share": "Share",
-      "ai": "AI",
-      "chat": "Chat"
+  "common": {
+    "operate": {
+      "chatbot": "Chat",
+      "comment": "Comment",
+      "copy": "Copy",
+      "delete_line": "Clear",
+      "line": "Highlight",
+      "reply": "Reply",
+      "summary_refresh": "Re-generate"
     },
+    "tips": {
+      "copy_content_success": "Content copied successfully",
+      "share_failed": "Create share failed"
+    }
+  },
+  "component": {
     "ai_summaries": {
       "click_to_expand": "Click the colored dots to expand/collapse nodes",
       "click_to_interpret": "Click the button to interpret this article",
@@ -33,39 +31,40 @@
       "processing": "Content is being analyzed",
       "title": "Analysis Results"
     },
-    "copy_button": {
-      "copy_content": "Copy content"
-    },
-    "chat_bubble_message": {
-      "links_source": "Information source:",
-      "related_questions": "Related:"
+    "article_selection": {
+      "comment_deleted": "Comment deleted",
+      "comment_failed": "Comment failed",
+      "comment_placeholder": "Reply to $1",
+      "hours_ago": "hours ago",
+      "just_now": "Just now",
+      "minutes_ago": "minutes ago",
+      "perceptions": "Perceptions",
+      "placeholder": "Post your opinion",
+      "reply": "Reply to...",
+      "stroke_failed": "Highlight failed",
+      "title": "Post a comment"
     },
     "chat_bot": {
       "access_complete": "Access complete",
       "access_failed": "Access failed:",
       "accessing_token": "Accessing",
+      "alias_placeholder": "Enter your question ($1 + enter to line break)",
+      "discover": "Discover more about this article，\nask me anything that comes to mind",
       "generating_question": "Generating question...",
       "hello": "Hello, I am the Slax Reader AI assistant:",
       "now_accessing": "Accessing...",
-      "alias_placeholder": "Enter your question ($1 + enter to line break)",
       "tips_accessing": "\"$1\" Accessing...",
       "tips_searching": "\"$1\" Searching..."
+    },
+    "chat_bubble_message": {
+      "links_source": "Information source:",
+      "related_questions": "Related:"
     },
     "chat_tips_message": {
       "generate_question_title": "You might want to ask..."
     },
-    "article_selection": {
-      "comment_failed": "Comment failed",
-      "stroke_failed": "Highlight failed",
-      "comment_deleted": "Comment deleted",
-      "hours_ago": "hours ago",
-      "just_now": "Just now",
-      "minutes_ago": "minutes ago",
-      "placeholder": "Post your opinion",
-      "reply": "Reply to...",
-      "title": "Post a comment",
-      "comment_placeholder": "Reply to $1",
-      "perceptions": "Perceptions"
+    "copy_button": {
+      "copy_content": "Copy content"
     },
     "share_modal": {
       "copy_link": "Copy link",
@@ -77,29 +76,32 @@
       },
       "revoke_tips": "Shared link access been revoked",
       "title": "Share"
+    },
+    "sidebar": {
+      "ai": "AI",
+      "chat": "Chat",
+      "collect_content": "Collect",
+      "collecting": "Collecting",
+      "comments": "Comments",
+      "share": "Share",
+      "view_collection_detail": "View Cache"
     }
   },
+  "extended_settings": "Extended Settings",
+  "not_collected": "Not Collected",
+  "recollection": "Collect Again",
+  "removal": "Discard",
+  "removal_failed": "Removal Failed",
+  "removal_in_progress": "Removing",
+  "removal_successful": "Removed",
+  "shortcut_settings": "Shortcut Settings",
+  "slax_collection_list": "Slax Collection List",
   "util": {
     "chatbot": {
       "browser_finished": "Access complete",
       "generate_question": "Generating question",
       "generate_question_finished": "Finished",
       "search_finished": "Search complete"
-    }
-  },
-  "common": {
-    "operate": {
-      "summary_refresh": "Re-generate",
-      "reply": "Reply",
-      "line": "Highlight",
-      "delete_line": "Clear",
-      "comment": "Comment",
-      "copy": "Copy",
-      "chatbot": "Chat"
-    },
-    "tips": {
-      "copy_content_success": "Content copied successfully",
-      "share_failed": "Create share failed"
     }
   }
 }
