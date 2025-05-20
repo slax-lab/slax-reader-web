@@ -4,10 +4,12 @@
       <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
         <span>{{ $t('common.operate.summary_refresh') }}</span>
       </button>
-      <i class="seperator"></i>
-      <button class="close" @click="closeModal">
-        <img src="@/assets/button-dialog-close.png" />
-      </button>
+      <template v-if="!closeButtonHidden">
+        <i class="seperator"></i>
+        <button class="close" @click="closeModal">
+          <img src="@/assets/button-dialog-close.png" />
+        </button>
+      </template>
     </div>
     <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
       <div class="header">
@@ -110,6 +112,10 @@ const props = defineProps({
     type: String
   },
   isAppeared: {
+    required: false,
+    type: Boolean
+  },
+  closeButtonHidden: {
     required: false,
     type: Boolean
   }
@@ -589,9 +595,9 @@ $copyButtonXOffset: 20px;
     }
 
     .refresh {
-      --style: flex-center;
+      --style: flex-center px-4px py-3px rounded-4px bg-#ffffff0f;
       span {
-        --style: text-(13px #999) line-height-18px;
+        --style: text-(13px #ffffff66) line-height-18px;
       }
     }
 

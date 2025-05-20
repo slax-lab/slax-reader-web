@@ -1,16 +1,13 @@
 <template>
   <Transition name="chat">
     <div class="chat-bot" ref="chat" v-show="isAppeared">
-      <div class="chat-header">
+      <div class="chat-header" v-if="!messageList || messageList.length === 0">
         <div class="chat-title">
-          <img src="@/assets/panel-item-chatbot.png" alt="" />
-          <span>{{ $t('component.chat_bot.hello') }}</span>
+          <img src="@/assets/tiny-chatbot-logo-gray.png" alt="" />
+          <span>{{ $t('component.chat_bot.discover') }}</span>
         </div>
-        <button class="close" @click="closeModal">
-          <img src="@/assets/button-dialog-close.png" />
-        </button>
       </div>
-      <div class="messages-container">
+      <div class="messages-container" v-else>
         <div class="messages" ref="messages">
           <div class="message" v-for="message in messageList" :key="message.id">
             <template v-if="message.type === 'question'">
@@ -40,12 +37,14 @@
           <button class="bg-[url('@/assets/button-circle-close.png')]" @click="closeQuote"></button>
         </div>
         <div class="input-container">
-          <div class="textarea-wrapper">
+          <div class="textarea-wrapper" :class="{ focus: isFocus }">
             <textarea
               ref="textarea"
               v-model="inputText"
               v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
               :placeholder="textareaPlaceholder"
+              @focus="isFocus = true"
+              @blur="isFocus = false"
               @compositionstart="compositionstart"
               @compositionend="compositionend"
               @input="handleInput"
@@ -87,6 +86,8 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['dismiss', 'findQuote'])
+
+const isFocus = ref(false)
 
 const getRawTextContent = () => {
   return new Readability(cloneBodyDocument(), { debug: false }).parse()
@@ -349,10 +350,6 @@ const sendMessage = () => {
   nextTick(() => {
     handleInput()
   })
-}
-
-const closeModal = () => {
-  emits('dismiss')
 }
 
 const questionClick = (question: QuestionMessageItem) => {
@@ -669,40 +666,19 @@ defineExpose({
   --style: w-full h-full bg-#262626FF flex flex-col justify-stretch items-center overflow-hidden z-3;
 
   .chat-header {
-    --style: w-full pt-20px px-16px flex justify-between items-center relative;
+    --style: flex-1 w-full pt-20px px-16px flex justify-center items-center relative;
     --style: 'h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
-      --style: flex items-center select-none;
+      --style: flex flex-col items-center select-none;
 
       img {
-        --style: w-24px h-24px object-contain select-none;
+        --style: size-48px object-contain select-none;
       }
 
       span {
-        --style: ml-8px text-(13px #999) line-height-18px;
+        --style: mt-32px text-(15px #ffffff66) line-height-21px whitespace-pre-line text-align-center;
       }
-    }
-
-    .close {
-      --style: 'w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
-      img {
-        --style: w-full select-none;
-      }
-    }
-
-    &:before,
-    &:after {
-      --style: content-empty absolute left-16px right-16px h-1px;
-      --style: 'bg-transparent dark:bg-#FFFFFF0F';
-    }
-
-    &:before {
-      --style: bottom-0;
-    }
-
-    &:after {
-      --style: bottom-2px;
     }
   }
 
@@ -771,7 +747,11 @@ defineExpose({
       --style: w-full p-24px rounded-1 bg-#262626FF overflow-hidden;
 
       .textarea-wrapper {
-        --style: w-full h-full relative border-(2px solid #1f1f1fff) bg-#1f1f1fff rounded-8px py-16px pl-16px pr-64px flex;
+        --style: w-full h-full relative border-(2px solid #1f1f1fff) bg-#1f1f1fff rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250;
+
+        &.focus {
+          --style: border-(1px solid #16b99899);
+        }
 
         textarea {
           --style: w-full min-h-22px max-h-88px h-22px resize-none text-(15px #ffffffe6) bg-transparent line-height-22px;
