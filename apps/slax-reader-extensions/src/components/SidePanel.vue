@@ -1,9 +1,95 @@
 <template>
   <div class="side-panel" v-if="!needHidden">
-    <div class="panel-container" ref="panelContainer" :class="{ appear: showPanel }">
-      <div class="panel-sidebar">
-        <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
+    <div class="web-panel">
+      <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
+        <button @click="panelClick(panel.type)">
+          <div class="icon-wrapper">
+            <div class="icon">
+              <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                <img class="normal" :src="panel.icon" alt="" />
+                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+              </template>
+              <template v-else>
+                <img class="selected" :src="panel.selectedIcon" alt="" />
+              </template>
+            </div>
+          </div>
+          <span>{{ panel.title }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="main-panel" ref="panelContainer" :class="{ appear: showPanel }">
+      <div class="drag" ref="draggble" />
+      <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
+        <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
+          <div class="sidebar-header">
+            <img src="@/assets/tiny-app-logo-gray.png" alt="" />
+            <span>Slax Reader</span>
+          </div>
+          <div class="sidebar-content">
+            <Transition name="sidepanel">
+              <div class="dark px-20px pt-4px" v-show="isSummaryShowing">
+                <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" :close-button-hidden="true" @dismiss="closePanel" />
+              </div>
+            </Transition>
+            <Transition name="sidepanel">
+              <div class="dark size-full" v-show="isChatbotShowing">
+                <ChatBot
+                  :key="currentUrl"
+                  ref="chatbot"
+                  :bookmarkId="bookmarkId"
+                  :isAppeared="isChatbotShowing"
+                  :close-button-hidden="true"
+                  @dismiss="closePanel"
+                  @find-quote="findQuote"
+                />
+              </div>
+            </Transition>
+          </div>
+        </div>
+        <div class="sidebar-panel">
+          <div class="operate-button top">
+            <button class="close" @click="closePanel">
+              <img src="@/assets/button-dialog-close.png" />
+            </button>
+          </div>
+          <div class="panel-buttons">
+            <div class="button-wrapper" v-for="panel in subPanelItems" :key="panel.type">
+              <button @click="panelClick(panel.type)">
+                <Transition name="opacity">
+                  <div class="selected-bg" v-show="panel.isSelected && panel.isSelected()"></div>
+                </Transition>
+                <div class="icon-wrapper">
+                  <div class="icon">
+                    <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                      <img class="normal" :src="panel.icon" alt="" />
+                      <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                    </template>
+                    <template v-else>
+                      <img class="selected" :src="panel.selectedIcon" alt="" />
+                    </template>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="operate-button bottom">
+            <button class="menu" @click="menuClick">
+              <img src="@/assets/menu-dots.png" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-panel">
+      <div class="panel-container">
+        <img class="logo" src="@/assets/tiny-app-logo-gray.png" />
+        <i class="seperator"></i>
+        <div class="button-wrapper" v-for="panel in bottomPanelItem" :key="panel.type">
           <button @click="panelClick(panel.type)">
+            <Transition name="opacity">
+              <div class="selected-bg" v-show="panel.isSelected && panel.isSelected()"></div>
+            </Transition>
             <div class="icon-wrapper">
               <div class="icon">
                 <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
@@ -15,35 +101,7 @@
                 </template>
               </div>
             </div>
-            <span>{{ panel.title }}</span>
           </button>
-        </div>
-        <div class="button-wrapper">
-          <button @click="collectionClick">
-            <div class="icon-wrapper">
-              <div class="icon" :class="{ 'animate-spin': isLoading }">
-                <img v-if="!isLoading && !isCollected" src="@/assets/panel-item-app.png" alt="" />
-                <img v-else-if="!isLoading && isCollected" src="@/assets/panel-item-collected.png" alt="" />
-                <img v-else-if="isLoading" src="@/assets/panel-item-loading.png" alt="" />
-              </div>
-            </div>
-            <span>{{ appStatusText }}</span>
-          </button>
-        </div>
-      </div>
-      <div class="panel-content" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
-        <div class="drag" ref="draggble" />
-        <div class="panel-content-wrapper" :class="{ dragging: isDragging }">
-          <Transition name="sidepanel">
-            <div class="dark px-20px pt-4px" v-show="isSummaryShowing">
-              <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" @dismiss="closePanel" />
-            </div>
-          </Transition>
-          <Transition name="sidepanel">
-            <div class="dark size-full" v-show="isChatbotShowing">
-              <ChatBot :key="currentUrl" ref="chatbot" :bookmarkId="bookmarkId" :isAppeared="isChatbotShowing" @dismiss="closePanel" @find-quote="findQuote" />
-            </div>
-          </Transition>
         </div>
       </div>
     </div>
@@ -56,12 +114,19 @@
 import AISummaries from './AISummaries.vue'
 import ChatBot from './Chat/ChatBot.vue'
 
+// image asssets
 import aiImage from '~/assets/panel-item-ai.png'
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
 import aiSelectedImage from '~/assets/panel-item-ai-selected.png'
+import aiSubImage from '~/assets/panel-item-ai-sub.png'
 import chatbotImage from '~/assets/panel-item-chatbot.png'
 import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
 import chatbotSelectedImage from '~/assets/panel-item-chatbot-selected.png'
+import chatbotSubImage from '~/assets/panel-item-chatbot-sub.png'
+import commentsImage from '~/assets/panel-item-comments.png'
+import commentsHighlightedImage from '~/assets/panel-item-comments-highlighted.png'
+import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
+import commentsSubImage from '~/assets/panel-item-comments-sub.png'
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
@@ -81,7 +146,10 @@ import type { WxtBrowser } from 'wxt/browser'
 enum PanelItemType {
   'AI' = 'ai',
   'Chat' = 'chat',
-  'Share' = 'share'
+  'Share' = 'share',
+  'Comments' = 'comments',
+  'Archive' = 'archive',
+  'Star' = 'star'
 }
 
 interface PanelItem {
@@ -123,8 +191,49 @@ const panelItems = ref<PanelItem[]>([
     hovered: false,
     isSelected: () => isChatbotShowing.value
   },
+  {
+    type: PanelItemType.Comments,
+    icon: commentsImage,
+    highlighedIcon: commentsHighlightedImage,
+    selectedIcon: commentsSelectedImage,
+    title: $t('component.sidebar.comments'),
+    hovered: false,
+    isSelected: () => false
+  },
   { type: PanelItemType.Share, icon: shareImage, highlighedIcon: shareHighlightedImage, title: $t('component.sidebar.share'), hovered: false }
 ])
+
+const subPanelItems = ref<PanelItem[]>([
+  {
+    type: PanelItemType.AI,
+    icon: aiSubImage,
+    highlighedIcon: aiHighlightedImage,
+    selectedIcon: aiSelectedImage,
+    title: $t('component.sidebar.ai'),
+    hovered: false,
+    isSelected: () => isSummaryShowing.value
+  },
+  {
+    type: PanelItemType.Chat,
+    icon: chatbotSubImage,
+    highlighedIcon: chatbotHighlightedImage,
+    selectedIcon: chatbotSelectedImage,
+    title: $t('component.sidebar.chat'),
+    hovered: false,
+    isSelected: () => isChatbotShowing.value
+  },
+  {
+    type: PanelItemType.Comments,
+    icon: commentsSubImage,
+    highlighedIcon: commentsHighlightedImage,
+    selectedIcon: commentsSelectedImage,
+    title: $t('component.sidebar.comments'),
+    hovered: false,
+    isSelected: () => false
+  }
+])
+
+const bottomPanelItem = ref<PanelItem[]>([])
 
 const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
@@ -134,7 +243,7 @@ const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const minContentWidth = 560
-const contentWidth = ref(Math.min(window.innerWidth / 3, minContentWidth))
+const contentWidth = ref(Math.min(window.innerWidth, minContentWidth))
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')
@@ -492,90 +601,227 @@ const addBookmark = async () => {
 const checkSource = () => {
   window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks/${bookmarkId.value}`, '_blank')
 }
+
+const menuClick = () => {}
 </script>
 
 <style lang="scss" scoped>
 .side-panel {
   --style: fixed left-full top-0 h-screen;
 
-  .panel-container {
-    --style: relative h-full transition-transform duration-250 ease-in-out;
+  .web-panel {
+    --style: z-1 fixed right-0 top-1/2 -translate-y-1/2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+
+    &::before {
+      --style: content-empty absolute left-full top-0 w-10px h-full bg-#262626;
+    }
+
+    .button-wrapper {
+      --style: relative size-44px;
+
+      button {
+        --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
+          transition-max-width duration-250;
+
+        .icon-wrapper {
+          --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
+
+          .icon {
+            --style: relative size-36px;
+            img {
+              --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+            }
+
+            .normal {
+              --style: opacity-100;
+            }
+
+            .highlighted {
+              --style: opacity-0;
+            }
+          }
+        }
+
+        &:hover {
+          --style: '!max-w-160px';
+
+          .icon {
+            .normal {
+              --style: opacity-0;
+            }
+
+            .highlighted {
+              --style: opacity-100;
+            }
+          }
+        }
+
+        span {
+          --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
+        }
+      }
+    }
+  }
+
+  .main-panel {
+    --style: z-2 relative h-full bg-#262626 transition-transform duration-250 ease-in-out;
 
     &.appear {
       --style: -translate-x-full;
     }
 
-    .panel-sidebar {
-      --style: z-1 absolute -left-52px top-1/2 -translate-y-1/2 w-52px h-188px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+    .drag {
+      --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
 
-      &::before {
-        --style: content-empty absolute left-full top-0 w-10px h-full bg-#262626;
-      }
-
-      .button-wrapper {
-        --style: relative size-44px;
-
-        button {
-          --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
-            transition-max-width duration-250;
-
-          .icon-wrapper {
-            --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
-
-            .icon {
-              --style: relative size-36px;
-              img {
-                --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-              }
-
-              .normal {
-                --style: opacity-100;
-              }
-
-              .highlighted {
-                --style: opacity-0;
-              }
-            }
-          }
-
-          &:hover {
-            --style: '!max-w-160px';
-
-            .icon {
-              .normal {
-                --style: opacity-0;
-              }
-
-              .highlighted {
-                --style: opacity-100;
-              }
-            }
-          }
-
-          span {
-            --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
-          }
-        }
+      &:hover {
+        --style: bg-#ffffff04;
       }
     }
 
-    .panel-content {
-      --style: z-2 relative w-500px h-100vh bg-#262626FF;
+    .sidebar-container {
+      --style: relative size-full;
 
-      .drag {
-        --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
+      .sidebar-panel {
+        --style: bg-#1F1F1FCC absolute top-0 right-0 h-full w-48px flex items-center justify-between;
 
-        &:hover {
-          --style: bg-#ffffff04;
+        .operate-button {
+          --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center overflow-hidden;
+
+          &.top {
+            --style: top-27px;
+          }
+
+          &.bottom {
+            --style: bottom-24px;
+          }
+
+          button {
+            --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+          }
+
+          .close {
+            --style: size-16px flex-center;
+            img {
+              --style: w-full select-none;
+            }
+          }
+
+          .menu {
+            --style: w-18px h-auto flex-center box-content p-5px rounded-5px;
+            --style: 'hover:(bg-#262626) active:(scale-130) transition-all duration-250';
+
+            img {
+              --style: w-full select-none;
+            }
+          }
+        }
+
+        .panel-buttons {
+          --style: py-16px w-full;
+
+          .button-wrapper {
+            --style: relative w-full h-56px;
+
+            button {
+              --style: absolute top-0 right-0 size-full bg-#1F1F1FCC flex items-center flex-nowrap;
+
+              .selected-bg {
+                --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-7px bg-#262626;
+
+                &::before,
+                &::after {
+                  --style: content-empty absolute w-7px h-7px z-1 bg-#262626;
+                }
+
+                &::before {
+                  --style: bottom-full left-0;
+                  clip-path: path('M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z');
+                }
+
+                &::after {
+                  --style: top-full left-0;
+                  clip-path: path('M 0 0 L 7 0 A 7 7 0 0 0 0 7 L 0 0 Z');
+                }
+              }
+
+              .icon-wrapper {
+                --style: relative z-1 size-full rounded-6px shrink-0 overflow-hidden;
+
+                .icon {
+                  --style: relative size-full;
+                  img {
+                    --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+                  }
+
+                  .normal {
+                    --style: opacity-100;
+                  }
+
+                  .highlighted {
+                    --style: opacity-0;
+                  }
+                }
+              }
+
+              &:hover {
+                .icon {
+                  .normal {
+                    --style: opacity-0;
+                  }
+
+                  .highlighted {
+                    --style: opacity-100;
+                  }
+                }
+              }
+            }
+          }
         }
       }
 
-      .panel-content-wrapper {
-        --style: w-full h-full overflow-auto;
+      .sidebar-wrapper {
+        --style: h-full pr-48px flex flex-col bg-#262626FF;
 
         &.dragging {
           --style: select-none;
         }
+
+        .sidebar-header {
+          --style: w-full h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start;
+
+          img {
+            --style: size-16px object-contain;
+          }
+
+          span {
+            --style: ml-2px text-(14px #ffffff66) font-semibold line-height-20px;
+          }
+        }
+
+        .sidebar-content {
+          --style: size-full overflow-auto;
+
+          scrollbar-width: none;
+          &::-webkit-scrollbar {
+            --style: hidden;
+          }
+        }
+      }
+    }
+  }
+
+  .bottom-panel {
+    --style: z-1 fixed bottom-48px left-1/2 -translate-x-1/2;
+    .panel-container {
+      --style: relative w-187px h-40px rounded-20px px-16px flex items-center bg-#262626 shadow-[0px_20px_60px_0px_#00000033];
+
+      .logo {
+        --style: size-16px object-contain;
+      }
+
+      .seperator {
+        --style: mx-10px w-1px h-12px;
+        --style: bg-#99999929;
       }
     }
   }
