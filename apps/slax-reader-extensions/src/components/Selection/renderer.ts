@@ -1,13 +1,16 @@
-import { removeOuterTag } from '@commons/utils/dom'
+import { getTextNodesInRange, removeOuterTag } from '@commons/utils/dom'
 import { HighlightRange } from '@commons/utils/range'
 
+import { Base } from './base'
 import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
-import { type MarkPathItem } from '@commons/types/interface'
+import type { MarkPathItem } from '@commons/types/interface'
 
-export class MarkRenderer {
+export class MarkRenderer extends Base {
   private _handleMarkClickHandler?: (ele: HTMLElement) => void
 
-  constructor(private _config: SelectionConfig) {}
+  constructor(config: SelectionConfig) {
+    super(config)
+  }
 
   async drawMark(info: MarkItemInfo, action: 'create' | 'update' = 'create') {
     const userId = this.config.userInfo?.userId
@@ -41,14 +44,14 @@ export class MarkRenderer {
       }
 
       if (!drawMark && info.approx) {
-        const rangeSvc = new HighlightRange(window.document)
+        const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
         const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
           this.addMarksInRange(newRange, baseInfo)
         }
       }
     } else {
-      const slaxMarks = Array.from(document.querySelectorAll(`slax-mark[data-uuid="${info.id}"]`))
+      const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="${info.id}"]`))
       slaxMarks.forEach(mark => {
         if (isStroke) mark.classList.add('stroke')
         else mark.classList.remove('stroke')
@@ -67,9 +70,10 @@ export class MarkRenderer {
   }
 
   addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
+    const markHandler = this.addMark.bind(this)
+
     if (range.startContainer === range.endContainer) {
-      console.log('is same node')
-      this.addMark({
+      markHandler({
         ...baseInfo,
         node: range.startContainer,
         start: range.startOffset,
@@ -78,12 +82,11 @@ export class MarkRenderer {
       return
     }
 
-    const nodes = this.getTextNodesInRange(range)
-    console.log('nodes', nodes)
+    const nodes = getTextNodesInRange(range, this.document)
 
     if (nodes.length > 0) {
       if (nodes[0] === range.startContainer) {
-        this.addMark({
+        markHandler({
           ...baseInfo,
           node: nodes[0],
           start: range.startOffset,
@@ -92,7 +95,7 @@ export class MarkRenderer {
       }
 
       for (let i = 1; i < nodes.length - 1; i++) {
-        this.addMark({
+        markHandler({
           ...baseInfo,
           node: nodes[i],
           start: 0,
@@ -101,7 +104,7 @@ export class MarkRenderer {
       }
 
       if (nodes.length > 1 && nodes[nodes.length - 1] === range.endContainer) {
-        this.addMark({
+        markHandler({
           ...baseInfo,
           node: nodes[nodes.length - 1],
           start: 0,
@@ -111,32 +114,12 @@ export class MarkRenderer {
     }
   }
 
-  getTextNodesInRange(range: Range): Node[] {
-    const nodes: Node[] = []
-    const walker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (node) {
-        const nodeRange = document.createRange()
-        nodeRange.selectNode(node)
-        return range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_REJECT
-      }
-    })
-
-    let node: Node | null
-    while ((node = walker.nextNode())) {
-      nodes.push(node)
-    }
-
-    return nodes
-  }
-
   addMark(info: DrawMarkBaseInfo & { node: Node; start: number; end: number }) {
     const { id, node, start, end, isStroke, isComment, isSelfStroke, isHighlighted } = info
-    const range = document.createRange()
+    const range = this.document.createRange()
     range.setStart(node, start)
     range.setEnd(node, end)
-    const mark = document.createElement('slax-mark')
+    const mark = this.document.createElement('slax-mark')
     mark.dataset.uuid = id
     if (isStroke) mark.classList.add('stroke')
     if (isComment) mark.classList.add('comment')
@@ -153,7 +136,7 @@ export class MarkRenderer {
 
   addImageMark(info: DrawMarkBaseInfo & { ele: HTMLImageElement }) {
     const { id, ele, isStroke, isComment, isSelfStroke, isHighlighted } = info
-    const mark = document.createElement('slax-mark')
+    const mark = this.document.createElement('slax-mark')
     mark.dataset.uuid = id
     if (isStroke) mark.classList.add('stroke')
     if (isComment) mark.classList.add('comment')
@@ -174,7 +157,7 @@ export class MarkRenderer {
   transferNodeInfos(markItem: MarkPathItem) {
     const infos: ({ start: number; end: number; node: Node; type: 'text' } | { type: 'image'; ele: Element })[] = []
     if (markItem.type === 'text') {
-      const baseElement = this._config.monitorDom?.querySelector(markItem.path) as HTMLElement
+      const baseElement = this.config.monitorDom?.querySelector(markItem.path) as HTMLElement
       if (!baseElement) {
         return infos
       }
@@ -201,12 +184,12 @@ export class MarkRenderer {
         }
       }
     } else if (markItem.type === 'image') {
-      let element = this._config.monitorDom?.querySelector(markItem.path) as HTMLImageElement
+      let element = this.config.monitorDom?.querySelector(markItem.path) as HTMLImageElement
       if (!element || !element.src) {
         const paths = markItem.path.split('>')
         const tailIdx = paths.length - 1
         const newPath = [...paths.slice(0, tailIdx), ' slax-mark ', paths[tailIdx]]
-        element = this._config.monitorDom?.querySelector(newPath.join('>')) as HTMLImageElement
+        element = this.config.monitorDom?.querySelector(newPath.join('>')) as HTMLImageElement
       }
       infos.push({ type: 'image', ele: element })
     }
@@ -214,12 +197,12 @@ export class MarkRenderer {
   }
 
   getAllTextNodes(element: HTMLElement): Node[] {
-    const unsupportTags = ['UNSUPPORT-VIDEO']
+    const unsupportTags = ['UNSUPPORT-VIDEO', 'SCRIPT', 'STYLE', 'NOSCRIPT']
     const textNodes: Node[] = []
     const traverse = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         textNodes.push(node)
-      } else if (unsupportTags.indexOf(node.nodeName) === -1) {
+      } else if (node.nodeType === Node.ELEMENT_NODE && unsupportTags.indexOf((node as Element).tagName) === -1) {
         node.childNodes.forEach(child => traverse(child))
       }
     }
@@ -229,9 +212,5 @@ export class MarkRenderer {
 
   setMarkClickHandler(handler: (ele: HTMLElement) => void) {
     this._handleMarkClickHandler = handler
-  }
-
-  get config() {
-    return this._config
   }
 }

@@ -42,11 +42,9 @@ export class MarkManager extends Base {
 
   async drawMarks(marks: MarkDetail) {
     const userMap = this.createUserMap(marks.user_list)
-    console.log(`marks.mark_list`, marks.mark_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
     this._markItemInfos = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    console.log('drawMarks', this._markItemInfos)
     for (const info of this._markItemInfos) {
       await this.renderer.drawMark(info)
     }
@@ -330,7 +328,7 @@ export class MarkManager extends Base {
           .join('')
         return { type: 'text', content: text }
       } else if (approx) {
-        const rangeSvc = new HighlightRange(window.document)
+        const rangeSvc = new HighlightRange(this.window.document)
         const range = rangeSvc.getRange(approx)
         return { type: 'text', content: range?.toString() || '' }
       }
@@ -497,7 +495,7 @@ export class MarkManager extends Base {
       const userId = mark.user_id
       const source = mark.source
       if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
-      if ([MarkType.ORIGIN_LINE, MarkType.ORIGIN_COMMENT].includes(mark.type) && !mark.approx_source) continue
+      if ([MarkType.ORIGIN_LINE, MarkType.ORIGIN_COMMENT].includes(mark.type) && (!mark.approx_source || Object.keys(mark.approx_source).length === 0)) continue
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))

@@ -2,6 +2,7 @@ import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 
 import type { QuoteData } from '../Chat/type'
 import Toast, { ToastType } from '../Toast'
+import { Base } from './base'
 import { MarkModal } from './modal'
 import { MarkRenderer } from './renderer'
 import { copyText, getUUID, objectDeepEqual, t } from './tools'
@@ -18,7 +19,7 @@ import {
   type UserList
 } from '@commons/types/interface'
 
-export class MarkManager {
+export class MarkManager extends Base {
   private _markItemInfos: MarkItemInfo[] = []
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
@@ -26,14 +27,15 @@ export class MarkManager {
   private _highlightRange: HighlightRange
 
   constructor(
-    private config: SelectionConfig,
+    config: SelectionConfig,
     private renderer: MarkRenderer,
     private modal: MarkModal,
     findQuote: (quote: QuoteData) => void
   ) {
+    super(config)
     this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
     this._findQuote = findQuote
-    this._highlightRange = new HighlightRange(document)
+    this._highlightRange = new HighlightRange(this.document)
   }
 
   async drawMarks(marks: MarkDetail) {
@@ -41,7 +43,9 @@ export class MarkManager {
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
     this._markItemInfos = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    await this.renderAllMarks()
+    for (const info of this._markItemInfos) {
+      await this.renderer.drawMark(info)
+    }
   }
 
   async strokeSelection(meta: StrokeSelectionMeta) {
@@ -97,7 +101,17 @@ export class MarkManager {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? MarkType.REPLY : MarkType.ORIGIN_COMMENT) : MarkType.ORIGIN_LINE
+    const getType = (type: 'comment' | 'reply' | 'line') => {
+      if (type === 'comment') {
+        return MarkType.ORIGIN_COMMENT
+      } else if (type === 'reply') {
+        return MarkType.REPLY
+      } else {
+        return MarkType.ORIGIN_LINE
+      }
+    }
+
+    const markType = commentItem ? (replyToId ? getType('reply') : getType('comment')) : getType('line')
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
     const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
@@ -213,7 +227,7 @@ export class MarkManager {
       const infos = this.renderer.transferNodeInfos(markItem)
       for (const info of infos) {
         if (info.type === 'image') continue
-        const range = document.createRange()
+        const range = this.document.createRange()
         range.setStart(info.node, info.start)
         range.setEnd(info.node, info.end)
 
@@ -267,11 +281,7 @@ export class MarkManager {
 
     const currentMarkItemInfo = this._currentMarkItemInfo.value
     this.modal.showPanel({
-      container: this.config.containerDom!,
-      articleDom: this.config.monitorDom!,
       info: this._currentMarkItemInfo.value,
-      userId: userInfo.userId,
-      allowAction: this.config.allowAction,
       fallbackYOffset: options?.fallbackYOffset || 0,
       actionCallback: (type, meta) => {
         if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
@@ -279,7 +289,7 @@ export class MarkManager {
         else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
         else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source) }
+          const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source, meta.info.approx) }
           this.config.postQuoteDataHandler(quote)
           this._findQuote(quote)
         }
@@ -294,24 +304,34 @@ export class MarkManager {
     })
   }
 
-  createQuote(items: MarkPathItem[]): QuoteData['data'] {
+  createQuote(items: MarkPathItem[], approx?: MarkPathApprox): QuoteData['data'] {
     return items.map(item => {
       if (item.type === 'image') {
         const infos = this.renderer.transferNodeInfos(item)
         const content = infos.length > 0 && infos[0].type === 'image' ? (infos[0].ele as HTMLImageElement).src : ''
         return { type: 'image', content }
       }
+
       const infos = this.renderer.transferNodeInfos(item)
-      const text = infos
-        .map(info => {
-          if (info.type === 'image') return ''
-          const range = document.createRange()
-          range.setStart(info.node, info.start)
-          range.setEnd(info.node, info.end)
-          return range.toString()
-        })
-        .join('')
-      return { type: 'text', content: text }
+
+      if (infos.length > 0) {
+        const text = infos
+          .map(info => {
+            if (info.type === 'image') return ''
+            const range = this.document.createRange()
+            range.setStart(info.node, info.start)
+            range.setEnd(info.node, info.end)
+            return range.toString()
+          })
+          .join('')
+        return { type: 'text', content: text }
+      } else if (approx) {
+        const rangeSvc = new HighlightRange(this.window.document)
+        const range = rangeSvc.getRange(approx)
+        return { type: 'text', content: range?.toString() || '' }
+      }
+
+      return { type: 'text', content: '' }
     })
   }
 
@@ -342,7 +362,7 @@ export class MarkManager {
     const selectedInfo: SelectTextInfo[] = []
 
     const isNodeFullyInRange = (node: Node) => {
-      const nodeRange = document.createRange()
+      const nodeRange = this.document.createRange()
       nodeRange.selectNodeContents(node)
       return range.compareBoundaryPoints(Range.START_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0
     }
@@ -398,12 +418,6 @@ export class MarkManager {
     this._selectContent.value = []
   }
 
-  private async renderAllMarks() {
-    for (const info of this._markItemInfos) {
-      await this.renderer.drawMark(info)
-    }
-  }
-
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
     try {
@@ -433,7 +447,7 @@ export class MarkManager {
   private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<number, MarkCommentInfo> {
     const commentMap = new Map<number, MarkCommentInfo>()
     for (const mark of markList) {
-      if (mark.type === MarkType.COMMENT || mark.type === MarkType.REPLY || mark.type === MarkType.ORIGIN_COMMENT) {
+      if ([MarkType.COMMENT, MarkType.REPLY, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = {
           markId: mark.id,
           comment: mark.comment,
@@ -483,14 +497,15 @@ export class MarkManager {
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
+
       if (!markInfoItem) {
         markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
         infoItems.push(markInfoItem)
       }
 
-      if (mark.type === MarkType.LINE || mark.type === MarkType.ORIGIN_LINE) {
+      if ([MarkType.LINE, MarkType.ORIGIN_LINE].includes(mark.type)) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if (mark.type === MarkType.COMMENT || mark.type === MarkType.ORIGIN_COMMENT) {
+      } else if ([MarkType.COMMENT, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.id)
         if (comment) markInfoItem.comments.push(comment)
       }
@@ -520,7 +535,7 @@ export class MarkManager {
       // 这里兼容无approx的数据
 
       try {
-        const walker = document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
+        const walker = this.document.createTreeWalker(ele, NodeFilter.SHOW_TEXT)
 
         let firstTextNode: Text | null = null
         let lastTextNode: Text | null = null
@@ -531,7 +546,7 @@ export class MarkManager {
         }
 
         if (firstTextNode && lastTextNode) {
-          const range = document.createRange()
+          const range = this.document.createRange()
           range.setStart(firstTextNode, 0)
           range.setEnd(lastTextNode, lastTextNode.length)
 
@@ -546,15 +561,15 @@ export class MarkManager {
     this.showPanel()
   }
 
+  getMarkItemInfos() {
+    return this._markItemInfos
+  }
+
   get currentMarkItemInfo() {
     return this._currentMarkItemInfo.value
   }
 
   get selectContent() {
     return this._selectContent.value
-  }
-
-  getMarkItemInfos() {
-    return this._markItemInfos
   }
 }
