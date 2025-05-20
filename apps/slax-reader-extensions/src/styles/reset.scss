@@ -29,3 +29,13 @@ button {
   background-color: transparent;
   background-repeat: no-repeat;
 }
+
+.opacity-leave-to,
+.opacity-enter-from {
+  --style: '!opacity-0';
+}
+
+.opacity-enter-active,
+.opacity-leave-active {
+  --style: transition-all duration-250 ease-in-out;
+}
