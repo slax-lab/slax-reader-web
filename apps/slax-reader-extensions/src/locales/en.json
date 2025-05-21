@@ -14,11 +14,13 @@
       "delete_line": "Clear",
       "line": "Highlight",
       "reply": "Reply",
+      "submit": "Submit",
       "summary_refresh": "Re-generate"
     },
     "tips": {
       "copy_content_success": "Content copied successfully",
-      "share_failed": "Create share failed"
+      "share_failed": "Create share failed",
+      "sidebar_tips": "Web pages have been collected ~\n\nYou can quickly experience the core features of Slax Reader"
     }
   },
   "component": {
@@ -66,6 +68,10 @@
     "copy_button": {
       "copy_content": "Copy content"
     },
+    "feedback": {
+      "placeholder": "Please describe the problem you are experiencing...",
+      "title": "Your feedback will help us improve"
+    },
     "share_modal": {
       "copy_link": "Copy link",
       "copy_success": "Copied!",
@@ -78,12 +84,16 @@
       "title": "Share"
     },
     "sidebar": {
+      "about": "About",
       "ai": "AI",
+      "archieve": "Readed",
       "chat": "Chat",
       "collect_content": "Collect",
       "collecting": "Collecting",
       "comments": "Comments",
+      "feedback": "Feedback",
       "share": "Share",
+      "star": "Star",
       "view_collection_detail": "View Cache"
     }
   },

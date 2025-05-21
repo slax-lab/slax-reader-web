@@ -14,11 +14,13 @@
       "delete_line": "删除划线",
       "line": "划线",
       "reply": "回复",
+      "submit": "提交",
       "summary_refresh": "重新生成"
     },
     "tips": {
       "copy_content_success": "内容复制成功",
-      "share_failed": "创建分享失败"
+      "share_failed": "创建分享失败",
+      "sidebar_tips": "网页已收藏～\n你可通过这里快捷体验 Slax Reader 核心功能"
     }
   },
   "component": {
@@ -66,6 +68,10 @@
     "copy_button": {
       "copy_content": "复制内容"
     },
+    "feedback": {
+      "placeholder": "请描述你遇到的问题......",
+      "title": "你的反馈将帮助我们变得更好"
+    },
     "share_modal": {
       "copy_link": "复制链接",
       "copy_success": "复制成功!",
@@ -78,12 +84,16 @@
       "title": "分享"
     },
     "sidebar": {
+      "about": "关于",
       "ai": "AI",
+      "archieve": "读完了",
       "chat": "Chat",
       "collect_content": "收藏内容",
       "collecting": "收藏中",
       "comments": "评论",
+      "feedback": "反馈",
       "share": "分享",
+      "star": "加星",
       "view_collection_detail": "查看收藏"
     }
   },

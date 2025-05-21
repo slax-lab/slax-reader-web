@@ -451,9 +451,9 @@
         }
       },
       "operate_title": "开始使用：",
-      "use": "开始使用",
       "subtitle": "以下几个需要你留意的细节将帮助你更好的使用产品",
-      "title": "欢迎使用 Slax Reader"
+      "title": "欢迎使用 Slax Reader",
+      "use": "开始使用"
     },
     "index": {
       "cards": {
