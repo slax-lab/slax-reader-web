@@ -1,3 +1,5 @@
+import About from './About.vue'
+import Feedback from './Feedback.vue'
 import ShareModal from './ShareModal.vue'
 
 const modalBootloader = (options: { ele: Component; container: HTMLDivElement; props: Record<string, unknown> }) => {
@@ -33,4 +35,35 @@ export const showShareConfigModal = (options: { bookmarkId: number; title: strin
       }
     }
   })
+}
+
+export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number>; container: HTMLDivElement }) => {
+  const app = modalBootloader({
+    ele: Feedback,
+    container: options.container,
+    props: {
+      reportType: options.reportType,
+      title: options.title,
+      params: options.params ?? {},
+      onDismiss: () => {
+        app.unmount()
+        app._container?.remove()
+      }
+    }
+  })
+}
+
+export const showAboutModal = (options: { container: HTMLDivElement }) => {
+  const app = modalBootloader({
+    ele: About,
+    container: options.container,
+    props: {
+      onDismiss: () => {
+        app.unmount()
+        app._container?.remove()
+      }
+    }
+  })
+
+  return app
 }
