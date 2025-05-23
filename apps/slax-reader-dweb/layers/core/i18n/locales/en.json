@@ -587,7 +587,7 @@
       "fetch_stripe_info_failed": "Failed to fetch Stripe account information",
       "goto_stripe_board": "Go to Stripe dashboard",
       "help_and_support": "Help and support",
-      "import_description": "Currently supports importing Omnivore data, more platforms coming soon",
+      "import_description": "Currently supports importing Omnivore and Pocket data, more platforms coming soon",
       "import_note1": "Due to our re-fetching and re-analyzing of imported data, the time required will be proportional to the amount of data.",
       "import_note2": "Note that we only support basic metadata and re-analyze websites as much as possible. If your data is missing, different, or changed, it is recommended to use our APP/browser extension to re-collect to ensure data completeness.",
       "import_progress": "Import progress",
