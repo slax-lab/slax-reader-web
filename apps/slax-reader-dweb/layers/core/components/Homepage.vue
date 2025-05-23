@@ -10,7 +10,7 @@
           </div>
         </header>
         <div class="content">
-          <img src="@images/logo.png" alt="" />
+          <img loading="lazy" src="@images/logo.png" alt="" />
           <h1 class="app-name">{{ $t('common.app.name') }}</h1>
           <h2 class="slogan">
             {{ $t('page.index.slogan_left_bracket') }}<span>{{ slogan }}</span
@@ -41,7 +41,7 @@
             <div class="title">{{ poster.title }}</div>
             <div class="subtitle">{{ poster.subtitle }}</div>
             <ClientOnly>
-              <img :src="poster.img" alt="" />
+              <img loading="lazy" :src="poster.img" alt="" />
             </ClientOnly>
           </div>
         </div>
@@ -270,7 +270,7 @@ const tryClick = async () => {
     .content {
       --style: pt-108px w-full h-full flex flex-col items-center;
       img {
-        --style: w-86px h-108px object-contain;
+        --style: w-86px h-108px object-contain select-none;
       }
 
       .app-name {

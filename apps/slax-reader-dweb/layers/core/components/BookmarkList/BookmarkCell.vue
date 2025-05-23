@@ -15,6 +15,12 @@
             :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
             @input="handleInput"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            v-on-click-outside="[
+              () => {
+                onClickoutside()
+              },
+              { ignore: [editTitleButton] }
+            ]"
           />
           <template v-if="!isTrashed && !isSubscribe">
             <button
@@ -32,16 +38,37 @@
         <div class="cell-footer">
           <span class="date">{{ dateString }}</span>
           <i class="seperator"></i>
-          <button class="href" @click="clickHref">
-            <img v-if="bookmark.type === 'shortcut'" src="@images/tiny-href-fill-icon.png" />
-            <img v-else src="@images/tiny-link-outline-icon.png" />
-            <span class="ml-4px">
-              {{ getSiteName() }}
-            </span>
-          </button>
+          <template v-if="bookmark.type === 'shortcut'">
+            <button class="href" @click="clickHref">
+              <img src="@images/tiny-href-fill-icon.png" />
+              <span class="ml-4px">
+                {{ getSiteName() }}
+              </span>
+            </button>
+          </template>
+          <template v-else>
+            <button class="href" @click="clickHref">
+              <img src="@images/tiny-link-outline-icon.png" />
+              <span class="ml-4px">
+                {{ getSiteName() }}
+              </span>
+            </button>
+            <template v-if="!isSubscribe">
+              <i class="seperator"></i>
+              <button class="href" @click="clickCache">
+                <img src="@images/tiny-link-outline-icon.png" />
+                <span class="ml-4px">
+                  {{ $t('common.operate.snapshot') }}
+                </span>
+              </button>
+            </template>
+          </template>
+
           <template v-if="!isSubscribe">
             <template v-if="!isTrashed">
-              <button class="edit" @click="clickEdit">{{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}</button>
+              <button class="edit" ref="editTitleButton" @click="clickEdit">
+                {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
+              </button>
               <i class="seperator"></i>
               <button
                 v-if="['inbox', 'archive'].indexOf(bookmark.archived) !== -1 && !isArchiving"
@@ -71,7 +98,7 @@ import { urlHttpString } from '@commons/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, EmptyBookmarkResp } from '@commons/types/interface'
-import { vOnKeyStroke } from '@vueuse/components'
+import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 import { formatDate } from '@vueuse/core'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 
@@ -104,6 +131,7 @@ const isArchiving = ref(false)
 const isEditingTitle = ref(false)
 const haveRetried = ref(false)
 const input = ref<HTMLInputElement | null>(null)
+const editTitleButton = useTemplateRef('editTitleButton')
 const editingTitle = ref('')
 const archieveButton = ref<HTMLButtonElement>()
 const isArchieveHovered = useElementHover(archieveButton)
@@ -168,9 +196,15 @@ const clickTitle = () => {
     return
   }
 
-  pwaOpen({
-    url: '/bookmarks/' + String(bookmark.value.id)
-  })
+  if (document?.querySelector('slax-reader-panel')) {
+    // pwaOpen({
+    //   url: '/w/' + String(bookmark.value.id)
+    // })
+
+    clickHref()
+  } else {
+    clickCache()
+  }
 }
 
 const clickHref = () => {
@@ -179,6 +213,21 @@ const clickHref = () => {
   }
 
   window.open(urlString.value, '_blank')
+}
+
+const clickCache = () => {
+  if (isRequesting.value) {
+    return
+  }
+
+  if (bookmark.value.status !== 'success') {
+    clickHref()
+    return
+  }
+
+  pwaOpen({
+    url: '/bookmarks/' + String(bookmark.value.id)
+  })
 }
 
 const clickEdit = () => {
@@ -324,6 +373,16 @@ const onKeyDown = (e: KeyboardEvent) => {
     return
   }
 
+  updateBookmarkTitle()
+}
+
+const onClickoutside = () => {
+  if (isEditingTitle.value) {
+    updateBookmarkTitle()
+  }
+}
+
+const updateBookmarkTitle = () => {
   if (editingTitle.value === bookmark.value.alias_title) {
     isEditingTitle.value = false
     return

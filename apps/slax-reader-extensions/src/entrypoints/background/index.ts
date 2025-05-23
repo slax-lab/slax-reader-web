@@ -1,184 +1,152 @@
-import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
-
-import { LocalStorageKey } from '@commons/types/const'
-import type { Menus, Tabs } from 'wxt/browser'
+import { AuthService } from './authService'
+import { BookmarkService } from './bookmarkService'
+import { BrowserService } from './browserService'
+import { CONFIG } from './config'
+import { MessageHandler } from './messageHandler'
+import { StorageService } from './storageService'
 
 export default defineBackground(() => {
-  function openTab(url: string) {
-    browser.tabs.create({ url })
+  const storageService = new StorageService()
+  const authService = new AuthService(storageService)
+  const bookmarkService = new BookmarkService(storageService, authService)
+  const messageHandler = new MessageHandler(storageService, authService, bookmarkService)
+  const userToken = ref<string>('')
+
+  const changesCheckup = async () => {
+    await Promise.allSettled([bookmarkService.updatePartialBookmarkChanges(), bookmarkService.checkSocket()])
   }
 
-  async function checkLogin(): Promise<boolean> {
-    let cookies = await storage.getItem(LocalStorageKey.USER_TOKEN)
-    if (!cookies) {
-      const browserCookies = await browser.cookies.get({ url: process.env.PUBLIC_BASE_URL || '', name: process.env.COOKIE_TOKEN_NAME || '' })
-      if (browserCookies) {
-        cookies = browserCookies.value
-      }
-      await storage.setItem(LocalStorageKey.USER_TOKEN, cookies)
+  storageService.getToken().then(token => {
+    userToken.value = token || ''
+
+    if (token) {
+      // 这里的执行场景基本是用来兼容线程被休眠然后重新恢复的情况
+      changesCheckup()
     }
-
-    if (!cookies) {
-      openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
-      return false
-    }
-    return true
-  }
-
-  // 打开收藏弹窗
-  async function openCollectPopup(tab: Tabs.Tab, command = 'open_collect') {
-    if (command !== 'open_collect') return
-    await checkLogin().then(async res => {
-      if (!res) return
-      await browser.tabs.sendMessage(tab.id!, { action: MessageTypeAction.ShowCollectPopup })
-      await analytics.fireEvent('click_extension_collect')
-    })
-  }
-
-  // 打开设置页面
-  async function openSetting() {
-    if (!(await checkLogin())) return
-    openTab(`${process.env.PUBLIC_BASE_URL}/user`)
-  }
-
-  const cookieHost = process.env.COOKIE_DOMAIN as string
+  })
 
   // 监听cookie变化
+
+  const cookieHost = process.env.COOKIE_DOMAIN as string
   browser.cookies.onChanged.addListener(changeInfo => {
-    if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) return
-    console.log('cookie update', changeInfo)
+    if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) {
+      return
+    }
 
-    if (changeInfo.removed) return storage.removeItem(LocalStorageKey.USER_TOKEN)
+    console.log('Cookie update:', changeInfo)
 
-    storage.setItem(LocalStorageKey.USER_TOKEN, changeInfo.cookie.value)
+    if (changeInfo.removed && changeInfo.cause !== 'overwrite') {
+      Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData(), bookmarkService.closeSocket()])
+
+      return
+    }
+
+    if (userToken.value === changeInfo.cookie.value) {
+      return
+    }
+
+    userToken.value = changeInfo.cookie.value
+    storageService.setToken(userToken.value).then(() => {
+      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+    })
   })
 
   // 监听插件安装事件
   browser.runtime.onInstalled.addListener(async ({ reason }) => {
-    // 设置插件图标
-    browser.action.setBadgeBackgroundColor({
-      color: '#10b981'
+    BrowserService.setupBadge()
+    BrowserService.registerContextMenus()
+
+    await browser.alarms.create(CONFIG.BOOKMARK_RECORDS_SYNC_KEY, {
+      periodInMinutes: CONFIG.SYNC_INTERVAL_MINUTES
     })
 
-    browser.action.setBadgeTextColor({
-      color: '#fff'
-    })
+    console.log(`Extension installed, reason: ${reason}, browser: ${import.meta.env.BROWSER}`)
+    console.log(`Runtime: ${!!browser.runtime} \nCookie: ${!!browser.cookies} \nTabs: ${!!browser.tabs} \nContextMenus: ${!!browser.contextMenus} \nAction: ${!!browser.action}`)
 
-    // 注册菜单
-    const menus: Menus.CreateCreatePropertiesType[] = [
-      { id: 'setting', title: i18n.t('extended_settings'), contexts: ['action'] },
-      { id: 'shortcutKeySetting', title: i18n.t('shortcut_settings'), contexts: ['action'] },
-      { id: 'collectList', title: i18n.t('slax_collection_list'), contexts: ['action'] },
-      { id: 'collect', title: i18n.t('collect_page'), contexts: ['page'] }
-    ]
-    menus.forEach(item => browser.contextMenus.create(item))
+    try {
+      const cookieToken = await browser.cookies.get({
+        url: `https://${cookieHost}`,
+        name: process.env.COOKIE_TOKEN_NAME || ''
+      })
 
-    // other infos
-    console.log(`extension installed, reason: ${reason}, browser: ${import.meta.env.BROWSER} .`)
-    console.log(`runtime: ${!!browser.runtime} \ncookie: ${!!browser.cookies} \ntabs: ${!!browser.tabs} \ncontextMenus: ${!!browser.contextMenus} \naction: ${!!browser.action}`)
-    if (reason === 'install') {
-      if (!(await storage.getItem(LocalStorageKey.USER_TOKEN))) {
-        return openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
+      if (cookieToken) {
+        userToken.value = cookieToken.value
+        await storageService.setToken(userToken.value)
       }
-    } else if (reason === 'update') {
-      // TODO Do something
-    } else if (reason === 'browser_update') {
-      // TODO Do something
+    } catch (error) {
+      console.error('Error getting cookie token:', error)
+    }
+
+    if (!(await storageService.getToken())) {
+      reason === 'install' && BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/guide?from=extension`)
+    } else {
+      await bookmarkService.updateAllBookmarkChanges()
+    }
+
+    analytics.setEnabled(true)
+  })
+
+  // 监听定时任务
+  browser.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === CONFIG.BOOKMARK_RECORDS_SYNC_KEY) {
+      changesCheckup()
     }
   })
 
-  // 插件被挂起(禁用)
-  browser.runtime.onSuspend.addListener(() => {})
-
-  // 插件恢复正常
-  browser.runtime.onSuspendCanceled.addListener(() => {})
-
-  // 插件被卸载
+  // 设置卸载反馈URL
   const uninstallUrl = process.env.UNINSTALL_FEEDBACK_URL
-  uninstallUrl && browser.runtime.setUninstallURL(uninstallUrl)
+  if (uninstallUrl) {
+    browser.runtime.setUninstallURL(uninstallUrl)
+  }
 
-  // 菜单点击事件
-  const menuActions: { [key: string]: (info: Menus.OnClickData, tab: Tabs.Tab | undefined) => void } = {
-    setting: () => openSetting(),
-    shortcutKeySetting: () => openTab('chrome://extensions/shortcuts'),
-    collectList: () => openTab(`${process.env.PUBLIC_BASE_URL}/bookmarks`),
-    index: () => openTab(`${process.env.PUBLIC_BASE_URL}`),
-    collect: (info, tab) => openCollectPopup(tab!)
+  // 菜单点击事件处理
+  const menuActions: Record<string, (info: Browser.contextMenus.OnClickData, tab?: Browser.tabs.Tab) => void> = {
+    setting: () => BrowserService.openSetting(authService),
+    shortcutKeySetting: () => BrowserService.openTab('chrome://extensions/shortcuts'),
+    collectList: () => BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}/bookmarks`),
+    index: () => BrowserService.openTab(`${process.env.PUBLIC_BASE_URL}`),
+    collect: (info, tab) => tab && BrowserService.openCollectPopup(tab, 'open_collect', authService)
   }
 
   // 监听菜单点击事件
-  browser.contextMenus.onClicked.addListener((info, tab) => menuActions[info.menuItemId]?.(info, tab))
-
-  // 监听插件图标点击事件
-  browser.action.onClicked.addListener(tab => openCollectPopup(tab))
-
-  // 监听快捷键
-  browser.commands.onCommand.addListener((command, tab) => openCollectPopup(tab!, command))
-
-  // 监听其他页面发送的消息
-  browser.runtime.onMessage.addListener(async (message, sender) => {
-    const receiveMessage = message as MessageType
-    switch (receiveMessage.action) {
-      case MessageTypeAction.OpenWelcome:
-        return openTab(`${process.env.PUBLIC_BASE_URL}/login?from=extension`)
-      case MessageTypeAction.RecordBookmark: {
-        console.log('background add bookmark..')
-        let bookmarks = (await storage.getItem<string[]>(LocalStorageKey.USER_BOOKMARKS)) || []
-        const url = receiveMessage.url
-
-        let isEdited = false
-        if (receiveMessage.actionType === BookmarkActionType.ADD && bookmarks.indexOf(url) === -1) {
-          isEdited = true
-          bookmarks.push(url)
-        } else if (receiveMessage.actionType === BookmarkActionType.DELETE && bookmarks.indexOf(url) !== -1) {
-          isEdited = true
-          bookmarks = bookmarks.filter(bookmark => bookmark !== url)
-        }
-
-        console.log(sender.tab)
-        if (isEdited && sender.tab?.id) {
-          await storage.setItem(LocalStorageKey.USER_BOOKMARKS, bookmarks)
-          await checkAndUpdateBookmarkStatus(sender.tab!.id!, url)
-        }
-        break
-      }
-      default:
-        break
+  browser.contextMenus.onClicked.addListener((info, tab) => {
+    const action = menuActions[info.menuItemId]
+    if (action) {
+      action(info, tab)
     }
   })
 
-  const checkAndUpdateBookmarkStatus = async (tabId: number, url: string) => {
-    if (!tabId) {
-      return
-    }
+  // 监听插件图标点击事件
+  browser.action.onClicked.addListener(tab => BrowserService.openCollectPopup(tab, 'open_collect', authService))
 
-    const bookmarks = (await storage.getItem<string[]>(LocalStorageKey.USER_BOOKMARKS)) || []
+  // 监听快捷键
+  browser.commands.onCommand.addListener((command, tab) => tab && BrowserService.openCollectPopup(tab, command, authService))
 
-    let text = ''
-    if (bookmarks.indexOf(url) !== -1) {
-      console.log('include')
-      text = '✓'
-    }
+  // 监听其他页面发送的消息
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => messageHandler.handleMessage(message, sender, sendResponse))
 
-    await browser.action.setBadgeText({ text, tabId })
-  }
-
-  // browser.tabs.onActivated.addListener(async ({ tabId }) => {
-  //   const tab = await browser.tabs.get(tabId)
-  //   await checkAndUpdateBookmarkStatus(tabId, tab.url!)
-  // })
-
+  // 监听标签页更新
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.status !== 'complete') return
+
     try {
+      if (!tab.url) {
+        return
+      }
+
+      const url = new URL(tab.url)
+      const isValid = ['http:', 'https:'].includes(url.protocol)
+      if (!isValid) {
+        return
+      }
+
       const tabInfo = await browser.tabs.get(tabId)
       if (tabInfo) {
-        await checkAndUpdateBookmarkStatus(tabId, tab.url!)
-      } else {
-        console.log(`No tab with id: ${tabId}`)
+        await bookmarkService.checkAndUpdateBookmarkStatus(tabId, tab.url)
+        userToken && BrowserService.notifyUrlUpdate(tab, tab.url || '')
       }
     } catch (error) {
-      console.log(`Error checking tab with id: ${tabId}`, error)
+      console.error(`Error checking tab with id: ${tabId}`, error)
     }
   })
 })

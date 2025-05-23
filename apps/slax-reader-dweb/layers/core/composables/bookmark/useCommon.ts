@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 
 import { isClient } from '@commons/utils/is'
+import { MouseTrack } from '@commons/utils/mouse'
 
 import type { CommonBookmarkOptions } from './type'
 
@@ -13,7 +14,7 @@ export const useTracking = () => {
     checkInAnotherScrollableView()
   }
 
-  const tracking = new BookmarkMouseTrack({
+  const tracking = new MouseTrack({
     touchTrackingHandler: trackingHandler,
     wheelTrackingHandler: trackingHandler
   })

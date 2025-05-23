@@ -200,8 +200,10 @@ if (notification.isSupportedNotification) {
   notification.registerWorker().then(res => {
     notification.onMessage(event => {
       console.log('event', event)
-      const data = JSON.parse(event?.data)
-      unreadCount.value = data?.unreadCount || 0
+      if (typeof event?.data === 'string') {
+        const data = JSON.parse(event?.data)
+        unreadCount.value = data?.unreadCount || 0
+      }
     })
 
     notification.sendMessage({

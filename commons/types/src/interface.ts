@@ -20,6 +20,7 @@ export interface MarkInfo {
   user_id: number
   type: MarkType
   source: MarkPathItem[]
+  approx_source?: MarkPathApprox
   parent_id: number
   root_id: number
   comment: string
@@ -45,6 +46,14 @@ export type MarkPathItem =
       type: 'image'
       path: string
     }
+
+export type MarkPathApprox = {
+  exact: string
+  prefix: string
+  suffix: string
+  position_start: number
+  position_end: number
+}
 
 export interface ShareInfo {
   need_login: boolean
@@ -81,6 +90,36 @@ export interface BookmarkItem {
   starred: 'star' | 'unstar'
   trashed_at?: string | null
   type: 'shortcut' | 'article'
+}
+
+export interface BookmarkBriefDetail {
+  target_url: string
+  created_at: Date
+  updated_at: Date
+  title: string
+  host_url: string
+  site_name: string
+  content_icon: string
+  content_cover: string
+  content_word_count: number
+  description: string
+  byline: string
+  status: string
+  published_at: Date
+  marks: MarkDetail
+}
+
+export interface InlineBookmarkDetail {
+  title: string
+  target_url: string
+  share_info: ShareInfo
+  marks: MarkDetail
+  user_info: {
+    nick_name: string
+    avatar: string
+    show_userinfo: boolean
+  }
+  owner_user_id: number
 }
 
 export interface ShareBookmarkDetail {
@@ -144,7 +183,9 @@ export interface BookmarkTag {
 export enum MarkType {
   LINE = 1,
   COMMENT = 2,
-  REPLY = 3
+  REPLY = 3,
+  ORIGIN_LINE = 4,
+  ORIGIN_COMMENT = 5
 }
 
 export interface ShareDetailInfo {
@@ -266,6 +307,7 @@ export enum UserSubscribeCollectionType {
   free = 1,
   paid = 2
 }
+
 export interface UserSubscribeCollectionItem {
   id: number
   type: UserSubscribeCollectionType
@@ -307,6 +349,7 @@ export interface UserDetailInfo {
   share_collect: UserShareCollectInfo
   stripe_connect: StripeAccountInfo
   aff_code?: string
+  ai_lang: string
 }
 
 export interface UserShareCollectInfo {
@@ -382,4 +425,21 @@ export interface ImportProcessResp {
   reason: string
   created_at: string
   count: number
+}
+
+export interface BookmarkChangelog {
+  target_url: string
+  bookmark_id: number
+}
+
+export interface BookmarkActionChangelog extends BookmarkChangelog {
+  action: 'add' | 'delete' | 'update'
+}
+export interface BookmarkSocketChangelog extends BookmarkActionChangelog {
+  created_at: string
+}
+
+export interface BookmarkChangelogResp<T> {
+  previous_sync?: number
+  logs: T[]
 }

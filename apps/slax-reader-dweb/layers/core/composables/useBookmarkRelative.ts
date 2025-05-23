@@ -1,4 +1,4 @@
-import { type BookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
+import { type BookmarkBriefDetail, type BookmarkDetail, type InlineBookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
 import { showFeedbackModal } from '#layers/core/components/Modal'
 import { useUserStore } from '#layers/core/stores/user'
 
@@ -20,9 +20,12 @@ export type BookmarkTypeOptions =
     }
 
 export type BookmarkArticleDetail = BookmarkDetail | ShareBookmarkDetail
+export type WebBookmarkArticleDetail = BookmarkBriefDetail | InlineBookmarkDetail
 
 export const isBookmarkDetail = (detail: BookmarkArticleDetail): detail is BookmarkDetail => 'bookmark_id' in detail && 'starred' in detail && 'archived' in detail
 export const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is ShareBookmarkDetail => 'share_info' in detail
+export const isBookmarkBrief = (detail: WebBookmarkArticleDetail): detail is BookmarkBriefDetail => 'target_url' in detail && 'created_at' in detail && 'updated_at' in detail
+export const isInlineBookmarkDetail = (detail: WebBookmarkArticleDetail): detail is InlineBookmarkDetail => 'share_info' in detail && 'user_info' in detail
 
 export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 
@@ -116,6 +119,49 @@ export const useBookmarkArticleRelative = (detail: Ref<BookmarkArticleDetail>) =
 
     if ('share_info' in detail.value) {
       return detail.value.user_id
+    }
+
+    return 0
+  })
+
+  return {
+    allowAction,
+    bookmarkUserId
+  }
+}
+
+export const useWebBookmarkArticleRelative = (detail: Ref<WebBookmarkArticleDetail | null>) => {
+  const allowAction = computed(() => {
+    if (!detail.value) {
+      return false
+    }
+
+    if (isBookmarkBrief(detail.value)) {
+      return true
+    }
+
+    const userId = useUserStore().userInfo?.userId
+
+    if (isInlineBookmarkDetail(detail.value) && (detail.value.share_info.allow_action || detail.value.owner_user_id === userId)) {
+      return true
+    }
+
+    return false
+  })
+
+  const bookmarkUserId = computed(() => {
+    if (!detail.value) {
+      return 0
+    }
+
+    const userId = useUserStore().userInfo?.userId
+
+    if (isBookmarkBrief(detail.value)) {
+      return userId || 0
+    }
+
+    if (isInlineBookmarkDetail(detail.value)) {
+      return detail.value.owner_user_id
     }
 
     return 0

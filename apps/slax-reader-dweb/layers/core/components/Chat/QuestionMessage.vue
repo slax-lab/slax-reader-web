@@ -1,10 +1,14 @@
 <template>
   <div class="question-message" @click="questionClick" :class="{ clickable: question.clickable }">
+    <div class="dark-trigger" ref="darkTrigger" />
     <div class="text" v-if="!question.isHTML">
       {{ question.text }}
     </div>
     <div class="text" v-else v-html="question.text"></div>
-    <i v-if="question.clickable" class="bg-[url('@images/button-tiny-bottom-arrow.png')]"></i>
+    <template v-if="question.clickable">
+      <i v-if="!isDark()" class="bg-[url('@images/button-tiny-bottom-arrow.png')]"></i>
+      <i v-else class="bg-[url('@images/button-tiny-bottom-arrow-dark.png')]"></i>
+    </template>
   </div>
 </template>
 
@@ -18,6 +22,17 @@ const props = defineProps({
   }
 })
 
+const darkTrigger = ref<HTMLDivElement>()
+
+const isDark = () => {
+  if (!darkTrigger.value) {
+    return false
+  }
+
+  const style = window.getComputedStyle(darkTrigger.value)
+  return style.opacity === '1'
+}
+
 const questionClick = () => {
   if (!props.question.clickable) {
     return
@@ -29,17 +44,24 @@ const questionClick = () => {
 
 <style lang="scss" scoped>
 .question-message {
-  --style: w-398px min-h-48px bg-#fff rounded-8px border-(1px solid #99999933) py-13px pl-16px pr-19px flex items-center justify-between select-none;
+  --style: relative w-398px min-h-48px rounded-8px border-(1px solid) py-13px pl-16px pr-19px flex items-center justify-between select-none;
+  --style: 'bg-#fff border-#99999933 dark:(bg-#1F1F1FFF border-#ffffff0a)';
+
+  .dark-trigger {
+    --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
+  }
 
   &.clickable {
     --style: cursor-pointer;
   }
 
   .text {
-    --style: text-(15px #333) line-height-22px font-500;
+    --style: text-(15px) line-height-22px font-500;
+    --style: 'text-#333 dark:text-#ffffffcc';
 
-    &::v-deep(*) {
-      --style: text-(15px #333) line-height-22px font-500 list-none;
+    &:deep(*) {
+      --style: text-(15px) line-height-22px font-500 list-none;
+      --style: 'text-#333 dark:text-#ffffffcc';
     }
   }
 

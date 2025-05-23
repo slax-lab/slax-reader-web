@@ -1,73 +1,77 @@
 <template>
-  <ClientOnly>
-    <div class="ai-summaries">
-      <div class="operate-container">
-        <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
-          <span>{{ $t('common.operate.summary_refresh') }}</span>
-        </button>
+  <div class="ai-summaries">
+    <div class="dark-trigger" ref="darkTrigger" />
+    <div class="operate-container">
+      <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
+        <span>{{ $t('common.operate.summary_refresh') }}</span>
+      </button>
+      <template v-if="!closeButtonHidden">
         <i class="seperator"></i>
         <button class="close" @click="closeModal">
-          <img src="@images/button-dialog-close.png" />
+          <img v-if="!isDark()" src="@images/button-dialog-close.png" />
+          <img v-else src="@images/button-dialog-close-dark.png" />
         </button>
-      </div>
-      <div class="summaries-container" v-if="!loading && markdownText.length > 0">
-        <div class="header">
-          <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
-          <div class="switch" v-if="done && summaries.length > 1">
-            <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
-              <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
-            </button>
-            <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
-            <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
-              <img src="@images/button-tiny-right-arrow-outline.png" alt="" />
-            </button>
-          </div>
-        </div>
-        <div class="content">
-          <div class="content-container">
-            <div class="text-content">
-              <div class="text-container" ref="textContainer">
-                <MarkdownText :text="markdownText" @anchor-click="anchorClick" v-resize="resizeHandler" />
-              </div>
-              <div class="loading-bottom" ref="loadingBottom" v-if="!done">
-                <DotLoading />
-              </div>
-            </div>
-            <div class="map-content" v-if="done" :style="{ height: mapHeight ? mapHeight + 'px' : undefined }">
-              <div class="map-header">
-                <div class="title">{{ $t('component.ai_summaries.mindmap') }}</div>
-                <div class="description">{{ $t('component.ai_summaries.click_to_expand') }}</div>
-              </div>
-              <MarkMindMap
-                ref="markmind"
-                :data="markdownText"
-                :showToolbar="true"
-                :hideAnchor="false"
-                :defaultExpandLevel="2"
-                @graphHeightUpdate="graphHeightUpdate"
-                @anchor-click="anchorClick"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="empty" v-else-if="!loading && markdownText.length === 0">
-        <span>{{ $t('component.ai_summaries.click_to_interpret') }}</span>
-        <div class="button" @click="checkAndLoadSummaries()">{{ $t('component.ai_summaries.interpret') }}</div>
-      </div>
-      <div class="loading" v-else-if="loading">
-        <span>{{ loadingTitle }}</span>
-        <div class="placeholder">
-          <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
-        </div>
-      </div>
-      <Transition name="copy">
-        <span class="copy-container" v-show="!loading && markdownText.length > 0 && done">
-          <CopyButton @click="copyContent" />
-        </span>
-      </Transition>
+      </template>
     </div>
-  </ClientOnly>
+    <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
+      <div class="header">
+        <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
+        <div class="switch" v-if="done && summaries.length > 1">
+          <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
+            <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
+          </button>
+          <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
+          <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
+            <img v-if="!isDark()" src="@images/button-tiny-right-arrow-outline.png" alt="" />
+            <img v-else src="@images/button-tiny-right-arrow-outline-dark.png" alt="" />
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="content-container">
+          <div class="text-content">
+            <div class="text-container" ref="textContainer">
+              <MarkdownText :text="markdownText" @anchor-click="anchorClick" v-resize="resizeHandler" />
+            </div>
+            <div class="loading-bottom" ref="loadingBottom" v-if="!done">
+              <DotLoading />
+            </div>
+          </div>
+          <div class="map-content" v-if="done" :style="{ height: mapHeight ? mapHeight + 'px' : undefined }">
+            <div class="map-header">
+              <div class="title">{{ $t('component.ai_summaries.mindmap') }}</div>
+              <div class="description">{{ $t('component.ai_summaries.click_to_expand') }}</div>
+            </div>
+            <MarkMindMap
+              ref="markmind"
+              :data="markdownText"
+              :showToolbar="true"
+              :hideAnchor="false"
+              :defaultExpandLevel="2"
+              @graphHeightUpdate="graphHeightUpdate"
+              @anchor-click="anchorClick"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="empty bg-container" v-else-if="!loading && markdownText.length === 0">
+      <span>{{ $t('component.ai_summaries.click_to_interpret') }}</span>
+      <div class="button" @click="checkAndLoadSummaries()">{{ $t('component.ai_summaries.interpret') }}</div>
+    </div>
+    <div class="loading bg-container" v-else-if="loading">
+      <span>{{ loadingTitle }}</span>
+      <div class="placeholder">
+        <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
+      </div>
+    </div>
+    <Transition name="copy">
+      <span class="copy-container" v-show="!loading && markdownText.length > 0 && done">
+        <CopyButton @click="copyContent" />
+      </span>
+    </Transition>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -76,7 +80,10 @@ import MarkdownText from './Markdown/MarkdownText.vue'
 import MarkMindMap from './Markdown/MarkMindMap.vue'
 import DotLoading from '#layers/core/components/DotLoading.vue'
 
+import { Resize } from '@commons/utils/directive'
+import { extractMarkdownFromText } from '@commons/utils/parse'
 import { RequestMethodType } from '@commons/utils/request'
+import { findMatchingElement, queryAnchorAlikeQuote, queryMarkdownAnchorQuote, querySimularMarkdownAnchorQuote } from '@commons/utils/search'
 import { copyText } from '@commons/utils/string'
 
 import Toast, { ToastType } from './Toast'
@@ -97,7 +104,7 @@ interface AnchorInfo {
 }
 
 const props = defineProps({
-  bmId: Number,
+  bookmarkId: Number,
   shareCode: String,
   collection: {
     type: Object as PropType<{ code: string; cbId: number }>,
@@ -110,11 +117,16 @@ const props = defineProps({
   isAppeared: {
     required: false,
     type: Boolean
+  },
+  closeButtonHidden: {
+    required: false,
+    type: Boolean
   }
 })
 
 const { t } = useI18n()
 const emits = defineEmits(['navigatedText', 'dismiss'])
+const darkTrigger = ref<HTMLDivElement>()
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
@@ -156,18 +168,6 @@ watch(
 )
 
 watch(
-  () => props.isAppeared,
-  value => {
-    if (value && !loading.value && !done.value) {
-      checkAndLoadSummaries()
-    }
-  },
-  {
-    flush: 'sync'
-  }
-)
-
-watch(
   () => loading.value,
   (value, oldValue) => {
     if (value === oldValue) {
@@ -187,6 +187,15 @@ watch(
     }
   }
 )
+
+const isDark = () => {
+  if (!darkTrigger.value) {
+    return false
+  }
+
+  const style = window.getComputedStyle(darkTrigger.value)
+  return style.opacity === '1'
+}
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0
@@ -211,7 +220,7 @@ const getSummariesList = async () => {
   const list = await request.get<SummaryItemModel[]>({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
     query: {
-      ...(props.bmId ? { bookmark_id: props.bmId } : undefined),
+      ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
       ...(props.shareCode ? { share_code: props.shareCode } : undefined),
       ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined)
     }
@@ -241,9 +250,9 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
     method: RequestMethodType.post,
     body: {
-      bmId: props.bmId ? props.bmId : undefined,
-      shareCode: props.shareCode ? props.shareCode : undefined,
-      ...(props.collection ? { collectionCode: props.collection?.code, cbId: props.collection?.cbId } : undefined),
+      bm_id: props.bookmarkId ? props.bookmarkId : undefined,
+      share_code: props.shareCode ? props.shareCode : undefined,
+      ...(props.collection ? { collection_code: props.collection?.code, cb_id: props.collection?.cbId } : undefined),
       force: refresh
     }
   })
@@ -335,7 +344,20 @@ const handleData = (text: string) => {
 }
 
 const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
-  const domElement = document.querySelector(props.contentSelector || '') || document.body
+  let domElement = document.querySelector(props.contentSelector || '') || document.body
+  let contentDocument = document
+  let contentWindow = window
+
+  if (domElement instanceof HTMLIFrameElement) {
+    const iframeDocument = domElement.contentDocument
+    const iframeWindow = domElement.contentWindow
+    if (iframeDocument && iframeWindow) {
+      contentWindow = iframeWindow as Window & typeof globalThis
+      contentDocument = iframeDocument
+      domElement = iframeDocument.body
+    }
+  }
+
   const elements = findMatchingElement(text, domElement)
   if (elements.length === 0) {
     text = text.replaceAll('-', ' ')
@@ -361,11 +383,11 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
     }
 
     const element = elements[currentSearchAnchor.index]
-    if (!(element instanceof HTMLElement)) {
+    if (!(element instanceof contentWindow.HTMLElement)) {
       return false
     }
 
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
+    const walker = contentDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
     let currentNode
     const nodes: Node[] = []
     while ((currentNode = walker.nextNode())) {
@@ -401,10 +423,10 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
       return true
     }
 
-    const range = document.createRange()
+    const range = contentDocument.createRange()
     startNode && range.setStart(startNode, 0)
     endNode && range.setEnd(endNode, endNode.nodeValue?.length || 0)
-    const selection = window.getSelection()
+    const selection = contentWindow.getSelection()
     selection?.removeAllRanges()
     selection?.addRange(range)
 
@@ -445,7 +467,7 @@ const refresh = async () => {
 }
 
 const loadSummaries = (options?: { refresh: boolean }) => {
-  if (props.bmId || props.shareCode || props.collection) {
+  if (props.bookmarkId || props.shareCode || props.collection) {
     let step = 0
     const timeInterval = setInterval(() => {
       step += 1
@@ -545,6 +567,19 @@ const copyContent = async () => {
 const closeModal = () => {
   emits('dismiss')
 }
+
+watch(
+  () => props.isAppeared,
+  value => {
+    if (value && !loading.value && !done.value && markdownText.value.length === 0) {
+      checkAndLoadSummaries()
+    }
+  },
+  {
+    flush: 'sync',
+    immediate: true
+  }
+)
 </script>
 
 <style lang="scss" scoped>
@@ -553,15 +588,20 @@ $copyButtonXOffset: 20px;
 .ai-summaries {
   --style: min-h-screen relative;
 
-  & > div:not(.operate-container) {
-    --style: w-full h-full flex flex-col bg-#fcfcfc rounded-4;
+  .dark-trigger {
+    --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
+  }
+
+  .bg-container {
+    --style: w-full h-full flex flex-col rounded-4;
+    --style: 'bg-#fcfcfc dark:bg-#262626';
   }
 
   .operate-container {
-    --style: absolute top-24px right-18px flex-center;
+    --style: z-1 absolute top-20px right-20px flex-center;
 
     button {
-      --style: ' hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
     }
 
     .close {
@@ -579,7 +619,8 @@ $copyButtonXOffset: 20px;
     }
 
     .seperator {
-      --style: mx-10px w-1px h-10px bg-#D6D6D6 invisible;
+      --style: mx-10px w-1px h-10px invisible;
+      --style: 'bg-#D6D6D6 dark:bg-#333';
     }
 
     button + .seperator {
@@ -588,10 +629,26 @@ $copyButtonXOffset: 20px;
   }
 
   .summaries-container {
-    --style: items-center overflow-y-auto bg-#f5f5f3;
+    --style: items-center overflow-y-auto;
+    --style: 'bg-#f5f5f3 dark:bg-transparent';
 
     .header {
-      --style: w-full p-x-20px pt-24px pb-0 flex bg-#fcfcfc items-center;
+      --style: relative w-full pt-20px px-20px flex items-center;
+      --style: 'bg-#fcfcfc dark:(bg-transparent pb-25px)';
+
+      &:before,
+      &:after {
+        --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F;
+        --style: 'bg-transparent dark:bg-#FFFFFF0F';
+      }
+
+      &:before {
+        --style: bottom-0;
+      }
+
+      &:after {
+        --style: bottom-2px;
+      }
 
       .title {
         --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
@@ -628,147 +685,82 @@ $copyButtonXOffset: 20px;
         }
 
         span {
-          --style: text-(12px #333) line-height-16px;
+          --style: text-12px line-height-16px;
+          --style: 'text-#333 dark:text-#ffffff66';
         }
       }
     }
 
     .content {
-      --style: w-full flex-1 box-border;
+      --style: w-full flex-1;
 
       & > div {
         --style: w-full overflow-auto;
       }
 
       .text-content {
-        --style: px-20px pt-24px pb-32px relative bg-#fcfcfc rounded-b-4;
+        --style: px-20px pt-24px pb-32px relative rounded-b-4;
+        --style: 'bg-#fcfcfc dark:bg-#262626';
 
         .text-container {
-          position: relative;
-          height: 0;
-          overflow: hidden;
+          --style: relative h-0 overflow-hidden;
 
           &::before {
-            z-index: 2;
-            content: '';
-            background: linear-gradient(0deg, #fcfcfc, transparent);
-            position: absolute;
-            bottom: 0;
-            height: 20px;
-            width: 100%;
-            left: 0;
+            --style: z-2 content-empty bg-gradient-to-t to-transparent absolute left-0 bottom-0 w-full h-20px;
+            --style: 'from-#fcfcfc dark:from-#262626';
           }
         }
 
         .loading-bottom {
-          position: absolute;
-          box-sizing: border-box;
-          width: 100%;
-          padding-top: 24px + 32px;
-          padding-left: 4px + 20px;
-          left: 0;
-          top: 100%;
-          transition: top 0.25s ease-in-out;
+          --style: 'absolute left-0 top-full left-0 pt-[calc(24px+32px)] pl-[calc(4px+20px)] transition-top duration-250';
         }
       }
 
       .map-content {
-        position: relative;
-        box-sizing: border-box;
-        padding: 0;
-        min-height: 500px;
-        background-color: #f5f5f3;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        --style: relative p-0 min-h-500px flex flex-col justify-between;
+        --style: 'bg-#f5f5f3 dark:bg-#262626';
 
         .map-header {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          box-sizing: border-box;
-          padding: 40px 20px 5px;
-          z-index: 1;
-          background-color: #f5f5f3;
+          --style: absolute top-0 left-0 w-full pt-40px pb-5px px-20px z-1;
+          --style: 'bg-#f5f5f3 dark:bg-#262626';
+
           .title {
-            font-family:
-              PingFangSC,
-              PingFang SC;
-            font-weight: 600;
-            font-size: 16px;
-            color: #0f1419;
-            line-height: 22px;
+            --style: font-600 text-16px line-height-22px;
+            --style: 'text-#0f1419 dark:text-#ffffffe6';
           }
 
           .description {
-            margin-top: 4px;
-            box-sizing: border-box;
-            font-family:
-              PingFangSC,
-              PingFang SC;
-            font-weight: 400;
-            font-size: 13px;
-            color: #808080;
-            line-height: 20px;
-          }
-
-          &::before {
-            content: '';
-            background: linear-gradient(0deg, transparent, #f5f5f3);
-            position: absolute;
-            bottom: -20px;
-            height: 20px;
-            width: 100%;
-            left: 0;
+            --style: mt-4px font-400 text-13px line-height-20px;
+            --style: 'text-#808080 dark:text-#ffffffcc';
           }
         }
 
         // eslint-disable-next-line vue-scoped-css/no-unused-selector
         .mark-mind-map {
-          flex: 1;
+          --style: flex-1;
         }
       }
     }
   }
 
   .empty {
-    --style: '!h-100vh select-none justify-center items-center';
+    --style: h-100vh select-none justify-center items-center;
 
     span {
-      --style: font-400 text-(14px #999999) line-height-20px;
-      font-family:
-        PingFangSC,
-        PingFang SC;
+      --style: font-400 text-14px line-height-20px;
+      --style: 'text-#999999 dark:text-#ffffff66';
     }
 
     .button {
-      --style: mt-24px w-200px h-48px rounded-6 text-(16px #fff) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
-      margin-top: 24px;
-      width: 200px;
-      height: 48px;
-      border-radius: 24px;
-      font-family:
-        PingFangSC,
-        PingFang SC;
-      font-weight: 600;
-      font-size: 16px;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      color: white;
-      background-color: #16b998;
-      transition: background-color 0.15s ease-in-out;
+      --style: mt-24px w-200px h-48px rounded-24px text-(16px #fff) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
 
       &:hover {
-        background-color: #16b998aa;
+        --style: bg-#16b998aa;
       }
     }
   }
   .loading {
-    --style: min-h-screen py-24px px-20px select-none box-border;
+    --style: min-h-screen py-24px px-20px select-none;
 
     span {
       --style: font-500 text-(14px #16b998) line-height-20px text-align-left;
@@ -778,23 +770,8 @@ $copyButtonXOffset: 20px;
       --style: mt-24px w-full flex flex-col;
 
       .row {
-        --style: 'w-full h-16px rounded-1 not-first:mt-10px';
-        background: linear-gradient(90deg, #f5f5f3, #f5f5f399);
-        animation: loading 1.5s linear infinite;
-      }
-    }
-
-    @keyframes loading {
-      0% {
-        opacity: 100%;
-      }
-
-      50% {
-        opacity: 50%;
-      }
-
-      100% {
-        opacity: 100%;
+        --style: w-full h-16px rounded-1 animate-pulse;
+        --style: 'not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
       }
     }
   }

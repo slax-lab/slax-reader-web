@@ -28,9 +28,9 @@
     "[scss]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "i18n-ally.localesPaths": ["apps/slax-reader-dweb/i18n/locales", "apps/slax-reader-extensions/src/locales", "apps/slax-reader-dweb/i18n"],
+    "i18n-ally.localesPaths": ["apps/slax-reader-dweb/layers/core/i18n/locales", "apps/slax-reader-extensions/src/locales", "apps/slax-reader-dweb/i18n"],
     "i18n-ally.keystyle": "nested",
-    "i18n-ally.sourceLanguage": "en",
+    "i18n-ally.sourceLanguage": "zh",
     "i18n-ally.displayLanguage": "zh",
     "i18n-ally.sortKeys": true,
     "i18n-ally.namespace": true,

@@ -12,7 +12,16 @@
     "./object": "./src/object.ts",
     "./random": "./src/random.ts",
     "./secure": "./src/secure.ts",
-    "./string": "./src/string.ts"
+    "./string": "./src/string.ts",
+    "./parse": "./src/parse.ts",
+    "./directive": "./src/directive.ts",
+    "./search": "./src/search.ts",
+    "./date": "./src/date.ts",
+    "./dom": "./src/dom.ts",
+    "./mouse": "./src/mouse.ts",
+    "./socket": "./src/socket.ts",
+    "./range": "./src/range.ts",
+    "./draggable": "./src/draggable.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +30,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "approx-string-match": "^2.0.0",
     "axios": "^1.7.9",
     "lodash-es": "^4.17.21"
   },

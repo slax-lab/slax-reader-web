@@ -17,8 +17,8 @@
         <template v-slot:header>
           <div class="header">
             <div class="left">
-              <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-              <ProIcon />
+              <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
+              <ClientOnly><ProIcon /></ClientOnly>
             </div>
             <div class="right" v-if="!isTrashedBookmark && !isInvalidBookmark">
               <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
@@ -50,14 +50,16 @@
       </DetailLayout>
       <template v-if="canView">
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <AISummaries
-            v-if="bmId"
-            :bm-id="bmId"
-            :is-appeared="summariesExpanded"
-            :content-selector="'.bookmark-detail .detail'"
-            @navigated-text="navigateToText"
-            @dismiss="summariesExpanded = false"
-          />
+          <ClientOnly>
+            <AISummaries
+              v-if="bmId"
+              :bookmarkId="bmId"
+              :is-appeared="summariesExpanded"
+              :content-selector="'.bookmark-detail .detail'"
+              @navigated-text="navigateToText"
+              @dismiss="summariesExpanded = false"
+            />
+          </ClientOnly>
         </SidebarLayout>
         <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
           <ChatBot ref="chatbot" :bookmarkId="bmId" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
@@ -77,7 +79,7 @@
           <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
           <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
           <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.footer') }}</span>
+          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
         </div>
         <div class="processing" v-else-if="detail?.status === 'pending'">
           <div class="i-svg-spinners:clock mt-1px w-1em"></div>
@@ -97,10 +99,10 @@ import DotsMenu, { type DotsMenuActionItem } from '#layers/core/components/DotsM
 import DetailLayout from '#layers/core/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import ProIcon from '#layers/core/components/ProIcon.vue'
 import ShareBubbleTips from '#layers/core/components/Tips/ShareBubbleTips.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
+import { formatDate } from '@commons/utils/date'
 import { RequestError } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'

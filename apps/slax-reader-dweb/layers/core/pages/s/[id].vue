@@ -28,7 +28,7 @@
           <div class="header">
             <div class="left">
               <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-              <ProIcon />
+              <ClientOnly><ProIcon /></ClientOnly>
             </div>
             <ClientOnly>
               <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
@@ -54,13 +54,15 @@
       </DetailLayout>
       <ClientOnly>
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <AISummaries
-            :share-code="shareCode"
-            :is-appeared="summariesExpanded"
-            :content-selector="'.bookmark-detail .detail'"
-            @navigated-text="navigateToText"
-            @dismiss="summariesExpanded = false"
-          />
+          <ClientOnly>
+            <AISummaries
+              :share-code="shareCode"
+              :is-appeared="summariesExpanded"
+              :content-selector="'.bookmark-detail .detail'"
+              @navigated-text="navigateToText"
+              @dismiss="summariesExpanded = false"
+            />
+          </ClientOnly>
         </SidebarLayout>
         <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
           <ChatBot ref="chatbot" :share-code="shareCode" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
@@ -87,10 +89,11 @@ import GoogleLoginButton from '#layers/core/components/GoogleLoginButton.vue'
 import DetailLayout from '#layers/core/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/components/Notification/UserNotification.vue'
-import ProIcon from '#layers/core/components/ProIcon.vue'
 import TopTips from '#layers/core/components/Tips/TopTips.vue'
 
-import { isClient } from '@commons/utils/is'
+import { formatDate } from '@commons/utils/date'
+import { isClient, isServer } from '@commons/utils/is'
+import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
@@ -130,6 +133,10 @@ const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
 })
 
 const defineSeo = () => {
+  if (!detail.value) {
+    return
+  }
+
   const wordText = extractHTMLTextContent(detail.value?.content || '')
   const title = `${detail.value?.title} - ${t('common.app.name')}`
   const description = wordText.length < 60 ? wordText : wordText.slice(0, 60)
@@ -229,9 +236,12 @@ const {
     data.value && (detail.value = data.value)
 
     try {
-      defineOgImageComponent('Share', {
-        title: `${detail.value?.title || ''}`
-      })
+      isServer &&
+        defineOgImageComponent('Share', {
+          title: `${detail.value?.title || ''}`
+        })
+
+      defineSeo()
     } catch (error) {
       console.error(error)
     }
@@ -244,7 +254,6 @@ const {
   },
   initialTasksCompleted: () => {
     if (!isClient) {
-      detail.value && defineSeo()
       return
     }
 
@@ -260,15 +269,6 @@ const {
   }
 })
 
-watch(
-  () => user.value,
-  (value, oldValue) => {
-    if (value && value.userId !== oldValue?.userId) {
-      checkShowTransferButton()
-    }
-  }
-)
-
 const checkShowTransferButton = () => {
   request
     .post<BookmarkExistsResp>({
@@ -280,6 +280,18 @@ const checkShowTransferButton = () => {
     .then(res => {
       isShowTransferButton.value = !res?.exists
     })
+}
+
+if (isClient) {
+  watch(
+    () => user.value,
+    (value, oldValue) => {
+      if (value && value.userId !== oldValue?.userId) {
+        checkShowTransferButton()
+      }
+    },
+    { immediate: true }
+  )
 }
 
 const loadMarks = async () => {

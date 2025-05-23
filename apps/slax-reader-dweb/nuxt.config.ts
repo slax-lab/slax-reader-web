@@ -1,5 +1,7 @@
 import { getDWebConfig, getEnv } from '../../configs/env'
 import replace from '@rollup/plugin-replace'
+import fs from 'fs'
+import path from 'path'
 import { fileURLToPath } from 'url'
 
 const env = getEnv()
@@ -98,7 +100,9 @@ export default defineNuxtConfig({
       ),
       '/s/**': { ssr: true, prerender: false },
       '/bookmarks/**': { ssr: false, prerender: false },
-      '/b': { redirect: '/bookmarks' }
+      '/b': { redirect: '/bookmarks' },
+      '/w/**': { ssr: false, prerender: false, redirect: '/bookmarks' },
+      '/sw/**': { ssr: false, prerender: false, redirect: '/bookmarks' }
     },
     cloudflare: {
       pages: {
@@ -165,10 +169,10 @@ export default defineNuxtConfig({
   schemaOrg: {
     enabled: true,
     identity: {
-      url: `${envConfig.PUBLIC_BASE_URL || ''}`,
+      url: `${envConfig.SHARE_BASE_URL || ''}`,
       name: 'Slax Reader',
       logo: '/images/logo.png',
-      sameAs: ['https://slax.com/', 'https://note.slax.com/', 'https://r.slax.com/', 'https://x.com/wulujia', 'https://r-beta.slax.com/']
+      sameAs: ['https://slax.com/', 'https://note.slax.com/', 'https://r.slax.com/', 'https://x.com/wulujia']
     }
   },
   ogImage: {
@@ -253,6 +257,14 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: isDev,
       type: 'module'
+    }
+  },
+  hooks: {
+    'build:before': () => {
+      console.log('build:before, copy liveproxy-sw file...')
+      const swSource = path.resolve(__dirname, 'node_modules/@slax-lab/liveproxy-sw/dist/liveproxy-sw.js')
+      const swDest = path.resolve(__dirname, 'src/public/liveproxy-sw.js')
+      fs.copyFileSync(swSource, swDest)
     }
   },
   compatibilityDate: '2024-09-19'

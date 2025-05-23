@@ -1,4 +1,5 @@
 import autoMigrateIcons from './plugins/auto-migrate-icons.plugin'
+import toUtf8 from './plugins/vite-plugin-to-utf8'
 
 import { getEnv, getExtensionsConfig } from '../../configs/env'
 import path from 'path'
@@ -27,13 +28,13 @@ export default defineConfig({
       vueTemplate: true
     }
   },
-  modules: ['@wxt-dev/module-vue', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
+  modules: ['@wxt-dev/module-vue', '@wxt-dev/analytics/module', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
   manifest: {
     name: 'Slax Reader',
-    version: '1.3.0',
+    version: '1.5.8',
     description: 'An AI-powered browser extension that generates outlines and highlights key points to enhance your web reading experience.',
     default_locale: 'en',
-    permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus'],
+    permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus', 'alarms'],
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'"
     },
@@ -78,6 +79,7 @@ export default defineConfig({
   },
 
   vite: () => ({
+    plugins: [toUtf8()],
     define: {
       ...convertToProcessEnv(envConfig)
     },
@@ -112,6 +114,14 @@ export default defineConfig({
     }
   }),
   hooks: {
+    'build:manifestGenerated': (wxt, manifest) => {
+      manifest.content_scripts ??= []
+      manifest.content_scripts.push({
+        css: ['content-scripts/mark.css'],
+        matches: ['<all_urls>'],
+        run_at: 'document_idle'
+      })
+    },
     // 'vite:build:extendConfig': (entries, config) => {
     //   const entryNames = entries.reduce((set, entry) => {
     //     set.add(entry.name)

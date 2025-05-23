@@ -7,7 +7,7 @@
           <div class="items-wrapper">
             <img src="@images/logo-sm.png" alt="" />
             <span class="title">{{ $t('common.app.name') }}</span>
-            <ProIcon />
+            <ClientOnly><ProIcon /></ClientOnly>
           </div>
         </div>
         <div class="inbox blank">
@@ -40,7 +40,6 @@
 </template>
 
 <script lang="ts" setup>
-import ProIcon from '#layers/core/components/ProIcon.vue'
 const smallScreenTrigger = ref<HTMLDivElement>()
 
 const isSmallScreen = () => {
@@ -60,7 +59,6 @@ defineExpose({
 <style lang="scss" scoped>
 .bookmarks-layout {
   --style: w-full flex flex-col items-center overflow-hidden;
-  --header-height: 44px;
 
   .responsive-width {
     --style: 'max-w-900px max-md:(w-full) md:(w-900px)';
