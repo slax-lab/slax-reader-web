@@ -603,7 +603,7 @@
       "fetch_stripe_info_failed": "获取 Stripe 账户信息失败",
       "goto_stripe_board": "前往 Stripe 后台",
       "help_and_support": "帮助与支持",
-      "import_description": "目前支持导入的平台: Omnivore, 更多平台陆续上线中",
+      "import_description": "目前支持导入的平台: Omnivore、Pocket, 更多平台陆续上线中",
       "import_note1": "由于我们会对导入的数据进行重新抓取和解析，解析的用时与数量成正比。",
       "import_note2": "需要注意的是，我们仅支持基础元数据并对网站进行重新解析。如果您的数据发生了遗漏、差异、改变，建议使用我们的APP/浏览器扩展重新收藏以确保数据更完整。",
       "import_progress": "导入进度",
