@@ -7,9 +7,14 @@
           <p>{{ `${$t('page.user.import_description')}\n\n${$t('page.user.import_note1')}\n${$t('page.user.import_note2')}` }}</p>
         </div>
         <div class="omnivore-section">
-          <ClientOnly>
-            <NavigateStyleButton :title="`${$t('page.user.import_third_party_data')} Omnivore`" @action="omnivoreClick" />
-          </ClientOnly>
+          <div class="import-buttons">
+            <ClientOnly>
+              <NavigateStyleButton :title="`${$t('page.user.import_third_party_data')} Omnivore`" @action="omnivoreClick" />
+            </ClientOnly>
+            <ClientOnly>
+              <NavigateStyleButton :title="`${$t('page.user.import_third_party_data')} Pocket`" @action="pocketClick" />
+            </ClientOnly>
+          </div>
           <button class="inline" @click="popupImportProgress">
             <span>{{ $t('page.user.view_import_progress') }}</span>
           </button>
@@ -57,7 +62,19 @@ const importThirdPartyData = async (type: string) => {
   }
   showImportLoadingModal.value = true
   importText.value = 'unzip file...'
-  const metadataList = await unzipGetFile(file.files[0], /metadata_[0-9]+_to_[0-9]+.json/)
+
+  let metadataList: File[] | undefined = []
+  if (type === 'omnivore') {
+    metadataList = await unzipGetFile(file.files[0], /metadata_[0-9]+_to_[0-9]+.json/)
+  } else if (type === 'pocket') {
+    metadataList = await unzipGetFile(file.files[0], /part_[0-9]+.csv/)
+  } else {
+    Toast.showToast({
+      text: `file not found or is not ${type} file`
+    })
+    return
+  }
+
   if (!metadataList) {
     Toast.showToast({
       text: `file not found or is not ${type} file`
@@ -96,6 +113,10 @@ const popupImportProgress = () => {
 const omnivoreClick = () => {
   chooseFile('omnivore')
 }
+
+const pocketClick = () => {
+  chooseFile('pocket')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -118,7 +139,12 @@ section {
       }
 
       .omnivore-section {
-        --style: mt-24px flex justify-between items-center;
+        --style: mt-24px flex justify-between items-start;
+
+        .import-buttons {
+          --style: flex flex-col gap-12px;
+        }
+
         button.inline {
           --style: 'text-(14px #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-250 hover:(scale-102) active:(scale-105)';
         }
