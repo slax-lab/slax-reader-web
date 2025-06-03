@@ -27,8 +27,10 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:sidebar-right>
-        <div class="tools-sidebar">
+        <div class="tips-sidebar">
           <InstallExtensionTips />
+        </div>
+        <div class="tools-sidebar">
           <div class="add-url">
             <button
               @click="
@@ -559,6 +561,10 @@ const notificationBack = () => {
     & > * {
       --style: 'not-first:ml-16px';
     }
+  }
+
+  .tips-sidebar {
+    --style: mt-24px;
   }
 
   .tools-sidebar {

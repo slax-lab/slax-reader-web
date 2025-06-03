@@ -1,7 +1,7 @@
 <template>
   <div class="install-extension-tips">
     <Transition name="tips">
-      <div v-show="isAppeared" class="extension">
+      <div v-show="isAppeared" ref="extensionTips" class="extension">
         <button class="close" @click="closeClick">
           <img src="@images/button-dialog-close.png" />
         </button>
@@ -21,12 +21,19 @@ import { useUserStore } from '#layers/core/stores/user'
 
 const isAppeared = ref(false)
 const userStore = useUserStore()
+const extensionTips = useTemplateRef('extensionTips')
 
 onMounted(() => {
   const dom = document.querySelector('slax-reader-modal')
   if (!dom) {
-    const shouldShow = userStore.showCloseInstallExtTips
-    isAppeared.value = shouldShow
+    const res = userStore.showCloseInstallExtTips
+    isAppeared.value = res.canShow
+
+    if (res.showedAlready) {
+      setTimeout(() => {
+        shakeTextarea()
+      }, 800)
+    }
   }
 })
 
@@ -37,6 +44,21 @@ const closeClick = () => {
 
 const installClick = () => {
   window.open('https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd')
+}
+
+const shakeTextarea = () => {
+  if (!extensionTips.value) {
+    return
+  }
+
+  extensionTips.value.classList.add('shake')
+  extensionTips.value.addEventListener(
+    'animationend',
+    () => {
+      extensionTips.value?.classList.remove('shake')
+    },
+    { once: true }
+  )
 }
 </script>
 
@@ -83,5 +105,25 @@ const installClick = () => {
   opacity: 0;
   transform: translateY(20px);
   filter: blur(1rem);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-2px);
+  }
+  40%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+// eslint-disable-next-line vue-scoped-css/no-unused-selector
+.shake {
+  animation: shake 0.5s;
 }
 </style>
