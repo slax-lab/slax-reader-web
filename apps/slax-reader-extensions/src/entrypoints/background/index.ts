@@ -1,3 +1,5 @@
+import { isSameUser } from '../../utils/jwt'
+
 import { AuthService } from './authService'
 import { BookmarkService } from './bookmarkService'
 import { BrowserService } from './browserService'
@@ -41,9 +43,8 @@ export default defineBackground(() => {
       return
     }
 
-    if (userToken.value === changeInfo.cookie.value) {
-      return
-    }
+    const isSame = isSameUser(userToken.value, changeInfo.cookie.value)
+    if (isSame) return
 
     userToken.value = changeInfo.cookie.value
     storageService.setToken(userToken.value).then(() => {
@@ -56,6 +57,7 @@ export default defineBackground(() => {
     BrowserService.setupBadge()
     BrowserService.registerContextMenus()
 
+    await browser.alarms.clear(CONFIG.BOOKMARK_RECORDS_SYNC_KEY)
     await browser.alarms.create(CONFIG.BOOKMARK_RECORDS_SYNC_KEY, {
       periodInMinutes: CONFIG.SYNC_INTERVAL_MINUTES
     })
