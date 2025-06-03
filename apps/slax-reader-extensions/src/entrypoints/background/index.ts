@@ -43,12 +43,18 @@ export default defineBackground(() => {
       return
     }
 
-    const isSame = isSameUser(userToken.value, changeInfo.cookie.value)
-    if (isSame) return
+    const oldToken = userToken.value
+    const newToken = changeInfo.cookie.value
 
-    userToken.value = changeInfo.cookie.value
-    storageService.setToken(userToken.value).then(() => {
-      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+    // 先更新token，再更新数据，再开启socket，防止竞态数据
+    storageService.setToken(newToken).then(() => {
+      userToken.value = newToken
+
+      const isSame = isSameUser(oldToken, newToken)
+      if (isSame) return
+      bookmarkService.updateAllBookmarkChanges().then(() => {
+        bookmarkService.enableSocket()
+      })
     })
   })
 
