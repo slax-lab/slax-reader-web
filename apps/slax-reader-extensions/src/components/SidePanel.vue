@@ -220,16 +220,16 @@ const panelItems = ref<PanelItem[]>([
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => isChatbotShowing.value
-  },
-  {
-    type: PanelItemType.Comments,
-    icon: commentsImage,
-    highlighedIcon: commentsHighlightedImage,
-    selectedIcon: commentsSelectedImage,
-    title: $t('component.sidebar.comments'),
-    hovered: false,
-    isSelected: () => false
   }
+  // {
+  //   type: PanelItemType.Comments,
+  //   icon: commentsImage,
+  //   highlighedIcon: commentsHighlightedImage,
+  //   selectedIcon: commentsSelectedImage,
+  //   title: $t('component.sidebar.comments'),
+  //   hovered: false,
+  //   isSelected: () => false
+  // }
 ])
 
 const subPanelItems = ref<PanelItem[]>([
@@ -250,16 +250,16 @@ const subPanelItems = ref<PanelItem[]>([
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => isChatbotShowing.value
-  },
-  {
-    type: PanelItemType.Comments,
-    icon: commentsSubImage,
-    highlighedIcon: commentsHighlightedImage,
-    selectedIcon: commentsSelectedImage,
-    title: $t('component.sidebar.comments'),
-    hovered: false,
-    isSelected: () => false
   }
+  // {
+  //   type: PanelItemType.Comments,
+  //   icon: commentsSubImage,
+  //   highlighedIcon: commentsHighlightedImage,
+  //   selectedIcon: commentsSelectedImage,
+  //   title: $t('component.sidebar.comments'),
+  //   hovered: false,
+  //   isSelected: () => false
+  // }
 ])
 
 const bottomPanelItem = ref<PanelItem[]>([
