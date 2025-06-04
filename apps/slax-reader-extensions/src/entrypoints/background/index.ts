@@ -58,6 +58,7 @@ export default defineBackground(() => {
     })
   })
 
+  // listen network change
   if ('connection' in navigator) {
     let lastStatus: 'online' | 'offline' = navigator.onLine ? 'online' : 'offline'
     // only Blink/Chromium based browsers support various parts of the NetworkInformation interface
@@ -100,7 +101,7 @@ export default defineBackground(() => {
 
     try {
       const cookieToken = await browser.cookies.get({
-        url: `http://localhost:3000`,
+        url: `https://${cookieHost}`,
         name: process.env.COOKIE_TOKEN_NAME || ''
       })
 
