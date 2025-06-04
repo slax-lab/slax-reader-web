@@ -58,6 +58,33 @@ export default defineBackground(() => {
     })
   })
 
+  if ('connection' in navigator) {
+    let lastStatus: 'online' | 'offline' = navigator.onLine ? 'online' : 'offline'
+    // only Blink/Chromium based browsers support various parts of the NetworkInformation interface
+    // https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation#browser_compatibility
+    // so we just can use ts-ignore here
+    //@ts-ignore
+    navigator.connection.addEventListener('change', (e: any) => {
+      console.log(
+        `effectiveType: ${e.currentTarget.effectiveType}
+        rtt: ${e.currentTarget.rtt}
+        downlink: ${e.currentTarget.downlink}
+        saveData: ${e.currentTarget.saveData}
+        type: ${e.currentTarget.type}
+        online: ${navigator.onLine}`
+      )
+      let networkStatus = 'online'
+      if (e.currentTarget.rtt === 0 || !navigator.onLine) {
+        networkStatus = 'offline'
+      }
+      if (networkStatus !== lastStatus) {
+        console.log(`network changed from ${lastStatus} to ${networkStatus}`)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      lastStatus = networkStatus as any
+    })
+  }
+
   // 监听插件安装事件
   browser.runtime.onInstalled.addListener(async ({ reason }) => {
     BrowserService.setupBadge()
@@ -73,7 +100,7 @@ export default defineBackground(() => {
 
     try {
       const cookieToken = await browser.cookies.get({
-        url: `https://${cookieHost}`,
+        url: `http://localhost:3000`,
         name: process.env.COOKIE_TOKEN_NAME || ''
       })
 
