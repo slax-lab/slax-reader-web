@@ -65,7 +65,7 @@ const shakeTextarea = () => {
 <style lang="scss" scoped>
 .install-extension-tips {
   .extension {
-    --style: 'relative w-180px pt-28px px-10px pb-16px bg-gradient-to-b from-#E0FFF1 to-#FCFFFD rounded-8px border-(1px solid #bef6e4) flex flex-col';
+    --style: 'relative w-240px pt-28px px-10px pb-16px bg-gradient-to-b from-#E0FFF1 to-#FCFFFD rounded-8px border-(1px solid #bef6e4) flex flex-col';
 
     .close {
       --style: 'absolute right-12px top-12px w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
