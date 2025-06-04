@@ -66,6 +66,8 @@ const getPlatformIcon = (platform: string) => {
   switch (platform) {
     case 'omnivore':
       return new URL('@images/import-three-party-logo-omnivore.png', import.meta.url).toString()
+    case 'pocket':
+      return new URL('@images/import-three-party-logo-pocket.png', import.meta.url).toString()
     default:
       return ''
   }
