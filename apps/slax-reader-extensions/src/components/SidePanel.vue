@@ -26,7 +26,7 @@
       <div class="drag" ref="draggble" />
       <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
-          <div class="sidebar-header">
+          <div class="sidebar-header" @click="go">
             <img src="@/assets/tiny-app-logo-gray.png" alt="" />
             <span>Slax Reader</span>
           </div>
@@ -767,6 +767,10 @@ const menuClick = async (action: DotsMenuActionItem) => {
       })
   }
 }
+
+const go = () => {
+  window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks`, '_blank')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -852,7 +856,7 @@ const menuClick = async (action: DotsMenuActionItem) => {
           --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center;
 
           &.top {
-            --style: top-27px;
+            --style: top-16px;
           }
 
           &.bottom {
@@ -942,7 +946,7 @@ const menuClick = async (action: DotsMenuActionItem) => {
         }
 
         .sidebar-header {
-          --style: w-full h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start;
+          --style: w-fit h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start cursor-pointer;
 
           img {
             --style: size-16px object-contain;
