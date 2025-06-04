@@ -1,6 +1,6 @@
 <template>
   <div class="side-panel" v-if="!needHidden">
-    <div class="web-panel">
+    <div class="web-panel" :class="{ 'initial-position': !isDraggledWebPaneled }" ref="webPanelDraggble" :style="webPanelStyle">
       <SidebarTips>
         <div class="panel-container">
           <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
@@ -83,7 +83,7 @@
         </div>
       </div>
     </div>
-    <div class="bottom-panel">
+    <div class="bottom-panel" :class="{ 'initial-position': !isDraggledBottomPaneled }" ref="bottomPanelDraggble" :style="bottomPanelStyle">
       <div class="panel-container" :class="{ 'hide-corner': isBottomPanelHideCorner }">
         <img class="logo" @click="checkSource" src="@/assets/tiny-app-logo-gray.png" />
         <template v-for="panel in isBottomPanelShrink ? [bottomPanelItem[0]] : bottomPanelItem" :key="panel.type">
@@ -196,6 +196,9 @@ const props = defineProps({
   }
 })
 
+const isDraggledBottomPaneled = ref(false)
+const isDraggledWebPaneled = ref(false)
+
 const isCollected = ref(false)
 const isLocked = useScrollLock(window)
 
@@ -296,6 +299,9 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
+const bottomPanelDraggble = useTemplateRef<HTMLDivElement>('bottomPanelDraggble')
+const webPanelDraggble = useTemplateRef<HTMLDivElement>('webPanelDraggble')
+
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
@@ -338,6 +344,29 @@ const { isDragging } = useDraggable(draggble, {
     const left = position.x
 
     contentWidth.value = Math.min(Math.max(minContentWidth, windowWidth - left), windowWidth - 100)
+  }
+})
+
+const { style: bottomPanelStyle } = useDraggable(bottomPanelDraggble, {
+  onMove: () => {
+    if (!isDraggledBottomPaneled.value) {
+      const left = bottomPanelDraggble.value?.getBoundingClientRect().left
+      const top = bottomPanelDraggble.value?.getBoundingClientRect().top
+      bottomPanelDraggble.value!.style.left = `${left}px`
+      bottomPanelDraggble.value!.style.top = `${top}px`
+      isDraggledBottomPaneled.value = true
+    }
+  }
+})
+const { style: webPanelStyle } = useDraggable(webPanelDraggble, {
+  onMove: () => {
+    if (!isDraggledWebPaneled.value) {
+      const left = webPanelDraggble.value?.getBoundingClientRect().left
+      const top = webPanelDraggble.value?.getBoundingClientRect().top
+      webPanelDraggble.value!.style.left = `${left}px`
+      webPanelDraggble.value!.style.top = `${top}px`
+      isDraggledWebPaneled.value = true
+    }
   }
 })
 
@@ -778,7 +807,10 @@ const go = () => {
   --style: fixed left-full top-0 h-screen;
 
   .web-panel {
-    --style: z-1 fixed right-0 top-1/2 -translate-y-1/2;
+    --style: z-1 fixed cursor-move;
+    &.initial-position {
+      --style: 'left-100%!' 'top-1/2!' '-translate-x-100%' -translate-y-1/2;
+    }
 
     .panel-container {
       --style: w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
@@ -970,7 +1002,10 @@ const go = () => {
   }
 
   .bottom-panel {
-    --style: z-1 fixed bottom-48px left-1/2 -translate-x-1/2;
+    --style: z-1 fixed cursor-move;
+    &.initial-position {
+      --style: 'left-1/2!' 'top-100%!' -translate-x-1/2 -translate-y-88px;
+    }
 
     .panel-container {
       --style: relative h-40px rounded-20px px-16px py-5px flex items-center bg-#262626 overflow-hidden shadow-[0px_20px_60px_0px_#00000033] transition-all duration-250;
