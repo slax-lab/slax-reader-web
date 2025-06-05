@@ -883,7 +883,7 @@ const go = () => {
       --style: relative size-full;
 
       .sidebar-panel {
-        --style: bg-#1F1F1FCC absolute top-0 right-0 h-full w-48px flex items-center justify-between;
+        --style: bg-#1F1F1FCC absolute z-2 top-0 right-0 h-full w-48px flex items-center justify-between;
 
         .operate-button {
           --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center;

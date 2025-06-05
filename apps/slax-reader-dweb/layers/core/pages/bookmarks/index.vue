@@ -27,10 +27,10 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:sidebar-right>
+        <div class="tips-sidebar">
+          <InstallExtensionTips />
+        </div>
         <div class="tools-sidebar">
-          <div class="tips-sidebar">
-            <InstallExtensionTips />
-          </div>
           <div class="add-url">
             <button
               @click="
