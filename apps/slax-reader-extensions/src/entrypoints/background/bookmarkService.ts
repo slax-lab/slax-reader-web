@@ -58,8 +58,9 @@ export class BookmarkService {
         }))
       )
 
-      const syncTime = Number(time)
-      syncTime && (await this.updatechangeSyncTime(syncTime))
+      // hook: When all changes, must to update sync time
+      const syncTime = Number(time) || Date.now()
+      await this.updatechangeSyncTime(syncTime)
     } catch (error) {
       console.error('Error updating all bookmark changes:', error)
     } finally {
@@ -443,7 +444,19 @@ export class BookmarkService {
     const token = await this.storageService.getToken()
     if (!token && this.socket) {
       await this.closeSocket()
-    } else if (token && !this.socket) {
+      return
+    }
+
+    if (!token) return
+
+    // when not socket or socket is not open, need to reconnect
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const needsConnection = !this.socket || (this.socket && (this.socket as any).readyState !== WebSocket.OPEN)
+
+    if (needsConnection) {
+      if (this.socket) {
+        this.closeSocket()
+      }
       await this.enableSocket()
     }
   }

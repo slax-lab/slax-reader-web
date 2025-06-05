@@ -2,9 +2,16 @@ import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
 import { dwebEnvSchema, extensionsEnvSchema } from '../env.schema'
+
+type EnvTypes = 'production' | 'beta' | 'preview' | 'development'
+
+export const getEnv: () => EnvTypes = () => {
+  const env = process.env.SLAX_ENV || 'development'
+  return env as EnvTypes
+}
 ;(() => {
   console.log('加载环境变量文件...')
-  const env = process.env.SLAX_ENV || 'development'
+  const env = getEnv()
   const envFiles = ['.env', `.env.${env}`, `.env.${env}.local`]
 
   envFiles.forEach(file => {
@@ -21,13 +28,6 @@ import { dwebEnvSchema, extensionsEnvSchema } from '../env.schema'
     }
   })
 })()
-
-type EnvTypes = 'production' | 'beta' | 'preview' | 'development'
-
-export const getEnv: () => EnvTypes = () => {
-  const env = process.env.SLAX_ENV || 'development'
-  return env as EnvTypes
-}
 
 export const getExtensionsConfig = () => {
   const env = process.env

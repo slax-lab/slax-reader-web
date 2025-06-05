@@ -27,8 +27,10 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:sidebar-right>
-        <div class="tools-sidebar">
+        <div class="tips-sidebar">
           <InstallExtensionTips />
+        </div>
+        <div class="tools-sidebar">
           <div class="add-url">
             <button
               @click="
@@ -540,10 +542,7 @@ const notificationBack = () => {
 <style lang="scss" scoped>
 .bookmarks-view {
   .left-operates {
-    --style: 'flex items-center max-md:(pr-16px) md:(absolute right-full pr-7px)';
-    & > * {
-      --style: 'not-first:ml-16px';
-    }
+    --style: 'flex items-center gap-16px';
 
     .search-icon {
       --style: size-24px cursor-pointer;
@@ -561,8 +560,12 @@ const notificationBack = () => {
     }
   }
 
+  .tips-sidebar {
+    --style: mt-24px;
+  }
+
   .tools-sidebar {
-    --style: absolute bottom-120px left-16px w-full flex flex-col justify-end;
+    --style: absolute bottom-120px w-full flex flex-col justify-end;
     .add-url {
       --style: 'mt-24px bg-#fcfcfc border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
       button {

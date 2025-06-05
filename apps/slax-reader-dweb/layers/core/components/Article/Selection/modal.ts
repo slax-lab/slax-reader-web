@@ -11,7 +11,7 @@ import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
 
 let styleElement: HTMLStyleElement | null = null
 const checkStyleElement = () => {
-  if (!styleElement) {
+  if (!styleElement && isClient) {
     createStyleWithSearchRules(['.i-svg-', '.bg-[']).then(style => {
       styleElement = style
     })

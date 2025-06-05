@@ -75,7 +75,8 @@ enum RESTMethodPath {
 enum LocalStorageKey {
   USER_TOKEN = 'local:token',
   ANALYTICS_ENABLED = 'local:analytics-enabled',
-  USER_INFO = 'local:user_info'
+  USER_INFO = 'local:user_info',
+  SIDE_BAR_TIPS = 'local:side_bar_tips'
 }
 
 export { RESTMethodPath, StatusCode, LocalStorageKey }

@@ -226,9 +226,9 @@
       "title": "你的反馈将帮助我们变得更好"
     },
     "install_extension_tips": {
-      "descript": "安装后，点击插件图标即可收藏当前页面。",
-      "install": "去安装",
-      "title": "安装浏览器扩展"
+      "descript": "安装我们的小插件，轻松收藏精彩网页。阅读时随心划重点、记灵感，还能召唤 AI 助手对话探讨。",
+      "install": "安装",
+      "title": "随时保存，悦读无忧"
     },
     "login_view": {
       "google_login": "Google 登录",
@@ -451,9 +451,9 @@
         }
       },
       "operate_title": "开始使用：",
-      "use": "开始使用",
       "subtitle": "以下几个需要你留意的细节将帮助你更好的使用产品",
-      "title": "欢迎使用 Slax Reader"
+      "title": "欢迎使用 Slax Reader",
+      "use": "开始使用"
     },
     "index": {
       "cards": {
@@ -633,9 +633,9 @@
       "stripe_setup_notice": "Slax Reader 将通过 Stripe 账户进行支付、提现等操作，需要你补充 Stripe 账户资料",
       "stripe_status": "Stripe 状态：",
       "subscribe": {
-        "expired": "订阅到期时间",
-        "first": "初次订阅时间",
-        "next_payment": "下次收款时间",
+        "expired": "订阅到期时间：",
+        "first": "初次订阅时间：",
+        "next_payment": "下次收款时间：",
         "no": "没有订阅",
         "subscripted_pro": "已订阅 Pro 版",
         "subscripted_trail_pro": "已订阅试用 Pro 版"

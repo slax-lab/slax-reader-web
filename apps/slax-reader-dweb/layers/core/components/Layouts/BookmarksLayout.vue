@@ -102,11 +102,11 @@ defineExpose({
     .right {
       --style: h-full flex-1 flex items-center relative;
       .operates {
-        --style: 'min-w-200px pl-9px pr-40px relative flex flex-row items-center max-md:(justify-end) md:(justify-start)';
+        --style: 'min-w-280px pl-9px pr-40px relative flex flex-row items-center max-md:(justify-end) md:(justify-start)  gap-16px';
       }
 
       .tools {
-        --style: 'w-180p overflow-hidden max-md:(hidden) md:(left-0 min-w-200px h-[var(--md-height)]) absolute top-full z-1';
+        --style: 'w-180p overflow-hidden max-md:(hidden) md:(left-0 min-w-280px h-[var(--md-height)] pl-16px) absolute top-full z-1';
       }
     }
   }
@@ -127,7 +127,7 @@ defineExpose({
     }
 
     .right {
-      --style: 'flex-1 min-w-200px max-md:(hidden) relative';
+      --style: 'flex-1 min-w-280px max-md:(hidden) relative';
     }
   }
 }

@@ -6,6 +6,97 @@
   "collection_in_progress": "收藏中",
   "collection_not_supported": "该网页暂不支持收藏",
   "collection_successful": "收藏成功",
+  "common": {
+    "operate": {
+      "chatbot": "Chat",
+      "comment": "评论",
+      "copy": "复制",
+      "delete_line": "删除划线",
+      "line": "划线",
+      "reply": "回复",
+      "submit": "提交",
+      "summary_refresh": "重新生成"
+    },
+    "tips": {
+      "copy_content_success": "内容复制成功",
+      "share_failed": "创建分享失败",
+      "sidebar_tips": "网页已收藏～\n你可通过这里快捷体验 Slax Reader 核心功能"
+    }
+  },
+  "component": {
+    "ai_summaries": {
+      "click_to_expand": "点击彩色圆点可展开/收起节点",
+      "click_to_interpret": "点击按钮解读此文章",
+      "copy_content_success": "内容复制成功",
+      "interpret": "解读此文章",
+      "mindmap": "思维导图",
+      "processing": "内容解析中",
+      "title": "解析结果"
+    },
+    "article_selection": {
+      "comment_deleted": "评论已删除",
+      "comment_failed": "评论失败",
+      "comment_placeholder": "回复 $1",
+      "hours_ago": "小时前",
+      "just_now": "刚刚",
+      "minutes_ago": "分钟前",
+      "perceptions": "看法",
+      "placeholder": "发表你的观点",
+      "reply": "回复...",
+      "stroke_failed": "划线失败",
+      "title": "发表评论"
+    },
+    "chat_bot": {
+      "access_complete": "访问完成",
+      "access_failed": "访问失败",
+      "accessing_token": "访问中",
+      "alias_placeholder": "请输入你的问题（$1 + enter 可以换行）",
+      "discover": "了解更多关于这篇文章的信息\n有什么想问的，尽管问我吧",
+      "generating_question": "生成问题中...",
+      "hello": "你好，我是 Slax Reader AI 助手：",
+      "now_accessing": "正在访问中...",
+      "tips_accessing": "\"$1\" 访问中...",
+      "tips_searching": "\"$1\" 搜索中..."
+    },
+    "chat_bubble_message": {
+      "links_source": "信息来源：",
+      "related_questions": "相关的："
+    },
+    "chat_tips_message": {
+      "generate_question_title": "读者最关心："
+    },
+    "copy_button": {
+      "copy_content": "复制内容"
+    },
+    "feedback": {
+      "placeholder": "请描述你遇到的问题......",
+      "title": "你的反馈将帮助我们变得更好"
+    },
+    "share_modal": {
+      "copy_link": "复制链接",
+      "copy_success": "复制成功!",
+      "options": {
+        "first": "显示划线和评论",
+        "second": "显示我的头像和昵称",
+        "third": "允许访客划线和评论"
+      },
+      "revoke_tips": "分享链接已撤销",
+      "title": "分享"
+    },
+    "sidebar": {
+      "about": "关于",
+      "ai": "AI",
+      "archieve": "读完了",
+      "chat": "Chat",
+      "collect_content": "收藏内容",
+      "collecting": "收藏中",
+      "comments": "评论",
+      "feedback": "反馈",
+      "share": "分享",
+      "star": "加星",
+      "view_collection_detail": "查看收藏"
+    }
+  },
   "extended_settings": "扩展设置",
   "not_collected": "未收藏",
   "recollection": "重新收藏",
@@ -15,91 +106,12 @@
   "removal_successful": "已移除",
   "shortcut_settings": "快捷键设置",
   "slax_collection_list": "Slax 收藏列表",
-  "component": {
-    "sidebar": {
-      "view_collection_detail": "查看收藏",
-      "collect_content": "收藏内容",
-      "collecting": "收藏中",
-      "share": "分享",
-      "ai": "AI",
-      "chat": "Chat"
-    },
-    "ai_summaries": {
-      "title": "解析结果",
-      "mindmap": "思维导图",
-      "click_to_expand": "点击彩色圆点可展开/收起节点",
-      "click_to_interpret": "点击按钮解读此文章",
-      "interpret": "解读此文章",
-      "processing": "内容解析中",
-      "copy_content_success": "内容复制成功"
-    },
-    "copy_button": {
-      "copy_content": "复制内容"
-    },
-    "chat_bubble_message": {
-      "links_source": "信息来源：",
-      "related_questions": "相关的："
-    },
-    "chat_bot": {
-      "hello": "你好，我是 Slax Reader AI 助手：",
-      "generating_question": "生成问题中...",
-      "now_accessing": "正在访问中...",
-      "accessing_token": "访问中",
-      "access_complete": "访问完成",
-      "access_failed": "访问失败",
-      "alias_placeholder": "请输入你的问题（$1 + enter 可以换行）",
-      "tips_searching": "\"$1\" 搜索中...",
-      "tips_accessing": "\"$1\" 访问中..."
-    },
-    "chat_tips_message": {
-      "generate_question_title": "读者最关心："
-    },
-    "article_selection": {
-      "comment_failed": "评论失败",
-      "stroke_failed": "划线失败",
-      "title": "发表评论",
-      "placeholder": "发表你的观点",
-      "reply": "回复...",
-      "comment_deleted": "评论已删除",
-      "just_now": "刚刚",
-      "minutes_ago": "分钟前",
-      "hours_ago": "小时前",
-      "comment_placeholder": "回复 $1",
-      "perceptions": "看法"
-    },
-    "share_modal": {
-      "title": "分享",
-      "revoke_tips": "分享链接已撤销",
-      "copy_link": "复制链接",
-      "copy_success": "复制成功!",
-      "options": {
-        "first": "显示划线和评论",
-        "second": "显示我的头像和昵称",
-        "third": "允许访客划线和评论"
-      }
-    }
-  },
   "util": {
     "chatbot": {
+      "browser_finished": "访问完成",
       "generate_question": "问题生成中",
       "generate_question_finished": "生成完成",
-      "browser_finished": "访问完成",
       "search_finished": "搜索完成"
-    }
-  },
-  "common": {
-    "operate": {
-      "summary_refresh": "重新生成",
-      "reply": "回复",
-      "copy": "复制",
-      "line": "划线",
-      "delete_line": "删除划线",
-      "comment": "评论",
-      "chatbot": "Chat"
-    },
-    "tips": {
-      "copy_content_success": "内容复制成功",
-      "share_failed": "创建分享失败"
     }
   }
 }

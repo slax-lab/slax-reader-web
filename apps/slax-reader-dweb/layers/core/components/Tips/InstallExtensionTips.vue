@@ -1,7 +1,7 @@
 <template>
   <div class="install-extension-tips">
     <Transition name="tips">
-      <div v-show="isAppeared" class="extension">
+      <div v-show="isAppeared" ref="extensionTips" class="extension">
         <button class="close" @click="closeClick">
           <img src="@images/button-dialog-close.png" />
         </button>
@@ -21,12 +21,19 @@ import { useUserStore } from '#layers/core/stores/user'
 
 const isAppeared = ref(false)
 const userStore = useUserStore()
+const extensionTips = useTemplateRef('extensionTips')
 
 onMounted(() => {
   const dom = document.querySelector('slax-reader-modal')
   if (!dom) {
-    const shouldShow = userStore.showCloseInstallExtTips
-    isAppeared.value = shouldShow
+    const res = userStore.showCloseInstallExtTips
+    isAppeared.value = res.canShow
+
+    if (res.showedAlready) {
+      setTimeout(() => {
+        shakeTextarea()
+      }, 800)
+    }
   }
 })
 
@@ -38,12 +45,27 @@ const closeClick = () => {
 const installClick = () => {
   window.open('https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd')
 }
+
+const shakeTextarea = () => {
+  if (!extensionTips.value) {
+    return
+  }
+
+  extensionTips.value.classList.add('shake')
+  extensionTips.value.addEventListener(
+    'animationend',
+    () => {
+      extensionTips.value?.classList.remove('shake')
+    },
+    { once: true }
+  )
+}
 </script>
 
 <style lang="scss" scoped>
 .install-extension-tips {
   .extension {
-    --style: 'relative w-180px pt-28px px-10px pb-16px bg-gradient-to-b from-#E0FFF1 to-#FCFFFD rounded-8px border-(1px solid #bef6e4) flex flex-col';
+    --style: 'relative w-240px pt-28px px-10px pb-16px bg-gradient-to-b from-#E0FFF1 to-#FCFFFD rounded-8px border-(1px solid #bef6e4) flex flex-col';
 
     .close {
       --style: 'absolute right-12px top-12px w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
@@ -83,5 +105,25 @@ const installClick = () => {
   opacity: 0;
   transform: translateY(20px);
   filter: blur(1rem);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-2px);
+  }
+  40%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+// eslint-disable-next-line vue-scoped-css/no-unused-selector
+.shake {
+  animation: shake 0.5s;
 }
 </style>

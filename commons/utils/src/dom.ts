@@ -191,3 +191,30 @@ export const createStyleWithSearchRules = async (searchRules: string[]) => {
 
   return styleElement
 }
+
+export const getTextNodesInRange = (range: Range, doc: Document = document): Node[] => {
+  const nodes: Node[] = []
+
+  const walker = doc.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT, {
+    acceptNode: node => {
+      if (!node.textContent || node.textContent.trim() === '') {
+        return NodeFilter.FILTER_REJECT
+      }
+
+      const nodeRange = doc.createRange()
+      nodeRange.selectNode(node)
+      return range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT
+    }
+  })
+
+  let node: Node | null
+  while ((node = walker.nextNode())) {
+    if (node.textContent && node.textContent.trim() !== '') {
+      nodes.push(node)
+    }
+  }
+
+  return nodes
+}

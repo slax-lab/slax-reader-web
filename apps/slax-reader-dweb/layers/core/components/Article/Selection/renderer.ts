@@ -1,4 +1,4 @@
-import { removeOuterTag } from '@commons/utils/dom'
+import { getTextNodesInRange, removeOuterTag } from '@commons/utils/dom'
 import { HighlightRange } from '@commons/utils/range'
 
 import { Base } from './base'
@@ -83,7 +83,7 @@ export class MarkRenderer extends Base {
       return
     }
 
-    const nodes = this.getTextNodesInRange(range)
+    const nodes = getTextNodesInRange(range, this.document)
 
     if (nodes.length > 0) {
       if (nodes[0] === range.startContainer) {
@@ -113,46 +113,6 @@ export class MarkRenderer extends Base {
         })
       }
     }
-  }
-
-  getTextNodesInRange(range: Range): Node[] {
-    const nodes: Node[] = []
-    const monitorDom = this.config.monitorDom || this.document.body
-
-    const walker = this.document.createTreeWalker(monitorDom, NodeFilter.SHOW_TEXT, {
-      acceptNode: node => {
-        if (!node.textContent || node.textContent.trim() === '') {
-          return NodeFilter.FILTER_REJECT
-        }
-
-        let parent = node.parentNode
-        while (parent) {
-          if (parent.nodeType === Node.ELEMENT_NODE) {
-            const tagName = (parent as Element).tagName
-            if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(tagName)) {
-              return NodeFilter.FILTER_REJECT
-            }
-          }
-          parent = parent.parentNode
-        }
-
-        const nodeRange = this.document.createRange()
-        nodeRange.selectNode(node)
-
-        const nodeInRange = range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 && range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
-
-        return nodeInRange ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-      }
-    })
-
-    let node: Node | null
-    while ((node = walker.nextNode())) {
-      if (node.textContent && node.textContent.trim() !== '') {
-        nodes.push(node)
-      }
-    }
-
-    return nodes
   }
 
   addImageMarkInline(info: DrawMarkBaseInfo & { ele: HTMLImageElement }) {

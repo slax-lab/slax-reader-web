@@ -1,3 +1,5 @@
+import { isSameUser } from '../../utils/jwt'
+
 import { AuthService } from './authService'
 import { BookmarkService } from './bookmarkService'
 import { BrowserService } from './browserService'
@@ -41,21 +43,55 @@ export default defineBackground(() => {
       return
     }
 
-    if (userToken.value === changeInfo.cookie.value) {
-      return
-    }
+    const oldToken = userToken.value
+    const newToken = changeInfo.cookie.value
 
-    userToken.value = changeInfo.cookie.value
-    storageService.setToken(userToken.value).then(() => {
-      Promise.allSettled([bookmarkService.updateAllBookmarkChanges(), bookmarkService.enableSocket()])
+    // 先更新token，再更新数据，再开启socket，防止竞态数据
+    storageService.setToken(newToken).then(() => {
+      userToken.value = newToken
+
+      const isSame = isSameUser(oldToken, newToken)
+      if (isSame) return
+      bookmarkService.updateAllBookmarkChanges().then(() => {
+        bookmarkService.enableSocket()
+      })
     })
   })
+
+  // listen network change
+  if ('connection' in navigator) {
+    let lastStatus: 'online' | 'offline' = navigator.onLine ? 'online' : 'offline'
+    // only Blink/Chromium based browsers support various parts of the NetworkInformation interface
+    // https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation#browser_compatibility
+    // so we just can use ts-ignore here
+    //@ts-ignore
+    navigator.connection.addEventListener('change', (e: any) => {
+      console.log(
+        `effectiveType: ${e.currentTarget.effectiveType}
+        rtt: ${e.currentTarget.rtt}
+        downlink: ${e.currentTarget.downlink}
+        saveData: ${e.currentTarget.saveData}
+        type: ${e.currentTarget.type}
+        online: ${navigator.onLine}`
+      )
+      let networkStatus = 'online'
+      if (e.currentTarget.rtt === 0 || !navigator.onLine) {
+        networkStatus = 'offline'
+      }
+      if (networkStatus !== lastStatus) {
+        console.log(`network changed from ${lastStatus} to ${networkStatus}`)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      lastStatus = networkStatus as any
+    })
+  }
 
   // 监听插件安装事件
   browser.runtime.onInstalled.addListener(async ({ reason }) => {
     BrowserService.setupBadge()
     BrowserService.registerContextMenus()
 
+    await browser.alarms.clear(CONFIG.BOOKMARK_RECORDS_SYNC_KEY)
     await browser.alarms.create(CONFIG.BOOKMARK_RECORDS_SYNC_KEY, {
       periodInMinutes: CONFIG.SYNC_INTERVAL_MINUTES
     })

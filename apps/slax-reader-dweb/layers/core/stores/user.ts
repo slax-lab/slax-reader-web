@@ -7,7 +7,7 @@ interface UserState {
   user: UserInfo | null
   locale: string
   payTimeRecord: number | null // 负责记录付费的时间
-  lastCloseInstallExtTipsDate: number // 负责记录最近一次关闭安装扩展提示的时间
+  lastCloseInstallExtTipsDates: number[] // 负责记录最近一次关闭安装扩展提示的时间
   shareTipsClicked: boolean // 负责记录是否点击过分享引导提示
   lastRefreshTokenDate: number // 负责记录最近一次刷新token的时间
   lastRequestPushPermissionDate: number // 负责记录最近一次请求推送权限的时间
@@ -20,7 +20,7 @@ interface UserGetters extends _GettersTree<UserState> {
   isJustPaid: (state: UserState) => boolean
   isSubscriptionExpired: (state: UserState) => boolean
   isLogin: () => boolean
-  showCloseInstallExtTips: (state: UserState) => boolean
+  showCloseInstallExtTips: (state: UserState) => { canShow: boolean; showedAlready: boolean }
   showShareTips: (state: UserState) => boolean
   canRequetPushPermission: (state: UserState) => boolean
 }
@@ -51,7 +51,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
       user: null,
       locale: useI18n()?.locale?.value,
       payTimeRecord: null,
-      lastCloseInstallExtTipsDate: 0,
+      lastCloseInstallExtTipsDates: [],
       shareTipsClicked: false,
       lastRefreshTokenDate: 0,
       lastRequestPushPermissionDate: 0,
@@ -73,7 +73,10 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
     },
     isLogin: () => haveRequestToken(),
     showCloseInstallExtTips: (state: UserState) => {
-      return !state.lastCloseInstallExtTipsDate
+      return {
+        canShow: !state.lastCloseInstallExtTipsDates || state.lastCloseInstallExtTipsDates.length <= 1,
+        showedAlready: state.lastCloseInstallExtTipsDates && state.lastCloseInstallExtTipsDates.length > 0
+      }
     },
     showShareTips: (state: UserState) => {
       return !state.shareTipsClicked
@@ -157,7 +160,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
       this.payTimeRecord = null
     },
     updateCloseInstallExtTipsDate() {
-      this.lastCloseInstallExtTipsDate = Date.now()
+      this.lastCloseInstallExtTipsDates = [...this.lastCloseInstallExtTipsDates, Date.now()]
     },
     updateShareTipsClicked() {
       this.shareTipsClicked = true

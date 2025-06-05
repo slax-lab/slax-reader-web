@@ -8,7 +8,7 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
-import { type MarkDetail, type MarkPathItem, MarkType } from '@commons/types/interface'
+import { type MarkDetail, type MarkPathItem } from '@commons/types/interface'
 
 export class ArticleSelection extends Base {
   private monitor: SelectionMonitor

@@ -107,6 +107,10 @@ export interface BookmarkBriefDetail {
   status: string
   published_at: Date
   marks: MarkDetail
+  bookmark_id: number
+  alias_title: string
+  archived: 'inbox' | 'archive' | 'later'
+  starred: 'star' | 'unstar'
 }
 
 export interface InlineBookmarkDetail {

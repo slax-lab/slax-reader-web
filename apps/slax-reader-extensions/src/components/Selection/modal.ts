@@ -3,7 +3,8 @@ import { createApp } from 'vue'
 import ArticleSelectionMenus from './ArticleSelectionMenus.vue'
 import ArticleSelectionPanel from './ArticleSelectionPanel.vue'
 
-import type { MarkItemInfo, MenuType } from './type'
+import { Base } from './base'
+import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
 
 const menusKey = `slax-reader-article-selection-menus-container`
 const panelKey = `slax-reader-article-selection-panel-container`
@@ -12,16 +13,16 @@ const isNullRect = (rect: DOMRect) => {
   return !rect || (rect.width === 0 && rect.height === 0 && rect.top === 0 && rect.left === 0)
 }
 
-export class MarkModal {
+export class MarkModal extends Base {
   currentPanel: InstanceType<typeof ArticleSelectionPanel> | null = null
 
-  isPanelExist(container?: HTMLDivElement) {
-    const articleSelectionPanel = (container || document).querySelector(`.${panelKey}`) as HTMLElement
-    if (articleSelectionPanel) {
-      return true
-    }
+  constructor(config: SelectionConfig) {
+    super(config)
+  }
 
-    return false
+  isPanelExist(container?: HTMLDivElement) {
+    const articleSelectionPanel = (container || this.document).querySelector(`.${panelKey}`) as HTMLElement
+    return !!articleSelectionPanel
   }
 
   dismissPanel = () => {
@@ -31,29 +32,29 @@ export class MarkModal {
   }
 
   showMenus(options: {
-    container: HTMLDivElement
     event: MouseEvent | TouchEvent
-    allowAction: boolean
     callback?: (type: MenuType, event: MouseEvent) => void
     positionCallback?: (position: { x: number; y: number }) => void
     noActionCallback?: () => void
   }) {
-    const { container, event, allowAction, callback, positionCallback, noActionCallback } = options
-    if (this.isPanelExist(container)) {
+    const { event, callback, positionCallback, noActionCallback } = options
+    const { containerDom, allowAction } = this.config
+
+    if (!containerDom || this.isPanelExist(containerDom)) {
       return
     }
 
-    let articleSelectionMenus = container.querySelector(`.${menusKey}`) as HTMLElement
+    let articleSelectionMenus = containerDom.querySelector(`.${menusKey}`) as HTMLElement
     if (articleSelectionMenus) {
       articleSelectionMenus.remove()
     }
 
-    articleSelectionMenus = document.createElement('div')
+    articleSelectionMenus = this.document.createElement('div')
     articleSelectionMenus.classList.add(menusKey)
     articleSelectionMenus.style.setProperty('z-index', `${999}`)
     articleSelectionMenus.style.setProperty('position', `absolute`)
 
-    container.appendChild(articleSelectionMenus)
+    containerDom.appendChild(articleSelectionMenus)
 
     const app = createApp(ArticleSelectionMenus, {
       allowAction,
@@ -71,7 +72,7 @@ export class MarkModal {
 
     app.mount(articleSelectionMenus)
 
-    const selection = window.getSelection()
+    const selection = this.window.getSelection()
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
     if (!range) {
@@ -91,13 +92,13 @@ export class MarkModal {
 
     const isBottomCloser = Math.abs(maxY - offsetY) < Math.abs(minY - offsetY)
 
-    const bodyRect = document.body.getBoundingClientRect()
+    const bodyRect = this.document.body.getBoundingClientRect()
     if (bodyRect) {
       offsetY -= bodyRect.top
     }
 
     nextTick(() => {
-      const scrollOffsetY = window.scrollY
+      const scrollOffsetY = this.window.scrollY
       const menuRect = articleSelectionMenus.getBoundingClientRect()
       if (menuRect) {
         const gap = 10
@@ -125,29 +126,31 @@ export class MarkModal {
   }
 
   showPanel(options: {
-    container: HTMLDivElement
-    articleDom: HTMLDivElement
     info: MarkItemInfo
-    userId: number
-    allowAction: boolean
     fallbackYOffset: number
     actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
     commentDeleteCallback?: (id: string, markId: number) => void
     dismissCallback?: () => void
   }) {
-    const { container, info, allowAction, userId, actionCallback, commentDeleteCallback, dismissCallback } = options
+    const { info, actionCallback, commentDeleteCallback, dismissCallback } = options
+    const { containerDom, allowAction, userInfo } = this.config
+    if (!containerDom || !userInfo) {
+      return
+    }
 
-    let articleSelectionPanel = container.querySelector(`.${panelKey}`) as HTMLElement
+    const userId = userInfo.userId
+
+    let articleSelectionPanel = containerDom.querySelector(`.${panelKey}`) as HTMLElement
     if (articleSelectionPanel) {
       articleSelectionPanel.remove()
     }
 
-    articleSelectionPanel = document.createElement('div')
+    articleSelectionPanel = this.document.createElement('div')
     articleSelectionPanel.classList.add(panelKey)
     articleSelectionPanel.style.setProperty('z-index', `${999}`)
     articleSelectionPanel.style.setProperty('position', `fixed`)
 
-    container.appendChild(articleSelectionPanel)
+    containerDom.appendChild(articleSelectionPanel)
 
     let panel: InstanceType<typeof ArticleSelectionPanel> | null = null
 
@@ -157,8 +160,8 @@ export class MarkModal {
       let { x, y } = position
       const panelWidth = panelRect.width || 400
       const panelHeight = panelRect.height || 300
-      const screenWidth = window.innerWidth
-      const screenHeight = window.innerHeight
+      const screenWidth = this.window.innerWidth
+      const screenHeight = this.window.innerHeight
       if (x + panelWidth > screenWidth) {
         x = screenWidth - panelWidth
       }
@@ -175,7 +178,7 @@ export class MarkModal {
       const position = getIdealOffset({ x: panelRect.left, y: panelRect.y })
 
       panel?.updateLocation(position)
-      panel?.maxHeightUpdate(Math.min(container.getBoundingClientRect().height, window.innerHeight * 0.8))
+      panel?.maxHeightUpdate(Math.min(containerDom.getBoundingClientRect().height, this.window.innerHeight * 0.8))
     }
 
     const app = createApp(ArticleSelectionPanel, {
@@ -206,7 +209,7 @@ export class MarkModal {
 
     panel = app.mount(articleSelectionPanel) as InstanceType<typeof ArticleSelectionPanel>
     this.currentPanel = panel
-    const selection = window.getSelection()
+    const selection = this.window.getSelection()
 
     let topOffset = 0
     let leftOffset = 0
