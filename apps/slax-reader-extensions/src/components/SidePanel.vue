@@ -305,8 +305,9 @@ const webPanelDraggble = useTemplateRef<HTMLDivElement>('webPanelDraggble')
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
-const minContentWidth = 560
-const contentWidth = ref(Math.min(window.innerWidth, minContentWidth))
+const minContentWidth = 400
+const defaultContentWidth = 560
+const contentWidth = ref(Math.min(window.innerWidth, defaultContentWidth))
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')

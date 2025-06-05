@@ -371,7 +371,7 @@ defineExpose({
       --style: 'cursor-pointer relative w-20px h-20px p-12px transition-transform duration-200 ease-in-out not-first:ml-5 hover:scale-110';
       .icon-bg {
         --style: absolute top-0 left-0 filter-blur-10 w-full h-full;
-        --style: 'bg-#f5f5f3 dark:bg-#FFFFFF33';
+        --style: 'bg-#f5f5f3 dark:bg-transparent';
       }
 
       svg {
