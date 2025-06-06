@@ -26,9 +26,9 @@
       <div class="drag" ref="draggble" />
       <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
-          <div class="sidebar-header" @click="go">
-            <img src="@/assets/tiny-app-logo-gray.png" alt="" />
-            <span>Slax Reader</span>
+          <div class="sidebar-header">
+            <img @click="go" src="@/assets/tiny-app-logo-gray.png" alt="" />
+            <span @click="go">Slax Reader</span>
           </div>
           <div class="sidebar-content">
             <Transition name="sidepanel">
@@ -979,7 +979,7 @@ const go = () => {
         }
 
         .sidebar-header {
-          --style: w-fit h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start cursor-pointer;
+          --style: w-full h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start cursor-pointer;
 
           img {
             --style: size-16px object-contain;
