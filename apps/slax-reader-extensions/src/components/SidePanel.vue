@@ -126,7 +126,7 @@
       </div>
     </div>
   </div>
-  <div class="slax-menus" ref="menus"></div>
+  <div class="slax-menus" ref="menus" v-if="!needHidden"></div>
   <div class="slax-custom-container" ref="modalContainer"></div>
 </template>
 
@@ -265,13 +265,27 @@ const subPanelItems = ref<PanelItem[]>([
   // }
 ])
 
+const getArchiveTitle = computed(() => {
+  if (bookmarkBriefInfo.value?.archived === 'archive') {
+    return $t('component.sidebar.archieved')
+  }
+  return $t('component.sidebar.archieve')
+})
+
+const getStarTitle = computed(() => {
+  if (bookmarkBriefInfo.value?.starred === 'star') {
+    return $t('component.sidebar.starred')
+  }
+  return $t('component.sidebar.star')
+})
+
 const bottomPanelItem = ref<PanelItem[]>([
   {
     type: PanelItemType.Archieve,
     icon: archieveBottomImage,
     highlighedIcon: archieveBottomImage,
     selectedIcon: archieveBottomSelectedImage,
-    title: $t('component.sidebar.archieve'),
+    title: getArchiveTitle,
     hovered: false,
     selectedColor: '#16b998',
     isSelected: () => bookmarkBriefInfo.value?.archived === 'archive'
@@ -281,7 +295,7 @@ const bottomPanelItem = ref<PanelItem[]>([
     icon: starBottomImage,
     highlighedIcon: starBottomImage,
     selectedIcon: starBottomSelectedImage,
-    title: $t('component.sidebar.star'),
+    title: getStarTitle,
     hovered: false,
     selectedColor: '#F6AF69',
     isSelected: () => bookmarkBriefInfo.value?.starred === 'star'
