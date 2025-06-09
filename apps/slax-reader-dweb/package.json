@@ -26,7 +26,7 @@
     "@vscode/markdown-it-katex": "^1.1.1",
     "dompurify": "^3.2.4",
     "easy-dom2img": "^1.0.2",
-    "firebase": "^11.4.0",
+    "firebase": "^11.9.0",
     "github-syntax-light": "^0.5.0",
     "highlight.js": "^11.11.1",
     "jszip": "^3.10.1",
