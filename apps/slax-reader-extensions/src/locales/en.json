@@ -86,7 +86,8 @@
     "sidebar": {
       "about": "About",
       "ai": "AI",
-      "archieve": "Readed",
+      "archieve": "Archive",
+      "archieved": "Archived",
       "chat": "Chat",
       "collect_content": "Collect",
       "collecting": "Collecting",
@@ -94,6 +95,7 @@
       "feedback": "Feedback",
       "share": "Share",
       "star": "Star",
+      "starred": "Starred",
       "view_collection_detail": "View Cache"
     }
   },

@@ -87,6 +87,7 @@
       "about": "关于",
       "ai": "AI",
       "archieve": "读完了",
+      "archieved": "读完了",
       "chat": "Chat",
       "collect_content": "收藏内容",
       "collecting": "收藏中",
@@ -94,6 +95,7 @@
       "feedback": "反馈",
       "share": "分享",
       "star": "加星",
+      "starred": "加星",
       "view_collection_detail": "查看收藏"
     }
   },
