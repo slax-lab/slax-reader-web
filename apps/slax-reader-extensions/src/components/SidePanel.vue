@@ -126,7 +126,7 @@
       </div>
     </div>
   </div>
-  <div class="slax-menus" ref="menus"></div>
+  <div class="slax-menus" ref="menus" v-if="!needHidden"></div>
   <div class="slax-custom-container" ref="modalContainer"></div>
 </template>
 

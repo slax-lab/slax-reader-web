@@ -22,9 +22,12 @@ export default defineContentScript({
       zIndex: 99999999,
       anchor: 'body',
       append: 'after',
+      css: `
+        html{
+          z-index: 99999999 !important;
+        }
+      `,
       onMount: container => {
-        container.style.position = 'fixed'
-        container.style.visibility = 'visible'
         const app = createApp(CollectPopup, {
           browser
         })
@@ -45,6 +48,11 @@ export default defineContentScript({
       zIndex: 99999999,
       anchor: 'body',
       append: 'before',
+      css: `
+      html{
+        z-index: 99999999 !important;
+      }
+    `,
       onMount: container => {
         const app = createApp(SidePanel, {
           browser
