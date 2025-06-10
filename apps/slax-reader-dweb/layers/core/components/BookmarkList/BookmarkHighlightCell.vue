@@ -55,7 +55,7 @@ const dateString = (date: string) => {
 
 const getContent = (item: HighlightItem) => {
   return item.content.length < 1
-    ? item.approx_source?.exact
+    ? item.approx_source?.exact || ''
     : item.content
         .filter(content => content.type !== 'image')
         .map(content => content.text)

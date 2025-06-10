@@ -217,6 +217,7 @@ export interface HighlightItem {
   comment: string
   source_type: 'share' | 'bookmark' | 'collection'
   source_id: string
+  approx_source?: MarkPathApprox
 }
 
 export interface MarkSelectContent {
