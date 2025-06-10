@@ -54,12 +54,14 @@ const dateString = (date: string) => {
 }
 
 const getContent = (item: HighlightItem) => {
-  return item.content
-    .filter(content => content.type !== 'image')
-    .map(content => content.text)
-    .join('')
-    .replaceAll('\n', '')
-    .replaceAll('\t', '')
+  return item.content.length < 1
+    ? item.approx_source?.exact
+    : item.content
+        .filter(content => content.type !== 'image')
+        .map(content => content.text)
+        .join('')
+        .replaceAll('\n', '')
+        .replaceAll('\t', '')
 }
 
 const jumpToOriginal = (item: HighlightItem) => {
