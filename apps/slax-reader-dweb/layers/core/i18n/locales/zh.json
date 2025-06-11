@@ -425,7 +425,8 @@
       "starred": "星标",
       "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
-      "view_original": "查看原文"
+      "view_original": "查看原文",
+      "Trash":"回收站"
     },
     "quickStart": {
       "title": "快速开始指南",

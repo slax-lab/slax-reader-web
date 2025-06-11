@@ -7,7 +7,7 @@
   </div>
   <div class="tabs">
     <button class="group trash" :class="{ highlighted: tabType === 'trashed' }" @click="inboxClick('trashed')">
-      <span class="text group-hover:scale-105"><i></i> Trash</span>
+      <span class="text group-hover:scale-105"><i></i> {{ $t('page.bookmarks_index.Trash') }}</span>
     </button>
   </div>
 </template>

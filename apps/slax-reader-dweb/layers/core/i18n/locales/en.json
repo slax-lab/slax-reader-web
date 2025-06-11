@@ -425,7 +425,8 @@
       "starred": "Starred",
       "topics": "Topics",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
-      "view_original": "View original"
+      "view_original": "View original",
+      "Trash":"Trash"
     },
     "quickStart": {
       "title": "Quick Start Guide",
@@ -522,14 +523,14 @@
       "history_notes": {
         "1": {
           "1": "Support web page collection and search",
-          "2": "Bookmark cache page supports AI summary",
-          "3": "Bookmark cache page supports AI Chat",
+          "2": "Bookmark snapshot page supports AI summary",
+          "3": "Bookmark snapshot page supports AI Chat",
           "version": "v1.0"
         },
         "2": {
           "1": "Bookmark sharing",
-          "2": "Bookmark cache page supports highlighting and commenting",
-          "3": "Bookmark cache page supports selecting content for AI Chat",
+          "2": "Bookmark snapshot page supports highlighting and commenting",
+          "3": "Bookmark snapshot page supports selecting content for AI Chat",
           "4": "Added bookmark tag function",
           "5": "User language synchronization",
           "version": "v1.1"
@@ -565,7 +566,7 @@
       "posters": {
         "1": {
           "subtitle": "Open collected links in Slax Reader, suitable for reading on computers, tablets, and phones, with just the right AI tools to assist learning",
-          "title": "Cache page and toolbar"
+          "title": "Snapshot page and toolbar"
         },
         "2": {
           "subtitle": "Presents long and complex texts in a structured format, with clickable links to jump to corresponding paragraphs",
@@ -576,7 +577,7 @@
           "title": "AI Assistant"
         }
       },
-      "slogan": "AI smart learning and social assistant, making knowledge accessible",
+      "slogan": "Your permanent library that saves, understands, and networks your content with others",
       "slogan_left_bracket": " ",
       "slogan_right_bracket": " "
     },
