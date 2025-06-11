@@ -427,6 +427,14 @@
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original"
     },
+    "quickStart": {
+      "title": "Quick Start Guide",
+      "subtitle": "See the Chat in Action below",
+      "getLink": "Get It Here",
+      "step1": "Install our browser extension from the Chrome Web Store.",
+      "step2": "Visit any web page and click the extension icon to save it for later reading.",
+      "step3": "Your saved pages will appear here in your Inbox. Access them anytime and use features like Highlight or Chat for enhanced reading and assistance."
+    },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"
     },

@@ -92,9 +92,12 @@
         </div>
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
           <div class="no-data" v-if="!loading && isDataEmpty">
-            <div class="empty">
+            <div class="empty" v-if="!isCurrentInboxTab || !isPC()">
               <div class="icon" @click="checkMore"></div>
               <span>{{ $t('page.bookmarks_index.empty') }}</span>
+            </div>
+            <div class="quick-start" v-else>
+              <QuickStart></QuickStart>
             </div>
           </div>
           <div class="bottom-status" v-else-if="!((filterStatus === 'topics' && !filterTopicId) || (filterStatus === 'collections' && !filterCollectionId))">
@@ -128,9 +131,10 @@ import BookmarksLayout from '#layers/core/components/Layouts/BookmarksLayout.vue
 import NotificationCell from '#layers/core/components/Notification/NotificationCell.vue'
 import NotificationHeader from '#layers/core/components/Notification/NotificationHeader.vue'
 import UserNotification from '#layers/core/components/Notification/UserNotification.vue'
+import QuickStart from '#layers/core/components/QuickStart.vue'
 import InstallExtensionTips from '#layers/core/components/Tips/InstallExtensionTips.vue'
 
-import { isSafari } from '@commons/utils/is'
+import { isPC, isSafari } from '@commons/utils/is'
 import type { ChannelMessageData } from '#layers/core/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -215,6 +219,10 @@ const showList = computed(() => {
     default:
       return bookmarks.value.length > 0
   }
+})
+
+const isCurrentInboxTab = computed(() => {
+  return filterStatus.value === 'inbox' || !Boolean(filterStatus.value)
 })
 
 watch(
@@ -605,6 +613,9 @@ const notificationBack = () => {
       span {
         --style: mt-24px text-14px lien-height-22px;
       }
+    }
+    .quick-start {
+      --style: max-w-572px mt-24px mx-auto;
     }
   }
 
