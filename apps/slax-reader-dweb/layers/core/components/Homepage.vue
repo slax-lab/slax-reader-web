@@ -5,6 +5,7 @@
         <header>
           <div class="left"></div>
           <div class="right">
+            <button class="border" @click="githubClick">GitHub</button>
             <button class="border" @click="downloadClick">{{ $t('common.operate.download') }}</button>
             <button class="border" @click="tryClick">{{ $t('common.operate.login') }}</button>
           </div>
@@ -197,6 +198,10 @@ const scrollToNextBanner = () => {
     left: next * eachOffset,
     behavior: 'smooth'
   })
+}
+
+const githubClick = async () => {
+  window.open('https://github.com/slax-lab')
 }
 
 const downloadClick = async () => {

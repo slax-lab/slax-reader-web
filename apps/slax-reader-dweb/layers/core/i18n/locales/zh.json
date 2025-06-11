@@ -413,19 +413,28 @@
     },
     "bookmarks_index": {
       "add_url": "添加",
-      "archive": "Archive",
-      "collections": "Collections",
+      "archive": "归档",
+      "collections": "合集",
       "content_deleted": "原内容已被删除",
       "empty": "这里还没有内容",
-      "highlights": "Highlights",
-      "inbox": "Inbox",
+      "highlights": "划线",
+      "inbox": "收件箱",
       "more": "加载更多",
       "new_topic": "输入不超过30个字符的新标签...",
       "no_more": "没有更多了",
-      "starred": "Starred",
-      "topics": "Topics",
+      "starred": "星标",
+      "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
-      "view_original": "查看原文"
+      "view_original": "查看原文",
+      "Trash":"回收站"
+    },
+    "quickStart": {
+      "title": "快速开始指南",
+      "subtitle": "下方是智能对话的效果",
+      "getLink":"安装",
+      "step1": "安装浏览器扩展：从 Chrome 网上应用店安装我们的扩展程序。",
+      "step2": "保存网页：访问任意网页，点击扩展图标即可将其保存至“收件箱”。",
+      "step3": "阅读与管理：你可随时访问收件箱里保存的网页，高亮标记和智能对话等功能会帮助你获得更好的阅读体验。"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"
