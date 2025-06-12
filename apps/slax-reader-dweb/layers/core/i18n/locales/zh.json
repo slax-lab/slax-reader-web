@@ -577,9 +577,11 @@
           "title": "AI 助手"
         }
       },
-      "slogan": "AI 时代的智能学习与社交助手，让知识触手可及",
-      "slogan_left_bracket": "「",
-      "slogan_right_bracket": "」"
+      "slogan":{
+        "title":"好用的AI稍后读助手",
+        "subtitle":"收藏内容只是开始——你的批注、别人的见解、和AI的对话，在这里碰撞",
+        "free_button":"Start Free"
+      }
     },
     "share_detail": {
       "share_text": "{user} 分享于 {date}",

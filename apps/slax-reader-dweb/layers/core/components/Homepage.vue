@@ -3,20 +3,33 @@
     <section>
       <div class="main">
         <header>
-          <div class="left"></div>
+          <div class="left">
+            <img loading="lazy" src="@images/logo.png" alt="" />
+            <h1 class="app-name">{{ $t('common.app.name') }}</h1>
+          </div>
           <div class="right">
-            <button class="border" @click="githubClick">GitHub</button>
+            <button class="github-button border" @click="githubClick">
+              <img src="@images/github-icon.png" alt="" />
+              <span>GitHub</span>
+            </button>
             <button class="border" @click="downloadClick">{{ $t('common.operate.download') }}</button>
             <button class="border" @click="tryClick">{{ $t('common.operate.login') }}</button>
           </div>
         </header>
         <div class="content">
-          <img loading="lazy" src="@images/logo.png" alt="" />
-          <h1 class="app-name">{{ $t('common.app.name') }}</h1>
-          <h2 class="slogan">
-            {{ $t('page.index.slogan_left_bracket') }}<span>{{ slogan }}</span
-            >{{ $t('page.index.slogan_right_bracket') }}
-          </h2>
+          <div class="slogan">
+            <div class="slogan-content">
+              <h1 class="title">{{ $t('page.index.slogan.title') }}</h1>
+              <p class="subtitle">{{ $t('page.index.slogan.subtitle') }}</p>
+              <button class="start-free-button" @click="tryClick">
+                <span>{{ $t('page.index.slogan.free_button') }}</span>
+                <span class="arrow-icon"></span>
+              </button>
+            </div>
+            <div class="slogan-image">
+              <img src="@images/people.png" alt="Hero Image" />
+            </div>
+          </div>
           <div class="cards">
             <div class="card" v-for="card in cards" :key="card.title">
               <h3 class="title">{{ card.title }}</h3>
@@ -256,15 +269,28 @@ const tryClick = async () => {
 
       &.border {
         --style: 'border-(2px solid #333) hover:(scale-102) active-(scale-105) transition-transform duration-250 ease-in-out';
+        &.github-button {
+          img {
+            --style: w-20px mr-6px;
+          }
+        }
       }
     }
 
-    .left,
     .right {
       --style: flex;
 
       & > * {
         --style: 'not-first:ml-16px';
+      }
+    }
+    .left {
+      --style: flex items-center;
+      img {
+        --style: w-19px h-auto;
+      }
+      .app-name {
+        --style: text-18px text-[#16B99A] font-600 ml-11px;
       }
     }
   }
@@ -273,20 +299,34 @@ const tryClick = async () => {
     --style: 'flex flex-col relative pb-46px max-md:(min-h-screen flex-center)';
 
     .content {
-      --style: pt-108px w-full h-full flex flex-col items-center;
-      img {
-        --style: w-86px h-108px object-contain select-none;
-      }
-
-      .app-name {
-        --style: mt-24px;
-      }
+      --style: pt-120px w-full h-full flex flex-col items-center;
 
       .slogan {
-        --style: mt-40px flex-center text-align-center;
-
-        span {
-          --style: 'max-md:(px-5px)';
+        --style: w-full relative pl-24px;
+        .slogan-content {
+          --style: max-w-520px flex flex-col flex-start relative z-1;
+          .title {
+            --style: font-oblique text-56px text-[#1F1F1F] lh-68px mb-24px;
+          }
+          .subtitle {
+            --style: text-18px text-[#333] lh-25px mb-54px;
+          }
+          .start-free-button {
+            --style: w-fit px-60px py-16px rounded-30px bg-[#16B998] text-20px font-600 text-[#fff] flex gap-12px items-center;
+            .arrow-icon {
+              --style: w-16px h-16px;
+              background-image: url('@images/arrow-right-white.png');
+              background-size: 100%;
+              background-repeat: no-repeat;
+            }
+          }
+        }
+        .slogan-image {
+          --style: 'w-fit px-40px absolute h-[100%] right-0 top-0 max-md:(hidden)';
+          border-bottom: 3px solid #1f1f1f;
+          img {
+            --style: h-full;
+          }
         }
       }
 
