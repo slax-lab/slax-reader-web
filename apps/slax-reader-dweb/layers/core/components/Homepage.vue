@@ -19,10 +19,10 @@
         <div class="content">
           <div class="slogan">
             <div class="slogan-content">
-              <h1 class="title">Read Smarter Connect Deeper</h1>
-              <p class="subtitle">Your permanent library that saves, understands, and networks your content with others.</p>
+              <h1 class="title">{{ $t('page.index.slogan.title') }}</h1>
+              <p class="subtitle">{{ $t('page.index.slogan.subtitle') }}</p>
               <button class="start-free-button" @click="tryClick">
-                <span>Start Free</span>
+                <span>{{ $t('page.index.slogan.free_button') }}</span>
                 <span class="arrow-icon"></span>
               </button>
             </div>

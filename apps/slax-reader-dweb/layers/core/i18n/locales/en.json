@@ -577,9 +577,11 @@
           "title": "AI Assistant"
         }
       },
-      "slogan": "Your permanent library that saves, understands, and networks your content with others",
-      "slogan_left_bracket": " ",
-      "slogan_right_bracket": " "
+      "slogan":{
+        "title":"Read Smarter Connect Deeper",
+        "subtitle":"Your permanent library that saves, understands, and networks your content with others.",
+        "free_button":"Start Free"
+      }
     },
     "share_detail": {
       "share_text": "{user} shared on {date}",
