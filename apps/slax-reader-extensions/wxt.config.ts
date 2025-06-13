@@ -10,6 +10,7 @@ const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
 
+const Version = '1.5.8'
 const envConfig = getExtensionsConfig()
 
 const convertToProcessEnv = (env: Record<string, unknown>) => {
@@ -17,6 +18,8 @@ const convertToProcessEnv = (env: Record<string, unknown>) => {
   for (const key in env) {
     result[`process.env.${key}`] = JSON.stringify(env[key] || '')
   }
+
+  result['process.env.VERSION'] = JSON.stringify(Version)
 
   return result
 }
@@ -31,7 +34,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-vue', '@wxt-dev/analytics/module', '@wxt-dev/i18n/module', '@wxt-dev/unocss'],
   manifest: {
     name: 'Slax Reader',
-    version: '1.5.8',
+    version: Version,
     description: 'An AI-powered browser extension that generates outlines and highlights key points to enhance your web reading experience.',
     default_locale: 'en',
     permissions: ['storage', 'tabs', 'activeTab', 'sidePanel', 'cookies', 'contextMenus', 'alarms'],

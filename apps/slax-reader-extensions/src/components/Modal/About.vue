@@ -4,7 +4,7 @@
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="content">
           <img src="@/assets/app-logo-sm.png" alt="" />
-          <span>Slax Reader v1.5.0</span>
+          <span>Slax Reader {{ VERSION }}</span>
         </div>
       </div>
     </Transition>
@@ -13,6 +13,8 @@
 
 <script lang="ts" setup>
 import { useScrollLock } from '@vueuse/core'
+
+const VERSION = `v${process.env.VERSION}`
 
 const emits = defineEmits(['close', 'dismiss'])
 
