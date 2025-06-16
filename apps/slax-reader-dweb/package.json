@@ -40,7 +40,7 @@
     "nuxt": "3.16.0",
     "nuxt-og-image": "^5.0.3",
     "nuxt-schema-org": "^5.0.4",
-    "nuxt-site-config": "^3.1.5",
+    "nuxt-site-config": "^3.2.1",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "universal-cookie": "^8.0.0",
