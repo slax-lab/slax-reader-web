@@ -178,13 +178,15 @@ const handleHTML = async () => {
       return Array.from(articleDetailDom.querySelectorAll(tag)) || []
     })
   )
+  const uUrl = new URL(detail.value.target_url)
+  const retentionVideo = uUrl.host.includes('xiaohongshu.com') || uUrl.host.includes('x.com')
 
   await Promise.allSettled([
     imgs.status === 'fulfilled' && handleHTMLImgs(imgs.value as HTMLImageElement[]),
     svgs.status === 'fulfilled' && handleHTMLSvgs(svgs.value as SVGSVGElement[]),
     uls.status === 'fulfilled' && handleHTMLUls(uls.value as HTMLUListElement[]),
     anchors.status === 'fulfilled' && handleHTMLAnchors(anchors.value as HTMLAnchorElement[]),
-    videos.status === 'fulfilled' && handleHTMLVideos(videos.value as HTMLVideoElement[]),
+    videos.status === 'fulfilled' && !retentionVideo && handleHTMLVideos(videos.value as HTMLVideoElement[]),
     iframes.status === 'fulfilled' && handleHTMLIFrames(iframes.value as HTMLIFrameElement[]),
     wechatVideos.status === 'fulfilled' && handleHTMLWechatVideos(wechatVideos.value as HTMLElement[]),
     details.status === 'fulfilled' && handleHTMLDetails(details.value as HTMLDetailsElement[])
