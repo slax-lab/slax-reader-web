@@ -432,7 +432,9 @@ export class MarkManager extends Base {
           source: value,
           parent_id: replyToId,
           select_content: this._selectContent.value,
-          approx_source: approx
+          approx_source: approx,
+          collection_code: this.config.collection?.code,
+          cb_id: this.config.collection?.cb_id
         }
       })
       return res || null
