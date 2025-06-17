@@ -332,7 +332,8 @@
     "search_header": {
       "empty": "没有找到相关内容",
       "placeholder": "输入你要查找的内容",
-      "semantic_relative": "语义相关 {value}%"
+      "semantic_relative": "语义相关 {value}%",
+      "back": "返回"
     },
     "share_bubble_tips": {
       "text": "把内容分享给好友"
@@ -426,12 +427,12 @@
       "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
       "view_original": "查看原文",
-      "Trash":"回收站"
+      "Trash": "回收站"
     },
     "quickStart": {
       "title": "快速开始指南",
       "subtitle": "下方是智能对话的效果",
-      "getLink":"安装",
+      "getLink": "安装",
       "step1": "安装浏览器扩展：从 Chrome 网上应用店安装我们的扩展程序。",
       "step2": "保存网页：访问任意网页，点击扩展图标即可将其保存至“收件箱”。",
       "step3": "阅读与管理：你可随时访问收件箱里保存的网页，高亮标记和智能对话等功能会帮助你获得更好的阅读体验。"
@@ -577,10 +578,10 @@
           "title": "AI 助手"
         }
       },
-      "slogan":{
-        "title":"好用的AI稍后读助手",
-        "subtitle":"收藏内容只是开始——你的批注、别人的见解、和AI的对话，在这里碰撞",
-        "free_button":"Start Free"
+      "slogan": {
+        "title": "好用的AI稍后读助手",
+        "subtitle": "收藏内容只是开始——你的批注、别人的见解、和AI的对话，在这里碰撞",
+        "free_button": "Start Free"
       }
     },
     "share_detail": {

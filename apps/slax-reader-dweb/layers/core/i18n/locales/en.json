@@ -332,7 +332,8 @@
     "search_header": {
       "empty": "No related content found",
       "placeholder": "Enter what you want to find",
-      "semantic_relative": "Semantic related {value}%"
+      "semantic_relative": "Semantic related {value}%",
+      "back": "Back"
     },
     "share_bubble_tips": {
       "text": "Share with friends"
@@ -426,7 +427,7 @@
       "topics": "Topics",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original",
-      "Trash":"Trash"
+      "Trash": "Trash"
     },
     "quickStart": {
       "title": "Quick Start Guide",
@@ -577,10 +578,10 @@
           "title": "AI Assistant"
         }
       },
-      "slogan":{
-        "title":"Read Smarter Connect Deeper",
-        "subtitle":"Your permanent library that saves, understands, and networks your content with others.",
-        "free_button":"Start Free"
+      "slogan": {
+        "title": "Read Smarter Connect Deeper",
+        "subtitle": "Your permanent library that saves, understands, and networks your content with others.",
+        "free_button": "Start Free"
       }
     },
     "share_detail": {
