@@ -339,7 +339,8 @@
     "search_header": {
       "empty": "没有找到相关内容",
       "placeholder": "输入你要查找的内容",
-      "semantic_relative": "语义相关 {value}%"
+      "semantic_relative": "语义相关 {value}%",
+      "back": "返回"
     },
     "share_bubble_tips": {
       "text": "把内容分享给好友"

@@ -2,7 +2,7 @@
   <div class="search-header">
     <div class="search-navigator">
       <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="navigateBack"></button>
-      <span>返回</span>
+      <span>{{ $t('component.search_header.back') }}</span>
     </div>
     <div class="search-bar">
       <div class="search-input">

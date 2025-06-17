@@ -339,7 +339,8 @@
     "search_header": {
       "empty": "No related content found",
       "placeholder": "Enter what you want to find",
-      "semantic_relative": "Semantic related {value}%"
+      "semantic_relative": "Semantic related {value}%",
+      "back": "Back"
     },
     "share_bubble_tips": {
       "text": "Share with friends"
