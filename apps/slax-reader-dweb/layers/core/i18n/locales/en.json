@@ -181,6 +181,13 @@
     "bookmark_tags": {
       "placeholder": "Enter new tag (press Enter to confirm)"
     },
+    "snapshot_status_modal": {
+      "dont_remind_again": "Don't remind me again",
+      "failed_title": "Snapshot unavailable",
+      "failed_content": "Try clicking the article title to read the original page, or use our browser extension to re-save this article",
+      "pending_title": "Creating snapshot...",
+      "pending_content": "This usually takes a few minutes. You can read the original article while you wait"
+    },
     "cancel_collection_modal": {
       "removecollection": "Remove from my collections",
       "subtitle": "You'll have access until {date}. After that, you won't be charged",
@@ -426,7 +433,7 @@
       "topics": "Topics",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original",
-      "Trash":"Trash"
+      "Trash": "Trash"
     },
     "quickStart": {
       "title": "Quick Start Guide",
@@ -577,10 +584,10 @@
           "title": "AI Assistant"
         }
       },
-      "slogan":{
-        "title":"Read Smarter Connect Deeper",
-        "subtitle":"Your permanent library that saves, understands, and networks your content with others.",
-        "free_button":"Start Free"
+      "slogan": {
+        "title": "Read Smarter Connect Deeper",
+        "subtitle": "Your permanent library that saves, understands, and networks your content with others.",
+        "free_button": "Start Free"
       }
     },
     "share_detail": {

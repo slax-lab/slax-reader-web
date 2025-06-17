@@ -28,11 +28,11 @@
               :class="{ enabled: isStarred }"
               @click="starBookmark(!isStarred)"
             ></button>
-            <template v-if="bookmark.status === 'failed' && !haveRetried">
+            <!-- <template v-if="bookmark.status === 'failed' && !haveRetried">
               <i class="seperator"></i>
               <button class="retry" v-if="!isRetrying" @click="retryBookmark">{{ $t('common.operate.refetch') }}</button>
               <div class="i-svg-spinners:90-ring w-12px color-#5490c2" v-else></div>
-            </template>
+            </template> -->
           </template>
         </div>
         <div class="cell-footer">
@@ -97,9 +97,10 @@
 import { urlHttpString } from '@commons/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
-import type { BookmarkItem, EmptyBookmarkResp } from '@commons/types/interface'
+import { type BookmarkItem, BookmarkParseStatus, type EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 import { formatDate } from '@vueuse/core'
+import { showSnapshotStatusModal } from '#layers/core/components/Modal'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 
 const { t } = useI18n()
@@ -220,14 +221,47 @@ const clickCache = () => {
     return
   }
 
-  if (bookmark.value.status !== 'success') {
-    clickHref()
+  if (bookmark.value.status !== BookmarkParseStatus.SUCCESS) {
+    const reminderKey = `snapshot_reminder_disabled_${bookmark.value.status}`
+    const isReminderDisabled = localStorage.getItem(reminderKey) === 'true'
+
+    if (!isReminderDisabled) {
+      showSnapshotStatusModal({
+        status: bookmark.value.status,
+        title: getSnapshotModalTitle(bookmark.value.status),
+        content: getSnapshotModalContent(bookmark.value.status),
+        onConfirm: (dontRemindAgain: boolean) => {
+          if (dontRemindAgain) {
+            localStorage.setItem(reminderKey, 'true')
+          }
+          clickHref()
+        }
+      })
+    } else {
+      clickHref()
+    }
     return
   }
 
   pwaOpen({
     url: '/bookmarks/' + String(bookmark.value.id)
   })
+}
+
+const getSnapshotModalTitle = (status: BookmarkParseStatus) => {
+  if (status === BookmarkParseStatus.FAILED) {
+    return t('component.snapshot_status_modal.failed_title')
+  } else {
+    return t('component.snapshot_status_modal.pending_title')
+  }
+}
+
+const getSnapshotModalContent = (status: BookmarkParseStatus) => {
+  if (status === BookmarkParseStatus.FAILED) {
+    return t('component.snapshot_status_modal.failed_content')
+  } else {
+    return t('component.snapshot_status_modal.pending_content')
+  }
 }
 
 const clickEdit = () => {

@@ -3,6 +3,11 @@ import EditTag from './EditTag.vue'
 import Feedback from './Feedback.vue'
 import LoginModal from './LoginModal.vue'
 import ShareModal, { ShareModalType } from './ShareModal.vue'
+import SnapshotStatusModal from './SnapshotStatusModal.vue'
+
+import { modalBootloader } from '#layers/core/utils/modal'
+
+import { BookmarkParseStatus } from '@commons/types/interface'
 
 export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number> }) => {
   const app = modalBootloader({
@@ -78,6 +83,26 @@ export const showShareConfigModal = (options: { bookmarkId: number; title: strin
       title: options.title,
       type: options.type || ShareModalType.Bookmark,
       onDismiss: () => {
+        app.unmount()
+        app._container?.remove()
+      }
+    }
+  })
+}
+
+export const showSnapshotStatusModal = (options: { status: BookmarkParseStatus; title: string; content: string; onConfirm?: (dontRemindAgain: boolean) => void }) => {
+  const app = modalBootloader({
+    ele: SnapshotStatusModal,
+    props: {
+      status: options.status,
+      title: options.title,
+      content: options.content,
+      onDismiss: () => {
+        app.unmount()
+        app._container?.remove()
+      },
+      onConfirm: (dontRemindAgain: boolean) => {
+        options.onConfirm && options.onConfirm(dontRemindAgain)
         app.unmount()
         app._container?.remove()
       }

@@ -1,9 +1,11 @@
 export enum BookmarkParseStatus {
-  PENDING = 'pending',
-  PARSEING = 'parseing',
   FAILED = 'failed',
-  SUCCESS = 'success',
-  UPDATING = 'updating'
+  PENDING = 'pending',
+  PENDING_IMPORT = 'pending_import',
+  PENDING_RETRY = 'pending_retry',
+  PARSEING = 'parseing',
+  RETRYING = 'retrying',
+  SUCCESS = 'success'
 }
 
 export interface MarkDetail {

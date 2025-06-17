@@ -15,9 +15,9 @@
       <i class="seperator"></i>
       <button @click="websiteClick">{{ `${urlString}` }}</button>
     </div>
-    <!-- <div class="tags">
+    <div class="tags">
       <BookmarkTags :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
-    </div> -->
+    </div>
     <div class="article-detail" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" v-html="articleHTML"></div>
     </div>
