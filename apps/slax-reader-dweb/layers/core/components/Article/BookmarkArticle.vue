@@ -73,6 +73,16 @@ const isHandledHTML = ref(false)
 const extraListeners: (() => void)[] = []
 
 const { bookmarkId, shareCode, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
+
+const collection = computed(() => {
+  if (isCollectionBookmarkDetail(detail.value)) {
+    return {
+      code: detail.value.collection_info.collection_code,
+      cb_id: detail.value.collection_info.cb_id
+    }
+  }
+  return undefined
+})
 const articleStyle = computed(() => {
   const content = props.detail.content || ''
   if (content.indexOf('<slax-photo-swipe-topic>') === 0) {
@@ -461,6 +471,7 @@ const handleDrawMark = async () => {
     articleSelection = new ArticleSelection({
       shareCode: shareCode || '',
       bookmarkId: bookmarkId || 0,
+      collection: collection?.value,
       allowAction: allowAction.value,
       ownerUserId: bookmarkUserId.value,
       containerDom: bookmarkArticle.value,
