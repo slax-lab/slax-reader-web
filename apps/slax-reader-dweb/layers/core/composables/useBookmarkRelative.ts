@@ -27,8 +27,7 @@ export const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is 
 export const isBookmarkBrief = (detail: WebBookmarkArticleDetail): detail is BookmarkBriefDetail => 'target_url' in detail && 'created_at' in detail && 'updated_at' in detail
 export const isInlineBookmarkDetail = (detail: WebBookmarkArticleDetail): detail is InlineBookmarkDetail => 'share_info' in detail && 'user_info' in detail
 
-// export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
-export const BookmarkTabTypes = ['inbox', 'starred', 'highlights', 'archive']
+export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 
 export const logChat = (options: BookmarkTypeOptions, userId: number) => {
   if (options.type === BookmarkType.Normal) {
