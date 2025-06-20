@@ -55,7 +55,7 @@
             </button>
             <template v-if="!isSubscribe">
               <i class="seperator"></i>
-              <button class="href" @click="clickCache">
+              <button class="href snapshot" @click="clickCache">
                 <img src="@images/tiny-link-outline-icon.png" />
                 <span class="ml-4px">
                   {{ $t('common.operate.snapshot') }}
@@ -539,8 +539,12 @@ const starBookmark = async (isStar: boolean) => {
           --style: mx-8px;
         }
 
+        .snapshot {
+          --style: 'mr-20px max-md:(hidden!)';
+        }
+
         .edit {
-          --style: 'ml-20px text-(12px #999999) hover:(text-#333333)';
+          --style: 'text-(12px #999999) hover:(text-#333333)';
         }
 
         .archieve {
