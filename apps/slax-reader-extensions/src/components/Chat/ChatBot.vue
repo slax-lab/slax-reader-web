@@ -263,7 +263,7 @@ watch(
 
     if (value) {
       nextTick(() => {
-        textarea.value?.focus()
+        focusTextarea()
       })
     }
   },
@@ -651,13 +651,25 @@ const addQuoteData = (data: QuoteData) => {
   quoteInfo.value = data
 }
 
+const focusTextarea = () => {
+  nextTick(() => {
+    if (textarea.value) {
+      textarea.value.blur()
+      setTimeout(() => {
+        textarea.value?.focus()
+      }, 50)
+    }
+  })
+}
+
 const closeQuote = () => {
   quoteInfo.value = null
 }
 
 defineExpose({
   botSize,
-  addQuoteData
+  addQuoteData,
+  focusTextarea
 })
 </script>
 

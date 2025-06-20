@@ -564,6 +564,7 @@ const loadSelection = async () => {
       postQuoteDataHandler: (data: QuoteData) => {
         isChatbotShowing.value = true
         chatbot.value?.addQuoteData(data)
+        chatbot.value?.focusTextarea()
       }
     })
 
