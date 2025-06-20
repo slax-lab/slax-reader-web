@@ -4,21 +4,28 @@
       <h1 class="title">{{ $t('page.quickStart.title') }}</h1>
       <div class="steps">
         <span class="step">
-          1.&nbsp;&nbsp;{{ $t('page.quickStart.step1') }}
-          <a :href="pluginUrl" class="link" target="_blank">{{ $t('page.quickStart.getLink') }}</a>
+          <span class="step-title">1.&nbsp;&nbsp;{{ $t('page.quickStart.step1.title') }}</span>
+          <span class="step-subtitle"
+            >{{ $t('page.quickStart.step1.subtitle') }}<a :href="pluginUrl" class="link" target="_blank">{{ $t('page.quickStart.getLink') }}</a></span
+          >
         </span>
-        <span class="step">2.&nbsp;&nbsp;{{ $t('page.quickStart.step2') }}</span>
-        <span class="step">3.&nbsp;&nbsp;{{ $t('page.quickStart.step3') }}</span>
+        <span class="step">
+          <span class="step-title">2.&nbsp;&nbsp;{{ $t('page.quickStart.step2.title') }}</span>
+          <span class="step-subtitle">{{ $t('page.quickStart.step2.subtitle') }}</span>
+        </span>
+        <span class="step">
+          <span class="step-title">3.&nbsp;&nbsp;{{ $t('page.quickStart.step3.title') }}</span>
+          <span class="step-subtitle">{{ $t('page.quickStart.step3.subtitle') }}</span>
+        </span>
       </div>
     </div>
 
     <div class="demo-section">
       <div class="demo-header">
-        <span class="icon">💡</span>
         <h2 class="subtitle">{{ $t('page.quickStart.subtitle') }}</h2>
       </div>
       <div class="demo-frame">
-        <img class="operation-instructions" src="@images/operation-instructions.png" />
+        <video src="https://static-reader.slax.app/operating-instructions.mp4" width="100%" controls></video>
       </div>
     </div>
 
@@ -40,23 +47,27 @@ const installClick = () => {
 
 <style lang="scss" scoped>
 .quick-start {
-  --style: 'w-full max-md:(hidden) max-w-3xl mx-auto bg-gradient-to-b from-[#E0FFF1] to-[#FCFFFD] rounded-8px border-1 border-[#BEF6E4] px-16px py-32px';
+  --style: 'w-full max-md:(hidden) max-w-3xl mx-auto bg-gradient-to-b from-[#E0FFF1] to-[#FCFFFD] rounded-8px border-1 border-[#BEF6E4] p-24px';
 
   .guide-section {
     .title {
-      --style: font-600 text-18px text-[#0F1419] lh-25px mb-20px;
+      --style: font-600 text-18px text-[#0F1419] lh-25px mb-12px;
     }
 
     .steps {
-      --style: flex flex-col gap-6px pb-20px mb-23px;
+      --style: flex flex-col gap-12px pb-24px mb-24px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
       .step {
-        --style: text-12px lh-17px;
-        ccolor: rgba(51, 51, 51, 0.8);
-
+        --style: flex flex-col gap-4px;
+        .step-title {
+          --style: text-13px text-[#0F1419] font-500;
+        }
+        .step-subtitle {
+          --style: pl-20px text-12px text-[#333333];
+        }
         .link {
-          --style: text-blue-500 hover: underline ml-1;
+          --style: text-[#567895] hover: underline ml-1;
         }
       }
     }
@@ -66,11 +77,8 @@ const installClick = () => {
     --style: mb-32px;
     .demo-header {
       --style: flex items-center gap-8px mb-20px;
-      .icon {
-        --style: text-19px;
-      }
       .subtitle {
-        --style: text-14px text-[#333333];
+        --style: text-14px text-[#333333] font-500;
       }
     }
 
