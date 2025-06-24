@@ -76,7 +76,8 @@ enum LocalStorageKey {
   USER_TOKEN = 'local:token',
   ANALYTICS_ENABLED = 'local:analytics-enabled',
   USER_INFO = 'local:user_info',
-  SIDE_BAR_TIPS = 'local:side_bar_tips'
+  SIDE_BAR_TIPS = 'local:side_bar_tips',
+  LOCAL_CONFIG = 'local:local_config'
 }
 
 export { RESTMethodPath, StatusCode, LocalStorageKey }

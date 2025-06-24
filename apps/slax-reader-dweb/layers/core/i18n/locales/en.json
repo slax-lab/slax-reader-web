@@ -431,18 +431,27 @@
       "new_topic": "Input tag (less than 30 characters)...",
       "no_more": "No more",
       "starred": "Starred",
-      "topics": "Topics",
+      "topics": "Tags",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
       "view_original": "View original",
       "Trash": "Trash"
     },
     "quickStart": {
       "title": "Quick Start Guide",
-      "subtitle": "See the Chat in Action below",
+      "subtitle": "This is how it works  👇 ",
       "getLink": "Get It Here",
-      "step1": "Install our browser extension from the Chrome Web Store.",
-      "step2": "Visit any web page and click the extension icon to save it for later reading.",
-      "step3": "Your saved pages will appear here in your Inbox. Access them anytime and use features like Highlight or Chat for enhanced reading and assistance."
+      "step1": {
+        "title": "Install the extension ",
+        "subtitle": "Add Slax Reader to your browser from the Chrome Web Store → "
+      },
+      "step2": {
+        "title": "Save any webpage",
+        "subtitle": "Visit any web page and click the extension icon to save it for later reading. Save once, access forever."
+      },
+      "step3": {
+        "title": "Engage with content directly on the original webpage",
+        "subtitle": "Your notes will stay there whenever you open the page again."
+      }
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"

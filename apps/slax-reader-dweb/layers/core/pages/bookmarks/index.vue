@@ -27,7 +27,7 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:sidebar-right>
-        <div class="tips-sidebar">
+        <div class="tips-sidebar" v-if="(isCurrentInboxTab && !isDataEmpty) || !isCurrentInboxTab">
           <InstallExtensionTips />
         </div>
         <div class="tools-sidebar">

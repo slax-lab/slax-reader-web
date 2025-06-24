@@ -450,3 +450,14 @@ export interface BookmarkChangelogResp<T> {
   previous_sync?: number
   logs: T[]
 }
+
+export interface PanelPosition {
+  left?: string
+  top?: string
+  width?: string
+  height?: string
+}
+export interface LocalConfig {
+  bottomPanelPosition?: PanelPosition
+  webPanelPosition?: PanelPosition
+}
