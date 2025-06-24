@@ -85,8 +85,7 @@
     </div>
     <div class="bottom-panel" :class="{ 'initial-position': !isDraggledBottomPaneled }" ref="bottomPanelDraggble">
       <div class="panel-container" :class="{ 'hide-corner': isBottomPanelHideCorner }">
-        <img class="logo" @click="checkSource" src="@/assets/tiny-app-logo-gray.png" />
-        <template v-for="panel in isBottomPanelShrink ? [bottomPanelItem[0]] : bottomPanelItem" :key="panel.type">
+        <template v-for="panel in bottomPanelItem" :key="panel.type">
           <i class="seperator"></i>
           <div class="button-wrapper">
             <button @click="panelClick(panel)">
@@ -101,26 +100,15 @@
                   </template>
                 </div>
               </div>
-              <span class="title" :style="panel.isSelected && panel.isSelected() && panel.selectedColor ? { color: panel.selectedColor } : {}">{{ panel.title }}</span>
+              <span class="title" v-if="panel.title" :style="panel.isSelected && panel.isSelected() && panel.selectedColor ? { color: panel.selectedColor } : {}">{{
+                panel.title
+              }}</span>
             </button>
             <Transition name="opacity">
               <div class="absolute inset-0 z-2 bg-#262626 flex-center" v-show="panel.isLoading" @click.stop>
                 <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999"></div>
               </div>
             </Transition>
-          </div>
-        </template>
-        <template v-if="isBottomPanelShrink">
-          <i class="seperator"></i>
-          <div class="button-wrapper">
-            <button @click="bottomShrinkClick">
-              <div class="icon-wrapper">
-                <div class="icon">
-                  <img class="normal" src="@/assets/tiny-menu-dots.png" alt="" />
-                  <img class="highlighted" src="@/assets/tiny-menu-dots.png" alt="" />
-                </div>
-              </div>
-            </button>
           </div>
         </template>
       </div>
@@ -185,7 +173,7 @@ interface PanelItem {
   icon: string
   highlighedIcon: string
   selectedIcon?: string
-  title: string | ComputedRef<string>
+  title?: string | ComputedRef<string>
   hovered: boolean
   selectedColor?: string
   isSelected?: () => boolean
@@ -206,7 +194,6 @@ const isCollected = ref(false)
 const isLocked = useScrollLock(window)
 
 const isBottomPanelHideCorner = ref(false)
-const isBottomPanelShrink = ref(true)
 
 const panelItems = ref<PanelItem[]>([
   {
@@ -275,14 +262,16 @@ const getArchiveTitle = computed(() => {
   return $t('component.sidebar.archieve')
 })
 
-const getStarTitle = computed(() => {
-  if (bookmarkBriefInfo.value?.starred === 'star') {
-    return $t('component.sidebar.starred')
-  }
-  return $t('component.sidebar.star')
-})
-
 const bottomPanelItem = ref<PanelItem[]>([
+  {
+    type: PanelItemType.Star,
+    icon: starBottomImage,
+    highlighedIcon: starBottomImage,
+    selectedIcon: starBottomSelectedImage,
+    hovered: false,
+    selectedColor: '#F6AF69',
+    isSelected: () => bookmarkBriefInfo.value?.starred === 'star'
+  },
   {
     type: PanelItemType.Archieve,
     icon: archieveBottomImage,
@@ -294,20 +283,9 @@ const bottomPanelItem = ref<PanelItem[]>([
     isSelected: () => bookmarkBriefInfo.value?.archived === 'archive'
   },
   {
-    type: PanelItemType.Star,
-    icon: starBottomImage,
-    highlighedIcon: starBottomImage,
-    selectedIcon: starBottomSelectedImage,
-    title: getStarTitle,
-    hovered: false,
-    selectedColor: '#F6AF69',
-    isSelected: () => bookmarkBriefInfo.value?.starred === 'star'
-  },
-  {
     type: PanelItemType.Share,
     icon: shareBottomImage,
     highlighedIcon: shareBottomImage,
-    title: $t('component.sidebar.share'),
     hovered: false
   }
 ])
@@ -667,18 +645,6 @@ const unloadSelection = () => {
   }
 }
 
-const collectionClick = async () => {
-  if (isLoading.value) {
-    return
-  }
-
-  if (!isCollected.value || !bookmarkId.value) {
-    await addBookmark()
-  } else if (isCollected.value && bookmarkId.value) {
-    checkSource()
-  }
-}
-
 const panelClick = async (panel: PanelItem) => {
   const type = panel.type
   if (isLoading.value && type === PanelItemType.Share) {
@@ -747,10 +713,6 @@ const panelClick = async (panel: PanelItem) => {
         bookmarkBriefInfo.value.archived = status
       }
 
-      if (archieve) {
-        isBottomPanelShrink.value = false
-      }
-
       panel.isLoading = false
 
       break
@@ -791,10 +753,6 @@ const findQuote = (quote: QuoteData) => {
 const closePanel = () => {
   isSummaryShowing.value = false
   isChatbotShowing.value = false
-}
-
-const bottomShrinkClick = () => {
-  isBottomPanelShrink.value = false
 }
 
 const getWebSiteInfo = () => {
@@ -871,10 +829,6 @@ const addBookmark = async () => {
   } finally {
     isLoading.value = false
   }
-}
-
-const checkSource = () => {
-  window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks/${bookmarkId.value}`, '_blank')
 }
 
 const menuClick = async (action: DotsMenuActionItem) => {
@@ -1108,14 +1062,15 @@ const go = () => {
     }
 
     .panel-container {
-      --style: relative h-40px rounded-20px px-16px py-5px flex items-center bg-#262626 overflow-hidden shadow-[0px_20px_60px_0px_#00000033] transition-all duration-250;
-
-      .logo {
-        --style: size-16px object-contain cursor-pointer;
-      }
+      --style: relative h-40px rounded-20px px-12px py-8px flex items-center bg-#262626 overflow-hidden shadow-[0px_20px_60px_0px_#00000033] transition-all duration-250;
 
       .seperator {
-        --style: mx-10px w-1px h-12px shrink-0 bg-#99999929;
+        --style: px-4px w-1px h-12px shrink-0 bg-#99999929 cursor-default;
+        background-clip: content-box;
+        box-sizing: content-box;
+        &:first-of-type {
+          display: none;
+        }
       }
 
       .button-wrapper {
