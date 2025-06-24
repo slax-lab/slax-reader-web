@@ -1,6 +1,6 @@
 <template>
   <div class="side-panel" v-if="!needHidden">
-    <div class="web-panel" :class="{ 'initial-position': !isDraggledWebPaneled }" ref="webPanelDraggble" :style="webPanelStyle">
+    <div class="web-panel" :class="{ 'initial-position': !isDraggledWebPaneled }" ref="webPanelDraggble">
       <SidebarTips>
         <div class="panel-container">
           <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
@@ -83,7 +83,7 @@
         </div>
       </div>
     </div>
-    <div class="bottom-panel" :class="{ 'initial-position': !isDraggledBottomPaneled }" ref="bottomPanelDraggble" :style="bottomPanelStyle">
+    <div class="bottom-panel" :class="{ 'initial-position': !isDraggledBottomPaneled }" ref="bottomPanelDraggble">
       <div class="panel-container" :class="{ 'hide-corner': isBottomPanelHideCorner }">
         <img class="logo" @click="checkSource" src="@/assets/tiny-app-logo-gray.png" />
         <template v-for="panel in isBottomPanelShrink ? [bottomPanelItem[0]] : bottomPanelItem" :key="panel.type">
@@ -164,10 +164,13 @@ import type { QuoteData } from './Chat/type'
 import { showAboutModal, showFeedbackModal, showShareConfigModal } from './Modal'
 import { ArticleSelection } from './Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
-import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, MarkDetail, UserInfo } from '@commons/types/interface'
-import { type Position, useDraggable, useScrollLock } from '@vueuse/core'
+import { LocalStorageKey } from '@commons/types/const'
+import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, LocalConfig, PanelPosition, UserInfo } from '@commons/types/interface'
+import { type Position, useDraggable, useElementBounding, useScrollLock } from '@vueuse/core'
+import { storage } from '@wxt-dev/storage'
 import type { WxtBrowser } from 'wxt/browser'
 
+const localConfig = storage.defineItem<LocalConfig>(`${LocalStorageKey.LOCAL_CONFIG}`)
 enum PanelItemType {
   'AI' = 'ai',
   'Chat' = 'chat',
@@ -182,7 +185,7 @@ interface PanelItem {
   icon: string
   highlighedIcon: string
   selectedIcon?: string
-  title: string
+  title: string | ComputedRef<string>
   hovered: boolean
   selectedColor?: string
   isSelected?: () => boolean
@@ -313,8 +316,8 @@ const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
-const bottomPanelDraggble = useTemplateRef<HTMLDivElement>('bottomPanelDraggble')
-const webPanelDraggble = useTemplateRef<HTMLDivElement>('webPanelDraggble')
+const bottomPanelDraggble = useTemplateRef<HTMLElement>('bottomPanelDraggble')
+const webPanelDraggble = useTemplateRef<HTMLElement>('webPanelDraggble')
 
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
@@ -362,28 +365,109 @@ const { isDragging } = useDraggable(draggble, {
   }
 })
 
-const { style: bottomPanelStyle } = useDraggable(bottomPanelDraggble, {
-  onMove: () => {
-    if (!isDraggledBottomPaneled.value) {
-      const left = bottomPanelDraggble.value?.getBoundingClientRect().left
-      const top = bottomPanelDraggble.value?.getBoundingClientRect().top
-      bottomPanelDraggble.value!.style.left = `${left}px`
-      bottomPanelDraggble.value!.style.top = `${top}px`
-      isDraggledBottomPaneled.value = true
+const initialPanelPosition = async () => {
+  const config = await localConfig.getValue()
+  if (bottomPanelDraggble.value && config?.bottomPanelPosition) {
+    isDraggledBottomPaneled.value = true
+    for (const key in config.bottomPanelPosition) {
+      bottomPanelDraggble.value.style[key as any] = config.bottomPanelPosition[key as keyof typeof config.bottomPanelPosition]!
     }
   }
-})
-const { style: webPanelStyle } = useDraggable(webPanelDraggble, {
-  onMove: () => {
-    if (!isDraggledWebPaneled.value) {
-      const left = webPanelDraggble.value?.getBoundingClientRect().left
-      const top = webPanelDraggble.value?.getBoundingClientRect().top
-      webPanelDraggble.value!.style.left = `${left}px`
-      webPanelDraggble.value!.style.top = `${top}px`
-      isDraggledWebPaneled.value = true
+  if (webPanelDraggble.value && config?.webPanelPosition) {
+    isDraggledWebPaneled.value = true
+    for (const key in config.webPanelPosition) {
+      webPanelDraggble.value.style[key as any] = config.webPanelPosition[key as keyof typeof config.webPanelPosition]!
     }
   }
-})
+}
+
+const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef: Ref<boolean>, onPositionChange: (position: PanelPosition) => void) => {
+  const calculatePercentagePosition = (x: number, y: number) => {
+    const maxX = window.innerWidth - (draggableRef.value?.offsetWidth || 0)
+    const maxY = window.innerHeight - (draggableRef.value?.offsetHeight || 0)
+    const leftPercent = (Math.max(0, Math.min(x, maxX)) / window.innerWidth) * 100
+    const topPercent = (Math.max(0, Math.min(y, maxY)) / window.innerHeight) * 100
+    const panelWidthPercent = ((draggableRef.value?.offsetWidth || 0) / window.innerWidth) * 100
+    const panelHeightPercent = ((draggableRef.value?.offsetHeight || 0) / window.innerHeight) * 100
+
+    const horizontalPosition = leftPercent > 50 ? { right: 100 - leftPercent - panelWidthPercent + '%' } : { left: leftPercent + '%' }
+
+    const verticalPosition = topPercent > 50 ? { bottom: 100 - topPercent - panelHeightPercent + '%' } : { top: topPercent + '%' }
+
+    return {
+      ...horizontalPosition,
+      ...verticalPosition
+    }
+  }
+  const clearPosition = () => {
+    if (draggableRef.value) {
+      draggableRef.value.style.left = ''
+      draggableRef.value.style.top = ''
+      draggableRef.value.style.right = ''
+      draggableRef.value.style.bottom = ''
+    }
+  }
+
+  useDraggable(draggableRef, {
+    preventDefault: true,
+    onStart(_, event: PointerEvent) {
+      if ((event.target as HTMLElement).classList.contains('panel-container')) {
+        if (!isDraggledRef.value && draggableRef.value) {
+          const left = useElementBounding(draggableRef).left
+          const top = useElementBounding(draggableRef).top
+          clearPosition()
+          isDraggledRef.value = true
+          const position = calculatePercentagePosition(left.value, top.value)
+          for (const key in position) {
+            draggableRef.value.style[key as any] = position[key as keyof typeof position]!
+          }
+        }
+        return
+      }
+      return false
+    },
+    onMove: ({ x, y }: Position) => {
+      if (draggableRef.value) {
+        clearPosition()
+        isDraggledRef.value = true
+        const position = calculatePercentagePosition(x, y)
+        for (const key in position) {
+          draggableRef.value.style[key as any] = position[key as keyof typeof position]!
+        }
+      }
+    },
+    onEnd: ({ x, y }: Position) => {
+      const position = calculatePercentagePosition(x, y)
+      onPositionChange(position)
+    }
+  })
+}
+
+const bottomPanelCallback = async (position: PanelPosition) => {
+  const localconfig = await localConfig.getValue()
+  localConfig.setValue({
+    ...localconfig,
+    bottomPanelPosition: position
+  })
+}
+
+const webPanelCallback = async (position: PanelPosition) => {
+  const localconfig = await localConfig.getValue()
+  localConfig.setValue({
+    ...localconfig,
+    webPanelPosition: position
+  })
+}
+
+usePanelDraggable(bottomPanelDraggble, isDraggledBottomPaneled, bottomPanelCallback)
+usePanelDraggable(webPanelDraggble, isDraggledWebPaneled, webPanelCallback)
+
+watch(
+  () => bottomPanelDraggble.value || webPanelDraggble.value,
+  () => {
+    initialPanelPosition()
+  }
+)
 
 watch(
   () => isLoading.value,
@@ -1027,7 +1111,7 @@ const go = () => {
       --style: relative h-40px rounded-20px px-16px py-5px flex items-center bg-#262626 overflow-hidden shadow-[0px_20px_60px_0px_#00000033] transition-all duration-250;
 
       .logo {
-        --style: size-16px object-contain;
+        --style: size-16px object-contain cursor-pointer;
       }
 
       .seperator {
@@ -1061,7 +1145,7 @@ const go = () => {
           }
 
           .title {
-            --style: ml-4px text-(#999999 13px) line-height-18px;
+            --style: ml-4px text-(#999999 13px) line-height-18px whitespace-nowrap;
           }
 
           &:hover {
