@@ -20,7 +20,7 @@
     "@wxt-dev/i18n": "^0.2.3"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.309",
+    "@types/chrome": "^0.0.328",
     "@wxt-dev/module-vue": "^1.0.2",
     "@wxt-dev/unocss": "^1.0.1",
     "sass": "^1.85.1",
