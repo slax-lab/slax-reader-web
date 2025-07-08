@@ -5,6 +5,7 @@
         <div class="title">{{ $t('component.add_url_top_modal.add_url.title') }}</div>
         <div class="add-url-input">
           <InputBar
+            ref="urlInput"
             v-model:text="addUrlText"
             :confirm-title="$t('component.add_url_top_modal.add_url.button')"
             :confirm-icon="InputConfirmIcon.Tick"
@@ -28,7 +29,7 @@ import { vOnClickOutside } from '@vueuse/components'
 const show = defineModel('show')
 const emits = defineEmits(['addUrlSuccess'])
 
-const urlInput = ref<HTMLInputElement>()
+const urlInput = ref<InstanceType<typeof InputBar>>()
 const addUrlText = ref('')
 const searchModalLoading = ref(false)
 
