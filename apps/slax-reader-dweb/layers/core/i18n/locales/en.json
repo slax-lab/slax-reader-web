@@ -240,7 +240,7 @@
     "login_view": {
       "google_login": "Google Login",
       "share_page_login_tips": "You are not logged in, please log in first",
-      "title": "Create your account, get to know us~"
+      "title": "Sign up to start your reading journey"
     },
     "notification_cell": {
       "comment_title": "{username} commented:",
