@@ -8,13 +8,13 @@
           <span>Slax Reader</span>
         </div>
         <div class="nav-links">
-          <a href="#features" class="hover mr-16px">Features</a>
-          <a href="#how-it-works" class="hover mr-16px">How it Works</a>
-          <a href="https://github.com/slax-lab" class="btn-github">
+          <a href="#features" class="link hover mr-16px">Features</a>
+          <a href="#how-it-works" class="link hover mr-16px">How it Works</a>
+          <a href="https://github.com/slax-lab" class="link btn-github">
             <img src="@images/github-icon.png" alt="" />
             <span>GitHub</span>
           </a>
-          <a href="/bookmarks?from=homepage" class="btn-free">Start Free</a>
+          <span @click="freeBtn" class="link btn-free">Start Free</span>
         </div>
       </nav>
     </header>
@@ -27,10 +27,10 @@
             <h1>Read Smarter<br />Connect Deeper</h1>
             <p>Your permanent library that saves, understands, and networks your content with others.</p>
             <div class="hero-cta">
-              <a href="/bookmarks?from=homepage" class="btn-free">
+              <span @click="freeBtn" class="btn-free">
                 <span>Start Reading Smarter - Free</span>
                 <img src="@images/arrow-right-white.png" alt="" />
-              </a>
+              </span>
             </div>
             <div class="trust-indicators">
               <span>🔒 Your content, forever safe</span>
@@ -253,6 +253,10 @@ const steps: Step[] = [
     icon: lampIcon
   }
 ]
+
+const freeBtn = async () => {
+  await navigateTo('/bookmarks?from=homepage')
+}
 </script>
 <style lang="scss" scoped>
 * {
@@ -281,7 +285,7 @@ header {
     }
     .nav-links {
       --style: 'flex items-center gap-16px max-md:(hidden)';
-      a {
+      .link {
         --style: 'text-16px font-400 text-[#333] transition-all duration-300';
         text-decoration: none;
         &.hover {
@@ -289,7 +293,7 @@ header {
         }
       }
       .btn-free {
-        --style: flex items-center rounded-6px px-10px h-36px text-#fff;
+        --style: cusor-pointer flex items-center rounded-6px px-10px h-36px text-#fff;
         background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
         transition: all 0.3s ease;
         &:hover {
@@ -338,7 +342,7 @@ header {
       }
       .hero-cta {
         .btn-free {
-          --style: 'w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#ffff] text-20px font-600 max-md:(text-16px m-auto)';
+          --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#ffff] text-20px font-600 max-md:(text-16px m-auto)';
           background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
           text-decoration: none;
           &:hover {
@@ -478,10 +482,10 @@ header {
       --style: w-full border-collapse;
       th,
       td {
-        --style: p-1.5rem text-left border-b-(1px solid #e5e5e5);
+        --style: p-20px text-14px text-left border-b-(1px solid #f5f6f7);
       }
       th {
-        --style: bg-[#f8f9fa] font-600 whitespace-nowrap;
+        --style: bg-[#f8f9fa] text-16px font-600 whitespace-nowrap;
       }
       .check {
         --style: color-#4caf50 font-1.5rem;
