@@ -8,6 +8,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return
   }
 
+  const isAnchorLink = to.path === from.path && to.hash !== from.hash
+
+  if (isAnchorLink) {
+    return
+  }
+
   const isFromAuth = from.fullPath.indexOf('/auth') !== -1
   const isToAuth = to.fullPath.indexOf('/auth') !== -1
   const isToLogin = to.fullPath.indexOf('/login') !== -1
