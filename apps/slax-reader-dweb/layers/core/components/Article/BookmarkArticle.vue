@@ -75,12 +75,14 @@ const extraListeners: (() => void)[] = []
 const { bookmarkId, shareCode, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
 const collection = computed(() => {
-  if (isCollectionBookmarkDetail(detail.value)) {
-    return {
-      code: detail.value.collection_info.collection_code,
-      cb_id: detail.value.collection_info.cb_id
+  try {
+    if (typeof (globalThis as any).isCollectionBookmarkDetail === 'function' && (globalThis as any).isCollectionBookmarkDetail(detail.value)) {
+      return {
+        code: (detail.value as any).collection_info.collection_code,
+        cb_id: (detail.value as any).collection_info.cb_id
+      }
     }
-  }
+  } catch (error) {}
   return undefined
 })
 const articleStyle = computed(() => {

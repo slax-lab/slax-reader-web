@@ -160,6 +160,33 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
         type: 'links',
         content: args
       })
+    } else if (name === 'searchBookmark' && args) {
+      let data = []
+      if (typeof args === 'string') {
+        try {
+          const parsed = JSON.parse(args)
+          data = Array.isArray(parsed) ? parsed : parsed.data || []
+        } catch (e) {
+          return // 解析失败直接返回
+        }
+      } else if (Array.isArray(args)) {
+        data = args
+      } else if (args && (args as any).data) {
+        data = (args as any).data
+      }
+
+      if (data.length > 0) {
+        const bookmarks = data.map((item: any) => ({
+          title: item.highlight_title?.replace(/<\/?mark>/g, '') || 'No Title',
+          content: item.highlight_content?.replace(/<\/?mark>/g, '') || 'No Content',
+          bookmark_id: item.bookmark_id
+        }))
+
+        pushBuffer({
+          type: 'bookmarks',
+          content: bookmarks
+        })
+      }
     }
   } else if (type === ChatResponseType.CONTENT) {
     pushBuffer({
@@ -194,16 +221,31 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
           loading: true,
           tipsType: name
         })
+      } else if (name === 'searchBookmark') {
+        pushBuffer({
+          type: 'tips',
+          tips: t(`component.chat_bot.{tips}_searching_bookmark`, { tips }),
+          loading: true,
+          tipsType: name
+        })
       }
     } else if (status === 'finished') {
       if (name === 'browser') {
         updateTipsBrowserStatus(true)
+      } else if (name === 'search') {
+        updateTipsSearchStatus(true)
+      } else if (name === 'searchBookmark') {
+        updateTipsSearchBookmarkStatus(true)
       } else {
         discardSearch()
       }
     } else if (status === 'failed') {
       if (name === 'browser') {
         updateTipsBrowserStatus(false)
+      } else if (name === 'search') {
+        updateTipsSearchStatus(false)
+      } else if (name === 'searchBookmark') {
+        updateTipsSearchBookmarkStatus(false)
       }
     }
   }
@@ -491,7 +533,7 @@ const pushBuffer = (content: BubbleMessageContent) => {
   }
 
   const contents = bufferMessage.value.contents
-  if (content.type === 'links' || content.type === 'tips') {
+  if (content.type === 'links' || content.type === 'tips' || content.type === 'bookmarks') {
     contents.push(content)
     bufferMarkdownContent.value = ''
   } else if (content.type === 'related-question') {
@@ -563,6 +605,30 @@ const bufferToMessage = () => {
   }
 
   return false
+}
+
+const updateTipsSearchStatus = (success: boolean) => {
+  const searchMessage = bufferMessage.value?.contents?.find(content => content.type === 'tips' && content.tipsType === 'search' && content.loading)
+  if (!searchMessage || searchMessage.type !== 'tips') {
+    return
+  }
+
+  const tipsText = success ? t('component.chat_bot.search_complete') : t('component.chat_bot.search_failed')
+  const reg = new RegExp(`${t('component.chat_bot.searching_token')}\.\.\.$`)
+  searchMessage.tips = searchMessage.tips.replace(reg, tipsText)
+  searchMessage.loading = false
+}
+
+const updateTipsSearchBookmarkStatus = (success: boolean) => {
+  const searchMessage = bufferMessage.value?.contents?.find(content => content.type === 'tips' && content.tipsType === 'searchBookmark' && content.loading)
+  if (!searchMessage || searchMessage.type !== 'tips') {
+    return
+  }
+
+  const tipsText = success ? t('component.chat_bot.search_bookmark_complete') : t('component.chat_bot.search_bookmark_failed')
+  const reg = new RegExp('搜索资料库\.\.\.$')
+  searchMessage.tips = searchMessage.tips.replace(reg, tipsText)
+  searchMessage.loading = false
 }
 
 const updateTipsBrowserStatus = (success: boolean) => {
