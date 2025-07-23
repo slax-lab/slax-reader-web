@@ -200,11 +200,18 @@
       "generating_question": "生成问题中...",
       "hello": "你好，我是 Slax Reader AI 助手：",
       "now_accessing": "正在访问中...",
+      "search_complete": "搜索完成",
+      "search_failed": "搜索失败",
+      "search_bookmark_complete": "资料库搜索完成",
+      "search_bookmark_failed": "资料库搜索失败",
+      "searching_token": "搜索中",
       "{alias}_placeholder": "请输入你的问题（{alias} + enter 可以换行）",
       "{tips}_accessing": "\"{tips}\" 访问中...",
-      "{tips}_searching": "\"{tips}\" 搜索中..."
+      "{tips}_searching": "\"{tips}\" 搜索中...",
+      "{tips}_searching_bookmark": "\"{tips}\" 搜索资料库..."
     },
     "chat_bubble_message": {
+      "bookmarks_source": "书签来源：",
       "links_source": "信息来源：",
       "related_questions": "相关的："
     },
@@ -685,7 +692,10 @@
       "browser_finished": "访问完成",
       "generate_question": "问题生成中",
       "generate_question_finished": "生成完成",
-      "search_finished": "搜索完成"
+      "search_finished": "搜索完成",
+      "search_bookmark": "搜索资料库",
+      "search_bookmark_finished": "资料库搜索完成",
+      "search_bookmark_failed": "资料库搜索失败"
     }
   }
 }

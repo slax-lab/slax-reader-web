@@ -40,6 +40,19 @@
           </div>
         </div>
       </template>
+      <template v-else-if="content.type === 'bookmarks'">
+        <div class="group bookmarks">
+          <div class="bookmarks-title">{{ $t('component.chat_bubble_message.bookmarks_source') }}</div>
+          <div class="bookmarks-content">
+            <div class="content-wrapper">
+              <div class="bookmark-content" v-for="bookmark in content.content" :key="bookmark.bookmark_id" @click="bookmarkClick(bookmark.bookmark_id)">
+                <div class="title">{{ bookmark.title || 'No Title' }}</div>
+                <div class="content-preview">{{ bookmark.content || 'No Content' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
       <template v-else-if="content.type === 'tips'">
         <div class="tips">
           <span :class="{ loading: content.loading }">{{ content.tips }}</span>
@@ -147,6 +160,12 @@ const linksRightOperateClick = (e: MouseEvent) => {
 
 const linkClick = (href: string) => {
   window.open(href)
+}
+
+const bookmarkClick = (bookmarkId: number) => {
+  pwaOpen({
+    url: `/bookmarks/${bookmarkId}`
+  })
 }
 
 const copyBtnClick = async () => {
@@ -423,6 +442,36 @@ const quoteClick = (quote: QuoteData) => {
 
         .right {
           --style: right-0;
+        }
+      }
+    }
+  }
+
+  .bookmarks {
+    --style: relative w-full;
+
+    .bookmarks-title {
+      --style: text-(12px) line-height-17px mb-8px;
+      --style: 'text-#999 dark:text-#999999ff';
+    }
+
+    .bookmarks-content {
+      .content-wrapper {
+        --style: flex flex-col gap-8px;
+
+        .bookmark-content {
+          --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 hover:shadow-md';
+          --style: 'bg-#ffffff border-#e5e5e5 hover:bg-#f8f9fa dark:(bg-#2a2a2a border-#404040 hover:bg-#333333)';
+
+          .title {
+            --style: text-(14px) font-medium line-height-20px line-clamp-2;
+            --style: 'text-#1a1a1a dark:text-#ffffff mb-6px';
+          }
+
+          .content-preview {
+            --style: text-(12px) line-height-16px line-clamp-3;
+            --style: 'text-#666 dark:text-#999';
+          }
         }
       }
     }

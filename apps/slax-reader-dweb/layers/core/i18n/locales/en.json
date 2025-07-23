@@ -200,11 +200,18 @@
       "generating_question": "Generating question...",
       "hello": "Hello, I am the Slax Reader AI assistant:",
       "now_accessing": "Accessing...",
+      "search_complete": "Search completed",
+      "search_failed": "Search failed",
+      "search_bookmark_complete": "Knowledge base search completed",
+      "search_bookmark_failed": "Knowledge base search failed",
+      "searching_token": "searching",
       "{alias}_placeholder": "Enter your question ({alias} + enter to line break)",
       "{tips}_accessing": "\"{tips}\" Accessing...",
-      "{tips}_searching": "\"{tips}\" Searching..."
+      "{tips}_searching": "\"{tips}\" Searching...",
+      "{tips}_searching_bookmark": "\"{tips}\" Searching knowledge base..."
     },
     "chat_bubble_message": {
+      "bookmarks_source": "Bookmark source:",
       "links_source": "Information source:",
       "related_questions": "Related:"
     },
@@ -685,7 +692,10 @@
       "browser_finished": "Access complete",
       "generate_question": "Generating question",
       "generate_question_finished": "Finished",
-      "search_finished": "Search complete"
+      "search_finished": "Search complete",
+      "search_bookmark": "Searching knowledge base",
+      "search_bookmark_finished": "Knowledge base search complete",
+      "search_bookmark_failed": "Knowledge base search failed"
     }
   }
 }
