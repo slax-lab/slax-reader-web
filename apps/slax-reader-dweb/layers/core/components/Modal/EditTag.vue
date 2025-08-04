@@ -9,7 +9,13 @@
           </button>
         </div>
         <div class="content">
-          <textarea v-model="editname" :placeholder="tagName"></textarea>
+          <textarea
+            v-model="editname"
+            :placeholder="tagName"
+            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            @compositionstart="compositionstart"
+            @compositionend="compositionend"
+          ></textarea>
         </div>
         <div class="bottom">
           <button @click="submitTagName">{{ t('common.operate.save') }}</button>
@@ -26,6 +32,7 @@
 
 <script lang="ts" setup>
 import { RESTMethodPath } from '@commons/types/const'
+import { vOnKeyStroke } from '@vueuse/components'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 
 const props = defineProps({
@@ -40,6 +47,7 @@ const isLoading = ref(false)
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const editname = ref('')
+const compositionAppear = ref(false)
 
 isLocked.value = true
 
@@ -64,7 +72,7 @@ const editTagName = async () => {
     return
   }
 
-  if (editname.value === props.tagName) {
+  if (editname.value === props.tagName || editname.value.trim() === '') {
     closeModal()
     return
   }
@@ -115,6 +123,24 @@ const deleteTag = async () => {
 const onAfterLeave = () => {
   isLocked.value = false
   emits('dismiss')
+}
+
+const compositionstart = () => {
+  compositionAppear.value = true
+}
+
+const compositionend = () => {
+  compositionAppear.value = false
+}
+
+const onKeyDown = (e: KeyboardEvent) => {
+  if (e.key !== 'Enter' || compositionAppear.value) {
+    return
+  }
+
+  e.preventDefault()
+  e.stopPropagation()
+  submitTagName()
 }
 
 const t = (text: string) => {
