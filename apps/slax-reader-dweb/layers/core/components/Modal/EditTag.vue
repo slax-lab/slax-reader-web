@@ -34,7 +34,6 @@
 import { RESTMethodPath } from '@commons/types/const'
 import { vOnKeyStroke } from '@vueuse/components'
 import Toast, { ToastType } from '#layers/core/components/Toast'
-import { e } from 'unocss'
 
 const props = defineProps({
   bookmarkId: Number,
