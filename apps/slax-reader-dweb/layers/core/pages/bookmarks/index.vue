@@ -96,7 +96,7 @@
               <div class="icon" @click="checkMore"></div>
               <span>{{ $t('page.bookmarks_index.empty') }}</span>
             </div>
-            <div class="quick-start" v-else>
+            <div class="quick-start" v-else-if="!isFirstLoad">
               <QuickStart></QuickStart>
             </div>
           </div>
@@ -157,6 +157,7 @@ useHead({
 const bookmarksLayout = ref<InstanceType<typeof BookmarksLayout>>()
 const tabsSidebar = ref<InstanceType<typeof TabsSidebar>>()
 const isActivated = ref(true)
+const isFirstLoad = ref(true)
 const route = useRoute()
 const userStore = useUserStore()
 const userInfo = ref<UserInfo>()
@@ -364,6 +365,10 @@ const resetBookmarks = () => {
 }
 
 const onLoadMore = async () => {
+  if (isFirstLoad.value) {
+    isFirstLoad.value = false
+  }
+
   if (loading.value || ending.value) return
   if ((filterStatus.value === 'topics' && filterTopicId.value < 1) || (filterStatus.value === 'collections' && filterCollectionId.value < 1)) {
     resetBookmarks()
