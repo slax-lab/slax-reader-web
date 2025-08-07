@@ -616,7 +616,7 @@ const notificationBack = () => {
       }
 
       span {
-        --style: mt-24px text-14px lien-height-22px;
+        --style: mt-24px text-14px line-height-22px;
       }
     }
     .quick-start {

@@ -867,7 +867,7 @@ const go = () => {
     }
 
     .panel-container {
-      --style: w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+      --style: relative z-2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
 
       .button-wrapper {
         --style: relative size-44px;
