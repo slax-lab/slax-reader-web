@@ -458,6 +458,5 @@ export interface PanelPosition {
   height?: string
 }
 export interface LocalConfig {
-  bottomPanelPosition?: PanelPosition
   webPanelPosition?: PanelPosition
 }
