@@ -33,7 +33,7 @@ import { onUnmounted } from 'vue'
 
 import DotLoading from './DotLoading.vue'
 
-import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
+import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config/message'
 
 import { RequestError } from '@commons/utils/request'
 

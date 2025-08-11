@@ -1,4 +1,4 @@
-import { MessageTypeAction } from '@/config'
+import { MessageTypeAction } from '@/config/message'
 
 import type { AuthService } from './authService'
 

@@ -1,4 +1,4 @@
-import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config'
+import { BookmarkActionType, type MessageType, MessageTypeAction } from '@/config/message'
 
 import type { AuthService } from './authService'
 import type { BookmarkService } from './bookmarkService'
