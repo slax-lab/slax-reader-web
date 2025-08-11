@@ -96,8 +96,8 @@ import commentsHighlightedImage from '~/assets/panel-item-comments-highlighted.p
 import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
 import commentsSubImage from '~/assets/panel-item-comments-sub.png'
 
+import { type MessageType, MessageTypeAction } from '@/config/message'
 import { type PanelItem, PanelItemType } from '@/config/panel'
-import { type MessageType, MessageTypeAction } from '@/config'
 
 import { MouseTrack } from '@commons/utils/mouse'
 import { RequestError, RequestMethodType } from '@commons/utils/request'

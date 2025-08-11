@@ -99,7 +99,7 @@ const onResizeObserver = (entries: unknown | ReadonlyArray<ResizeObserverEntry>)
   --style: relative;
 
   .bubble-tips {
-    --style: absolute z-100 top-1/2 right-full -translate-y-1/2 mr-8px overflow-hidden select-none;
+    --style: absolute z-1 top-1/2 right-full -translate-y-1/2 mr-8px overflow-hidden select-none cursor-pointer;
 
     .bubble-svg {
       --style: absolute left-0 top-0 w-full h-full;

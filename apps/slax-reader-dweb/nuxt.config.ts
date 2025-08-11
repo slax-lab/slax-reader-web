@@ -98,11 +98,21 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: true }>
       ),
-      '/s/**': { ssr: true, prerender: false },
-      '/bookmarks/**': { ssr: false, prerender: false },
-      '/b': { redirect: '/bookmarks' },
-      '/w/**': { ssr: false, prerender: false },
-      '/sw/**': { ssr: false, prerender: false }
+      ...['/bookmarks/**', '/w/**', '/sw/**'].reduce(
+        (rules, route) => {
+          rules[route] = { ssr: false, prerender: false }
+          return rules
+        },
+        {} as Record<string, { ssr: false; prerender: false }>
+      ),
+      ...['/s/**'].reduce(
+        (rules, route) => {
+          rules[route] = { ssr: true, prerender: false }
+          return rules
+        },
+        {} as Record<string, { ssr: true; prerender: false }>
+      ),
+      '/b': { redirect: '/bookmarks' }
     },
     cloudflare: {
       pages: {
