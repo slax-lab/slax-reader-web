@@ -2,24 +2,13 @@
   <div class="side-panel" v-if="!needHidden">
     <div class="web-panel" :class="{ 'initial-position': !isDraggledWebPaneled }" ref="webPanelDraggble">
       <SidebarTips>
-        <div class="panel-container">
-          <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
-            <button @click="panelClick(panel)">
-              <div class="icon-wrapper">
-                <div class="icon">
-                  <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                    <img class="normal" :src="panel.icon" alt="" />
-                    <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-                  </template>
-                  <template v-else>
-                    <img class="selected" :src="panel.selectedIcon" alt="" />
-                  </template>
-                </div>
-              </div>
-              <span>{{ panel.title }}</span>
-            </button>
-          </div>
-        </div>
+        <SidebarItems
+          :is-summary-showing="isSummaryShowing"
+          :is-chatbot-showing="isChatbotShowing"
+          :is-star="bookmarkBriefInfo?.starred === 'star'"
+          :is-archive="bookmarkBriefInfo?.archived === 'archive'"
+          @panel-item-action="panelClick"
+        />
       </SidebarTips>
     </div>
     <div class="main-panel" ref="panelContainer" :class="{ appear: showPanel }">
@@ -78,39 +67,9 @@
             </div>
           </div>
           <div class="operate-button bottom">
-            <DotsMenu :actions="menuActions" @action="menuClick" />
+            <OperationMenu :is-star="bookmarkBriefInfo?.starred === 'star'" :is-archive="bookmarkBriefInfo?.archived === 'archive'" @action="panelClick" />
           </div>
         </div>
-      </div>
-    </div>
-    <div class="bottom-panel" :class="{ 'initial-position': !isDraggledBottomPaneled }" ref="bottomPanelDraggble">
-      <div class="panel-container" :class="{ 'hide-corner': isBottomPanelHideCorner }">
-        <template v-for="panel in bottomPanelItem" :key="panel.type">
-          <i class="seperator"></i>
-          <div class="button-wrapper">
-            <button @click="panelClick(panel)">
-              <div class="icon-wrapper">
-                <div class="icon">
-                  <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                    <img class="normal" :src="panel.icon" alt="" />
-                    <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-                  </template>
-                  <template v-else>
-                    <img class="selected" :src="panel.selectedIcon" alt="" />
-                  </template>
-                </div>
-              </div>
-              <span class="title" v-if="panel.title" :style="panel.isSelected && panel.isSelected() && panel.selectedColor ? { color: panel.selectedColor } : {}">{{
-                panel.title
-              }}</span>
-            </button>
-            <Transition name="opacity">
-              <div class="absolute inset-0 z-2 bg-#262626 flex-center" v-show="panel.isLoading" @click.stop>
-                <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999"></div>
-              </div>
-            </Transition>
-          </div>
-        </template>
       </div>
     </div>
   </div>
@@ -121,17 +80,14 @@
 <script lang="ts" setup>
 import AISummaries from './AISummaries.vue'
 import ChatBot from './Chat/ChatBot.vue'
-import DotsMenu, { type DotsMenuActionItem } from './DotsMenu.vue'
+import OperationMenu from './OperationMenu.vue'
+import SidebarItems from './SidebarItems.vue'
 import SidebarTips from './Tips/SidebarTips.vue'
 
-// image asssets
-import aiImage from '~/assets/panel-item-ai.png'
+// image assets
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
 import aiSelectedImage from '~/assets/panel-item-ai-selected.png'
 import aiSubImage from '~/assets/panel-item-ai-sub.png'
-import archieveBottomImage from '~/assets/panel-item-archieve-bottom.png'
-import archieveBottomSelectedImage from '~/assets/panel-item-archieve-bottom-selected.png'
-import chatbotImage from '~/assets/panel-item-chatbot.png'
 import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
 import chatbotSelectedImage from '~/assets/panel-item-chatbot-selected.png'
 import chatbotSubImage from '~/assets/panel-item-chatbot-sub.png'
@@ -139,17 +95,15 @@ import commentsImage from '~/assets/panel-item-comments.png'
 import commentsHighlightedImage from '~/assets/panel-item-comments-highlighted.png'
 import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
 import commentsSubImage from '~/assets/panel-item-comments-sub.png'
-import shareBottomImage from '~/assets/panel-item-share-bottom.png'
-import starBottomImage from '~/assets/panel-item-star-bottom.png'
-import starBottomSelectedImage from '~/assets/panel-item-star-bottom-selected.png'
 
+import { type PanelItem, PanelItemType } from '@/config/panel'
 import { type MessageType, MessageTypeAction } from '@/config'
 
 import { MouseTrack } from '@commons/utils/mouse'
 import { RequestError, RequestMethodType } from '@commons/utils/request'
 
 import type { QuoteData } from './Chat/type'
-import { showAboutModal, showFeedbackModal, showShareConfigModal } from './Modal'
+import { showFeedbackModal, showShareConfigModal } from './Modal'
 import { ArticleSelection } from './Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
 import { LocalStorageKey } from '@commons/types/const'
@@ -159,26 +113,6 @@ import { storage } from '@wxt-dev/storage'
 import type { WxtBrowser } from 'wxt/browser'
 
 const localConfig = storage.defineItem<LocalConfig>(`${LocalStorageKey.LOCAL_CONFIG}`)
-enum PanelItemType {
-  'AI' = 'ai',
-  'Chat' = 'chat',
-  'Share' = 'share',
-  'Comments' = 'comments',
-  'Archieve' = 'archieve',
-  'Star' = 'star'
-}
-
-interface PanelItem {
-  type: PanelItemType
-  icon: string
-  highlighedIcon: string
-  selectedIcon?: string
-  title?: string | ComputedRef<string>
-  hovered: boolean
-  selectedColor?: string
-  isSelected?: () => boolean
-  isLoading?: boolean
-}
 
 const props = defineProps({
   browser: {
@@ -187,43 +121,10 @@ const props = defineProps({
   }
 })
 
-const isDraggledBottomPaneled = ref(false)
 const isDraggledWebPaneled = ref(false)
 
 const isCollected = ref(false)
 const isLocked = useScrollLock(window)
-
-const isBottomPanelHideCorner = ref(false)
-
-const panelItems = ref<PanelItem[]>([
-  {
-    type: PanelItemType.AI,
-    icon: aiImage,
-    highlighedIcon: aiHighlightedImage,
-    selectedIcon: aiSelectedImage,
-    title: $t('component.sidebar.ai'),
-    hovered: false,
-    isSelected: () => isSummaryShowing.value
-  },
-  {
-    type: PanelItemType.Chat,
-    icon: chatbotImage,
-    highlighedIcon: chatbotHighlightedImage,
-    selectedIcon: chatbotSelectedImage,
-    title: $t('component.sidebar.chat'),
-    hovered: false,
-    isSelected: () => isChatbotShowing.value
-  }
-  // {
-  //   type: PanelItemType.Comments,
-  //   icon: commentsImage,
-  //   highlighedIcon: commentsHighlightedImage,
-  //   selectedIcon: commentsSelectedImage,
-  //   title: $t('component.sidebar.comments'),
-  //   hovered: false,
-  //   isSelected: () => false
-  // }
-])
 
 const subPanelItems = ref<PanelItem[]>([
   {
@@ -255,46 +156,10 @@ const subPanelItems = ref<PanelItem[]>([
   // }
 ])
 
-const getArchiveTitle = computed(() => {
-  if (bookmarkBriefInfo.value?.archived === 'archive') {
-    return $t('component.sidebar.archieved')
-  }
-  return $t('component.sidebar.archieve')
-})
-
-const bottomPanelItem = ref<PanelItem[]>([
-  {
-    type: PanelItemType.Star,
-    icon: starBottomImage,
-    highlighedIcon: starBottomImage,
-    selectedIcon: starBottomSelectedImage,
-    hovered: false,
-    selectedColor: '#F6AF69',
-    isSelected: () => bookmarkBriefInfo.value?.starred === 'star'
-  },
-  {
-    type: PanelItemType.Archieve,
-    icon: archieveBottomImage,
-    highlighedIcon: archieveBottomImage,
-    selectedIcon: archieveBottomSelectedImage,
-    title: getArchiveTitle,
-    hovered: false,
-    selectedColor: '#16b998',
-    isSelected: () => bookmarkBriefInfo.value?.archived === 'archive'
-  },
-  {
-    type: PanelItemType.Share,
-    icon: shareBottomImage,
-    highlighedIcon: shareBottomImage,
-    hovered: false
-  }
-])
-
 const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
 const draggble = useTemplateRef<HTMLDivElement>('draggble')
-const bottomPanelDraggble = useTemplateRef<HTMLElement>('bottomPanelDraggble')
 const webPanelDraggble = useTemplateRef<HTMLElement>('webPanelDraggble')
 
 const summaries = ref<InstanceType<typeof AISummaries>>()
@@ -316,11 +181,6 @@ const loadingText = ref($t('component.sidebar.collecting'))
 const isLoading = ref(false)
 const loadingTitle = ref(loadingText.value)
 const loadingInterval = ref<NodeJS.Timeout>()
-
-const menuActions = ref<DotsMenuActionItem[]>([
-  { id: 'about', name: $t('component.sidebar.about') },
-  { id: 'feedback', name: $t('component.sidebar.feedback') }
-])
 
 let articleSelection: ArticleSelection | null = null
 
@@ -345,12 +205,7 @@ const { isDragging } = useDraggable(draggble, {
 
 const initialPanelPosition = async () => {
   const config = await localConfig.getValue()
-  if (bottomPanelDraggble.value && config?.bottomPanelPosition) {
-    isDraggledBottomPaneled.value = true
-    for (const key in config.bottomPanelPosition) {
-      bottomPanelDraggble.value.style[key as any] = config.bottomPanelPosition[key as keyof typeof config.bottomPanelPosition]!
-    }
-  }
+
   if (webPanelDraggble.value && config?.webPanelPosition) {
     isDraggledWebPaneled.value = true
     for (const key in config.webPanelPosition) {
@@ -421,14 +276,6 @@ const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef:
   })
 }
 
-const bottomPanelCallback = async (position: PanelPosition) => {
-  const localconfig = await localConfig.getValue()
-  localConfig.setValue({
-    ...localconfig,
-    bottomPanelPosition: position
-  })
-}
-
 const webPanelCallback = async (position: PanelPosition) => {
   const localconfig = await localConfig.getValue()
   localConfig.setValue({
@@ -437,11 +284,10 @@ const webPanelCallback = async (position: PanelPosition) => {
   })
 }
 
-usePanelDraggable(bottomPanelDraggble, isDraggledBottomPaneled, bottomPanelCallback)
 usePanelDraggable(webPanelDraggble, isDraggledWebPaneled, webPanelCallback)
 
 watch(
-  () => bottomPanelDraggble.value || webPanelDraggble.value,
+  () => webPanelDraggble.value,
   () => {
     initialPanelPosition()
   }
@@ -661,12 +507,14 @@ const panelClick = async (panel: PanelItem) => {
 
   const userInfo = await tryGetUserInfo(needExamine.value)
 
-  isSummaryShowing.value = false
-  isChatbotShowing.value = false
-
   needExamine.value = !(await examineSideBarAction(type, userInfo))
   if (needExamine.value) {
     return
+  }
+
+  if ([PanelItemType.AI, PanelItemType.Chat].indexOf(type) > -1) {
+    isSummaryShowing.value = false
+    isChatbotShowing.value = false
   }
 
   switch (type) {
@@ -741,6 +589,19 @@ const panelClick = async (panel: PanelItem) => {
 
       panel.isLoading = false
 
+      break
+    }
+
+    case PanelItemType.Feedback: {
+      modalContainer.value &&
+        showFeedbackModal({
+          reportType: 'parse_error',
+          title: bookmarkBriefInfo.value?.alias_title || bookmarkBriefInfo.value?.title || '',
+          params: {
+            bookmark_id: bookmarkId.value
+          },
+          container: modalContainer.value
+        })
       break
     }
   }
@@ -831,26 +692,6 @@ const addBookmark = async () => {
   }
 }
 
-const menuClick = async (action: DotsMenuActionItem) => {
-  const { id } = action
-  if (id === 'about') {
-    modalContainer.value &&
-      showAboutModal({
-        container: modalContainer.value
-      })
-  } else if (id === 'feedback') {
-    modalContainer.value &&
-      showFeedbackModal({
-        reportType: 'parse_error',
-        title: bookmarkBriefInfo.value?.alias_title || bookmarkBriefInfo.value?.title || '',
-        params: {
-          bookmark_id: bookmarkId.value
-        },
-        container: modalContainer.value
-      })
-  }
-}
-
 const go = () => {
   window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks`, '_blank')
 }
@@ -864,56 +705,6 @@ const go = () => {
     --style: z-1 fixed cursor-move;
     &.initial-position {
       --style: 'left-100%!' 'top-1/2!' '-translate-x-100%' -translate-y-1/2;
-    }
-
-    .panel-container {
-      --style: relative z-2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
-
-      .button-wrapper {
-        --style: relative size-44px;
-
-        button {
-          --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
-            transition-max-width duration-250;
-
-          .icon-wrapper {
-            --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
-
-            .icon {
-              --style: relative size-36px;
-              img {
-                --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-              }
-
-              .normal {
-                --style: opacity-100;
-              }
-
-              .highlighted {
-                --style: opacity-0;
-              }
-            }
-          }
-
-          &:hover {
-            --style: '!max-w-160px';
-
-            .icon {
-              .normal {
-                --style: opacity-0;
-              }
-
-              .highlighted {
-                --style: opacity-100;
-              }
-            }
-          }
-
-          span {
-            --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
-          }
-        }
-      }
     }
   }
 
@@ -1049,70 +840,6 @@ const go = () => {
           scrollbar-width: none;
           &::-webkit-scrollbar {
             --style: hidden;
-          }
-        }
-      }
-    }
-  }
-
-  .bottom-panel {
-    --style: z-1 fixed cursor-move;
-    &.initial-position {
-      --style: 'left-1/2!' 'top-100%!' -translate-x-1/2 -translate-y-88px;
-    }
-
-    .panel-container {
-      --style: relative h-40px rounded-20px px-12px py-8px flex items-center bg-#262626 overflow-hidden shadow-[0px_20px_60px_0px_#00000033] transition-all duration-250;
-
-      .seperator {
-        --style: px-4px w-1px h-12px shrink-0 bg-#99999929 cursor-default;
-        background-clip: content-box;
-        box-sizing: content-box;
-        &:first-of-type {
-          display: none;
-        }
-      }
-
-      .button-wrapper {
-        --style: relative h-full;
-
-        button {
-          --style: px-6px h-full flex items-center flex-nowrap transition-all duration-250 rounded-5px;
-          --style: 'hover:(bg-#99999929)';
-
-          .icon-wrapper {
-            --style: relative z-1 size-16px shrink-0 overflow-hidden;
-
-            .icon {
-              --style: relative size-full;
-              img {
-                --style: absolute size-full left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-              }
-
-              .normal {
-                --style: opacity-100;
-              }
-
-              .highlighted {
-                --style: opacity-0;
-              }
-            }
-          }
-
-          .title {
-            --style: ml-4px text-(#999999 13px) line-height-18px whitespace-nowrap;
-          }
-
-          &:hover {
-            .icon {
-              .normal {
-                --style: opacity-0;
-              }
-
-              .highlighted {
-                --style: opacity-100;
-              }
-            }
           }
         }
       }

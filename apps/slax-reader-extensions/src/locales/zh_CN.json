@@ -86,16 +86,17 @@
     "sidebar": {
       "about": "关于",
       "ai": "AI",
-      "archieve": "读完了",
-      "archieved": "读完了",
+      "archieve": "归档文章",
+      "archieved": "取消归档",
       "chat": "Chat",
       "collect_content": "收藏内容",
       "collecting": "收藏中",
       "comments": "评论",
       "feedback": "反馈",
-      "share": "分享",
-      "star": "加星",
-      "starred": "加星",
+      "more": "更多",
+      "share": "分享文章",
+      "star": "文章加星",
+      "starred": "取消加星",
       "view_collection_detail": "查看收藏"
     }
   },
