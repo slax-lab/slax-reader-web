@@ -17,7 +17,8 @@
         <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
           <div class="sidebar-header">
             <img @click="go" src="@/assets/tiny-app-logo-gray.png" alt="" />
-            <span @click="go">Slax Reader</span>
+            <span class="name" @click="go">Slax Reader</span>
+            <span class="version">{{ VERSION }}</span>
           </div>
           <div class="sidebar-content">
             <Transition name="sidepanel">
@@ -185,6 +186,8 @@ const loadingInterval = ref<NodeJS.Timeout>()
 let articleSelection: ArticleSelection | null = null
 
 const needExamine = ref(false)
+
+const VERSION = `v${process.env.VERSION}`
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -829,8 +832,12 @@ const go = () => {
             --style: size-16px object-contain;
           }
 
-          span {
+          .name {
             --style: ml-2px text-(14px #ffffff66) font-semibold line-height-20px;
+          }
+
+          .version {
+            --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-11px;
           }
         }
 
