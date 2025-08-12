@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: 'weekly'
     versioning-strategy: increase
-    target-branch: 'develop'
+    target-branch: 'main'
     allow:
       - dependency-type: 'development'
       - dependency-type: 'production'
