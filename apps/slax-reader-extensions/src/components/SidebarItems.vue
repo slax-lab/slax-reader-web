@@ -219,7 +219,7 @@ const panelClick = async (panel: PanelItem) => {
     .more-options-wrapper {
       --style: cursor-default absolute top-0 -right-4px w-150px h-110px rounded-8px bg-#262626;
       .more-options {
-        --style: flex flex-col py-7px opacity-100;
+        --style: flex flex-col py-7px px-8px opacity-100;
 
         button.subpanel-button {
           --style: flex items-center h-32px px-16px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
