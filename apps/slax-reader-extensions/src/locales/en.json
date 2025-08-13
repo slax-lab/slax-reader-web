@@ -31,7 +31,8 @@
       "interpret": "Interpret this article",
       "mindmap": "Mind Map",
       "processing": "Content is being analyzed",
-      "title": "Analysis Results"
+      "title": "Analysis Results",
+      "analyzed_title": "Analyzed Article"
     },
     "article_selection": {
       "comment_deleted": "Comment deleted",
@@ -45,6 +46,10 @@
       "reply": "Reply to...",
       "stroke_failed": "Highlight failed",
       "title": "Post a comment"
+    },
+    "bookmark_tags": {
+      "add": "Add Tags",
+      "placeholder": "Enter new tag (press Enter to confirm)"
     },
     "chat_bot": {
       "access_complete": "Access complete",
@@ -71,6 +76,9 @@
     "feedback": {
       "placeholder": "Please describe the problem you are experiencing...",
       "title": "Your feedback will help us improve"
+    },
+    "overview": {
+      "text_content_title": "Overview: "
     },
     "share_modal": {
       "copy_link": "Copy link",
