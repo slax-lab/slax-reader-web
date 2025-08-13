@@ -1,71 +1,88 @@
 <template>
   <div class="ai-summaries">
-    <div class="operate-container">
-      <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
-        <span>{{ $t('common.operate.summary_refresh') }}</span>
-      </button>
-      <template v-if="!closeButtonHidden">
-        <i class="seperator"></i>
-        <button class="close" @click="closeModal">
-          <img src="@/assets/button-dialog-close.png" />
-        </button>
-      </template>
-    </div>
-    <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
-      <div class="header">
-        <span class="title">{{ $t('component.ai_summaries.title') }}：</span>
-        <div class="switch" v-if="done && summaries.length > 1">
-          <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
-            <img src="@/assets/button-tiny-right-arrow-outline.png" alt="" />
-          </button>
-          <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
-          <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
-            <img src="@/assets/button-tiny-right-arrow-outline.png" alt="" />
-          </button>
+    <div class="shrinkable-header" :class="{ expanded: !isShrink }">
+      <div class="shrinkable-content" :class="{ expanded: !isShrink }" @click="() => isShrink && (isShrink = !isShrink)">
+        <div class="left">
+          <img class="icon" src="@/assets/tiny-scan-outline-icon.png" />
+          <span class="title">{{ $t('component.ai_summaries.analyzed_title') }}</span>
+          <div class="switch" v-if="!isShrink && done && summaries.length > 1">
+            <button class="left" :class="{ disable: currentSummaryIndex <= 0 }" @click="switchPrevClick">
+              <img src="@/assets/button-tiny-right-arrow-outline.png" alt="" />
+            </button>
+            <span>{{ currentSummaryIndex + 1 }}/{{ summaries.length }}</span>
+            <button class="right" :class="{ disable: currentSummaryIndex >= summaries.length - 1 }" @click="switchNextClick">
+              <img src="@/assets/button-tiny-right-arrow-outline.png" alt="" />
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="content">
-        <div class="content-container">
-          <div class="text-content">
-            <div class="text-container" ref="textContainer">
-              <MarkdownText :text="markdownText" @anchor-click="anchorClick" v-resize="resizeHandler" />
+        <div class="right">
+          <Transition name="opacity">
+            <img class="arrow" v-show="isShrink" src="@/assets/button-tiny-bottom-arrow.png" />
+          </Transition>
+          <!-- <Transition name="opacity">
+            <div class="operate" v-show="!isShrink">
+              <button class="refresh" v-if="done && retryCount > 0" @click="refresh">
+                <span>{{ $t('common.operate.summary_refresh') }}</span>
+              </button>
+              <template v-if="!closeButtonHidden">
+                <i class="seperator"></i>
+                <button class="close" @click="closeModal">
+                  <img src="@/assets/button-dialog-close.png" />
+                </button>
+              </template>
             </div>
-            <div class="loading-bottom" ref="loadingBottom" v-if="!done">
-              <DotLoading />
-            </div>
-          </div>
-          <div class="map-content" v-if="done" :style="{ height: mapHeight ? mapHeight + 'px' : undefined }">
-            <div class="map-header">
-              <div class="title">{{ $t('component.ai_summaries.mindmap') }}</div>
-              <div class="description">{{ $t('component.ai_summaries.click_to_expand') }}</div>
-            </div>
-            <MarkMindMap
-              ref="markmind"
-              :data="markdownText"
-              :showToolbar="true"
-              :hideAnchor="false"
-              :defaultExpandLevel="2"
-              @graphHeightUpdate="graphHeightUpdate"
-              @anchor-click="anchorClick"
-            />
-          </div>
+          </Transition> -->
         </div>
       </div>
     </div>
-    <div class="empty bg-container" v-else-if="!loading && markdownText.length === 0">
-      <span>{{ $t('component.ai_summaries.click_to_interpret') }}</span>
-      <div class="button" @click="checkAndLoadSummaries()">{{ $t('component.ai_summaries.interpret') }}</div>
-    </div>
-    <div class="loading bg-container" v-else-if="loading">
-      <span>{{ loadingTitle }}</span>
-      <div class="placeholder">
-        <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
+    <Transition name="shrinkable" @after-enter="afterAppear">
+      <div class="opacity-100" v-show="!isShrink">
+        <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
+          <div class="content">
+            <div class="content-container">
+              <div class="text-content">
+                <div class="text-container" ref="textContainer">
+                  <MarkdownText :text="markdownText" @anchor-click="anchorClick" v-resize="resizeHandler" />
+                </div>
+                <div class="loading-bottom" ref="loadingBottom" v-if="!done">
+                  <DotLoading />
+                </div>
+              </div>
+              <div class="map-content" v-if="done" :style="{ height: mapHeight ? mapHeight + 'px' : undefined }">
+                <div class="map-header">
+                  <div class="title">{{ $t('component.ai_summaries.mindmap') }}</div>
+                  <div class="description">{{ $t('component.ai_summaries.click_to_expand') }}</div>
+                </div>
+                <MarkMindMap
+                  v-if="!isShrink"
+                  ref="markmind"
+                  :data="markdownText"
+                  :showToolbar="true"
+                  :hideAnchor="false"
+                  :defaultExpandLevel="2"
+                  @graphHeightUpdate="graphHeightUpdate"
+                  @anchor-click="anchorClick"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="empty bg-container" v-else-if="!loading && markdownText.length === 0">
+          <span>{{ $t('component.ai_summaries.click_to_interpret') }}</span>
+          <div class="button" @click="checkAndLoadSummaries()">{{ $t('component.ai_summaries.interpret') }}</div>
+        </div>
+        <div class="loading bg-container" v-else-if="loading">
+          <span>{{ loadingTitle }}</span>
+          <div class="placeholder">
+            <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
+          </div>
+        </div>
+        <Transition name="copy">
+          <span class="copy-container" v-show="!isShrink && !loading && markdownText.length > 0 && done">
+            <CopyButton @click="copyContent" />
+          </span>
+        </Transition>
       </div>
-    </div>
-    <Transition name="copy">
-      <span class="copy-container" v-show="!loading && markdownText.length > 0 && done">
-        <CopyButton @click="copyContent" />
-      </span>
     </Transition>
   </div>
 </template>
@@ -122,6 +139,8 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['navigatedText', 'dismiss'])
+const isShrink = ref(true)
+const isAppear = ref(false)
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
@@ -163,9 +182,9 @@ watch(
 )
 
 watch(
-  () => props.isAppeared,
+  () => isAppear.value,
   value => {
-    if (value && !loading.value && !done.value && markdownText.value.length === 0) {
+    if (value && props.isAppeared && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
     }
   },
@@ -194,6 +213,10 @@ watch(
     }
   }
 )
+
+const afterAppear = () => {
+  isAppear.value = true
+}
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0
@@ -573,52 +596,22 @@ const cloneBodyDocument = () => {
 $copyButtonXOffset: 20px;
 
 .ai-summaries {
-  --style: min-h-screen relative;
+  --style: relative;
 
   .bg-container {
     --style: w-full h-full flex flex-col rounded-4;
     --style: 'bg-#fcfcfc dark:bg-#262626';
   }
 
-  .operate-container {
-    --style: z-1 absolute top-20px right-20px flex-center;
+  .shrinkable-header {
+    --style: relative w-full px-20px;
+    --style: 'bg-#fcfcfc dark:(bg-transparent)';
 
-    button {
-      --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+    * {
+      --style: select-none;
     }
 
-    .close {
-      --style: w-16px h-16px flex-center;
-      img {
-        --style: w-full select-none;
-      }
-    }
-
-    .refresh {
-      --style: flex-center px-4px py-3px rounded-4px bg-#ffffff0f;
-      span {
-        --style: text-(13px #ffffff66) line-height-18px;
-      }
-    }
-
-    .seperator {
-      --style: mx-10px w-1px h-10px invisible;
-      --style: 'bg-#D6D6D6 dark:bg-#333';
-    }
-
-    button + .seperator {
-      --style: visible;
-    }
-  }
-
-  .summaries-container {
-    --style: items-center overflow-y-auto;
-    --style: 'bg-#f5f5f3 dark:bg-transparent';
-
-    .header {
-      --style: relative w-full pt-20px px-20px flex items-center;
-      --style: 'bg-#fcfcfc dark:(bg-transparent pb-25px)';
-
+    &.expanded {
       &:before,
       &:after {
         --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F;
@@ -632,47 +625,111 @@ $copyButtonXOffset: 20px;
       &:after {
         --style: bottom-2px;
       }
+    }
 
-      .title {
-        --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
+    .shrinkable-content {
+      --style: w-full flex items-center justify-between transition-all duration-250;
+
+      &:not(.expanded) {
+        --style: py-14px px-13px rounded-8px border-(1px solid #ffffff0a) cursor-pointer;
       }
 
-      .switch {
-        --style: ml-8px flex-center;
-        & > * {
-          --style: 'not-first:ml-1px';
+      &.expanded {
+        --style: py-20px px-0px;
+      }
+
+      .left {
+        --style: flex-center;
+
+        .icon {
+          --style: size-16px object-contain;
         }
 
-        button {
-          --style: w-11px h-10px flex-center rounded-full transition-transform duration-250;
+        .title {
+          --style: ml-9px text-(15px #ffffff99) line-height-21px;
+        }
 
-          &:hover {
-            --style: scale-105;
+        .switch {
+          --style: ml-8px flex-center;
+          & > * {
+            --style: 'not-first:ml-1px';
           }
 
-          &.disable {
-            --style: cursor-auto opacity-50;
+          button {
+            --style: w-11px h-10px flex-center rounded-full transition-transform duration-250;
+
+            &:hover {
+              --style: scale-105;
+            }
+
+            &.disable {
+              --style: cursor-auto opacity-50;
+            }
+
+            img {
+              --style: w-11px h-10px object-center;
+            }
           }
 
-          img {
-            --style: w-11px h-10px object-center;
+          .left {
+            --style: left-0 rotate-180;
+          }
+
+          .right {
+            --style: right-0;
+          }
+
+          span {
+            --style: text-12px line-height-16px;
+            --style: 'text-#333 dark:text-#ffffff66';
           }
         }
+      }
 
-        .left {
-          --style: left-0 rotate-180;
+      .right {
+        --style: flex-center;
+
+        .arrow {
+          --style: size-16px object-contain;
         }
 
-        .right {
-          --style: right-0;
-        }
+        .operate {
+          --style: top-20px right-20px flex-center;
 
-        span {
-          --style: text-12px line-height-16px;
-          --style: 'text-#333 dark:text-#ffffff66';
+          button {
+            --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+          }
+
+          .close {
+            --style: w-16px h-16px flex-center;
+            img {
+              --style: w-full select-none;
+            }
+          }
+
+          .refresh {
+            --style: flex-center px-4px py-3px rounded-4px bg-#ffffff0f;
+            span {
+              --style: text-(13px #ffffff66) line-height-18px;
+            }
+          }
+
+          .seperator {
+            --style: mx-10px w-1px h-10px invisible;
+            --style: 'bg-#D6D6D6 dark:bg-#333';
+          }
+
+          button + .seperator {
+            --style: visible;
+          }
         }
       }
     }
+  }
+
+  .summaries-container {
+    --style: items-center overflow-y-auto;
+    --style: 'bg-#f5f5f3 dark:bg-transparent';
 
     .content {
       --style: w-full flex-1;
@@ -761,7 +818,7 @@ $copyButtonXOffset: 20px;
 }
 
 .copy-container {
-  --style: absolute bottom-38px z-5;
+  --style: absolute bottom-38px z-1;
   right: $copyButtonXOffset;
 }
 .copy-leave-to,
@@ -786,5 +843,15 @@ $copyButtonXOffset: 20px;
   transition:
     transform 0.4s ease-in-out,
     opacity 0.2s ease-in-out;
+}
+
+.shrinkable-enter-active,
+.shrinkable-leave-active {
+  --style: transition-all duration-250 ease-in-out;
+}
+
+.shrinkable-enter-from,
+.shrinkable-leave-to {
+  --style: '!opacity-0';
 }
 </style>

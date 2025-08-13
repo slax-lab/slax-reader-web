@@ -22,7 +22,8 @@
           </div>
           <div class="sidebar-content">
             <Transition name="sidepanel">
-              <div class="dark px-20px pt-4px" v-show="isSummaryShowing">
+              <div class="dark px-20px" v-show="isSummaryShowing">
+                <AIOverview v-if="bookmarkBriefInfo" :bookmark-brief-info="bookmarkBriefInfo" :isAppeared="isSummaryShowing" />
                 <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" :close-button-hidden="true" @dismiss="closePanel" />
               </div>
             </Transition>
@@ -84,6 +85,7 @@ import ChatBot from './Chat/ChatBot.vue'
 import OperationMenu from './OperationMenu.vue'
 import SidebarItems from './SidebarItems.vue'
 import SidebarTips from './Tips/SidebarTips.vue'
+import AIOverview from './AIOverview.vue'
 
 // image assets
 import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
@@ -730,7 +732,7 @@ const go = () => {
       --style: relative size-full;
 
       .sidebar-panel {
-        --style: bg-#1F1F1FCC absolute z-2 top-0 right-0 h-full w-48px flex items-center justify-between;
+        --style: bg-#1F1F1F absolute z-2 top-0 right-0 h-full w-48px flex items-center justify-between;
 
         .operate-button {
           --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center;
@@ -826,7 +828,7 @@ const go = () => {
         }
 
         .sidebar-header {
-          --style: w-full h-48px pl-20px bg-#1F1F1FCC flex items-center justify-start cursor-pointer;
+          --style: w-full h-48px pl-20px bg-#1F1F1F flex items-center justify-start cursor-pointer;
 
           img {
             --style: size-16px object-contain;
