@@ -173,7 +173,7 @@ const addBookmark = async () => {
     const resp = await request.post<AddBookmarkResp>({
       url: RESTMethodPath.ADD_BOOKMARK,
       body: {
-        ...getWebSiteInfo()
+        ...getRequestParams()
       }
     })
 
@@ -235,24 +235,9 @@ const deleteBookmark = async () => {
   }
 }
 
-const getWebSiteInfo = () => {
-  var r: any = {}
-  r.target_url = window.location.href
-  r.target_title = title.value
-
-  const iconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]')
-  r.target_icon = iconLink ? iconLink.getAttribute('href') : ''
-  r.description =
-    document.querySelector('meta[name="twitter:description"]')?.getAttribute('content') ||
-    document.querySelector('meta[name="description"]')?.getAttribute('content') ||
-    document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-    ''
-
-  const cloneDom = document.cloneNode(true) as Document
-  Array.from(cloneDom.getElementsByTagName('slax-reader-modal') || []).forEach(element => element.remove())
-  r.content = (cloneDom || document).documentElement.outerHTML
-
-  return r as AddBookmarkReq
+const getRequestParams = () => {
+  const params = getWebSiteInfo()
+  return params as AddBookmarkReq
 }
 
 const checkSource = () => {

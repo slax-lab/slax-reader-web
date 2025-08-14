@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-dots" ref="dotsMenu">
+  <div class="panel-operate" ref="panelOperate">
     <button class="menu-dots-button" @click="dotsClick">
       <img src="@/assets/menu-dots.png" />
     </button>
@@ -40,14 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import archieveImage from '~/assets/panel-item-archieve.png'
-import archieveSelectedImage from '~/assets/panel-item-archieve-selected.png'
-import feedbackImage from '~/assets/panel-item-feedback.png'
-import shareImage from '~/assets/panel-item-share.png'
-import starImage from '~/assets/panel-item-star.png'
-import starSelectedImage from '~/assets/panel-item-star-selected.png'
-
-import { type PanelItem, PanelItemType } from '@/config/panel'
+import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
 import { vOnClickOutside } from '@vueuse/components'
 
@@ -72,26 +65,26 @@ const getArchiveTitle = computed(() => {
 const morePanelItem = ref<PanelItem[]>([
   {
     type: PanelItemType.Star,
-    icon: starImage,
-    highlighedIcon: starImage,
-    selectedIcon: starSelectedImage,
+    icon: Images.star.main,
+    highlighedIcon: Images.star.highlighted,
+    selectedIcon: Images.star.selected,
     title: $t('component.sidebar.star'),
     hovered: false,
     isSelected: () => props.isStar
   },
   {
     type: PanelItemType.Archieve,
-    icon: archieveImage,
-    highlighedIcon: archieveImage,
-    selectedIcon: archieveSelectedImage,
+    icon: Images.archieve.main,
+    highlighedIcon: Images.archieve.highlighted,
+    selectedIcon: Images.archieve.selected,
     title: getArchiveTitle,
     hovered: false,
     isSelected: () => props.isArchive
   },
   {
     type: PanelItemType.Share,
-    icon: shareImage,
-    highlighedIcon: shareImage,
+    icon: Images.share.main,
+    highlighedIcon: Images.share.highlighted,
     title: $t('component.sidebar.share'),
     hovered: false
   }
@@ -100,8 +93,8 @@ const morePanelItem = ref<PanelItem[]>([
 const subMorePanelItem = ref<PanelItem[]>([
   {
     type: PanelItemType.Feedback,
-    icon: feedbackImage,
-    highlighedIcon: feedbackImage,
+    icon: Images.feedback.main,
+    highlighedIcon: Images.feedback.highlighted,
     title: $t('component.sidebar.feedback'),
     hovered: false
   }
@@ -109,7 +102,7 @@ const subMorePanelItem = ref<PanelItem[]>([
 
 const emits = defineEmits(['action'])
 
-const dotsMenu = ref<HTMLDivElement>()
+const panelOperate = ref<HTMLDivElement>()
 const isShowBubble = ref(false)
 
 const outsideClick = () => {
@@ -130,7 +123,7 @@ const actionClick = (panel: PanelItem) => {
 </script>
 
 <style lang="scss" scoped>
-.menu-dots {
+.panel-operate {
   --style: relative;
 
   .menu-dots-button {
@@ -143,7 +136,7 @@ const actionClick = (panel: PanelItem) => {
   }
 
   .menus-container {
-    --style: z-1 absolute bottom-0 right-full mr-13px min-w-160px bg-#1f1f1f px-8px flex flex-col rounded-8px;
+    --style: z-1 absolute bottom-0 right-full mr-13px min-w-160px bg-#1f1f1f px-8px flex flex-col rounded-8px border-(1px solid #ffffff0a);
 
     .menus {
       --style: flex flex-col w-full relative;

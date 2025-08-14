@@ -31,7 +31,8 @@
       "interpret": "解读此文章",
       "mindmap": "思维导图",
       "processing": "内容解析中",
-      "title": "解析结果"
+      "title": "解析结果",
+      "analyzed_title": "全文解析"
     },
     "article_selection": {
       "comment_deleted": "评论已删除",
@@ -45,6 +46,10 @@
       "reply": "回复...",
       "stroke_failed": "划线失败",
       "title": "发表评论"
+    },
+    "bookmark_tags": {
+      "add": "添加标签",
+      "placeholder": "输入新标签 (按 Enter 确认)"
     },
     "chat_bot": {
       "access_complete": "访问完成",
@@ -71,6 +76,9 @@
     "feedback": {
       "placeholder": "请描述你遇到的问题......",
       "title": "你的反馈将帮助我们变得更好"
+    },
+    "overview": {
+      "text_content_title": "全文概要："
     },
     "share_modal": {
       "copy_link": "复制链接",

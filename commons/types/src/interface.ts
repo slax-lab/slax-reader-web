@@ -113,6 +113,8 @@ export interface BookmarkBriefDetail {
   alias_title: string
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
+  overview?: string
+  tags: BookmarkTag[]
 }
 
 export interface InlineBookmarkDetail {

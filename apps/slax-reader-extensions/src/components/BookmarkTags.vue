@@ -6,7 +6,7 @@
           <span> {{ tag.show_name }} </span>
           <button v-if="!props.readonly" class="!group-hover:visible !group-hover:opacity-100" @click="deleteBookmarkTag(tag.id)">
             <i class="seperator"></i>
-            <img src="@images/tiny-cross-gold-icon.png" alt="" />
+            <img src="@/assets/tiny-cross-gold-icon.png" alt="" />
           </button>
         </div>
       </TransitionGroup>
@@ -15,8 +15,9 @@
       </div>
       <div class="operate" v-if="!props.readonly">
         <button ref="add" class="add" @click="addingTagClick">
-          <img src="@images/tiny-plus-icon.png" alt="" />
+          <img src="@/assets/tiny-plus-icon.png" alt="" />
         </button>
+        <span class="text-placeholder" v-if="tags.length === 0"> {{ $t('component.bookmark_tags.add') }} </span>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
             <input type="text" :placeholder="$t('component.bookmark_tags.placeholder')" v-model="searchText" v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]" />
@@ -58,6 +59,7 @@ const props = defineProps({
   }
 })
 
+const minGap = ref<{ x: number; y: number }>({ x: 48, y: 0 })
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
@@ -100,8 +102,11 @@ watch(
       const rect = add.value?.getBoundingClientRect()
       console.log(eleRect, rect)
       if (eleRect && rect && searchList.value) {
+        const { x, y } = minGap.value
+        const xGap = Math.abs(x)
+        const yGap = Math.abs(y)
         const yOffset = rect.bottom - eleRect.top + 10
-        const xOffset = Math.min(rect.left - eleRect.left, eleRect.width - 200)
+        const xOffset = Math.max(Math.min(rect.left - eleRect.left, eleRect.width - 200 - xGap), xGap)
 
         searchList.value.style.top = `${yOffset}px`
         searchList.value.style.left = `${xOffset}px`
@@ -231,7 +236,8 @@ const addingTagClick = (e: MouseEvent) => {
     }
 
     .tag {
-      --style: relative flex-center flex-wrap border-(1px solid #e4d6ba) rounded-4px h-24px py-2px px-4px transition-all duration-250 mb-10px max-w-250px whitespace-nowrap;
+      --style: relative flex-center flex-wrap border-(1px solid) rounded-4px h-24px py-2px px-4px transition-all duration-250 mb-10px max-w-250px whitespace-nowrap;
+      --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
 
       // &.group:hover { // 暂时让关闭按钮永久显示
       &.group {
@@ -245,9 +251,9 @@ const addingTagClick = (e: MouseEvent) => {
       button {
         --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-250 active:scale-110 opacity-100';
         .seperator {
-          --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px bg-#0f141914;
+          --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px;
+          --style: 'border-#0f141914 dark:border-#FFFFFF1F';
         }
-
         img {
           --style: w-16px h-16px object-fit;
         }
@@ -260,6 +266,7 @@ const addingTagClick = (e: MouseEvent) => {
 
     .operate {
       // --style: relative;
+      --style: flex-center mb-10px;
 
       button {
         --style: bg-#a28d6414 rounded-4px w-24px h-24px flex-center;
@@ -268,15 +275,24 @@ const addingTagClick = (e: MouseEvent) => {
         }
       }
 
+      .text-placeholder {
+        --style: ml-8px text-(13px #a28d64) line-height-18px text-ellipsis overflow-hidden;
+      }
+
       .search-list {
-        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #3333330d) shadow-[0px_20px_60px_0px_#0000000a] bg-#fff px-12px py-16px pb-12px
-          z-10;
+        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #3333330d) shadow-[0px_20px_60px_0px_#ffffff0a] px-12px py-16px pb-12px z-10;
+        --style: 'bg-#fff dark:(bg-#1F1F1F)';
 
         input {
-          --style: rounded-6px bg-#fcfcfc border-(1px solid #3333330d) px-10px py-9px h-36px text-(13px #999) line-height-18px w-full transition-all duration-300;
-
+          --style: rounded-6px border-(1px solid) px-10px py-9px h-36px text-(13px) line-height-18px w-full transition-all duration-300;
+          --style: 'bg-#fcfcfc border-#3333330d text-#999 dark:(bg-#1F1F1FFF border-#FFFFFF1F text-#999)';
           &:focus {
             --style: border-(1.5px #f4c982) text-#A28D64;
+          }
+
+          &::placeholder,
+          &::-webkit-input-placeholder {
+            --style: text-(15px #ffffff66) line-height-21px;
           }
         }
 
@@ -284,7 +300,8 @@ const addingTagClick = (e: MouseEvent) => {
           --style: mt-12px overflow-y-scroll relative;
           &::before,
           &::after {
-            --style: z-2 content-empty absolute h-4px w-full left-0 from-#fff to-transprent;
+            --style: z-2 content-empty absolute h-4px w-full left-0 to-transprent;
+            --style: 'from-#fff dark:(from-#1F1F1F)';
           }
 
           &::before {
@@ -299,7 +316,9 @@ const addingTagClick = (e: MouseEvent) => {
             --style: max-h-422px py-4px overflow-y-scroll;
 
             .search-tag {
-              --style: 'border-(1px solid #e4d6ba) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-250 whitespace-nowrap';
+              --style: 'border-(1px solid) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-250 whitespace-nowrap';
+              --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
+
               span {
                 --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden;
               }

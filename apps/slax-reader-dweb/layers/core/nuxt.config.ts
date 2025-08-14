@@ -49,10 +49,6 @@ export default defineNuxtConfig({
       { code: 'zh', iso: 'zh-CN', file: 'zh.json' },
       { code: 'en', iso: 'en-US', file: 'en.json' }
     ],
-    lazy: true,
-    defaultLocale: 'en',
-    bundle: {
-      optimizeTranslationDirective: false
-    }
+    defaultLocale: 'en'
   }
 })
