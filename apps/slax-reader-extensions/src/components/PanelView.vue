@@ -5,9 +5,11 @@
       <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
           <div class="sidebar-header">
-            <img @click="go" src="@/assets/tiny-app-logo-gray.png" alt="" />
-            <span class="name" @click="go">Slax Reader</span>
-            <span class="version">{{ VERSION }}</span>
+            <div class="header-text" @click="go">
+              <img src="@/assets/tiny-app-logo-gray.png" alt="" />
+              <span class="name">Slax Reader</span>
+              <span class="version">{{ VERSION }}</span>
+            </div>
           </div>
           <div class="sidebar-content">
             <slot name="content" />
@@ -275,18 +277,21 @@ const closePanel = () => {
         }
 
         .sidebar-header {
-          --style: w-full h-48px pl-20px bg-#1F1F1F flex items-center justify-start cursor-pointer;
+          --style: w-full h-48px pl-20px bg-#1F1F1F flex items-center justify-start select-none;
 
-          img {
-            --style: size-16px object-contain;
-          }
+          .header-text {
+            --style: cursor-pointer flex-center;
+            img {
+              --style: size-16px object-contain;
+            }
 
-          .name {
-            --style: ml-2px text-(14px #ffffff66) font-semibold line-height-20px;
-          }
+            .name {
+              --style: ml-2px text-(14px #ffffff66) font-semibold line-height-20px;
+            }
 
-          .version {
-            --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-11px;
+            .version {
+              --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-11px;
+            }
           }
         }
 

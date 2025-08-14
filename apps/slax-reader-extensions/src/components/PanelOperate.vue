@@ -136,7 +136,7 @@ const actionClick = (panel: PanelItem) => {
   }
 
   .menus-container {
-    --style: z-1 absolute bottom-0 right-full mr-13px min-w-160px bg-#1f1f1f px-8px flex flex-col rounded-8px;
+    --style: z-1 absolute bottom-0 right-full mr-13px min-w-160px bg-#1f1f1f px-8px flex flex-col rounded-8px border-(1px solid #ffffff0a);
 
     .menus {
       --style: flex flex-col w-full relative;

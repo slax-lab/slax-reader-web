@@ -24,7 +24,6 @@ enum RESTMethodPath {
   BOOKMARK_ARCHIVE = '/v1/bookmark/archive',
   BOOKMARK_STAR = '/v1/bookmark/star',
   BOOKMARK_ALIAS_TITLE = '/v1/bookmark/alias_title',
-  BOOKMARK_TAGS = '/v1/bookmark/tags',
   REPORT_FEEDBACK = '/v1/user/report',
   GET_BIND_LINK = '/v1/user/bind_link',
   GET_BIND_LIST = '/v1/user/bind_list',

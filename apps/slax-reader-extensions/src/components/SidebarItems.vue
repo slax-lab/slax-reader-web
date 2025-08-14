@@ -209,7 +209,7 @@ const panelClick = async (panel: PanelItem) => {
 
         button.subpanel-button {
           --style: flex items-center h-32px px-16px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
-          --style: 'hover:(bg-#00000029)';
+          --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
 
           .icon {
             --style: relative size-16px;
@@ -227,7 +227,7 @@ const panelClick = async (panel: PanelItem) => {
           }
 
           span {
-            --style: ml-8px text-(13px #ffffff99) line-height-18px;
+            --style: ml-8px text-13px line-height-18px transition-all duration-250;
           }
         }
       }

@@ -3,16 +3,16 @@
     <div class="header">
       <div class="title">{{ bookmarkBriefInfo.title }}</div>
     </div>
+    <div class="tags">
+      <div class="i-svg-spinners:90-ring w-24px color-#FFFFFF99" v-if="isTagLoading"></div>
+      <BookmarkTags :bookmark-id="bookmarkId" :tags="tags" />
+    </div>
     <div class="loading" v-if="isLoading">
       <div class="placeholder">
         <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
       </div>
     </div>
-    <div class="tags">
-      <div class="i-svg-spinners:90-ring w-24px color-#FFFFFF99" v-if="isTagLoading"></div>
-      <BookmarkTags :bookmark-id="bookmarkId" :tags="tags" />
-    </div>
-    <div class="overview-content" v-if="!isLoading">
+    <div class="overview-content" v-if="!isLoading && content.length > 0">
       <div class="text-content">
         <span>{{ $t('component.overview.text_content_title') }}</span
         ><span>{{ content }}</span>
@@ -49,7 +49,7 @@ const graphContents = ref<string[]>([])
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
 
 const content = computed(() => {
-  return props.bookmarkBriefInfo.overview
+  return props.bookmarkBriefInfo.overview || ''
 })
 </script>
 
