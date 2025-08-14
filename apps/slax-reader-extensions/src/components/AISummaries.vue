@@ -35,7 +35,7 @@
         </div>
       </div>
     </div>
-    <Transition name="shrinkable" @after-enter="afterAppear">
+    <Transition name="shrinkable">
       <div class="opacity-100" v-show="!isShrink">
         <div class="summaries-container bg-container" v-if="!loading && markdownText.length > 0">
           <div class="content">
@@ -140,7 +140,6 @@ const props = defineProps({
 
 const emits = defineEmits(['navigatedText', 'dismiss'])
 const isShrink = ref(true)
-const isAppear = ref(false)
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
@@ -182,9 +181,9 @@ watch(
 )
 
 watch(
-  () => isAppear.value,
+  () => isShrink.value,
   value => {
-    if (value && props.isAppeared && !loading.value && !done.value && markdownText.value.length === 0) {
+    if (!value && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
     }
   },
@@ -213,10 +212,6 @@ watch(
     }
   }
 )
-
-const afterAppear = () => {
-  isAppear.value = true
-}
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0

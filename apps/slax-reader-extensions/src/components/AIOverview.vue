@@ -10,7 +10,7 @@
     </div>
     <div class="tags">
       <div class="i-svg-spinners:90-ring w-24px color-#FFFFFF99" v-if="isTagLoading"></div>
-      <BookmarkTags v-else-if="tags !== null" :bookmark-id="bookmarkId" :tags="tags" />
+      <BookmarkTags :bookmark-id="bookmarkId" :tags="tags" />
     </div>
     <div class="overview-content" v-if="!isLoading">
       <div class="text-content">
@@ -30,8 +30,6 @@
 <script lang="ts" setup>
 import type { BookmarkBriefDetail, BookmarkTag } from '@commons/types/interface'
 import BookmarkTags from './BookmarkTags.vue'
-import { RESTMethodPath } from '@commons/types/const'
-import { RequestMethodType } from '@commons/utils/request'
 
 const props = defineProps({
   isAppeared: {
@@ -46,45 +44,13 @@ const props = defineProps({
 
 const isLoading = ref(false)
 const isTagLoading = ref(false)
-const tags = ref<BookmarkTag[] | null>(null)
+const tags = ref<BookmarkTag[]>(props.bookmarkBriefInfo.tags)
 const graphContents = ref<string[]>([])
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
 
 const content = computed(() => {
   return props.bookmarkBriefInfo.overview
 })
-
-watch(
-  () => props.isAppeared,
-  value => {
-    if (value && tags.value === null) {
-      requestTags()
-    }
-  },
-  {
-    flush: 'sync'
-  }
-)
-
-const requestTags = async () => {
-  if (isTagLoading.value || !bookmarkId.value) return
-
-  isTagLoading.value = true
-  try {
-    const res = await request.get<BookmarkTag[]>({
-      url: RESTMethodPath.BOOKMARK_TAGS,
-      method: RequestMethodType.get,
-      query: {
-        bookmark_id: bookmarkId.value
-      }
-    })
-    if (!res) throw new Error('load tags failed')
-
-    tags.value = res
-  } finally {
-    isTagLoading.value = false
-  }
-}
 </script>
 
 <style scoped lang="scss">
