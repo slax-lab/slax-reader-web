@@ -49,24 +49,10 @@
 </template>
 
 <script lang="ts" setup>
-import aiImage from '~/assets/panel-item-ai.png'
-import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
-import aiSelectedImage from '~/assets/panel-item-ai-selected.png'
-import archieveImage from '~/assets/panel-item-archieve.png'
-import archieveSelectedImage from '~/assets/panel-item-archieve-selected.png'
-import chatbotImage from '~/assets/panel-item-chatbot.png'
-import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
-import chatbotSelectedImage from '~/assets/panel-item-chatbot-selected.png'
-import commentsImage from '~/assets/panel-item-comments.png'
-import commentsHighlightedImage from '~/assets/panel-item-comments-highlighted.png'
-import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
 import moreImage from '~/assets/panel-item-more.png'
 import moreHighlightedImage from '~/assets/panel-item-more-highlighted.png'
-import shareImage from '~/assets/panel-item-share.png'
-import starImage from '~/assets/panel-item-star.png'
-import starSelectedImage from '~/assets/panel-item-star-selected.png'
 
-import { type PanelItem, PanelItemType } from '@/config/panel'
+import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
 import { vOnClickOutside } from '@vueuse/components'
 
@@ -101,27 +87,27 @@ const getArchiveTitle = computed(() => {
 const panelItems = ref<PanelItem[]>([
   {
     type: PanelItemType.AI,
-    icon: aiImage,
-    highlighedIcon: aiHighlightedImage,
-    selectedIcon: aiSelectedImage,
+    icon: Images.ai.main,
+    highlighedIcon: Images.ai.highlighted,
+    selectedIcon: Images.ai.selected,
     title: $t('component.sidebar.ai'),
     hovered: false,
     isSelected: () => props.isSummaryShowing
   },
   {
     type: PanelItemType.Chat,
-    icon: chatbotImage,
-    highlighedIcon: chatbotHighlightedImage,
-    selectedIcon: chatbotSelectedImage,
+    icon: Images.chatbot.main,
+    highlighedIcon: Images.chatbot.highlighted,
+    selectedIcon: Images.chatbot.selected,
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => props.isChatbotShowing
   }
   // {
   //   type: PanelItemType.Comments,
-  //   icon: commentsImage,
-  //   highlighedIcon: commentsHighlightedImage,
-  //   selectedIcon: commentsSelectedImage,
+  //   icon: Images.comments.main,
+  //   highlighedIcon: Images.comments.highlighted,
+  //   selectedIcon: Images.comments.selected,
   //   title: $t('component.sidebar.comments'),
   //   hovered: false,
   //   isSelected: () => false
@@ -131,26 +117,26 @@ const panelItems = ref<PanelItem[]>([
 const morePanelItem = ref<PanelItem[]>([
   {
     type: PanelItemType.Star,
-    icon: starImage,
-    highlighedIcon: starImage,
-    selectedIcon: starSelectedImage,
+    icon: Images.star.main,
+    highlighedIcon: Images.star.highlighted,
+    selectedIcon: Images.star.selected,
     title: $t('component.sidebar.star'),
     hovered: false,
     isSelected: () => props.isStar
   },
   {
     type: PanelItemType.Archieve,
-    icon: archieveImage,
-    highlighedIcon: archieveImage,
-    selectedIcon: archieveSelectedImage,
+    icon: Images.archieve.main,
+    highlighedIcon: Images.archieve.highlighted,
+    selectedIcon: Images.archieve.selected,
     title: getArchiveTitle,
     hovered: false,
     isSelected: () => props.isArchive
   },
   {
     type: PanelItemType.Share,
-    icon: shareImage,
-    highlighedIcon: shareImage,
+    icon: Images.share.main,
+    highlighedIcon: Images.share.highlighted,
     title: $t('component.sidebar.share'),
     hovered: false
   }

@@ -1,79 +1,60 @@
 <template>
-  <div class="side-panel" v-if="!needHidden">
-    <div class="web-panel" :class="{ 'initial-position': !isDraggledWebPaneled }" ref="webPanelDraggble">
-      <SidebarTips>
-        <SidebarItems
-          :is-summary-showing="isSummaryShowing"
-          :is-chatbot-showing="isChatbotShowing"
-          :is-star="bookmarkBriefInfo?.starred === 'star'"
-          :is-archive="bookmarkBriefInfo?.archived === 'archive'"
-          @panel-item-action="panelClick"
-        />
-      </SidebarTips>
-    </div>
-    <div class="main-panel" ref="panelContainer" :class="{ appear: showPanel }">
-      <div class="drag" ref="draggble" />
-      <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
-        <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
-          <div class="sidebar-header">
-            <img @click="go" src="@/assets/tiny-app-logo-gray.png" alt="" />
-            <span class="name" @click="go">Slax Reader</span>
-            <span class="version">{{ VERSION }}</span>
-          </div>
-          <div class="sidebar-content">
-            <Transition name="sidepanel">
-              <div class="dark px-20px" v-show="isSummaryShowing">
-                <AIOverview v-if="bookmarkBriefInfo" :bookmark-brief-info="bookmarkBriefInfo" :isAppeared="isSummaryShowing" />
-                <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" :close-button-hidden="true" @dismiss="closePanel" />
-              </div>
-            </Transition>
-            <Transition name="sidepanel">
-              <div class="dark size-full" v-show="isChatbotShowing">
-                <ChatBot
-                  :key="currentUrl"
-                  ref="chatbot"
-                  :bookmarkId="bookmarkId"
-                  :isAppeared="isChatbotShowing"
-                  :close-button-hidden="true"
-                  @dismiss="closePanel"
-                  @find-quote="findQuote"
-                />
-              </div>
-            </Transition>
-          </div>
+  <PanelView :show-panel="showPanel" @close="closePanel" v-if="!needHidden">
+    <template #content>
+      <Transition name="sidepanel">
+        <div class="dark px-20px" v-show="isSummaryShowing">
+          <AIOverview v-if="bookmarkBriefInfo" :bookmark-brief-info="bookmarkBriefInfo" :isAppeared="isSummaryShowing" />
+          <AISummaries :key="currentUrl" ref="summaries" :bookmarkId="bookmarkId" :isAppeared="isSummaryShowing" :close-button-hidden="true" @dismiss="closePanel" />
         </div>
-        <div class="sidebar-panel">
-          <div class="operate-button top">
-            <button class="close" @click="closePanel">
-              <img src="@/assets/button-dialog-close.png" />
-            </button>
-          </div>
-          <div class="panel-buttons">
-            <div class="button-wrapper" v-for="panel in subPanelItems" :key="panel.type">
-              <button @click="panelClick(panel)">
-                <Transition name="opacity">
-                  <div class="selected-bg" v-show="panel.isSelected && panel.isSelected()"></div>
-                </Transition>
-                <div class="icon-wrapper">
-                  <div class="icon">
-                    <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                      <img class="normal" :src="panel.icon" alt="" />
-                      <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-                    </template>
-                    <template v-else>
-                      <img class="selected" :src="panel.selectedIcon" alt="" />
-                    </template>
-                  </div>
-                </div>
-              </button>
+      </Transition>
+      <Transition name="sidepanel">
+        <div class="dark size-full" v-show="isChatbotShowing">
+          <ChatBot
+            :key="currentUrl"
+            ref="chatbot"
+            :bookmarkId="bookmarkId"
+            :isAppeared="isChatbotShowing"
+            :close-button-hidden="true"
+            @dismiss="closePanel"
+            @find-quote="findQuote"
+          />
+        </div>
+      </Transition>
+    </template>
+    <template #tabbars>
+      <div class="button-wrapper" v-for="panel in subPanelItems" :key="panel.type">
+        <button @click="panelClick(panel)">
+          <Transition name="opacity">
+            <div class="selected-bg" v-show="panel.isSelected && panel.isSelected()"></div>
+          </Transition>
+          <div class="icon-wrapper">
+            <div class="icon">
+              <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                <img class="normal" :src="panel.icon" alt="" />
+                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+              </template>
+              <template v-else>
+                <img class="selected" :src="panel.selectedIcon" alt="" />
+              </template>
             </div>
           </div>
-          <div class="operate-button bottom">
-            <OperationMenu :is-star="bookmarkBriefInfo?.starred === 'star'" :is-archive="bookmarkBriefInfo?.archived === 'archive'" @action="panelClick" />
-          </div>
-        </div>
+        </button>
       </div>
-    </div>
+    </template>
+    <template #operate>
+      <PanelOperate :is-star="bookmarkBriefInfo?.starred === 'star'" :is-archive="bookmarkBriefInfo?.archived === 'archive'" @action="panelClick" />
+    </template>
+  </PanelView>
+  <div class="web-panel" v-if="!needHidden">
+    <SidebarTips>
+      <SidebarItems
+        :is-summary-showing="isSummaryShowing"
+        :is-chatbot-showing="isChatbotShowing"
+        :is-star="bookmarkBriefInfo?.starred === 'star'"
+        :is-archive="bookmarkBriefInfo?.archived === 'archive'"
+        @panel-item-action="panelClick"
+      />
+    </SidebarTips>
   </div>
   <div class="slax-menus" ref="menus" v-if="!needHidden"></div>
   <div class="slax-custom-container" ref="modalContainer"></div>
@@ -82,40 +63,23 @@
 <script lang="ts" setup>
 import AISummaries from './AISummaries.vue'
 import ChatBot from './Chat/ChatBot.vue'
-import OperationMenu from './OperationMenu.vue'
+import PanelOperate from './PanelOperate.vue'
 import SidebarItems from './SidebarItems.vue'
 import SidebarTips from './Tips/SidebarTips.vue'
 import AIOverview from './AIOverview.vue'
-
-// image assets
-import aiHighlightedImage from '~/assets/panel-item-ai-highlighted.png'
-import aiSelectedImage from '~/assets/panel-item-ai-selected.png'
-import aiSubImage from '~/assets/panel-item-ai-sub.png'
-import chatbotHighlightedImage from '~/assets/panel-item-chatbot-highlighted.png'
-import chatbotSelectedImage from '~/assets/panel-item-chatbot-selected.png'
-import chatbotSubImage from '~/assets/panel-item-chatbot-sub.png'
-import commentsImage from '~/assets/panel-item-comments.png'
-import commentsHighlightedImage from '~/assets/panel-item-comments-highlighted.png'
-import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
-import commentsSubImage from '~/assets/panel-item-comments-sub.png'
+import PanelView from './PanelView.vue'
 
 import { type MessageType, MessageTypeAction } from '@/config/message'
-import { type PanelItem, PanelItemType } from '@/config/panel'
+import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
-import { MouseTrack } from '@commons/utils/mouse'
 import { RequestError, RequestMethodType } from '@commons/utils/request'
 
 import type { QuoteData } from './Chat/type'
 import { showFeedbackModal, showShareConfigModal } from './Modal'
 import { ArticleSelection } from './Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
-import { LocalStorageKey } from '@commons/types/const'
-import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, LocalConfig, PanelPosition, UserInfo } from '@commons/types/interface'
-import { type Position, useDraggable, useElementBounding, useScrollLock } from '@vueuse/core'
-import { storage } from '@wxt-dev/storage'
+import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
 import type { WxtBrowser } from 'wxt/browser'
-
-const localConfig = storage.defineItem<LocalConfig>(`${LocalStorageKey.LOCAL_CONFIG}`)
 
 const props = defineProps({
   browser: {
@@ -124,53 +88,42 @@ const props = defineProps({
   }
 })
 
-const isDraggledWebPaneled = ref(false)
-
 const isCollected = ref(false)
-const isLocked = useScrollLock(window)
-
 const subPanelItems = ref<PanelItem[]>([
   {
     type: PanelItemType.AI,
-    icon: aiSubImage,
-    highlighedIcon: aiHighlightedImage,
-    selectedIcon: aiSelectedImage,
+    icon: Images.ai.sub,
+    highlighedIcon: Images.ai.highlighted,
+    selectedIcon: Images.ai.selected,
     title: $t('component.sidebar.ai'),
     hovered: false,
     isSelected: () => isSummaryShowing.value
   },
   {
     type: PanelItemType.Chat,
-    icon: chatbotSubImage,
-    highlighedIcon: chatbotHighlightedImage,
-    selectedIcon: chatbotSelectedImage,
+    icon: Images.chatbot.sub,
+    highlighedIcon: Images.chatbot.highlighted,
+    selectedIcon: Images.chatbot.selected,
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => isChatbotShowing.value
   }
   // {
   //   type: PanelItemType.Comments,
-  //   icon: commentsSubImage,
-  //   highlighedIcon: commentsHighlightedImage,
-  //   selectedIcon: commentsSelectedImage,
+  //   icon: Images.comments.sub,
+  //   highlighedIcon: Images.comments.highlighted,
+  //   selectedIcon: Images.comments.selected,
   //   title: $t('component.sidebar.comments'),
   //   hovered: false,
   //   isSelected: () => false
   // }
 ])
 
-const panelContainer = ref<HTMLDivElement>()
 const menus = ref<HTMLDivElement>()
 const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
-const draggble = useTemplateRef<HTMLDivElement>('draggble')
-const webPanelDraggble = useTemplateRef<HTMLElement>('webPanelDraggble')
 
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
-
-const minContentWidth = 400
-const defaultContentWidth = 560
-const contentWidth = ref(Math.min(window.innerWidth, defaultContentWidth))
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')
@@ -180,16 +133,11 @@ const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
 
-const loadingText = ref($t('component.sidebar.collecting'))
 const isLoading = ref(false)
-const loadingTitle = ref(loadingText.value)
-const loadingInterval = ref<NodeJS.Timeout>()
 
 let articleSelection: ArticleSelection | null = null
 
 const needExamine = ref(false)
-
-const VERSION = `v${process.env.VERSION}`
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -198,136 +146,6 @@ const showPanel = computed(() => {
 const needHidden = computed(() => {
   return isSlaxWebsite(currentUrl.value) || bookmarkId.value === 0
 })
-
-const { isDragging } = useDraggable(draggble, {
-  onMove: (position: Position) => {
-    const windowWidth = window.innerWidth
-    const left = position.x
-
-    contentWidth.value = Math.min(Math.max(minContentWidth, windowWidth - left), windowWidth - 100)
-  }
-})
-
-const initialPanelPosition = async () => {
-  const config = await localConfig.getValue()
-
-  if (webPanelDraggble.value && config?.webPanelPosition) {
-    isDraggledWebPaneled.value = true
-    for (const key in config.webPanelPosition) {
-      webPanelDraggble.value.style[key as any] = config.webPanelPosition[key as keyof typeof config.webPanelPosition]!
-    }
-  }
-}
-
-const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef: Ref<boolean>, onPositionChange: (position: PanelPosition) => void) => {
-  const calculatePercentagePosition = (x: number, y: number) => {
-    const maxX = window.innerWidth - (draggableRef.value?.offsetWidth || 0)
-    const maxY = window.innerHeight - (draggableRef.value?.offsetHeight || 0)
-    const leftPercent = (Math.max(0, Math.min(x, maxX)) / window.innerWidth) * 100
-    const topPercent = (Math.max(0, Math.min(y, maxY)) / window.innerHeight) * 100
-    const panelWidthPercent = ((draggableRef.value?.offsetWidth || 0) / window.innerWidth) * 100
-    const panelHeightPercent = ((draggableRef.value?.offsetHeight || 0) / window.innerHeight) * 100
-
-    const horizontalPosition = leftPercent > 50 ? { right: 100 - leftPercent - panelWidthPercent + '%' } : { left: leftPercent + '%' }
-
-    const verticalPosition = topPercent > 50 ? { bottom: 100 - topPercent - panelHeightPercent + '%' } : { top: topPercent + '%' }
-
-    return {
-      ...horizontalPosition,
-      ...verticalPosition
-    }
-  }
-  const clearPosition = () => {
-    if (draggableRef.value) {
-      draggableRef.value.style.left = ''
-      draggableRef.value.style.top = ''
-      draggableRef.value.style.right = ''
-      draggableRef.value.style.bottom = ''
-    }
-  }
-
-  useDraggable(draggableRef, {
-    preventDefault: true,
-    onStart(_, event: PointerEvent) {
-      if ((event.target as HTMLElement).classList.contains('panel-container')) {
-        if (!isDraggledRef.value && draggableRef.value) {
-          const left = useElementBounding(draggableRef).left
-          const top = useElementBounding(draggableRef).top
-          clearPosition()
-          isDraggledRef.value = true
-          const position = calculatePercentagePosition(left.value, top.value)
-          for (const key in position) {
-            draggableRef.value.style[key as any] = position[key as keyof typeof position]!
-          }
-        }
-        return
-      }
-      return false
-    },
-    onMove: ({ x, y }: Position) => {
-      if (draggableRef.value) {
-        clearPosition()
-        isDraggledRef.value = true
-        const position = calculatePercentagePosition(x, y)
-        for (const key in position) {
-          draggableRef.value.style[key as any] = position[key as keyof typeof position]!
-        }
-      }
-    },
-    onEnd: ({ x, y }: Position) => {
-      const position = calculatePercentagePosition(x, y)
-      onPositionChange(position)
-    }
-  })
-}
-
-const webPanelCallback = async (position: PanelPosition) => {
-  const localconfig = await localConfig.getValue()
-  localConfig.setValue({
-    ...localconfig,
-    webPanelPosition: position
-  })
-}
-
-usePanelDraggable(webPanelDraggble, isDraggledWebPaneled, webPanelCallback)
-
-watch(
-  () => webPanelDraggble.value,
-  () => {
-    initialPanelPosition()
-  }
-)
-
-watch(
-  () => isLoading.value,
-  (value, oldValue) => {
-    if (value === oldValue) {
-      return
-    }
-
-    if (value) {
-      loadingTitle.value = loadingText.value
-      loadingInterval.value = setInterval(() => {
-        const ellipses = loadingTitle.value.replace(loadingText.value, '')
-        loadingTitle.value = `${loadingText.value}${Array.from({ length: (ellipses.length + 1) % 4 })
-          .map(() => '.')
-          .join('')}`
-      }, 800)
-    } else {
-      clearInterval(loadingInterval.value)
-    }
-  }
-)
-
-watch(
-  () => showPanel.value,
-  value => {
-    if (value) {
-      tracking.touchTrack(showPanel.value)
-      tracking.wheelTrack(showPanel.value)
-    }
-  }
-)
 
 watch(
   () => bookmarkId.value,
@@ -370,45 +188,11 @@ props.browser.runtime.onMessage.addListener(
   }
 )
 
-const trackingHandler = () => {
-  checkInAnotherScrollableView()
-}
-
-const tracking = new MouseTrack({
-  touchTrackingHandler: trackingHandler,
-  wheelTrackingHandler: trackingHandler
-})
-
-const checkInAnotherScrollableView = () => {
-  let needLock = false
-  if (panelContainer.value && isMouseWithinElement(panelContainer.value)) {
-    needLock = true
-  }
-
-  if (needLock) {
-    !isLocked.value && (isLocked.value = true)
-  } else {
-    isLocked.value && (isLocked.value = false)
-  }
-}
-
-const isMouseWithinElement = (element: HTMLElement) => {
-  const rect = element.getBoundingClientRect()
-  const { x, y } = tracking.lastMousePosition
-  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-}
-
 onMounted(() => {
-  tracking.mouseTrack(true)
-
   updateBookmarkStatus()
   loadBriefDetail().then(() => {
     loadSelection()
   })
-})
-
-onUnmounted(() => {
-  tracking.destruct()
 })
 
 const updateBookmarkStatus = async () => {
@@ -621,24 +405,9 @@ const closePanel = () => {
   isChatbotShowing.value = false
 }
 
-const getWebSiteInfo = () => {
-  var r: any = {}
-  r.target_url = window.location.href
-  r.target_title = document.title || document.querySelector('meta[property="og:title"]')?.getAttribute('content') || `${location.href}${location.pathname}`
-
-  const iconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]')
-  r.target_icon = iconLink ? iconLink.getAttribute('href') : ''
-  r.description =
-    document.querySelector('meta[name="twitter:description"]')?.getAttribute('content') ||
-    document.querySelector('meta[name="description"]')?.getAttribute('content') ||
-    document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-    ''
-
-  const cloneDom = document.cloneNode(true) as Document
-  Array.from(cloneDom.getElementsByTagName('slax-reader-modal') || []).forEach(element => element.remove())
-  r.content = (cloneDom || document).documentElement.outerHTML
-
-  return r as AddBookmarkReq
+const getRequestParams = () => {
+  const params = getWebSiteInfo()
+  return params as AddBookmarkReq
 }
 
 const tryGetUserInfo = async (refresh = false) => {
@@ -678,191 +447,84 @@ const addBookmark = async () => {
   isLoading.value = true
 
   try {
-    const websiteInfo = getWebSiteInfo()
+    const body = getRequestParams()
     const resp = await request.post<AddBookmarkResp>({
       url: RESTMethodPath.ADD_BOOKMARK,
-      body: {
-        ...websiteInfo
-      }
+      body
     })
 
     if (resp) {
       await queryBackground({ action: MessageTypeAction.AddBookmarkChange, url: window.location.href, bookmarkId: resp.bmId })
       bookmarkId.value = resp.bmId
-      bookmarkUrl.value = websiteInfo.target_url
+      bookmarkUrl.value = body.target_url
       isCollected.value = true
     }
   } finally {
     isLoading.value = false
   }
 }
-
-const go = () => {
-  window.open(`${process.env.PUBLIC_BASE_URL}/bookmarks`, '_blank')
-}
 </script>
 
 <style lang="scss" scoped>
-.side-panel {
-  --style: fixed left-full top-0 h-screen;
+.button-wrapper {
+  --style: relative w-full h-56px;
 
-  .web-panel {
-    --style: z-1 fixed cursor-move;
-    &.initial-position {
-      --style: 'left-100%!' 'top-1/2!' '-translate-x-100%' -translate-y-1/2;
-    }
-  }
+  button {
+    --style: absolute top-0 right-0 size-full bg-#1F1F1FCC flex items-center flex-nowrap;
 
-  .main-panel {
-    --style: z-2 relative h-full bg-#262626 transition-transform duration-250 ease-in-out;
+    .selected-bg {
+      --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-7px bg-#262626;
 
-    &.appear {
-      --style: -translate-x-full;
-    }
+      &::before,
+      &::after {
+        --style: content-empty absolute w-7px h-7px z-1 bg-#262626;
+      }
 
-    .drag {
-      --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
+      &::before {
+        --style: bottom-full left-0;
+        clip-path: path('M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z');
+      }
 
-      &:hover {
-        --style: bg-#ffffff04;
+      &::after {
+        --style: top-full left-0;
+        clip-path: path('M 0 0 L 7 0 A 7 7 0 0 0 0 7 L 0 0 Z');
       }
     }
 
-    .sidebar-container {
-      --style: relative size-full;
+    .icon-wrapper {
+      --style: relative z-1 size-full rounded-6px shrink-0 overflow-hidden;
 
-      .sidebar-panel {
-        --style: bg-#1F1F1F absolute z-2 top-0 right-0 h-full w-48px flex items-center justify-between;
-
-        .operate-button {
-          --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center;
-
-          &.top {
-            --style: top-16px;
-          }
-
-          &.bottom {
-            --style: bottom-24px;
-          }
-
-          button {
-            --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
-          }
-
-          .close {
-            --style: size-16px flex-center;
-            img {
-              --style: w-full select-none;
-            }
-          }
+      .icon {
+        --style: relative size-full;
+        img {
+          --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
         }
 
-        .panel-buttons {
-          --style: py-16px w-full;
+        .normal {
+          --style: opacity-100;
+        }
 
-          .button-wrapper {
-            --style: relative w-full h-56px;
-
-            button {
-              --style: absolute top-0 right-0 size-full bg-#1F1F1FCC flex items-center flex-nowrap;
-
-              .selected-bg {
-                --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-7px bg-#262626;
-
-                &::before,
-                &::after {
-                  --style: content-empty absolute w-7px h-7px z-1 bg-#262626;
-                }
-
-                &::before {
-                  --style: bottom-full left-0;
-                  clip-path: path('M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z');
-                }
-
-                &::after {
-                  --style: top-full left-0;
-                  clip-path: path('M 0 0 L 7 0 A 7 7 0 0 0 0 7 L 0 0 Z');
-                }
-              }
-
-              .icon-wrapper {
-                --style: relative z-1 size-full rounded-6px shrink-0 overflow-hidden;
-
-                .icon {
-                  --style: relative size-full;
-                  img {
-                    --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-                  }
-
-                  .normal {
-                    --style: opacity-100;
-                  }
-
-                  .highlighted {
-                    --style: opacity-0;
-                  }
-                }
-              }
-
-              &:hover {
-                .icon {
-                  .normal {
-                    --style: opacity-0;
-                  }
-
-                  .highlighted {
-                    --style: opacity-100;
-                  }
-                }
-              }
-            }
-          }
+        .highlighted {
+          --style: opacity-0;
         }
       }
+    }
 
-      .sidebar-wrapper {
-        --style: h-full pr-48px flex flex-col bg-#262626FF;
-
-        &.dragging {
-          --style: select-none;
+    &:hover {
+      .icon {
+        .normal {
+          --style: opacity-0;
         }
 
-        .sidebar-header {
-          --style: w-full h-48px pl-20px bg-#1F1F1F flex items-center justify-start cursor-pointer;
-
-          img {
-            --style: size-16px object-contain;
-          }
-
-          .name {
-            --style: ml-2px text-(14px #ffffff66) font-semibold line-height-20px;
-          }
-
-          .version {
-            --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-11px;
-          }
-        }
-
-        .sidebar-content {
-          --style: size-full overflow-auto;
-
-          scrollbar-width: none;
-          &::-webkit-scrollbar {
-            --style: hidden;
-          }
+        .highlighted {
+          --style: opacity-100;
         }
       }
     }
   }
 }
 
-.sidepanel-enter-active,
-.sidepanel-leave-active {
-  transition: all 0.4s;
-}
-
-.sidepanel-enter-from,
-.sidepanel-leave-to {
-  --style: '!opacity-0';
+.web-panel {
+  --style: z-1 fixed cursor-move left-full top-1/2 -translate-x-full -translate-y-1/2;
 }
 </style>

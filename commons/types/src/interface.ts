@@ -114,6 +114,7 @@ export interface BookmarkBriefDetail {
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
   overview?: string
+  tags: BookmarkTag[]
 }
 
 export interface InlineBookmarkDetail {
