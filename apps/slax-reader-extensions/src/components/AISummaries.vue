@@ -599,7 +599,7 @@ $copyButtonXOffset: 20px;
   }
 
   .shrinkable-header {
-    --style: relative w-full px-20px;
+    --style: relative w-full px-20px pb-20px;
     --style: 'bg-#fcfcfc dark:(bg-transparent)';
 
     * {
@@ -607,6 +607,8 @@ $copyButtonXOffset: 20px;
     }
 
     &.expanded {
+      --style: pb-0;
+
       &:before,
       &:after {
         --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F;
