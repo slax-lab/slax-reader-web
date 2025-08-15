@@ -137,7 +137,7 @@ const isLoading = ref(false)
 
 let articleSelection: ArticleSelection | null = null
 
-const needExamine = ref(false)
+const userInfo = ref<UserInfo | null>(null)
 
 const showPanel = computed(() => {
   return isSummaryShowing.value || isChatbotShowing.value
@@ -193,6 +193,14 @@ onMounted(() => {
   loadBriefDetail().then(() => {
     loadSelection()
   })
+
+  tryGetUserInfo(true).then(res => {
+    if (!res) {
+      return
+    }
+
+    userInfo.value = res
+  })
 })
 
 const updateBookmarkStatus = async () => {
@@ -244,13 +252,13 @@ const loadSelection = async () => {
 
   if (!needHidden.value || !bookmarkBriefInfo.value) {
     const markList = bookmarkBriefInfo.value?.marks
-    const userInfo = await tryGetUserInfo()
+    const user = userInfo.value ?? (await tryGetUserInfo())
 
     articleSelection = new ArticleSelection({
       allowAction: true,
       containerDom: menus.value!,
       monitorDom: document.body as HTMLDivElement,
-      userInfo: userInfo,
+      userInfo: user,
       bookmarkIdQuery: async () => {
         if (bookmarkId.value === 0) {
           await addBookmark()
@@ -291,13 +299,6 @@ const panelClick = async (panel: PanelItem) => {
   })
 
   if (!res) {
-    return
-  }
-
-  const userInfo = await tryGetUserInfo(needExamine.value)
-
-  needExamine.value = !(await examineSideBarAction(type, userInfo))
-  if (needExamine.value) {
     return
   }
 
