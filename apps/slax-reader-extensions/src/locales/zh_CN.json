@@ -25,14 +25,14 @@
   },
   "component": {
     "ai_summaries": {
+      "analyzed_title": "全文解析",
       "click_to_expand": "点击彩色圆点可展开/收起节点",
       "click_to_interpret": "点击按钮解读此文章",
       "copy_content_success": "内容复制成功",
       "interpret": "解读此文章",
       "mindmap": "思维导图",
       "processing": "内容解析中",
-      "title": "解析结果",
-      "analyzed_title": "全文解析"
+      "title": "解析结果"
     },
     "article_selection": {
       "comment_deleted": "评论已删除",
@@ -94,7 +94,7 @@
     "sidebar": {
       "about": "关于",
       "ai": "AI",
-      "archieve": "归档文章",
+      "archieve": "归档",
       "archieved": "取消归档",
       "chat": "Chat",
       "collect_content": "收藏内容",

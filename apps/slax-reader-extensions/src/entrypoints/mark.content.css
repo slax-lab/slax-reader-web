@@ -6,22 +6,24 @@ slax-mark {
   transition: color 250ms;
 }
 
-slax-mark.comment {
-  cursor: pointer;
-  border-bottom: 1.5px dashed #f6af69 !important;
+:root {
+  --slax-mark-border-color: #f6af69;
+  --slax-mark-border-color-alpha: #f6af69ee;
+  --slax-mark-highlight-bg: #fcf4e8;
 }
 
+slax-mark.comment,
 slax-mark.stroke {
   cursor: pointer;
-  border-bottom: 1.5px dashed #f6af69 !important;
+  border-bottom: 1.5px dashed var(--slax-mark-border-color) !important;
 }
 
 slax-mark.self-stroke {
-  border-bottom: 1.5px solid #f6af69 !important;
+  border-bottom: 1.5px solid var(--slax-mark-border-color) !important;
 }
 
 slax-mark.highlighted {
-  background-color: #fcf4e8;
+  background-color: var(--mark-highlight-bg);
 }
 
 slax-mark:has(img) {
@@ -31,11 +33,11 @@ slax-mark:has(img) {
 }
 
 slax-mark:has(img).comment {
-  border: 2px dashed #f6af69 !important;
+  border: 2px dashed var(--slax-mark-border-color) !important;
 }
 
 slax-mark:has(img).stroke {
-  border: 2px solid #f6af69 !important;
+  border: 2px solid var(--slax-mark-border-color) !important;
 }
 
 slax-mark:has(img)::after {
@@ -46,7 +48,7 @@ slax-mark:has(img)::after {
   padding-left: 0;
   padding-right: 0;
   border-radius: 50%;
-  background-color: #f6af69ee;
+  background-color: var(--slax-mark-border-color-alpha);
   right: -5px;
   top: -5px;
   line-height: 25px;

@@ -39,6 +39,7 @@ export interface PanelItem {
   selectedColor?: string
   isSelected?: () => boolean
   isLoading?: boolean
+  finishHandler?: () => void
 }
 
 interface ImageInfo {

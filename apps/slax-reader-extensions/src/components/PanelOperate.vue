@@ -9,12 +9,17 @@
         <div class="menus">
           <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="actionClick(panel)">
             <div class="icon">
-              <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                <img class="normal" :src="panel.icon" alt="" />
-                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+              <template v-if="panel.isLoading">
+                <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
               </template>
               <template v-else>
-                <img class="selected" :src="panel.selectedIcon" alt="" />
+                <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                  <img class="normal" :src="panel.icon" alt="" />
+                  <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                </template>
+                <template v-else>
+                  <img class="selected" :src="panel.selectedIcon" alt="" />
+                </template>
               </template>
             </div>
             <span>{{ panel.title }}</span>
@@ -77,7 +82,7 @@ const morePanelItem = ref<PanelItem[]>([
     icon: Images.archieve.main,
     highlighedIcon: Images.archieve.highlighted,
     selectedIcon: Images.archieve.selected,
-    title: getArchiveTitle,
+    title: $t('component.sidebar.archieve'),
     hovered: false,
     isSelected: () => props.isArchive
   },
@@ -107,18 +112,32 @@ const isShowBubble = ref(false)
 
 const outsideClick = () => {
   isShowBubble.value = false
+  clearHandler()
 }
 
 const dotsClick = (e: Event) => {
   e.stopPropagation()
 
   isShowBubble.value = !isShowBubble.value
+  !isShowBubble.value && clearHandler()
+}
+
+const clearHandler = () => {
+  morePanelItem.value.forEach(panel => {
+    panel.finishHandler = undefined
+  })
 }
 
 const actionClick = (panel: PanelItem) => {
-  emits('action', panel)
+  if ([PanelItemType.Star, PanelItemType.Archieve].includes(panel.type)) {
+    panel.finishHandler = () => {
+      isShowBubble.value = false
+    }
+  } else {
+    isShowBubble.value = false
+  }
 
-  isShowBubble.value = false
+  emits('action', panel)
 }
 </script>
 

@@ -112,7 +112,7 @@ export class MessageHandler {
 
   private async handleQueryUserInfo(message: Extract<MessageType, { action: MessageTypeAction.QueryUserInfo }>, sendResponse: (response?: unknown) => void) {
     try {
-      const userInfo = await this.authService.queryUserInfo()
+      const userInfo = await this.authService.queryUserInfo(message.refresh)
       sendResponse({ success: true, data: userInfo })
     } catch (error) {
       console.error('Error querying user info:', error)

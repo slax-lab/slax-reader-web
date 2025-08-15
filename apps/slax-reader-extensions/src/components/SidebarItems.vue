@@ -17,7 +17,7 @@
       </button>
     </div>
     <div class="button-wrapper">
-      <button class="panel-button" @click="moreShow = !moreShow">
+      <button class="panel-button" @click="dotsClick">
         <div class="icon-wrapper">
           <div class="icon">
             <img class="normal" :src="moreImage" alt="" />
@@ -28,15 +28,20 @@
       </button>
       <Transition name="more">
         <div class="more-options-wrapper" v-show="moreShow" v-on-click-outside="outsideClick">
-          <div class="more-options" @click="moreShow = false">
+          <div class="more-options">
             <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
               <div class="icon">
-                <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                  <img class="normal" :src="panel.icon" alt="" />
-                  <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                <template v-if="panel.isLoading">
+                  <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
                 </template>
                 <template v-else>
-                  <img class="selected" :src="panel.selectedIcon" alt="" />
+                  <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                    <img class="normal" :src="panel.icon" alt="" />
+                    <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                  </template>
+                  <template v-else>
+                    <img class="selected" :src="panel.selectedIcon" alt="" />
+                  </template>
                 </template>
               </div>
               <span>{{ panel.title }}</span>
@@ -129,7 +134,7 @@ const morePanelItem = ref<PanelItem[]>([
     icon: Images.archieve.main,
     highlighedIcon: Images.archieve.highlighted,
     selectedIcon: Images.archieve.selected,
-    title: getArchiveTitle,
+    title: $t('component.sidebar.archieve'),
     hovered: false,
     isSelected: () => props.isArchive
   },
@@ -146,9 +151,29 @@ const moreShow = ref(false)
 
 const outsideClick = () => {
   moreShow.value = false
+  clearHandler()
+}
+
+const dotsClick = (e: Event) => {
+  e.stopPropagation()
+
+  moreShow.value = !moreShow.value
+  !moreShow.value && clearHandler()
+}
+
+const clearHandler = () => {
+  morePanelItem.value.forEach(panel => {
+    panel.finishHandler = undefined
+  })
 }
 
 const panelClick = async (panel: PanelItem) => {
+  if ([PanelItemType.Star, PanelItemType.Archieve].includes(panel.type)) {
+    panel.finishHandler = () => {
+      moreShow.value = false
+    }
+  }
+
   emits('panel-item-action', panel)
 }
 </script>
