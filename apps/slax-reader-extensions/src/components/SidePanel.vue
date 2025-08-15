@@ -80,6 +80,7 @@ import { ArticleSelection } from './Selection/selection'
 import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
 import type { WxtBrowser } from 'wxt/browser'
+import { onKeyStroke } from '@vueuse/core'
 
 const props = defineProps({
   browser: {
@@ -88,6 +89,7 @@ const props = defineProps({
   }
 })
 
+const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const isCollected = ref(false)
 const subPanelItems = ref<PanelItem[]>([
   {
@@ -203,6 +205,18 @@ onMounted(() => {
   })
 })
 
+onKeyStroke(['z', 'Z'], e => {
+  if (needHidden.value) {
+    return
+  }
+
+  const ctrlFire = (e.ctrlKey && !isMac) || ((e.ctrlKey || e.metaKey) && isMac)
+  if (ctrlFire && e.shiftKey && !showPanel.value) {
+    e.preventDefault()
+    panelClick(subPanelItems.value[0])
+  }
+})
+
 const updateBookmarkStatus = async () => {
   const url = window.location.href
   const bookmarkRecord = await tryGetBookmarkChange(url)
@@ -288,7 +302,7 @@ const unloadSelection = () => {
   }
 }
 
-const panelClick = async (panel: PanelItem) => {
+const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
   const type = panel.type
   if (isLoading.value && type === PanelItemType.Share) {
     return
@@ -332,6 +346,7 @@ const panelClick = async (panel: PanelItem) => {
     }
     case PanelItemType.Archieve: {
       if (panel.isLoading) {
+        panel.finishHandler = undefined
         return
       }
 
@@ -353,11 +368,15 @@ const panelClick = async (panel: PanelItem) => {
 
       panel.isLoading = false
 
+      panel.finishHandler && panel.finishHandler()
+      panel.finishHandler = undefined
+
       break
     }
 
     case PanelItemType.Star: {
       if (panel.isLoading) {
+        panel.finishHandler = undefined
         return
       }
 
@@ -379,6 +398,8 @@ const panelClick = async (panel: PanelItem) => {
 
       panel.isLoading = false
 
+      panel.finishHandler && panel.finishHandler()
+      panel.finishHandler = undefined
       break
     }
 
