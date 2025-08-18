@@ -50,6 +50,7 @@
       <SidebarItems
         :is-summary-showing="isSummaryShowing"
         :is-chatbot-showing="isChatbotShowing"
+        :is-comment-showing="isCommentShowing"
         :is-star="bookmarkBriefInfo?.starred === 'star'"
         :is-archive="bookmarkBriefInfo?.archived === 'archive'"
         @panel-item-action="panelClick"
@@ -109,16 +110,16 @@ const subPanelItems = ref<PanelItem[]>([
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => isChatbotShowing.value
+  },
+  {
+    type: PanelItemType.Comments,
+    icon: Images.comments.sub,
+    highlighedIcon: Images.comments.highlighted,
+    selectedIcon: Images.comments.selected,
+    title: $t('component.sidebar.comments'),
+    hovered: false,
+    isSelected: () => isCommentShowing.value
   }
-  // {
-  //   type: PanelItemType.Comments,
-  //   icon: Images.comments.sub,
-  //   highlighedIcon: Images.comments.highlighted,
-  //   selectedIcon: Images.comments.selected,
-  //   title: $t('component.sidebar.comments'),
-  //   hovered: false,
-  //   isSelected: () => false
-  // }
 ])
 
 const menus = ref<HTMLDivElement>()
@@ -134,6 +135,7 @@ const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
+const isCommentShowing = ref(false)
 
 const isLoading = ref(false)
 
@@ -142,7 +144,7 @@ let articleSelection: ArticleSelection | null = null
 const userInfo = ref<UserInfo | null>(null)
 
 const showPanel = computed(() => {
-  return isSummaryShowing.value || isChatbotShowing.value
+  return isSummaryShowing.value || isChatbotShowing.value || isCommentShowing.value
 })
 
 const needHidden = computed(() => {
@@ -316,9 +318,8 @@ const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
     return
   }
 
-  if ([PanelItemType.AI, PanelItemType.Chat].indexOf(type) > -1) {
-    isSummaryShowing.value = false
-    isChatbotShowing.value = false
+  if ([PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
+    closePanel()
   }
 
   switch (type) {
@@ -328,6 +329,10 @@ const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
     }
     case PanelItemType.Chat: {
       isChatbotShowing.value = !isChatbotShowing.value
+      break
+    }
+    case PanelItemType.Comments: {
+      isCommentShowing.value = !isCommentShowing.value
       break
     }
     case PanelItemType.Share: {
@@ -425,6 +430,7 @@ const findQuote = (quote: QuoteData) => {
 const closePanel = () => {
   isSummaryShowing.value = false
   isChatbotShowing.value = false
+  isCommentShowing.value = false
 }
 
 const getRequestParams = () => {

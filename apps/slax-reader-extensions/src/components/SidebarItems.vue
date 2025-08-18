@@ -70,6 +70,10 @@ const props = defineProps({
     type: Boolean,
     required: false
   },
+  isCommentShowing: {
+    type: Boolean,
+    required: false
+  },
   isStar: {
     type: Boolean,
     required: false
@@ -81,13 +85,6 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['panel-item-action'])
-
-const getArchiveTitle = computed(() => {
-  if (props.isArchive) {
-    return $t('component.sidebar.archieved')
-  }
-  return $t('component.sidebar.archieve')
-})
 
 const panelItems = ref<PanelItem[]>([
   {
@@ -107,16 +104,16 @@ const panelItems = ref<PanelItem[]>([
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => props.isChatbotShowing
+  },
+  {
+    type: PanelItemType.Comments,
+    icon: Images.comments.main,
+    highlighedIcon: Images.comments.highlighted,
+    selectedIcon: Images.comments.selected,
+    title: $t('component.sidebar.comments'),
+    hovered: false,
+    isSelected: () => props.isCommentShowing
   }
-  // {
-  //   type: PanelItemType.Comments,
-  //   icon: Images.comments.main,
-  //   highlighedIcon: Images.comments.highlighted,
-  //   selectedIcon: Images.comments.selected,
-  //   title: $t('component.sidebar.comments'),
-  //   hovered: false,
-  //   isSelected: () => false
-  // }
 ])
 
 const morePanelItem = ref<PanelItem[]>([
