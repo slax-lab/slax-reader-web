@@ -109,21 +109,21 @@ export class ArticleSelection extends Base {
       const source = this.getMarkPathItems(list)
       if (!source) return
 
-      const markInfoItem = this.manager.getMarkItemInfos().find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
+      const markInfoItem = this.manager.markItemInfos.value.find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
       if (markInfoItem) {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
         this.manager.showPanel()
         return
       }
 
-      const currentMark = this.manager.currentMarkItemInfo
+      const currentMark = this.manager.currentMarkItemInfo.value
       if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
 
       this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
       this.manager.clearSelectContent()
 
       list.forEach(item => {
-        const lastContent = this.manager.selectContent[this.manager.selectContent.length - 1]
+        const lastContent = this.manager.selectContent.value[this.manager.selectContent.value.length - 1]
         const newContent = {
           type: item.type,
           text: item.type === 'text' ? item.text : '',
@@ -141,7 +141,7 @@ export class ArticleSelection extends Base {
       this.modal.showMenus({
         event: e,
         callback: (type: MenuType, event: MouseEvent) => {
-          const currentInfo = this.manager.currentMarkItemInfo
+          const currentInfo = this.manager.currentMarkItemInfo.value
           if (!currentInfo) return
 
           if (type === MenuType.Stroke) {

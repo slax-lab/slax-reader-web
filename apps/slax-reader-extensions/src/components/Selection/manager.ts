@@ -20,7 +20,7 @@ import {
 } from '@commons/types/interface'
 
 export class MarkManager extends Base {
-  private _markItemInfos: MarkItemInfo[] = []
+  private _markItemInfos = ref<MarkItemInfo[]>([])
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
   private _findQuote: (quote: QuoteData) => void
@@ -42,8 +42,8 @@ export class MarkManager extends Base {
     const userMap = this.createUserMap(marks.user_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
-    this._markItemInfos = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    for (const info of this._markItemInfos) {
+    this._markItemInfos.value = this.generateMarkItemInfos(marks.mark_list, commentMap)
+    for (const info of this._markItemInfos.value) {
       await this.renderer.drawMark(info)
     }
   }
@@ -87,8 +87,8 @@ export class MarkManager extends Base {
         }
       : null
 
-    const isUpdate = !replyToId && !!this._markItemInfos.find(item => item.id === infoItem.id)
-    if (!isUpdate) this._markItemInfos.push(infoItem)
+    const isUpdate = !replyToId && !!this._markItemInfos.value.find(item => item.id === infoItem.id)
+    if (!isUpdate) this._markItemInfos.value.push(infoItem)
 
     if (commentItem) {
       if (replyToId) {
@@ -166,15 +166,15 @@ export class MarkManager extends Base {
 
     info.stroke = info.stroke.filter(item => item.userId !== userId)
     if (info.stroke.length === 0 && info.comments.length === 0) {
-      const index = this._markItemInfos.findIndex(item => item.id === info.id)
-      this._markItemInfos.splice(index, 1)
+      const index = this._markItemInfos.value.findIndex(item => item.id === info.id)
+      this._markItemInfos.value.splice(index, 1)
     }
     await this.renderer.drawMark(info, 'update')
     await this.modal.dismissPanel()
   }
 
   async deleteComment(id: string, markId: number) {
-    const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.find(item => item.id === id)
+    const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.value.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
 
     const removeMarkOrComment = async () => {
@@ -201,8 +201,8 @@ export class MarkManager extends Base {
       await this.renderer.drawMark(markInfoItem, 'update')
 
       if (markInfoItem.stroke.length === 0 && markInfoItem.comments.length === 0) {
-        const index = this._markItemInfos.findIndex(item => item.id === markInfoItem.id)
-        this._markItemInfos.splice(index, 1)
+        const index = this._markItemInfos.value.findIndex(item => item.id === markInfoItem.id)
+        this._markItemInfos.value.splice(index, 1)
       }
     }
 
@@ -528,7 +528,7 @@ export class MarkManager extends Base {
     const id = ele.dataset.uuid
     if (!id) return
 
-    const infoItem = this._markItemInfos.find(item => item.id === id)
+    const infoItem = this._markItemInfos.value.find(item => item.id === id)
     if (!infoItem) return
 
     if ((!infoItem.approx || Object.keys(infoItem.approx).length === 0) && infoItem.source.length > 0) {
@@ -561,15 +561,15 @@ export class MarkManager extends Base {
     this.showPanel()
   }
 
-  getMarkItemInfos() {
+  get markItemInfos() {
     return this._markItemInfos
   }
 
   get currentMarkItemInfo() {
-    return this._currentMarkItemInfo.value
+    return this._currentMarkItemInfo
   }
 
   get selectContent() {
-    return this._selectContent.value
+    return this._selectContent
   }
 }
