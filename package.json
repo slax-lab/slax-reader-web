@@ -58,7 +58,7 @@
     "@unocss/eslint-config": "^66.4.1",
     "@unocss/eslint-plugin": "^66.4.1",
     "@unocss/preset-mini": "^66.4.1",
-    "@unocss/preset-rem-to-px": "^66.4.1",
+    "@unocss/preset-rem-to-px": "^66.4.2",
     "@unocss/transformer-directives": "^66.4.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
