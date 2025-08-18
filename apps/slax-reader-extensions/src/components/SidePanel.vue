@@ -20,6 +20,11 @@
           />
         </div>
       </Transition>
+      <Transition name="sidepanel">
+        <div class="dark size-full" v-show="isCommentShowing">
+          <ArticleCommentsView v-if="userInfo" :key="currentUrl" :isAppeared="isCommentShowing" :bookmark-user-id="userInfo.userId" :comments="[]" />
+        </div>
+      </Transition>
     </template>
     <template #tabbars>
       <div class="button-wrapper" v-for="panel in subPanelItems" :key="panel.type">
@@ -82,6 +87,7 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
 import type { WxtBrowser } from 'wxt/browser'
 import { onKeyStroke } from '@vueuse/core'
+import ArticleCommentsView from './Selection/ArticleCommentsView.vue'
 
 const props = defineProps({
   browser: {

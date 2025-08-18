@@ -1,6 +1,11 @@
 <template>
   <div class="article-comments-view">
-    <div class="title">{{ $t('component.article_selection.comments.title') }}</div>
+    <div class="title">
+      <img src="@/assets/tiny-comments-outline-icon.png" />
+      <span>
+        {{ $t('component.article_selection.comments.title') }}
+      </span>
+    </div>
     <div class="comment-list-container">
       <div class="comments-wrapper" ref="commentsWrapper">
         <TransitionGroup name="opacity">
@@ -84,7 +89,7 @@ const props = defineProps({
     type: Number
   },
   allowAction: {
-    required: true,
+    required: false,
     type: Boolean
   }
 })
@@ -223,7 +228,15 @@ const commentDelete = (comment: MarkCommentInfo) => {}
   --style: size-full flex flex-col bg-#262626 justify-between;
 
   .title {
-    --style: pt-24px px-24px pb-12px text-(16px #999) line-height-22px;
+    --style: pt-24px px-24px pb-12px select-none flex items-center justify-start;
+
+    img {
+      --style: size-20px object-contain;
+    }
+
+    span {
+      --style: ml-8px text-(16px #999) line-height-22px;
+    }
   }
 
   .comment-list-container {
