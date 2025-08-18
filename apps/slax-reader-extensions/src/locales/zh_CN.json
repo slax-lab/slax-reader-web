@@ -38,6 +38,9 @@
       "comment_deleted": "评论已删除",
       "comment_failed": "评论失败",
       "comment_placeholder": "回复 $1",
+      "comments": {
+        "title": "评论列表"
+      },
       "hours_ago": "小时前",
       "just_now": "刚刚",
       "minutes_ago": "分钟前",

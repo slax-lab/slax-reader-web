@@ -25,19 +25,22 @@
   },
   "component": {
     "ai_summaries": {
+      "analyzed_title": "Analyzed Article",
       "click_to_expand": "Click the colored dots to expand/collapse nodes",
       "click_to_interpret": "Click the button to interpret this article",
       "copy_content_success": "Content copied successfully",
       "interpret": "Interpret this article",
       "mindmap": "Mind Map",
       "processing": "Content is being analyzed",
-      "title": "Analysis Results",
-      "analyzed_title": "Analyzed Article"
+      "title": "Analysis Results"
     },
     "article_selection": {
       "comment_deleted": "Comment deleted",
       "comment_failed": "Comment failed",
       "comment_placeholder": "Reply to $1",
+      "comments": {
+        "title": "Comments"
+      },
       "hours_ago": "hours ago",
       "just_now": "Just now",
       "minutes_ago": "minutes ago",
@@ -97,11 +100,11 @@
       "archieve": "Archive",
       "archieved": "Archived",
       "chat": "Chat",
-      "more": "More",
       "collect_content": "Collect",
       "collecting": "Collecting",
       "comments": "Comments",
       "feedback": "Feedback",
+      "more": "More",
       "share": "Share",
       "star": "Star",
       "starred": "Starred",
