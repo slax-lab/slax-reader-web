@@ -28,7 +28,7 @@
     "@commons/utils": "workspace:*",
     "@iconify-json/ic": "^1.2.2",
     "@iconify-json/logos": "^1.2.5",
-    "@iconify-json/solar": "^1.2.2",
+    "@iconify-json/solar": "^1.2.4",
     "@iconify-json/svg-spinners": "^1.2.2",
     "@unocss/preset-attributify": "^66.4.1",
     "@unocss/preset-icons": "^66.4.1",
