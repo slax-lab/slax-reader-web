@@ -7,7 +7,7 @@ import { MarkModal } from './modal'
 import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
-import { MenuType, type SelectionConfig, type SelectTextInfo } from './type'
+import { MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
 import { type MarkDetail, type MarkPathItem, type UserInfo } from '@commons/types/interface'
 
 export class ArticleSelection extends Base {
@@ -84,6 +84,14 @@ export class ArticleSelection extends Base {
     this.config.userInfo = userInfo
   }
 
+  async strokeSelection(info: StrokeSelectionMeta) {
+    return await this.manager.strokeSelection(info)
+  }
+
+  async deleteComment(id: string, markId: number) {
+    await this.manager.deleteComment(id, markId)
+  }
+
   private async handleMouseUp(e: MouseEvent | TouchEvent) {
     this.monitor.clearMouseListenerTry()
 
@@ -112,15 +120,20 @@ export class ArticleSelection extends Base {
       const markInfoItem = this.manager.markItemInfos.value.find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
       if (markInfoItem) {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
-        this.manager.showPanel()
-        return
+        const currentMarkInfo = this.manager.currentMarkItemInfo.value
+        if (currentMarkInfo?.comments && currentMarkInfo?.comments.length > 0) {
+          this.config.markCommentSelectHandler?.(currentMarkInfo?.comments[0])
+          return
+        }
+        // this.manager.showPanel()
+        // return
+      } else {
+        const currentMark = this.manager.currentMarkItemInfo.value
+        if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
+
+        this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
+        this.manager.clearSelectContent()
       }
-
-      const currentMark = this.manager.currentMarkItemInfo.value
-      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
-
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
-      this.manager.clearSelectContent()
 
       list.forEach(item => {
         const lastContent = this.manager.selectContent.value[this.manager.selectContent.value.length - 1]
@@ -151,7 +164,9 @@ export class ArticleSelection extends Base {
             this.manager.copyMarkedText(source, event)
           } else if (type === MenuType.Comment) {
             currentInfo.id = getUUID()
-            this.manager.showPanel({ fallbackYOffset: menusY })
+            console.log('managers current info: ', currentInfo)
+            this.config.menusCommentHandler?.(currentInfo, this.manager.createQuote(currentInfo.source))
+            // this.manager.showPanel({ fallbackYOffset: menusY })
           } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
             const quote: QuoteData = { source: {}, data: this.manager.createQuote(currentInfo.source) }
             const selection = this.getSelection()
@@ -220,5 +235,17 @@ export class ArticleSelection extends Base {
 
   get isMonitoring() {
     return this.monitor.isMonitoring
+  }
+
+  get markItemInfos() {
+    return this.manager.markItemInfos
+  }
+
+  get currentMarkItemInfo() {
+    return this.manager.currentMarkItemInfo
+  }
+
+  get selectContent() {
+    return this.manager.selectContent
   }
 }

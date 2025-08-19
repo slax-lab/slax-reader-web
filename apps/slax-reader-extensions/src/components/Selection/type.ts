@@ -47,6 +47,8 @@ export interface SelectionConfig {
   userInfo: UserInfo | null
   bookmarkIdQuery: () => Promise<number>
   postQuoteDataHandler: (data: QuoteData) => void
+  markCommentSelectHandler?: (comment: MarkCommentInfo) => void
+  menusCommentHandler?: (info: MarkItemInfo, data: QuoteData['data']) => void
 }
 
 export interface StrokeSelectionMeta {

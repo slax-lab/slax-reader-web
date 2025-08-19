@@ -90,7 +90,7 @@ export class MarkManager extends Base {
         }
       : null
 
-    const isUpdate = !replyToId && !!this._markItemInfos.value.find(item => item.id === infoItem.id)
+    const isUpdate = !!this._markItemInfos.value.find(item => item.id === infoItem.id)
     if (!isUpdate) this._markItemInfos.value.push(infoItem)
 
     if (commentItem) {
