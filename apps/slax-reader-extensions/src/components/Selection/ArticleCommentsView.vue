@@ -71,29 +71,9 @@ const props = defineProps({
     required: true,
     type: Object as PropType<ArticleSelection>
   },
-  commentQuote: {
-    required: false,
-    type: String
-  },
-  comments: {
-    required: true,
-    type: Object as PropType<MarkCommentInfo[]>
-  },
-  infos: {
-    required: false,
-    type: Object as PropType<MarkItemInfo[]>
-  },
-  currentInfo: {
-    required: false,
-    type: Object as PropType<MarkItemInfo>
-  },
   bookmarkUserId: {
     required: true,
     type: Number
-  },
-  allowAction: {
-    required: false,
-    type: Boolean
   }
 })
 
@@ -101,19 +81,17 @@ const emits = defineEmits(['action'])
 
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = ref($t('component.article_selection.placeholder'))
-// const markComments = ref<MarkCommentInfo[]>(props.comments.map(item => convertComment(item)))
 const compositionAppear = ref(false)
 const textarea = ref<HTMLTextAreaElement>()
 const commentsWrapper = ref<HTMLDivElement>()
+const commentCells = ref<InstanceType<typeof ArticleCommentCell>[]>([])
+const commentIdRefs = ref<Record<number, string>>({})
 const inputText = ref('')
 const postCommentInfo = ref<{ info: MarkItemInfo; data: QuoteData['data'] } | null>(null)
 
-const commentCells = ref<InstanceType<typeof ArticleCommentCell>[]>([])
 const sendable = computed(() => {
   return inputText.value.trim().length > 0
 })
-
-const commentIdRefs = ref<Record<number, string>>({})
 
 const showQuoteImage = computed(() => {
   return postCommentInfo.value && postCommentInfo.value.data && postCommentInfo.value.data.length > 0 && !!postCommentInfo.value.data.find(item => item.type === 'image')
@@ -134,37 +112,11 @@ const markComments = computed(() => {
     .map(comment => ref(convertComment(comment)))
 })
 
-// watch(
-//   () => props.comments,
-//   () => {
-//     const insertNewRootComment = props.comments?.length && markComments.value?.length && props.comments.length > markComments.value.length
-
-//     if (!props.comments) {
-//       markComments.value = []
-//     }
-
-//     if (!props.comments) {
-//       markComments.value = []
-//     } else {
-//       markComments.value = props.comments.map(item => convertComment(item))
-//     }
-
-//     if (insertNewRootComment) {
-//       nextTick(() => {
-//         commentsWrapper.value?.scrollTo({
-//           top: commentsWrapper.value.scrollHeight,
-//           behavior: 'smooth'
-//         })
-//       })
-//     }
-//   },
-//   {
-//     // deep: true
-//   }
-// )
+onMounted(() => {
+  handleInput()
+})
 
 const showPostCommentView = (info: MarkItemInfo, data: QuoteData['data']) => {
-  console.log('showPostCommentView', info, data)
   if (info) {
     postCommentInfo.value = {
       info,
@@ -220,9 +172,35 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-onMounted(() => {
-  handleInput()
-})
+const postComment = (info: MarkItemInfo, options: { replyToId: number; comment: string }) => {
+  props.selection.strokeSelection({
+    info,
+    ...options
+  })
+}
+
+const replyComment = (commentInfo: MarkCommentInfo, options: { replyToId: number; comment: string }) => {
+  const infoId = commentIdRefs.value[commentInfo.markId]
+  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
+  if (!info) {
+    return
+  }
+
+  props.selection.strokeSelection({
+    info,
+    ...options
+  })
+}
+
+const commentDelete = (comment: MarkCommentInfo) => {
+  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
+  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
+  if (!info) {
+    return
+  }
+
+  props.selection.deleteComment(info.id, comment.markId)
+}
 
 const compositionstart = () => {
   compositionAppear.value = true
@@ -264,7 +242,6 @@ const sendMessage = () => {
   nextTick(() => {
     const newCommentIds = markComments.value.map(item => item.value.markId)
     if (newCommentIds.length > cacheCommentIds.length) {
-      // find index
       const index = newCommentIds.findIndex(id => !cacheCommentIds.includes(id))
       navigateToComment(markComments.value[index].value)
     }
@@ -288,45 +265,6 @@ const handleInput = () => {
 
   textarea.value.style.height = '22px'
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
-}
-
-const postComment = (info: MarkItemInfo, options: { replyToId: number; comment: string }) => {
-  props.selection
-    .strokeSelection({
-      info,
-      ...options
-    })
-    .then(() => {
-      nextTick(() => {
-        commentsWrapper.value?.scrollTo({
-          top: commentsWrapper.value.scrollHeight,
-          behavior: 'smooth'
-        })
-      })
-    })
-}
-
-const replyComment = (commentInfo: MarkCommentInfo, options: { replyToId: number; comment: string }) => {
-  const infoId = commentIdRefs.value[commentInfo.markId]
-  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
-  if (!info) {
-    return
-  }
-
-  props.selection.strokeSelection({
-    info,
-    ...options
-  })
-}
-
-const commentDelete = (comment: MarkCommentInfo) => {
-  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
-  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
-  if (!info) {
-    return
-  }
-
-  props.selection.deleteComment(info.id, comment.markId)
 }
 
 defineExpose({
