@@ -11,22 +11,29 @@
         <TransitionGroup name="opacity">
           <ArticleCommentCell
             v-for="(comment, index) in markComments"
+            ref="commentCells"
             :key="index"
-            :comment="comment"
+            :comment="comment.value"
             :userId="bookmarkUserId"
-            @replyComment="replyComment"
+            @replyComment="options => replyComment(comment.value, options)"
             @commentDelete="commentDelete"
           />
         </TransitionGroup>
       </div>
     </div>
     <Transition name="opacity">
-      <div class="comment-input-container" v-show="commentQuote">
+      <div class="comment-input-container" v-show="postCommentInfo && postCommentInfo.data && postCommentInfo.data.length > 0">
         <div class="comment-quote-container">
-          <span>{{ commentQuote }}</span>
+          <div class="quote">
+            <i class="img bg-[url('@/assets/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
+            <template v-if="postCommentInfo">
+              <span v-for="item in postCommentInfo.data" :key="item.content">{{ item.content }}</span>
+            </template>
+          </div>
+          <button class="bg-[url('@/assets/button-circle-close.png')]" @click="clearPostCommentData"></button>
         </div>
         <Transition name="input">
-          <div class="comment-input" v-show="showInput">
+          <div class="comment-input" v-show="postCommentInfo">
             <div class="comment-input-wrapper">
               <textarea
                 ref="textarea"
@@ -47,18 +54,10 @@
   </div>
 </template>
 
-<script lang="ts">
-const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
-  const { children, ...detail } = comment
-  return {
-    ...detail,
-    children: children.map(convertComment)
-  }
-}
-</script>
-
 <script lang="ts" setup>
+import type { QuoteData } from '../Chat/type'
 import ArticleCommentCell from './ArticleCommentCell.vue'
+import { ArticleSelection } from './selection'
 
 import { type MarkCommentInfo, type MarkItemInfo } from './type'
 import { vOnKeyStroke } from '@vueuse/components'
@@ -67,6 +66,10 @@ const props = defineProps({
   isAppeared: {
     required: false,
     type: Boolean
+  },
+  selection: {
+    required: true,
+    type: Object as PropType<ArticleSelection>
   },
   commentQuote: {
     required: false,
@@ -98,44 +101,96 @@ const emits = defineEmits(['action'])
 
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = ref($t('component.article_selection.placeholder'))
-const markComments = ref<MarkCommentInfo[]>(props.comments.map(item => convertComment(item)))
+// const markComments = ref<MarkCommentInfo[]>(props.comments.map(item => convertComment(item)))
 const compositionAppear = ref(false)
 const textarea = ref<HTMLTextAreaElement>()
 const commentsWrapper = ref<HTMLDivElement>()
 const inputText = ref('')
-const showInput = ref(true)
+const postCommentInfo = ref<{ info: MarkItemInfo; data: QuoteData['data'] } | null>(null)
+
+const commentCells = ref<InstanceType<typeof ArticleCommentCell>[]>([])
 const sendable = computed(() => {
   return inputText.value.trim().length > 0
 })
 
-watch(
-  () => props.comments,
-  () => {
-    const insertNewRootComment = props.comments?.length && markComments.value?.length && props.comments.length > markComments.value.length
+const commentIdRefs = ref<Record<number, string>>({})
 
-    if (!props.comments) {
-      markComments.value = []
-    }
+const showQuoteImage = computed(() => {
+  return postCommentInfo.value && postCommentInfo.value.data && postCommentInfo.value.data.length > 0 && !!postCommentInfo.value.data.find(item => item.type === 'image')
+})
 
-    if (!props.comments) {
-      markComments.value = []
-    } else {
-      markComments.value = props.comments.map(item => convertComment(item))
-    }
-
-    if (insertNewRootComment) {
-      nextTick(() => {
-        commentsWrapper.value?.scrollTo({
-          top: commentsWrapper.value.scrollHeight,
-          behavior: 'smooth'
+const markComments = computed(() => {
+  return props.selection.markItemInfos.value
+    .map(info => {
+      if (info.comments.length > 0) {
+        info.comments.forEach(comment => {
+          commentIdRefs.value[comment.markId] = info.id
         })
-      })
+      }
+
+      return info.comments
+    })
+    .flat()
+    .map(comment => ref(convertComment(comment)))
+})
+
+// watch(
+//   () => props.comments,
+//   () => {
+//     const insertNewRootComment = props.comments?.length && markComments.value?.length && props.comments.length > markComments.value.length
+
+//     if (!props.comments) {
+//       markComments.value = []
+//     }
+
+//     if (!props.comments) {
+//       markComments.value = []
+//     } else {
+//       markComments.value = props.comments.map(item => convertComment(item))
+//     }
+
+//     if (insertNewRootComment) {
+//       nextTick(() => {
+//         commentsWrapper.value?.scrollTo({
+//           top: commentsWrapper.value.scrollHeight,
+//           behavior: 'smooth'
+//         })
+//       })
+//     }
+//   },
+//   {
+//     // deep: true
+//   }
+// )
+
+const showPostCommentView = (info: MarkItemInfo, data: QuoteData['data']) => {
+  console.log('showPostCommentView', info, data)
+  if (info) {
+    postCommentInfo.value = {
+      info,
+      data
     }
-  },
-  {
-    // deep: true
   }
-)
+}
+
+const navigateToComment = (comment: MarkCommentInfo) => {
+  nextTick(() => {
+    const index = markComments.value.findIndex(item => item.value.markId === comment.markId)
+    if (index !== -1) {
+      if (index < commentCells.value.length) {
+        commentCells.value[index].highlightCell()
+      }
+    }
+  })
+}
+
+const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
+  const { children, ...detail } = comment
+  return {
+    ...detail,
+    children: children.map(convertComment)
+  }
+}
 
 const onKeyDown = (e: KeyboardEvent) => {
   if (e.key !== 'Enter' || compositionAppear.value) {
@@ -193,18 +248,37 @@ const shakeTextarea = () => {
 }
 
 const sendMessage = () => {
+  if (!postCommentInfo.value) {
+    return
+  }
+
   if (!sendable.value) {
     shakeTextarea()
     return
   }
 
-  emits('action')
+  const cacheCommentIds = markComments.value.map(item => item.value.markId)
 
-  inputText.value = ''
-  showInput.value = false
+  postComment(postCommentInfo.value.info, { comment: inputText.value, replyToId: 0 })
+
+  nextTick(() => {
+    const newCommentIds = markComments.value.map(item => item.value.markId)
+    if (newCommentIds.length > cacheCommentIds.length) {
+      // find index
+      const index = newCommentIds.findIndex(id => !cacheCommentIds.includes(id))
+      navigateToComment(markComments.value[index].value)
+    }
+  })
+
+  clearPostCommentData()
   nextTick(() => {
     handleInput()
   })
+}
+
+const clearPostCommentData = () => {
+  inputText.value = ''
+  postCommentInfo.value = null
 }
 
 const handleInput = () => {
@@ -216,11 +290,49 @@ const handleInput = () => {
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
 }
 
-const replyComment = (options: { replyToId: number; comment: string }) => {
-  const { replyToId, comment } = options
+const postComment = (info: MarkItemInfo, options: { replyToId: number; comment: string }) => {
+  props.selection
+    .strokeSelection({
+      info,
+      ...options
+    })
+    .then(() => {
+      nextTick(() => {
+        commentsWrapper.value?.scrollTo({
+          top: commentsWrapper.value.scrollHeight,
+          behavior: 'smooth'
+        })
+      })
+    })
 }
 
-const commentDelete = (comment: MarkCommentInfo) => {}
+const replyComment = (commentInfo: MarkCommentInfo, options: { replyToId: number; comment: string }) => {
+  const infoId = commentIdRefs.value[commentInfo.markId]
+  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
+  if (!info) {
+    return
+  }
+
+  props.selection.strokeSelection({
+    info,
+    ...options
+  })
+}
+
+const commentDelete = (comment: MarkCommentInfo) => {
+  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
+  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
+  if (!info) {
+    return
+  }
+
+  props.selection.deleteComment(info.id, comment.markId)
+}
+
+defineExpose({
+  navigateToComment,
+  showPostCommentView
+})
 </script>
 
 <style lang="scss" scoped>
@@ -270,10 +382,29 @@ const commentDelete = (comment: MarkCommentInfo) => {}
     --style: border-t-(1px solid #ffffff0f) pt-20px px-24px pb-16px;
 
     .comment-quote-container {
-      --style: pl-8px mb-20px border-l-(2px solid #ffffff14) line-clamp-2 text-(15px #ffffff66) break-all;
+      --style: mb-20px flex items-center justify-between;
 
-      span {
-        --style: line-height-21px overflow-hidden;
+      .quote {
+        --style: pl-8px line-clamp-2 text-(15px #ffffff66) break-all border-l-(2px solid #ffffff14);
+
+        i.img {
+          --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
+        }
+
+        span {
+          --style: line-height-21px overflow-hidden;
+        }
+      }
+
+      button {
+        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-250;
+        &:hover {
+          --style: scale-105;
+        }
+
+        &:active {
+          --style: scale-115;
+        }
       }
     }
 
