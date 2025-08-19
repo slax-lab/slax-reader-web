@@ -87,7 +87,7 @@ export class MarkManager extends Base {
         }
       : null
 
-    const isUpdate = !replyToId && !!this._markItemInfos.value.find(item => item.id === infoItem.id)
+    const isUpdate = !!this._markItemInfos.value.find(item => item.id === infoItem.id)
     if (!isUpdate) this._markItemInfos.value.push(infoItem)
 
     if (commentItem) {
@@ -558,7 +558,10 @@ export class MarkManager extends Base {
     }
 
     this._currentMarkItemInfo.value = infoItem
-    this.showPanel()
+    // this.showPanel()
+    if (this._currentMarkItemInfo.value.comments.length > 0) {
+      this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
+    }
   }
 
   get markItemInfos() {
