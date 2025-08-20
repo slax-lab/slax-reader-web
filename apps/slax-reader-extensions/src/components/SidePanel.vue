@@ -22,7 +22,14 @@
       </Transition>
       <Transition name="sidepanel">
         <div class="dark size-full" v-show="isCommentShowing">
-          <ArticleCommentsView v-if="userInfo" :key="currentUrl" :isAppeared="isCommentShowing" :bookmark-user-id="userInfo.userId" :comments="[]" />
+          <ArticleCommentsView
+            v-if="userInfo && articleSelection"
+            :key="currentUrl"
+            ref="comments"
+            :selection="articleSelection"
+            :isAppeared="isCommentShowing"
+            :bookmark-user-id="userInfo.userId"
+          />
         </div>
       </Transition>
     </template>
@@ -74,6 +81,7 @@ import SidebarItems from './SidebarItems.vue'
 import SidebarTips from './Tips/SidebarTips.vue'
 import AIOverview from './AIOverview.vue'
 import PanelView from './PanelView.vue'
+import ArticleCommentsView from './Selection/ArticleCommentsView.vue'
 
 import { type MessageType, MessageTypeAction } from '@/config/message'
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
@@ -87,7 +95,7 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
 import type { WxtBrowser } from 'wxt/browser'
 import { onKeyStroke } from '@vueuse/core'
-import ArticleCommentsView from './Selection/ArticleCommentsView.vue'
+import type { MarkCommentInfo, MarkItemInfo } from './Selection/type'
 
 const props = defineProps({
   browser: {
@@ -133,12 +141,14 @@ const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
 
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
+const comments = ref<InstanceType<typeof ArticleCommentsView>>()
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')
 const currentUrl = ref(window.location.href)
 const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 
+const lastOpenItem = ref<PanelItemType>()
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
 const isCommentShowing = ref(false)
@@ -219,9 +229,14 @@ onKeyStroke(['z', 'Z'], e => {
   }
 
   const ctrlFire = (e.ctrlKey && !isMac) || ((e.ctrlKey || e.metaKey) && isMac)
-  if (ctrlFire && e.shiftKey && !showPanel.value) {
+  if (ctrlFire && e.shiftKey) {
     e.preventDefault()
-    panelClick(subPanelItems.value[0])
+
+    if (!showPanel.value) {
+      panelClick(subPanelItems.value.find(item => item.type === lastOpenItem.value) ?? subPanelItems.value[0])
+    } else {
+      closePanel()
+    }
   }
 })
 
@@ -292,6 +307,14 @@ const loadSelection = async () => {
         isChatbotShowing.value = true
         chatbot.value?.addQuoteData(data)
         chatbot.value?.focusTextarea()
+      },
+      markCommentSelectHandler: (comment: MarkCommentInfo) => {
+        isCommentShowing.value = true
+        comments.value?.navigateToComment(comment)
+      },
+      menusCommentHandler: (info: MarkItemInfo, data: QuoteData['data']) => {
+        isCommentShowing.value = true
+        comments.value?.showPostCommentView(info, data)
       }
     })
 
@@ -434,6 +457,16 @@ const findQuote = (quote: QuoteData) => {
 }
 
 const closePanel = () => {
+  if (isSummaryShowing.value) {
+    lastOpenItem.value = PanelItemType.AI
+  } else if (isChatbotShowing.value) {
+    lastOpenItem.value = PanelItemType.Chat
+  } else if (isCommentShowing.value) {
+    lastOpenItem.value = PanelItemType.Comments
+  } else {
+    lastOpenItem.value = undefined
+  }
+
   isSummaryShowing.value = false
   isChatbotShowing.value = false
   isCommentShowing.value = false

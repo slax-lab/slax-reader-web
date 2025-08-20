@@ -98,18 +98,30 @@ const showQuoteImage = computed(() => {
 })
 
 const markComments = computed(() => {
+  const marks = Array.from(document.body.querySelectorAll('slax-mark')) || []
+  const markIds = marks.map(mark => mark.getAttribute('data-uuid') || '')
+
+  const infos = props.selection.markItemInfos.value
+  const noMarkRefs = infos.reduce(
+    (acc, info) => {
+      acc[info.id] = !markIds.includes(info.id)
+      return acc
+    },
+    {} as Record<string, boolean>
+  )
+
   return props.selection.markItemInfos.value
     .map(info => {
-      if (info.comments.length > 0) {
-        info.comments.forEach(comment => {
-          commentIdRefs.value[comment.markId] = info.id
-        })
+      if (info.comments.length === 0) {
+        return []
       }
 
-      return info.comments
+      return info.comments.map(comment => {
+        commentIdRefs.value[comment.markId] = info.id
+        return ref(convertComment(comment, noMarkRefs[info.id]))
+      })
     })
     .flat()
-    .map(comment => ref(convertComment(comment)))
 })
 
 onMounted(() => {
@@ -136,11 +148,14 @@ const navigateToComment = (comment: MarkCommentInfo) => {
   })
 }
 
-const convertComment = (comment: MarkCommentInfo): MarkCommentInfo => {
+const convertComment = (comment: MarkCommentInfo, noMarkMapping?: boolean): MarkCommentInfo => {
   const { children, ...detail } = comment
   return {
     ...detail,
-    children: children.map(convertComment)
+    noMarkMapping,
+    children: children.map(child => {
+      return convertComment(child, noMarkMapping)
+    })
   }
 }
 
