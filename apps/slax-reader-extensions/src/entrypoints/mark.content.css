@@ -7,10 +7,18 @@ slax-mark {
 }
 
 :root {
-  --slax-mark-border-color: #f6af69;
-  --slax-mark-border-color-alpha: #f6af69ee;
+  --slax-mark-border-color: #e6e5e4;
+  --slax-mark-border-color-alpha: #e6e5e4ee;
   --slax-mark-highlight-bg: #fcf4e8;
 }
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --slax-mark-border-color: #292928;
+    --slax-mark-border-color-alpha: #292928ee;
+    --slax-mark-highlight-bg: #fcf4e8;
+  }
+} */
 
 slax-mark.comment,
 slax-mark.stroke {
@@ -23,7 +31,7 @@ slax-mark.self-stroke {
 }
 
 slax-mark.highlighted {
-  background-color: var(--mark-highlight-bg);
+  background-color: var(--slax-mark-highlight-bg);
 }
 
 slax-mark:has(img) {

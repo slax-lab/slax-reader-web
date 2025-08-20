@@ -304,15 +304,18 @@ const loadSelection = async () => {
         return bookmarkId.value
       },
       postQuoteDataHandler: (data: QuoteData) => {
+        closePanel()
         isChatbotShowing.value = true
         chatbot.value?.addQuoteData(data)
         chatbot.value?.focusTextarea()
       },
       markCommentSelectHandler: (comment: MarkCommentInfo) => {
+        closePanel()
         isCommentShowing.value = true
         comments.value?.navigateToComment(comment)
       },
       menusCommentHandler: (info: MarkItemInfo, data: QuoteData['data']) => {
+        closePanel()
         isCommentShowing.value = true
         comments.value?.showPostCommentView(info, data)
       }
