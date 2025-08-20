@@ -16,6 +16,7 @@
             :comment="comment.value"
             :userId="bookmarkUserId"
             @replyComment="options => replyComment(comment.value, options)"
+            @click="navigateToMark(comment.value)"
             @commentDelete="commentDelete"
           />
         </TransitionGroup>
@@ -215,6 +216,20 @@ const commentDelete = (comment: MarkCommentInfo) => {
   }
 
   props.selection.deleteComment(info.id, comment.markId)
+}
+
+const navigateToMark = (comment: MarkCommentInfo) => {
+  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
+  const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
+  if (!info) {
+    return
+  }
+
+  const quote = props.selection.createQuote(info.source, info.approx)
+  props.selection.findQuote({
+    source: { id: info.id },
+    data: quote
+  })
 }
 
 const compositionstart = () => {

@@ -8,7 +8,7 @@ import { SelectionMonitor } from './monitor'
 import { MarkRenderer } from './renderer'
 import { getUUID } from './tools'
 import { MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
-import { type MarkDetail, type MarkPathItem, type UserInfo } from '@commons/types/interface'
+import { type MarkDetail, type MarkPathApprox, type MarkPathItem, type UserInfo } from '@commons/types/interface'
 
 export class ArticleSelection extends Base {
   private monitor: SelectionMonitor
@@ -90,6 +90,10 @@ export class ArticleSelection extends Base {
 
   async deleteComment(id: string, markId: number) {
     await this.manager.deleteComment(id, markId)
+  }
+
+  createQuote(items: MarkPathItem[], approx?: MarkPathApprox): QuoteData['data'] {
+    return this.manager.createQuote(items, approx)
   }
 
   private async handleMouseUp(e: MouseEvent | TouchEvent) {
