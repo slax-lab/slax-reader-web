@@ -7,7 +7,7 @@
       </span>
     </div>
     <div class="comment-list-container">
-      <div class="comments-wrapper" ref="commentsWrapper">
+      <div class="comments-wrapper" ref="commentsWrapper" v-if="markComments.length > 0">
         <TransitionGroup name="opacity">
           <ArticleCommentCell
             v-for="(comment, index) in markComments"
@@ -20,6 +20,9 @@
             @commentDelete="commentDelete"
           />
         </TransitionGroup>
+      </div>
+      <div class="empty-wrapper" v-else>
+        <span>{{ $t('component.article_selection.comments.placeholder') }}</span>
       </div>
     </div>
     <Transition name="opacity">
@@ -342,6 +345,14 @@ defineExpose({
       scrollbar-width: none;
       &::-webkit-scrollbar {
         --style: hidden;
+      }
+    }
+
+    .empty-wrapper {
+      --style: size-full relative;
+
+      span {
+        --style: absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-(15px #ffffff66) line-height-21px whitespace-pre-line text-align-center;
       }
     }
   }

@@ -39,7 +39,8 @@
       "comment_failed": "评论失败",
       "comment_placeholder": "回复 $1",
       "comments": {
-        "title": "评论列表"
+        "title": "评论列表",
+        "placeholder": "对这篇文章有何看法？\n欢迎在文章中划线并分享您的评价"
       },
       "hours_ago": "小时前",
       "just_now": "刚刚",

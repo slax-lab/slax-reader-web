@@ -499,8 +499,6 @@ const tryGetBookmarkChange = async (url: string) => {
     url
   })
 
-  console.log('push message res: ', res)
-
   if (!res || !res.success) {
     return 0
   }

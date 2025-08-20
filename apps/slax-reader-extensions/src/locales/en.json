@@ -39,6 +39,7 @@
       "comment_failed": "Comment failed",
       "comment_placeholder": "Reply to $1",
       "comments": {
+        "placeholder": "What do you think of this article?\nWelcome to mark and share your comments in the article",
         "title": "Comments"
       },
       "hours_ago": "hours ago",
