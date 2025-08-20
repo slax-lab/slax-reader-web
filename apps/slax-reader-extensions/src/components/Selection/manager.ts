@@ -301,10 +301,10 @@ export class MarkManager extends Base {
             currentInfo.id = getUUID()
           }
 
-          this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source))
+          this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source, currentInfo.approx))
           // this.showPanel({ fallbackYOffset: menusY })
         } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-          const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source) }
+          const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source, currentInfo.approx) }
           const selection = this.getSelection()
           const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
           const selected = this.getElementsList(range!)
@@ -645,9 +645,9 @@ export class MarkManager extends Base {
     // this.showPanel()
     if (this._currentMarkItemInfo.value.comments.length > 0) {
       this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
-    } else {
-      this.showMenus(event)
     }
+
+    this.showMenus(event)
   }
 
   private clearSelection() {
