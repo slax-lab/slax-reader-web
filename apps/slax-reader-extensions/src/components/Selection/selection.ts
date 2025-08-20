@@ -37,6 +37,9 @@ export class ArticleSelection extends Base {
   }
 
   findQuote(quote: QuoteData) {
+    const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark`))
+    slaxMarks.forEach(mark => mark.classList.remove('highlighted'))
+
     if (quote.source.selection) {
       const selection = this.getSelection()
       selection?.removeAllRanges()
