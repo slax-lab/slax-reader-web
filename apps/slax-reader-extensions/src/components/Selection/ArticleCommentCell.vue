@@ -15,8 +15,8 @@
         <span class="date">{{ showCreateTime(comment) }}</span>
         <div class="operates" v-if="comment.markId !== 0 && !comment.loading">
           <template v-if="!comment.operateLoading">
-            <button class="reply-btn group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
-            <button class="delete-btn group-hover/comment:!opacity-100" v-if="canDeleteComment(comment)" @click="commentDeleteClick(comment)"></button>
+            <button class="reply-btn group-hover/comment:!opacity-100" @click.stop="replyComment(comment)"></button>
+            <button class="delete-btn group-hover/comment:!opacity-100" v-if="canDeleteComment(comment)" @click.stop="commentDeleteClick(comment)"></button>
           </template>
           <div class="i-svg-spinners:180-ring-with-bg ml-10px text-16px text-#999" v-else-if="comment.operateLoading"></div>
         </div>
@@ -39,11 +39,11 @@
             <span class="date">{{ showCreateTime(comment) }}</span>
             <div class="operates" v-if="childComment.markId !== 0 && !childComment.loading">
               <template v-if="!childComment.operateLoading">
-                <button class="reply-btn group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
+                <button class="reply-btn group-hover/child:!opacity-100" @click.stop="replyComment(childComment)"></button>
                 <button
                   class="delete-btn group-hover/child:!opacity-100"
                   v-if="!childComment.isDeleted && canDeleteComment(childComment)"
-                  @click="commentDeleteClick(childComment)"
+                  @click.stop="commentDeleteClick(childComment)"
                 ></button>
               </template>
               <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999" v-else-if="childComment.operateLoading"></div>

@@ -1,6 +1,6 @@
 <template>
   <Transition name="input">
-    <div class="article-comment-input" v-show="showInput">
+    <div class="article-comment-input" v-show="showInput" @click.stop>
       <div class="comment-input-wrapper">
         <textarea
           ref="textarea"
