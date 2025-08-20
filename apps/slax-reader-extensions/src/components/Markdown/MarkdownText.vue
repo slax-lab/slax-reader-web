@@ -25,7 +25,7 @@ watch(
 )
 
 const parseHTML = (html: string) => {
-  const reg = new RegExp(/\<a rel\=\"noopener\" href\=\"(anchor_.+?)\"\>(.+?)\<\/a\>/g)
+  const reg = new RegExp(/\<a href\=\"(anchor_.+?)\" rel\=\"noopener\"\>(.+?)\<\/a\>/g)
   let matches: RegExpExecArray | null = null
 
   const result: { text: string; href: string }[] = []

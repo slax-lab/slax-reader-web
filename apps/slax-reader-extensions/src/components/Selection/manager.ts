@@ -18,9 +18,10 @@ import {
   type MarkUserInfo,
   type UserList
 } from '@commons/types/interface'
+import { getElementFullSelector } from '@commons/utils/dom'
 
 export class MarkManager extends Base {
-  private _markItemInfos: MarkItemInfo[] = []
+  private _markItemInfos = ref<MarkItemInfo[]>([])
   private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
   private _selectContent = ref<MarkSelectContent[]>([])
   private _findQuote: (quote: QuoteData) => void
@@ -42,8 +43,8 @@ export class MarkManager extends Base {
     const userMap = this.createUserMap(marks.user_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
-    this._markItemInfos = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    for (const info of this._markItemInfos) {
+    this._markItemInfos.value = this.generateMarkItemInfos(marks.mark_list, commentMap)
+    for (const info of this._markItemInfos.value) {
       await this.renderer.drawMark(info)
     }
   }
@@ -87,8 +88,8 @@ export class MarkManager extends Base {
         }
       : null
 
-    const isUpdate = !replyToId && !!this._markItemInfos.find(item => item.id === infoItem.id)
-    if (!isUpdate) this._markItemInfos.push(infoItem)
+    const isUpdate = !!this._markItemInfos.value.find(item => item.id === infoItem.id)
+    if (!isUpdate) this._markItemInfos.value.push(infoItem)
 
     if (commentItem) {
       if (replyToId) {
@@ -166,15 +167,15 @@ export class MarkManager extends Base {
 
     info.stroke = info.stroke.filter(item => item.userId !== userId)
     if (info.stroke.length === 0 && info.comments.length === 0) {
-      const index = this._markItemInfos.findIndex(item => item.id === info.id)
-      this._markItemInfos.splice(index, 1)
+      const index = this._markItemInfos.value.findIndex(item => item.id === info.id)
+      this._markItemInfos.value.splice(index, 1)
     }
     await this.renderer.drawMark(info, 'update')
     await this.modal.dismissPanel()
   }
 
   async deleteComment(id: string, markId: number) {
-    const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.find(item => item.id === id)
+    const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.value.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
 
     const removeMarkOrComment = async () => {
@@ -201,8 +202,8 @@ export class MarkManager extends Base {
       await this.renderer.drawMark(markInfoItem, 'update')
 
       if (markInfoItem.stroke.length === 0 && markInfoItem.comments.length === 0) {
-        const index = this._markItemInfos.findIndex(item => item.id === markInfoItem.id)
-        this._markItemInfos.splice(index, 1)
+        const index = this._markItemInfos.value.findIndex(item => item.id === markInfoItem.id)
+        this._markItemInfos.value.splice(index, 1)
       }
     }
 
@@ -271,6 +272,63 @@ export class MarkManager extends Base {
     }
 
     return true
+  }
+
+  showMenus(event: MouseEvent | TouchEvent) {
+    const userInfo = this.config.userInfo
+    if (!userInfo) return
+
+    let menusY = 0
+    this.modal.showMenus({
+      event,
+      isStroked: !!this._currentMarkItemInfo.value?.stroke.find(item => item.userId === userInfo.userId),
+      callback: (type: MenuType, event: MouseEvent) => {
+        const currentInfo = this._currentMarkItemInfo.value
+        if (!currentInfo) return
+
+        if (type === MenuType.Stroke) {
+          if (currentInfo.id.length === 0) {
+            currentInfo.id = getUUID()
+          }
+
+          this.strokeSelection({ info: currentInfo })
+        } else if (type === MenuType.Stroke_Delete) {
+          this.deleteStroke(currentInfo)
+        } else if (type === MenuType.Copy) {
+          this.copyMarkedText(currentInfo.source, event)
+        } else if (type === MenuType.Comment) {
+          if (currentInfo.id.length === 0) {
+            currentInfo.id = getUUID()
+          }
+
+          this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source))
+          // this.showPanel({ fallbackYOffset: menusY })
+        } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
+          const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source) }
+          const selection = this.getSelection()
+          const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
+          const selected = this.getElementsList(range!)
+
+          if (!selected || selected.length === 0) {
+            quote.source.selection = range
+          } else {
+            const paths = this.getMarkPathItems(selected)
+            quote.source.paths = paths || (range ? undefined : [])
+            if (!paths && range) quote.source.selection = range
+          }
+
+          this.config.postQuoteDataHandler(quote)
+          this._findQuote(quote)
+        }
+
+        if (type !== MenuType.Comment) this.clearSelection()
+      },
+      positionCallback: ({ y }) => (menusY = y),
+      noActionCallback: () => {
+        this.updateCurrentMarkItemInfo(null)
+        this.clearSelectContent()
+      }
+    })
   }
 
   showPanel(options?: { fallbackYOffset: number }) {
@@ -418,6 +476,32 @@ export class MarkManager extends Base {
     this._selectContent.value = []
   }
 
+  getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
+    const markItems: MarkPathItem[] = []
+    const ele = this.config.monitorDom?.querySelector('.html-text')
+    for (const info of infos) {
+      if (info.type === 'text') {
+        const selector = getElementFullSelector(info.node!.parentElement!, ['slax-mark'], ele!) // 假设存在此方法
+        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
+        if (!baseElement) return null
+
+        const nodes = this.renderer.getAllTextNodes(baseElement)
+        const nodeLengths = nodes.map(node => (node.textContent || '').length)
+        const nodeIndex = nodes.indexOf(info.node as Node)
+        if (nodeIndex === -1) continue
+
+        const base = nodeLengths.slice(0, nodeIndex).reduce((acc, cur) => acc + cur, 0)
+        markItems.push({ type: 'text', path: selector, start: base + info.startOffset, end: base + info.endOffset })
+      } else if (info.type === 'image') {
+        const selector = getElementFullSelector(info.ele as HTMLElement, ['slax-mark'], ele!)
+        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
+        if (!baseElement) return null
+        markItems.push({ type: 'image', path: selector })
+      }
+    }
+    return markItems
+  }
+
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
     try {
@@ -524,11 +608,11 @@ export class MarkManager extends Base {
     return null
   }
 
-  private handleMarkClick(ele: HTMLElement) {
+  private handleMarkClick(ele: HTMLElement, event: PointerEvent) {
     const id = ele.dataset.uuid
     if (!id) return
 
-    const infoItem = this._markItemInfos.find(item => item.id === id)
+    const infoItem = this._markItemInfos.value.find(item => item.id === id)
     if (!infoItem) return
 
     if ((!infoItem.approx || Object.keys(infoItem.approx).length === 0) && infoItem.source.length > 0) {
@@ -558,18 +642,30 @@ export class MarkManager extends Base {
     }
 
     this._currentMarkItemInfo.value = infoItem
-    this.showPanel()
+    // this.showPanel()
+    if (this._currentMarkItemInfo.value.comments.length > 0) {
+      this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
+    } else {
+      this.showMenus(event)
+    }
   }
 
-  getMarkItemInfos() {
+  private clearSelection() {
+    const selection = this.getSelection()
+    if (selection) selection.removeAllRanges()
+    this.updateCurrentMarkItemInfo(null)
+    this.clearSelectContent()
+  }
+
+  get markItemInfos() {
     return this._markItemInfos
   }
 
   get currentMarkItemInfo() {
-    return this._currentMarkItemInfo.value
+    return this._currentMarkItemInfo
   }
 
   get selectContent() {
-    return this._selectContent.value
+    return this._selectContent
   }
 }

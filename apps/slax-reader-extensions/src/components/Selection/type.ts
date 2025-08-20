@@ -38,6 +38,7 @@ export type MarkCommentInfo = {
   showInput: boolean
   loading: boolean
   operateLoading: boolean
+  noMarkMapping?: boolean // # 是否找不到对应的划线映射
 }
 
 export interface SelectionConfig {
@@ -47,6 +48,8 @@ export interface SelectionConfig {
   userInfo: UserInfo | null
   bookmarkIdQuery: () => Promise<number>
   postQuoteDataHandler: (data: QuoteData) => void
+  markCommentSelectHandler?: (comment: MarkCommentInfo) => void
+  menusCommentHandler?: (info: MarkItemInfo, data: QuoteData['data']) => void
 }
 
 export interface StrokeSelectionMeta {

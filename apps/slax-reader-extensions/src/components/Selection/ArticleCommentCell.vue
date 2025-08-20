@@ -1,5 +1,5 @@
 <template>
-  <div class="article-comment-cell">
+  <div class="article-comment-cell" :class="{ 'animate-pulse': highlighting, 'animate-duration-500': highlighting, 'semi-transparent': comment.noMarkMapping }" ref="cell">
     <div class="group/comment">
       <div class="comment-header">
         <div class="left">
@@ -78,6 +78,9 @@ const props = defineProps({
   }
 })
 
+const cell = ref<HTMLElement>()
+const highlighting = ref(false)
+
 const commentChildren = computed(() => {
   return props.comment.children.filter(child => !child.isDeleted)
 })
@@ -124,11 +127,30 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 
   comment.showInput = false
 }
+
+const highlightCell = () => {
+  cell.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  setTimeout(() => {
+    highlighting.value = true
+
+    setTimeout(() => {
+      highlighting.value = false
+    }, 1000)
+  }, 400)
+}
+
+defineExpose({
+  highlightCell
+})
 </script>
 
 <style lang="scss" scoped>
 .article-comment-cell {
   --style: 'px-16px pt-16px pb-20px rounded-8px bg-#333333FF not-first:mt-8px';
+
+  &.semi-transparent {
+    --style: opacity-50;
+  }
 
   .comment-header {
     --style: flex justify-between items-center;

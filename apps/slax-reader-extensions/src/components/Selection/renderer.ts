@@ -6,7 +6,7 @@ import type { DrawMarkBaseInfo, MarkItemInfo, SelectionConfig } from './type'
 import type { MarkPathItem } from '@commons/types/interface'
 
 export class MarkRenderer extends Base {
-  private _handleMarkClickHandler?: (ele: HTMLElement) => void
+  private _handleMarkClickHandler?: (ele: HTMLElement, event: PointerEvent) => void
 
   constructor(config: SelectionConfig) {
     super(config)
@@ -128,7 +128,7 @@ export class MarkRenderer extends Base {
 
     mark.onclick = e => {
       const target = e.target as HTMLElement
-      if (target && this._handleMarkClickHandler) this._handleMarkClickHandler(target)
+      if (target && this._handleMarkClickHandler) this._handleMarkClickHandler(target, e)
     }
 
     range.surroundContents(mark)
@@ -145,7 +145,7 @@ export class MarkRenderer extends Base {
 
     mark.onclick = e => {
       const target = e.target as HTMLElement
-      if (target && this._handleMarkClickHandler) this._handleMarkClickHandler(target)
+      if (target && this._handleMarkClickHandler) this._handleMarkClickHandler(target, e)
       e.stopPropagation()
     }
 
@@ -210,7 +210,7 @@ export class MarkRenderer extends Base {
     return textNodes
   }
 
-  setMarkClickHandler(handler: (ele: HTMLElement) => void) {
+  setMarkClickHandler(handler: (ele: HTMLElement, event: PointerEvent) => void) {
     this._handleMarkClickHandler = handler
   }
 }

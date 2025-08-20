@@ -106,7 +106,7 @@ watch(
         const xGap = Math.abs(x)
         const yGap = Math.abs(y)
         const yOffset = rect.bottom - eleRect.top + 10
-        const xOffset = Math.max(Math.min(rect.left - eleRect.left, eleRect.width - 200 - xGap), xGap)
+        const xOffset = Math.min(rect.left - eleRect.left, eleRect.width - 200 - xGap)
 
         searchList.value.style.top = `${yOffset}px`
         searchList.value.style.left = `${xOffset}px`
@@ -280,19 +280,19 @@ const addingTagClick = (e: MouseEvent) => {
       }
 
       .search-list {
-        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #3333330d) shadow-[0px_20px_60px_0px_#ffffff0a] px-12px py-16px pb-12px z-10;
+        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(3px solid #ffffff0a) shadow-[0px_40px_80px_0px_#00000052] px-12px py-16px pb-12px z-10;
         --style: 'bg-#fff dark:(bg-#1F1F1F)';
 
         input {
           --style: rounded-6px border-(1px solid) px-10px py-9px h-36px text-(13px) line-height-18px w-full transition-all duration-300;
-          --style: 'bg-#fcfcfc border-#3333330d text-#999 dark:(bg-#1F1F1FFF border-#FFFFFF1F text-#999)';
+          --style: 'bg-#fcfcfc border-#3333330d text-#999 dark:(bg-#262626 border-#3333330D text-#999)';
           &:focus {
             --style: border-(1.5px #f4c982) text-#A28D64;
           }
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(15px #ffffff66) line-height-21px;
+            --style: text-(13px #999999) line-height-21px;
           }
         }
 

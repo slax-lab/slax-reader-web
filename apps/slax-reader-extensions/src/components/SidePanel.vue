@@ -20,6 +20,18 @@
           />
         </div>
       </Transition>
+      <Transition name="sidepanel">
+        <div class="dark size-full" v-show="isCommentShowing">
+          <ArticleCommentsView
+            v-if="userInfo && articleSelection"
+            :key="currentUrl"
+            ref="comments"
+            :selection="articleSelection"
+            :isAppeared="isCommentShowing"
+            :bookmark-user-id="userInfo.userId"
+          />
+        </div>
+      </Transition>
     </template>
     <template #tabbars>
       <div class="button-wrapper" v-for="panel in subPanelItems" :key="panel.type">
@@ -50,6 +62,7 @@
       <SidebarItems
         :is-summary-showing="isSummaryShowing"
         :is-chatbot-showing="isChatbotShowing"
+        :is-comment-showing="isCommentShowing"
         :is-star="bookmarkBriefInfo?.starred === 'star'"
         :is-archive="bookmarkBriefInfo?.archived === 'archive'"
         @panel-item-action="panelClick"
@@ -68,6 +81,7 @@ import SidebarItems from './SidebarItems.vue'
 import SidebarTips from './Tips/SidebarTips.vue'
 import AIOverview from './AIOverview.vue'
 import PanelView from './PanelView.vue'
+import ArticleCommentsView from './Selection/ArticleCommentsView.vue'
 
 import { type MessageType, MessageTypeAction } from '@/config/message'
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
@@ -81,6 +95,7 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
 import type { WxtBrowser } from 'wxt/browser'
 import { onKeyStroke } from '@vueuse/core'
+import type { MarkCommentInfo, MarkItemInfo } from './Selection/type'
 
 const props = defineProps({
   browser: {
@@ -109,16 +124,16 @@ const subPanelItems = ref<PanelItem[]>([
     title: $t('component.sidebar.chat'),
     hovered: false,
     isSelected: () => isChatbotShowing.value
+  },
+  {
+    type: PanelItemType.Comments,
+    icon: Images.comments.sub,
+    highlighedIcon: Images.comments.highlighted,
+    selectedIcon: Images.comments.selected,
+    title: $t('component.sidebar.comments'),
+    hovered: false,
+    isSelected: () => isCommentShowing.value
   }
-  // {
-  //   type: PanelItemType.Comments,
-  //   icon: Images.comments.sub,
-  //   highlighedIcon: Images.comments.highlighted,
-  //   selectedIcon: Images.comments.selected,
-  //   title: $t('component.sidebar.comments'),
-  //   hovered: false,
-  //   isSelected: () => false
-  // }
 ])
 
 const menus = ref<HTMLDivElement>()
@@ -126,14 +141,17 @@ const modalContainer = useTemplateRef<HTMLDivElement>('modalContainer')
 
 const summaries = ref<InstanceType<typeof AISummaries>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
+const comments = ref<InstanceType<typeof ArticleCommentsView>>()
 
 const bookmarkId = ref(0)
 const bookmarkUrl = ref('')
 const currentUrl = ref(window.location.href)
 const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 
+const lastOpenItem = ref<PanelItemType>()
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
+const isCommentShowing = ref(false)
 
 const isLoading = ref(false)
 
@@ -142,7 +160,7 @@ let articleSelection: ArticleSelection | null = null
 const userInfo = ref<UserInfo | null>(null)
 
 const showPanel = computed(() => {
-  return isSummaryShowing.value || isChatbotShowing.value
+  return isSummaryShowing.value || isChatbotShowing.value || isCommentShowing.value
 })
 
 const needHidden = computed(() => {
@@ -211,9 +229,14 @@ onKeyStroke(['z', 'Z'], e => {
   }
 
   const ctrlFire = (e.ctrlKey && !isMac) || ((e.ctrlKey || e.metaKey) && isMac)
-  if (ctrlFire && e.shiftKey && !showPanel.value) {
+  if (ctrlFire && e.shiftKey) {
     e.preventDefault()
-    panelClick(subPanelItems.value[0])
+
+    if (!showPanel.value) {
+      panelClick(subPanelItems.value.find(item => item.type === lastOpenItem.value) ?? subPanelItems.value[0])
+    } else {
+      closePanel()
+    }
   }
 })
 
@@ -281,9 +304,20 @@ const loadSelection = async () => {
         return bookmarkId.value
       },
       postQuoteDataHandler: (data: QuoteData) => {
+        closePanel()
         isChatbotShowing.value = true
         chatbot.value?.addQuoteData(data)
         chatbot.value?.focusTextarea()
+      },
+      markCommentSelectHandler: (comment: MarkCommentInfo) => {
+        closePanel()
+        isCommentShowing.value = true
+        comments.value?.navigateToComment(comment)
+      },
+      menusCommentHandler: (info: MarkItemInfo, data: QuoteData['data']) => {
+        closePanel()
+        isCommentShowing.value = true
+        comments.value?.showPostCommentView(info, data)
       }
     })
 
@@ -316,9 +350,8 @@ const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
     return
   }
 
-  if ([PanelItemType.AI, PanelItemType.Chat].indexOf(type) > -1) {
-    isSummaryShowing.value = false
-    isChatbotShowing.value = false
+  if ([PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
+    closePanel()
   }
 
   switch (type) {
@@ -328,6 +361,10 @@ const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
     }
     case PanelItemType.Chat: {
       isChatbotShowing.value = !isChatbotShowing.value
+      break
+    }
+    case PanelItemType.Comments: {
+      isCommentShowing.value = !isCommentShowing.value
       break
     }
     case PanelItemType.Share: {
@@ -423,8 +460,19 @@ const findQuote = (quote: QuoteData) => {
 }
 
 const closePanel = () => {
+  if (isSummaryShowing.value) {
+    lastOpenItem.value = PanelItemType.AI
+  } else if (isChatbotShowing.value) {
+    lastOpenItem.value = PanelItemType.Chat
+  } else if (isCommentShowing.value) {
+    lastOpenItem.value = PanelItemType.Comments
+  } else {
+    lastOpenItem.value = undefined
+  }
+
   isSummaryShowing.value = false
   isChatbotShowing.value = false
+  isCommentShowing.value = false
 }
 
 const getRequestParams = () => {
@@ -450,8 +498,6 @@ const tryGetBookmarkChange = async (url: string) => {
     action: MessageTypeAction.QueryBookmarkChange,
     url
   })
-
-  console.log('push message res: ', res)
 
   if (!res || !res.success) {
     return 0
@@ -495,21 +541,21 @@ const addBookmark = async () => {
     --style: absolute top-0 right-0 size-full bg-#1F1F1FCC flex items-center flex-nowrap;
 
     .selected-bg {
-      --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-7px bg-#262626;
+      --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-10px bg-#262626;
 
       &::before,
       &::after {
-        --style: content-empty absolute w-7px h-7px z-1 bg-#262626;
+        --style: content-empty absolute size-10px z-1 bg-#262626;
       }
 
       &::before {
         --style: bottom-full left-0;
-        clip-path: path('M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z');
+        clip-path: path('M 0 0 A 10 10 0 0 0 10 10 L 0 10 Z');
       }
 
       &::after {
         --style: top-full left-0;
-        clip-path: path('M 0 0 L 7 0 A 7 7 0 0 0 0 7 L 0 0 Z');
+        clip-path: path('M 0 0 L 10 0 A 10 10 0 0 0 0 10 L 0 0 Z');
       }
     }
 
