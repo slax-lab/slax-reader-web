@@ -317,7 +317,7 @@ const addingTagClick = (e: MouseEvent) => {
 
               .ai {
                 --style: bg-contain w-16px h-16px shrink-0;
-                background-image: url('@/images/cell-ai-style-icon.png');
+                background-image: url('@images/cell-ai-style-icon.png');
               }
             }
           }
