@@ -16,6 +16,7 @@ import menuChatbotImage from '@/assets/menu-chatbot-icon.png'
 import menuCommentImage from '@/assets/menu-comment-icon.png'
 import menuCopyImage from '@/assets/menu-copy-icon.png'
 import menuStrokeImage from '@/assets/menu-stroke-icon.png'
+import menuStrokeDeleteImage from '@/assets/menu-stroke-delete-icon.png'
 
 import { MenuType } from './type'
 import { vOnClickOutside } from '@vueuse/components'
@@ -26,7 +27,16 @@ interface MenuItem {
   icon: string
 }
 
-const props = defineProps(['allowAction'])
+const props = defineProps({
+  allowAction: {
+    type: Boolean,
+    default: false
+  },
+  isStroked: {
+    type: Boolean,
+    default: false
+  }
+})
 const emits = defineEmits(['action', 'dismiss', 'noAction'])
 const menus = ref<MenuItem[]>([])
 const appear = ref(false)
@@ -42,11 +52,17 @@ const updateMenus = () => {
   if (props.allowAction) {
     menus.value.push(
       ...[
-        {
-          id: MenuType.Stroke,
-          name: $t('common.operate.line'),
-          icon: menuStrokeImage
-        },
+        props.isStroked
+          ? {
+              id: MenuType.Stroke_Delete,
+              name: $t('common.operate.delete_line'),
+              icon: menuStrokeDeleteImage
+            }
+          : {
+              id: MenuType.Stroke,
+              name: $t('common.operate.line'),
+              icon: menuStrokeImage
+            },
         {
           id: MenuType.Comment,
           name: $t('common.operate.comment'),

@@ -110,11 +110,15 @@ export class ArticleSelection extends Base {
       const { list, approx } = this.manager.getElementInfo(range)
 
       if (!list || list.length === 0 || !approx) {
-        this.manager.updateCurrentMarkItemInfo(null)
+        if (e.target instanceof HTMLElement && e.target?.nodeName !== 'SLAX-MARK') {
+          // 新需求下，slax-mark的点击是需要保留currentMarkItemInfo的
+          this.manager.updateCurrentMarkItemInfo(null)
+        }
+
         return
       }
 
-      const source = this.getMarkPathItems(list)
+      const source = this.manager.getMarkPathItems(list)
       if (!source) return
 
       const markInfoItem = this.manager.markItemInfos.value.find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
@@ -150,87 +154,8 @@ export class ArticleSelection extends Base {
         }
       })
 
-      let menusY = 0
-      this.modal.showMenus({
-        event: e,
-        callback: (type: MenuType, event: MouseEvent) => {
-          const currentInfo = this.manager.currentMarkItemInfo.value
-          if (!currentInfo) return
-
-          if (type === MenuType.Stroke) {
-            currentInfo.id = getUUID()
-            this.manager.strokeSelection({ info: currentInfo })
-          } else if (type === MenuType.Copy) {
-            this.manager.copyMarkedText(source, event)
-          } else if (type === MenuType.Comment) {
-            currentInfo.id = getUUID()
-            console.log('managers current info: ', currentInfo)
-            this.config.menusCommentHandler?.(currentInfo, this.manager.createQuote(currentInfo.source))
-            // this.manager.showPanel({ fallbackYOffset: menusY })
-          } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-            const quote: QuoteData = { source: {}, data: this.manager.createQuote(currentInfo.source) }
-            const selection = this.getSelection()
-            const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
-            const selected = this.manager.getElementsList(range!)
-
-            if (!selected || selected.length === 0) {
-              quote.source.selection = range
-            } else {
-              const paths = this.getMarkPathItems(selected)
-              quote.source.paths = paths || (range ? undefined : [])
-              if (!paths && range) quote.source.selection = range
-            }
-
-            this.config.postQuoteDataHandler(quote)
-            this.findQuote(quote)
-          }
-
-          if (type !== MenuType.Comment) this.clearSelection()
-        },
-        positionCallback: ({ y }) => (menusY = y),
-        noActionCallback: () => {
-          this.manager.updateCurrentMarkItemInfo(null)
-          this.manager.clearSelectContent()
-        }
-      })
+      this.manager.showMenus(e)
     }, 0)
-  }
-
-  private getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
-    const markItems: MarkPathItem[] = []
-    const ele = this.config.monitorDom?.querySelector('.html-text')
-    for (const info of infos) {
-      if (info.type === 'text') {
-        const selector = getElementFullSelector(info.node!.parentElement!, ['slax-mark'], ele!) // 假设存在此方法
-        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
-        if (!baseElement) return null
-
-        const nodes = this.renderer.getAllTextNodes(baseElement)
-        const nodeLengths = nodes.map(node => (node.textContent || '').length)
-        const nodeIndex = nodes.indexOf(info.node as Node)
-        if (nodeIndex === -1) continue
-
-        const base = nodeLengths.slice(0, nodeIndex).reduce((acc, cur) => acc + cur, 0)
-        markItems.push({ type: 'text', path: selector, start: base + info.startOffset, end: base + info.endOffset })
-      } else if (info.type === 'image') {
-        const selector = getElementFullSelector(info.ele as HTMLElement, ['slax-mark'], ele!)
-        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
-        if (!baseElement) return null
-        markItems.push({ type: 'image', path: selector })
-      }
-    }
-    return markItems
-  }
-
-  private clearSelection() {
-    const selection = this.getSelection()
-    if (selection) selection.removeAllRanges()
-    this.manager.updateCurrentMarkItemInfo(null)
-    this.manager.clearSelectContent()
-  }
-
-  private getSelection() {
-    return this.window.getSelection()
   }
 
   get isMonitoring() {
