@@ -106,7 +106,7 @@ onUnmounted(() => {})
     --style: 'px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
 
     &:hover {
-      --style: 'bg-#f5f5f3 dark:bg-#333333FF';
+      --style: 'bg-#f5f5f3 dark:bg-#00000029';
     }
 
     img {

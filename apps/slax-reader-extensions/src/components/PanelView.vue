@@ -290,7 +290,7 @@ const closePanel = () => {
             }
 
             .version {
-              --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-11px;
+              --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-14px;
             }
           }
         }

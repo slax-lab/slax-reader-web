@@ -507,21 +507,21 @@ const addBookmark = async () => {
     --style: absolute top-0 right-0 size-full bg-#1F1F1FCC flex items-center flex-nowrap;
 
     .selected-bg {
-      --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-7px bg-#262626;
+      --style: absolute right-5px top-0 bottom-0 left-0 rounded-r-10px bg-#262626;
 
       &::before,
       &::after {
-        --style: content-empty absolute w-7px h-7px z-1 bg-#262626;
+        --style: content-empty absolute size-10px z-1 bg-#262626;
       }
 
       &::before {
         --style: bottom-full left-0;
-        clip-path: path('M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z');
+        clip-path: path('M 0 0 A 10 10 0 0 0 10 10 L 0 10 Z');
       }
 
       &::after {
         --style: top-full left-0;
-        clip-path: path('M 0 0 L 7 0 A 7 7 0 0 0 0 7 L 0 0 Z');
+        clip-path: path('M 0 0 L 10 0 A 10 10 0 0 0 0 10 L 0 0 Z');
       }
     }
 

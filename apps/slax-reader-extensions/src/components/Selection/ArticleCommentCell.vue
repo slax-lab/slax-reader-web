@@ -1,5 +1,5 @@
 <template>
-  <div class="article-comment-cell" :class="{ 'animate-pulse': highlighting, 'animate-duration-500': highlighting }" ref="cell">
+  <div class="article-comment-cell" :class="{ 'animate-pulse': highlighting, 'animate-duration-500': highlighting, 'semi-transparent': comment.noMarkMapping }" ref="cell">
     <div class="group/comment">
       <div class="comment-header">
         <div class="left">
@@ -147,6 +147,10 @@ defineExpose({
 <style lang="scss" scoped>
 .article-comment-cell {
   --style: 'px-16px pt-16px pb-20px rounded-8px bg-#333333FF not-first:mt-8px';
+
+  &.semi-transparent {
+    --style: opacity-50;
+  }
 
   .comment-header {
     --style: flex justify-between items-center;
