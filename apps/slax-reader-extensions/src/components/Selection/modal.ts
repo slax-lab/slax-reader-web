@@ -33,11 +33,12 @@ export class MarkModal extends Base {
 
   showMenus(options: {
     event: MouseEvent | TouchEvent
+    isStroked?: boolean
     callback?: (type: MenuType, event: MouseEvent) => void
     positionCallback?: (position: { x: number; y: number }) => void
     noActionCallback?: () => void
   }) {
-    const { event, callback, positionCallback, noActionCallback } = options
+    const { event, isStroked, callback, positionCallback, noActionCallback } = options
     const { containerDom, allowAction } = this.config
 
     if (!containerDom || this.isPanelExist(containerDom)) {
@@ -58,6 +59,7 @@ export class MarkModal extends Base {
 
     const app = createApp(ArticleSelectionMenus, {
       allowAction,
+      isStroked,
       onDismiss: () => {
         app.unmount()
         articleSelectionMenus.remove()
@@ -79,7 +81,8 @@ export class MarkModal extends Base {
       return
     }
 
-    if (range.startOffset === range.endOffset && range.startContainer === range.endContainer) {
+    if (!(event instanceof PointerEvent) && range.startOffset === range.endOffset && range.startContainer === range.endContainer) {
+      // marks: slax-mark点击归属于ponter event
       return
     }
 

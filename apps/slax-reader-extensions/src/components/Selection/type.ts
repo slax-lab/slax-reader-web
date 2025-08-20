@@ -38,6 +38,7 @@ export type MarkCommentInfo = {
   showInput: boolean
   loading: boolean
   operateLoading: boolean
+  noMarkMapping?: boolean // # 是否找不到对应的划线映射
 }
 
 export interface SelectionConfig {

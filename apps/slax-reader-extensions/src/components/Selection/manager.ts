@@ -281,7 +281,7 @@ export class MarkManager extends Base {
     let menusY = 0
     this.modal.showMenus({
       event,
-      isHighlighted: !!this._currentMarkItemInfo.value?.stroke.find(item => item.userId === userInfo.userId),
+      isStroked: !!this._currentMarkItemInfo.value?.stroke.find(item => item.userId === userInfo.userId),
       callback: (type: MenuType, event: MouseEvent) => {
         const currentInfo = this._currentMarkItemInfo.value
         if (!currentInfo) return
