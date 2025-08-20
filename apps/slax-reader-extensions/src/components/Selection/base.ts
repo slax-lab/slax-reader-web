@@ -3,6 +3,10 @@ import type { SelectionConfig } from './type'
 export class Base {
   constructor(private _config: SelectionConfig) {}
 
+  protected getSelection() {
+    return this.window.getSelection()
+  }
+
   protected get window() {
     return window!
   }

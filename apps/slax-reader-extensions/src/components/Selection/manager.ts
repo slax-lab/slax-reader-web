@@ -18,6 +18,7 @@ import {
   type MarkUserInfo,
   type UserList
 } from '@commons/types/interface'
+import { getElementFullSelector } from '@commons/utils/dom'
 
 export class MarkManager extends Base {
   private _markItemInfos = ref<MarkItemInfo[]>([])
@@ -273,6 +274,63 @@ export class MarkManager extends Base {
     return true
   }
 
+  showMenus(event: MouseEvent | TouchEvent) {
+    const userInfo = this.config.userInfo
+    if (!userInfo) return
+
+    let menusY = 0
+    this.modal.showMenus({
+      event,
+      isHighlighted: !!this._currentMarkItemInfo.value?.stroke.find(item => item.userId === userInfo.userId),
+      callback: (type: MenuType, event: MouseEvent) => {
+        const currentInfo = this._currentMarkItemInfo.value
+        if (!currentInfo) return
+
+        if (type === MenuType.Stroke) {
+          if (currentInfo.id.length === 0) {
+            currentInfo.id = getUUID()
+          }
+
+          this.strokeSelection({ info: currentInfo })
+        } else if (type === MenuType.Stroke_Delete) {
+          this.deleteStroke(currentInfo)
+        } else if (type === MenuType.Copy) {
+          this.copyMarkedText(currentInfo.source, event)
+        } else if (type === MenuType.Comment) {
+          if (currentInfo.id.length === 0) {
+            currentInfo.id = getUUID()
+          }
+
+          this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source))
+          // this.showPanel({ fallbackYOffset: menusY })
+        } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
+          const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source) }
+          const selection = this.getSelection()
+          const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
+          const selected = this.getElementsList(range!)
+
+          if (!selected || selected.length === 0) {
+            quote.source.selection = range
+          } else {
+            const paths = this.getMarkPathItems(selected)
+            quote.source.paths = paths || (range ? undefined : [])
+            if (!paths && range) quote.source.selection = range
+          }
+
+          this.config.postQuoteDataHandler(quote)
+          this._findQuote(quote)
+        }
+
+        if (type !== MenuType.Comment) this.clearSelection()
+      },
+      positionCallback: ({ y }) => (menusY = y),
+      noActionCallback: () => {
+        this.updateCurrentMarkItemInfo(null)
+        this.clearSelectContent()
+      }
+    })
+  }
+
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
 
@@ -418,6 +476,32 @@ export class MarkManager extends Base {
     this._selectContent.value = []
   }
 
+  getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
+    const markItems: MarkPathItem[] = []
+    const ele = this.config.monitorDom?.querySelector('.html-text')
+    for (const info of infos) {
+      if (info.type === 'text') {
+        const selector = getElementFullSelector(info.node!.parentElement!, ['slax-mark'], ele!) // 假设存在此方法
+        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
+        if (!baseElement) return null
+
+        const nodes = this.renderer.getAllTextNodes(baseElement)
+        const nodeLengths = nodes.map(node => (node.textContent || '').length)
+        const nodeIndex = nodes.indexOf(info.node as Node)
+        if (nodeIndex === -1) continue
+
+        const base = nodeLengths.slice(0, nodeIndex).reduce((acc, cur) => acc + cur, 0)
+        markItems.push({ type: 'text', path: selector, start: base + info.startOffset, end: base + info.endOffset })
+      } else if (info.type === 'image') {
+        const selector = getElementFullSelector(info.ele as HTMLElement, ['slax-mark'], ele!)
+        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
+        if (!baseElement) return null
+        markItems.push({ type: 'image', path: selector })
+      }
+    }
+    return markItems
+  }
+
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
     try {
@@ -524,7 +608,7 @@ export class MarkManager extends Base {
     return null
   }
 
-  private handleMarkClick(ele: HTMLElement) {
+  private handleMarkClick(ele: HTMLElement, event: PointerEvent) {
     const id = ele.dataset.uuid
     if (!id) return
 
@@ -561,7 +645,16 @@ export class MarkManager extends Base {
     // this.showPanel()
     if (this._currentMarkItemInfo.value.comments.length > 0) {
       this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
+    } else {
+      this.showMenus(event)
     }
+  }
+
+  private clearSelection() {
+    const selection = this.getSelection()
+    if (selection) selection.removeAllRanges()
+    this.updateCurrentMarkItemInfo(null)
+    this.clearSelectContent()
   }
 
   get markItemInfos() {
