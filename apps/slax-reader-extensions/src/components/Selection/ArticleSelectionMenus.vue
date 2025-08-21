@@ -119,10 +119,11 @@ onUnmounted(() => {})
   --style: ' bg-#fff dark:bg-#262626';
 
   .menu {
-    --style: 'px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
+    --style: px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center transition-all duration-250;
+    --style: 'text-#999  active:(scale-105)';
 
     &:hover {
-      --style: 'bg-#f5f5f3 dark:bg-#00000029';
+      --style: 'bg-#f5f5f3 dark:(bg-#00000029 text-#ffffff)';
     }
 
     img {
@@ -130,8 +131,7 @@ onUnmounted(() => {})
     }
 
     span {
-      --style: ml-2px text-(13px) line-height-18px shrink-0 whitespace-nowrap;
-      --style: 'text-#999 dark:text-#ffffff66';
+      --style: ml-2px text-13px line-height-18px shrink-0 whitespace-nowrap transition-colors duration-250;
     }
   }
 }

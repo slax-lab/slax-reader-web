@@ -160,7 +160,7 @@ export class MarkManager extends Base {
     if (!markId) return
 
     const bookmarkId = await this.config.bookmarkIdQuery()
-    await request.post({
+    request.post({
       url: RESTMethodPath.DELETE_MARK,
       body: { bm_id: bookmarkId, mark_id: markId }
     })
