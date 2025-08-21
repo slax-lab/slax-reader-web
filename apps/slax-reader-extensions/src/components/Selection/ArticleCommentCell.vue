@@ -176,7 +176,7 @@ defineExpose({
   }
 
   .comment-content {
-    --style: text-(16px #ffffffcc) line-height-24px whitespace-pre-line;
+    --style: text-(16px #ffffffcc) line-height-24px whitespace-pre-line break-words;
   }
 
   .comment-footer {
