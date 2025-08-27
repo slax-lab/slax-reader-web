@@ -74,14 +74,14 @@
 </template>
 
 <script lang="ts" setup>
+import AIOverview from './AIOverview.vue'
 import AISummaries from './AISummaries.vue'
 import ChatBot from './Chat/ChatBot.vue'
 import PanelOperate from './PanelOperate.vue'
-import SidebarItems from './SidebarItems.vue'
-import SidebarTips from './Tips/SidebarTips.vue'
-import AIOverview from './AIOverview.vue'
 import PanelView from './PanelView.vue'
 import ArticleCommentsView from './Selection/ArticleCommentsView.vue'
+import SidebarItems from './SidebarItems.vue'
+import SidebarTips from './Tips/SidebarTips.vue'
 
 import { type MessageType, MessageTypeAction } from '@/config/message'
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
@@ -91,11 +91,11 @@ import { RequestError, RequestMethodType } from '@commons/utils/request'
 import type { QuoteData } from './Chat/type'
 import { showFeedbackModal, showShareConfigModal } from './Modal'
 import { ArticleSelection } from './Selection/selection'
+import type { MarkCommentInfo, MarkItemInfo } from './Selection/type'
 import { RESTMethodPath } from '@commons/types/const'
 import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
-import type { WxtBrowser } from 'wxt/browser'
 import { onKeyStroke } from '@vueuse/core'
-import type { MarkCommentInfo, MarkItemInfo } from './Selection/type'
+import type { WxtBrowser } from 'wxt/browser'
 
 const props = defineProps({
   browser: {

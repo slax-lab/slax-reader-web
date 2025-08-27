@@ -14,14 +14,13 @@
     </div>
     <div class="overview-content" v-if="!isLoading && overviewContent.length > 0">
       <div class="text-content" ref="textContainer">
-        <span>{{ $t('component.overview.text_content_title') }}</span>
-        <MarkdownText class="mt-24px" :text="overviewContent" v-resize="resizeHandler" />
+        <MarkdownText :text="markdownedOverview" v-resize="resizeHandler" />
       </div>
       <div class="loading-bottom" ref="loadingBottom" v-if="!isDone && isLoading">
         <DotLoading />
       </div>
       <div class="graph-content">
-        <div class="content-rows" v-for="(item, index) in graphContents" :key="index">
+        <div class="content-rows" v-for="(item, index) in keyTakaways" :key="index">
           <div class="graph-prefix"></div>
           <span> {{ item }} </span>
         </div>
@@ -45,8 +44,9 @@ type OverviewSocketData =
       type: 'progress' | 'done'
       data: {
         overview?: string
-        tags?: string
-        id?: string
+        tags?: { id: number; name: string }[]
+        key_takeaways?: string[]
+        id?: number
       }
     }
   | {
@@ -72,9 +72,17 @@ const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
 const tags = ref<BookmarkTag[]>(props.bookmarkBriefInfo.tags)
-const graphContents = ref<string[]>([])
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
-const overviewContent = ref(props.bookmarkBriefInfo.overview || '')
+const overviewContent = ref(props.bookmarkBriefInfo.overview)
+const keyTakaways = ref<string[]>(props.bookmarkBriefInfo.key_takeaways)
+
+const markdownedOverview = computed(() => {
+  if (overviewContent.value.length > 0) {
+    return `<span style="color: #999999;">${$t('component.overview.text_content_title')}</span>` + overviewContent.value
+  }
+
+  return ''
+})
 
 watch(
   () => props.isAppeared,
@@ -87,7 +95,14 @@ watch(
   }
 )
 
-const queryOverview = async (refresh: boolean, callback: (text: string, tagId: number, type: 'tags' | 'overview' | '', done: boolean, error?: Error) => void) => {
+const queryOverview = async (
+  refresh: boolean,
+  callback: (
+    responseData: { type: 'overview'; content: string } | { type: 'tags'; content: { id: number; name: string }[] } | { type: 'key_takeaways'; content: string[] } | null,
+    done: boolean,
+    error?: Error
+  ) => void
+) => {
   if (isLoading.value) {
     return
   }
@@ -110,30 +125,57 @@ const queryOverview = async (refresh: boolean, callback: (text: string, tagId: n
         let parsedJsons = []
         try {
           parsedJsons = parseConcatenatedJson(errorCacheText + text)
+          errorCacheText = ''
         } catch (e) {
           console.log('need concat', text)
           errorCacheText = text
 
           if (done) {
-            callback('', 0, '', true)
+            callback(null, true)
           }
 
           return
         }
 
         if (parsedJsons.length === 0) {
-          callback('', 0, '', true)
+          callback(null, true)
         } else {
           for (let i = 0; i < parsedJsons.length; i++) {
             const res = parsedJsons[i]
             if (res.type === 'error') {
               throw new Error(res.message)
             } else if (res.type === 'done') {
-              callback('', 0, '', true)
+              callback(null, true)
             } else {
-              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : ''
-              const contentText = (type === 'overview' ? res.data.overview : type === 'tags' ? res.data.tags : '') + ''
-              callback(contentText, 0, type, i === parsedJsons.length - 1 ? done : false)
+              const isDone = i === parsedJsons.length - 1 ? done : false
+              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : res.data.key_takeaways ? 'key_takeaways' : ''
+              if (type === 'overview') {
+                callback(
+                  {
+                    type,
+                    content: res.data.overview || ''
+                  },
+                  isDone
+                )
+              } else if (type === 'tags') {
+                callback(
+                  {
+                    type,
+                    content: res.data.tags || []
+                  },
+                  isDone
+                )
+              } else if (type === 'key_takeaways') {
+                callback(
+                  {
+                    type,
+                    content: res.data.key_takeaways || []
+                  },
+                  isDone
+                )
+              } else {
+                callback(null, isDone)
+              }
             }
           }
         }
@@ -154,7 +196,7 @@ const queryOverview = async (refresh: boolean, callback: (text: string, tagId: n
         isLoading.value = false
         isDone.value = true
 
-        callback('', 0, '', isDone.value)
+        callback(null, isDone.value)
       }
     })
 }
@@ -165,30 +207,27 @@ const loadOverview = (options?: { refresh: boolean }) => {
     step += 1
   }, 2000)
   let executeStep = 0
-  let result = ''
-  queryOverview(options?.refresh || false, (text: string, tagId: number, type: 'tags' | 'overview' | '', done: boolean) => {
-    if (type === 'tags') {
-      if (!tags.value.find(tag => tag.id === tagId)) {
-        tags.value.push({
-          id: tagId,
-          name: text,
-          show_name: text,
-          system: true
-        })
-      }
+  queryOverview(options?.refresh || false, (responseData, done) => {
+    if (!responseData) {
     } else {
-      result += text
+      if (responseData.type === 'tags') {
+        tags.value = responseData.content.map(item => ({
+          id: item.id,
+          name: item.name,
+          show_name: item.name,
+          system: true
+        }))
+      } else if (responseData.type === 'overview') {
+        overviewContent.value = responseData.content
+      } else if (responseData.type === 'key_takeaways') {
+        keyTakaways.value = responseData.content
+      }
     }
 
-    let needUpdateText = done || executeStep < step
     if (done) {
       clearInterval(timeInterval)
     } else if (executeStep < step) {
       executeStep = step
-    }
-
-    if (needUpdateText) {
-      overviewContent.value = result
     }
   })
 }
@@ -222,7 +261,7 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
     return
   }
 
-  view.style.height = `${size.height + 20}px`
+  view.style.height = `${size.height /* + 24 + 22.5 */}px`
   view.style.transition = `height ${isDone.value ? 0 : 0.25}s ease-in-out`
 
   const loadingEle = loadingBottom.value
@@ -265,7 +304,7 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
     --style: relative;
 
     .text-content {
-      --style: mt-24px whitespace-pre-line overflow-hidden;
+      --style: mt-24px h-0 whitespace-pre-line overflow-hidden;
 
       span {
         --style: text-16px line-height-24px;

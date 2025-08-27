@@ -61,10 +61,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuoteData } from '../Chat/type'
 import ArticleCommentCell from './ArticleCommentCell.vue'
-import { ArticleSelection } from './selection'
 
+import type { QuoteData } from '../Chat/type'
+import { ArticleSelection } from './selection'
 import { type MarkCommentInfo, type MarkItemInfo } from './type'
 import { vOnKeyStroke } from '@vueuse/components'
 

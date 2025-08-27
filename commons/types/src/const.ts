@@ -47,6 +47,7 @@ enum RESTMethodPath {
   BOT_CHAT = '/v1/aigc/chat',
   TAG_LIST = '/v1/tag/list',
   ADD_BOOKMARK_TAG = '/v1/bookmark/add_tag',
+  ADD_BOOKMARK_TAGS = '/v1/bookmark/add_tags',
   DELETE_BOOKMARK_TAG = '/v1/bookmark/del_tag',
   ADD_USER_TAG = '/v1/tag/create',
   UPDATE_USER_TAG = '/v1/tag/update',

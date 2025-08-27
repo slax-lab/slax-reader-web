@@ -2,7 +2,7 @@
   <div class="bookmark-tags" ref="bookmarkTagsEle">
     <div class="list-container">
       <TransitionGroup name="cell">
-        <div class="tag" v-for="tag in bookmarkTags" :key="tag.show_name" :class="{ group: !props.readonly }">
+        <div class="tag" ref="bookmarkTagCells" v-for="tag in bookmarkTags" :key="tag.show_name" :class="{ group: !props.readonly }">
           <span> {{ tag.show_name }} </span>
           <button v-if="!props.readonly" class="!group-hover:visible !group-hover:opacity-100" @click="deleteBookmarkTag(tag.id)">
             <i class="seperator"></i>
@@ -19,14 +19,22 @@
         </button>
         <span class="text-placeholder" v-if="tags.length === 0"> {{ $t('component.bookmark_tags.add') }} </span>
         <Transition name="opacity">
-          <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
+          <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="tagClickoutside">
             <input type="text" :placeholder="$t('component.bookmark_tags.placeholder')" v-model="searchText" v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]" />
             <div class="search-result">
               <div class="result-wrapper">
-                <div class="search-tag" :class="{ 'ai-style': true }" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
-                  <span>{{ tag.show_name }}</span>
-                  <i class="ai" v-if="tag.system"></i>
-                </div>
+                <TransitionGroup name="opacity">
+                  <div
+                    class="search-tag"
+                    :class="{ 'ai-style': true, selected: tagIsSelected(tag) }"
+                    v-for="tag in searchResultTags"
+                    :key="tag.show_name"
+                    @click="searchTagClick(tag)"
+                  >
+                    <span>{{ tag.show_name }}</span>
+                    <i class="ai" v-if="tag.system"></i>
+                  </div>
+                </TransitionGroup>
               </div>
             </div>
             <div class="list-loading" v-if="isAddingLoading">
@@ -72,11 +80,15 @@ const isAddingLoading = ref(false)
 const isAddingTag = ref(false)
 const searchText = ref('')
 const currentBookmarkTagIds = computed(() => bookmarkTags.value.map(tag => tag.id) || [])
+const bookmarkTagCells = ref<HTMLDivElement[]>([])
 
 const filteredSearchTags = computed(() => {
-  const filters = searchTags.value.filter(tag => currentBookmarkTagIds.value.indexOf(tag.id) === -1)
+  const filters = [...searchedTagList.value, ...searchTags.value].filter(tag => currentBookmarkTagIds.value.indexOf(tag.id) === -1)
   return filters
 })
+
+const selectedTagList = ref<{ id?: number; name?: string }[]>([])
+const searchedTagList = ref<BookmarkTag[]>([])
 
 const searchResultTags = computed(() => {
   if (!searchText.value) {
@@ -115,6 +127,7 @@ watch(
       searchingTags()
     } else {
       searchText.value = ''
+      searchedTagList.value = []
     }
   }
 )
@@ -138,30 +151,39 @@ const searchingTags = async () => {
   isAddingLoading.value = false
 }
 
-const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
-  if (!props.bookmarkId) {
+const tagIsSelected = (tag: BookmarkTag) => {
+  return !!selectedTagList.value.find(selectedTag => {
+    if (tag.id !== 0 && tag.id === selectedTag.id) {
+      return true
+    } else if (tag.name === selectedTag.name) {
+      return true
+    }
+
+    return false
+  })
+}
+
+const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) => {
+  if (!props.bookmarkId || !params.length) {
     return
   }
 
-  const { tagName, tagId } = params
-
-  if (!tagName && !tagId) return
-  if (tagName && tagId) return
-
   isAddingLoading.value = true
 
-  const res = await request.post<BookmarkTag>({
-    url: RESTMethodPath.ADD_BOOKMARK_TAG,
+  const res = await request.post<BookmarkTag[]>({
+    url: RESTMethodPath.ADD_BOOKMARK_TAGS,
     body: {
       bookmark_id: props.bookmarkId,
-      tag_id: tagId,
-      tag_name: tagName
+      tags: params.map(tag => ({
+        name: tag.tagName,
+        id: tag.tagId
+      }))
     }
   })
 
   if (res) {
-    bookmarkTags.value.push(res)
-    searchTags.value.push({ ...res })
+    bookmarkTags.value.push(...res)
+    searchTags.value.push(...res)
   }
 
   isAddingLoading.value = false
@@ -188,34 +210,73 @@ const deleteBookmarkTag = async (tagId: number) => {
 }
 
 const onKeyDown = async (e: KeyboardEvent) => {
-  if (e.key !== 'Enter' || !isAddingTag.value) {
+  if (e.key !== 'Enter' || !isAddingTag.value || !searchText.value) {
     return
   }
 
-  if (bookmarkTags.value.find(tag => tag.show_name === searchText.value)) {
-    isAddingTag.value = false
+  const findTag = bookmarkTags.value.find(tag => tag.show_name === searchText.value)
+  if (findTag) {
+    highlightTagCell(bookmarkTags.value.indexOf(findTag))
     return
   }
 
   const tag = searchTags.value.find(tag => tag.show_name === searchText.value)
   if (tag) {
-    await addBookmarkTag({
-      tagId: tag.id
+    selectedTagList.value.push({
+      id: tag.id,
+      name: tag.show_name
+    })
+  } else {
+    selectedTagList.value.push({
+      name: searchText.value
     })
 
-    isAddingTag.value = false
+    searchedTagList.value.push({
+      id: 0,
+      name: searchText.value,
+      show_name: searchText.value,
+      system: false,
+      display: true
+    })
+  }
+
+  searchText.value = ''
+}
+
+const highlightTagCell = (index: number) => {
+  if (index < 0 || bookmarkTagCells.value.length <= index) {
     return
   }
 
-  await addBookmarkTag({
-    tagName: searchText.value
-  })
+  const cell = bookmarkTagCells.value[index]
 
-  isAddingTag.value = false
+  const highlightingKey = 'highlighting'
+  cell.classList.add(highlightingKey)
+
+  setTimeout(() => {
+    cell.classList.remove(highlightingKey)
+  }, 1000)
 }
 
-const searchTagClick = async (tagId: number) => {
-  await addBookmarkTag({ tagId })
+const tagClickoutside = async () => {
+  if (selectedTagList.value.length > 0) {
+    await addBookmarkTags(selectedTagList.value.map(tag => ({ tagId: tag.id, tagName: tag.name })))
+    selectedTagList.value = []
+    isAddingTag.value = false
+  } else {
+    isAddingTag.value = false
+  }
+}
+
+const searchTagClick = async (tag: BookmarkTag) => {
+  if (!selectedTagList.value.find(selectedTag => (tag.id !== 0 && selectedTag.id === tag.id) || selectedTag.name === tag.show_name)) {
+    selectedTagList.value.push({
+      id: tag.id,
+      name: tag.show_name
+    })
+  } else {
+    selectedTagList.value = selectedTagList.value.filter(selectedTag => selectedTag.id !== tag.id && selectedTag.name !== tag.show_name)
+  }
 }
 
 const addingTagClick = (e: MouseEvent) => {
@@ -242,6 +303,10 @@ const addingTagClick = (e: MouseEvent) => {
       // &.group:hover { // 暂时让关闭按钮永久显示
       &.group {
         --style: pr-29px;
+      }
+
+      &.highlighting {
+        --style: animate-(pulse duration-500);
       }
 
       span {
@@ -323,6 +388,10 @@ const addingTagClick = (e: MouseEvent) => {
                 --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden;
               }
 
+              &.selected {
+                --style: border-#f4c982;
+              }
+
               &:has(.ai) {
                 --style: border-#e4d6ba4d;
                 span {
@@ -343,7 +412,7 @@ const addingTagClick = (e: MouseEvent) => {
         }
 
         .list-loading {
-          --style: absolute inset-0 flex-center bg-#ffffff99;
+          --style: absolute inset-0 z-3 flex-center bg-transparent;
         }
       }
     }
