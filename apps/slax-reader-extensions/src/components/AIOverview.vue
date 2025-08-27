@@ -45,6 +45,7 @@ type OverviewSocketData =
       data: {
         overview?: string
         tags?: { id: number; name: string }[]
+        tag?: { id: number; name: string }
         key_takeaways?: string[]
         id?: number
       }
@@ -98,7 +99,12 @@ watch(
 const queryOverview = async (
   refresh: boolean,
   callback: (
-    responseData: { type: 'overview'; content: string } | { type: 'tags'; content: { id: number; name: string }[] } | { type: 'key_takeaways'; content: string[] } | null,
+    responseData:
+      | { type: 'overview'; content: string }
+      | { type: 'tags'; content: { id: number; name: string }[] }
+      | { type: 'tag'; content: { id: number; name: string } | null }
+      | { type: 'key_takeaways'; content: string[] }
+      | null,
     done: boolean,
     error?: Error
   ) => void
@@ -148,33 +154,54 @@ const queryOverview = async (
               callback(null, true)
             } else {
               const isDone = i === parsedJsons.length - 1 ? done : false
-              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : res.data.key_takeaways ? 'key_takeaways' : ''
-              if (type === 'overview') {
-                callback(
-                  {
-                    type,
-                    content: res.data.overview || ''
-                  },
-                  isDone
-                )
-              } else if (type === 'tags') {
-                callback(
-                  {
-                    type,
-                    content: res.data.tags || []
-                  },
-                  isDone
-                )
-              } else if (type === 'key_takeaways') {
-                callback(
-                  {
-                    type,
-                    content: res.data.key_takeaways || []
-                  },
-                  isDone
-                )
-              } else {
-                callback(null, isDone)
+              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : res.data.tag ? 'tag' : res.data.key_takeaways ? 'key_takeaways' : ''
+
+              switch (type) {
+                case 'overview': {
+                  callback(
+                    {
+                      type,
+                      content: res.data.overview || ''
+                    },
+                    isDone
+                  )
+                  break
+                }
+                case 'tags': {
+                  callback(
+                    {
+                      type,
+                      content: res.data.tags || []
+                    },
+                    isDone
+                  )
+                  break
+                }
+                case 'tag': {
+                  callback(
+                    {
+                      type,
+                      content: res.data.tag || null
+                    },
+                    isDone
+                  )
+                  break
+                }
+                case 'key_takeaways': {
+                  callback(
+                    {
+                      type,
+                      content: res.data.key_takeaways || []
+                    },
+                    isDone
+                  )
+                  break
+                }
+
+                default: {
+                  callback(null, isDone)
+                  break
+                }
               }
             }
           }
@@ -217,6 +244,14 @@ const loadOverview = (options?: { refresh: boolean }) => {
           show_name: item.name,
           system: true
         }))
+      } else if (responseData.type === 'tag') {
+        responseData.content?.id &&
+          tags.value.push({
+            id: responseData.content?.id,
+            name: responseData.content?.name || '',
+            show_name: responseData.content?.name || '',
+            system: true
+          })
       } else if (responseData.type === 'overview') {
         overviewContent.value = responseData.content
       } else if (responseData.type === 'key_takeaways') {
