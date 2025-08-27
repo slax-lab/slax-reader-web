@@ -38,12 +38,14 @@
         </div>
         <Transition name="input">
           <div class="comment-input" v-show="postCommentInfo">
-            <div class="comment-input-wrapper">
+            <div class="comment-input-wrapper" :class="{ focus: isFocus }">
               <textarea
                 ref="textarea"
                 v-model="inputText"
                 v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
                 :placeholder="textareaPlaceholder"
+                @focus="isFocus = true"
+                @blur="isFocus = false"
                 @compositionstart="compositionstart"
                 @compositionend="compositionend"
                 @input="handleInput"
@@ -59,10 +61,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuoteData } from '../Chat/type'
 import ArticleCommentCell from './ArticleCommentCell.vue'
-import { ArticleSelection } from './selection'
 
+import type { QuoteData } from '../Chat/type'
+import { ArticleSelection } from './selection'
 import { type MarkCommentInfo, type MarkItemInfo } from './type'
 import { vOnKeyStroke } from '@vueuse/components'
 
@@ -92,6 +94,7 @@ const commentCells = ref<InstanceType<typeof ArticleCommentCell>[]>([])
 const commentIdRefs = ref<Record<number, string>>({})
 const inputText = ref('')
 const postCommentInfo = ref<{ info: MarkItemInfo; data: QuoteData['data'] } | null>(null)
+const isFocus = ref(false)
 
 const sendable = computed(() => {
   return inputText.value.trim().length > 0
@@ -127,6 +130,17 @@ const markComments = computed(() => {
     })
     .flat()
 })
+
+watch(
+  () => postCommentInfo.value,
+  value => {
+    if (value) {
+      nextTick(() => {
+        focusTextarea()
+      })
+    }
+  }
+)
 
 onMounted(() => {
   handleInput()
@@ -300,6 +314,17 @@ const handleInput = () => {
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
 }
 
+const focusTextarea = () => {
+  nextTick(() => {
+    if (textarea.value) {
+      textarea.value.blur()
+      setTimeout(() => {
+        textarea.value?.focus()
+      }, 50)
+    }
+  })
+}
+
 defineExpose({
   navigateToComment,
   showPostCommentView
@@ -396,6 +421,11 @@ defineExpose({
 
       .comment-input-wrapper {
         --style: pl-16px pt-16px pr-20px pb-14px w-full relative bg-#1a1a1aff border-(1px solid #1a1a1aff) rounded-8px flex flex-col justify-between;
+
+        &.focus {
+          --style: border-(1px solid #16b99899);
+        }
+
         textarea {
           --style: resize-none min-h-40px max-h-200px text-(16px #ffffffcc) line-height-24px bg-transparent;
           &::placeholder,

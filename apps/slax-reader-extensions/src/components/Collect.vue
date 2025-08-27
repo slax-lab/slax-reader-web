@@ -127,7 +127,6 @@ props.browser.runtime.onMessage.addListener(
     const action = (message as MessageType).action
     switch (action) {
       case MessageTypeAction.ShowCollectPopup: {
-        console.log('show up pop')
         showPopup.value = true
       }
       case MessageTypeAction.OpenWelcome:
