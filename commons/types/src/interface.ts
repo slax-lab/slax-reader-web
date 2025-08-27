@@ -114,7 +114,7 @@ export interface BookmarkBriefDetail {
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
   overview: string
-  key_takeaways: []
+  key_takeaways: string[]
   tags: BookmarkTag[]
 }
 
