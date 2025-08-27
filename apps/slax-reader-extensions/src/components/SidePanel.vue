@@ -336,7 +336,7 @@ const unloadSelection = () => {
   }
 }
 
-const panelClick = async (panel: PanelItem, finishHandler?: () => void) => {
+const panelClick = async (panel: PanelItem) => {
   const type = panel.type
   if (isLoading.value && type === PanelItemType.Share) {
     return
