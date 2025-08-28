@@ -40,9 +40,13 @@ export type ChatResponseFunctionData =
       name: 'relatedQuestion'
       args: string | null
     }
+  | {
+      name: 'searchBookmark'
+      args: string | null
+    }
 
 export interface ChatResponseStatusUpdateData {
-  name: 'generateQuestion' | 'search' | 'browser'
+  name: 'generateQuestion' | 'search' | 'browser' | 'searchBookmark'
   tips: string
   status: 'processing' | 'finished' | 'failed'
 }
@@ -215,6 +219,25 @@ export class ChatBot {
                 data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as { url: string; title: string; content: string; icon: string }[] } }
               })
           } else if (funcName === 'relatedQuestion') {
+            choice.status === 'finished_successfully' &&
+              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } } })
+          } else if (funcName === 'searchBookmark') {
+            choice.status === 'processing' &&
+              this.responseCallback({
+                type: ChatResponseType.STATUS_UPDATE,
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: `${delta.content || ''}`, status: 'processing' } }
+              })
+            choice.status === 'finished_successfully' &&
+              this.responseCallback({
+                type: ChatResponseType.STATUS_UPDATE,
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_finished'), status: 'finished' } }
+              })
+            choice.status === 'finished_failed' &&
+              this.responseCallback({
+                type: ChatResponseType.STATUS_UPDATE,
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_failed'), status: 'failed' } }
+              })
+
             choice.status === 'finished_successfully' &&
               this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } } })
           }

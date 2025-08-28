@@ -10,7 +10,8 @@ export interface MessageBaseItem {
 export type BubbleMessageContent =
   | { type: 'text'; content: string; isHTML?: boolean; rawContent?: string }
   | { type: 'links'; content: { url: string; title: string; content: string; icon: string }[] }
-  | { type: 'tips'; tips: string; tipsType: 'generateQuestion' | 'search' | 'browser'; loading?: boolean }
+  | { type: 'bookmarks'; content: { title: string; content: string; bookmark_id: number }[] }
+  | { type: 'tips'; tips: string; tipsType: 'generateQuestion' | 'search' | 'browser' | 'searchBookmark'; loading?: boolean }
   | { type: 'related-question'; questions: { content: string; rawContent?: string }[] }
 
 // 对话的气泡消息结构
