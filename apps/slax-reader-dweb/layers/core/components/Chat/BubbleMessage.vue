@@ -389,18 +389,14 @@ const quoteClick = (quote: QuoteData) => {
       }
 
       .content-wrapper {
-        --style: w-calc(100% + 5px) -ml-5px px-5px overflow-x-auto flex flex-nowrap relative;
+        --style: w-calc(100% + 5px) -ml-5px p-5px overflow-x-auto flex flex-nowrap relative;
         scrollbar-width: none;
         &::-webkit-scrollbar {
           --style: hidden;
         }
         .link-content {
-          --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px not-first:ml-8px cursor-pointer transition-all duration-250';
-          --style: 'bg-#ffffffcc border-#9999991a dark:(bg-#1F1F1FFF border-#FFFFFF0A)';
-
-          &:hover {
-            --style: 'bg-#ffffff dark:bg-#191919FF';
-          }
+          --style: flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250;
+          --style: 'not-first:ml-8px bg-#ffffffcc border-#9999991a hover:(bg-#f8f9fa shadow-sm) dark:(bg-#1F1F1FFF border-#FFFFFF0A hover:(bg-#191919FF))';
 
           .title {
             --style: text-(12px) line-height-17px line-clamp-2;
@@ -460,8 +456,8 @@ const quoteClick = (quote: QuoteData) => {
         --style: flex flex-col gap-8px;
 
         .bookmark-content {
-          --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 hover:shadow-md';
-          --style: 'bg-#ffffff border-#e5e5e5 hover:bg-#f8f9fa dark:(bg-#2a2a2a border-#404040 hover:bg-#333333)';
+          --style: p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200;
+          --style: 'bg-#ffffff border-#e5e5e5 hover:(bg-#f8f9fa shadow-md) dark:(bg-#2a2a2a border-#404040 hover:bg-#333333)';
 
           .title {
             --style: text-(14px) font-medium line-height-20px line-clamp-2;
