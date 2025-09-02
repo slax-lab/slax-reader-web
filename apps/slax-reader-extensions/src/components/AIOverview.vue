@@ -76,6 +76,7 @@ const tags = ref<BookmarkTag[]>(props.bookmarkBriefInfo.tags)
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
 const overviewContent = ref(props.bookmarkBriefInfo.overview)
 const keyTakaways = ref<string[]>(props.bookmarkBriefInfo.key_takeaways)
+const haveReconnected = ref(false)
 
 const markdownedOverview = computed(() => {
   if (overviewContent.value.length > 0) {
@@ -237,7 +238,13 @@ const loadOverview = (options?: { refresh: boolean }) => {
   let executeStep = 0
 
   isLoading.value = true
+
+  let isQueryDone = false
   queryOverview(options?.refresh || false, (responseData, done) => {
+    if (isQueryDone) {
+      return
+    }
+
     if (!responseData) {
     } else {
       if (responseData.type === 'tags') {
@@ -263,11 +270,18 @@ const loadOverview = (options?: { refresh: boolean }) => {
     }
 
     isLoading.value = overviewContent.value.length === 0
+    isQueryDone = done
 
-    if (done) {
+    if (isQueryDone) {
       isLoading.value = false
       isDone.value = true
       clearInterval(timeInterval)
+
+      if (!haveReconnected.value) {
+        haveReconnected.value = true
+        isDone.value = false
+        loadOverview(options)
+      }
     } else if (executeStep < step) {
       executeStep = step
     }
