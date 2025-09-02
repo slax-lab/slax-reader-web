@@ -17,11 +17,17 @@
         <button ref="add" class="add" @click="addingTagClick">
           <img src="@/assets/tiny-plus-icon.png" alt="" />
         </button>
-        <span class="text-placeholder" v-if="tags.length === 0"> {{ $t('component.bookmark_tags.add') }} </span>
+        <span class="text-placeholder" v-if="tags.length === 0" @click="addingTagClick"> {{ $t('component.bookmark_tags.add') }} </span>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="tagClickoutside">
-            <input type="text" :placeholder="$t('component.bookmark_tags.placeholder')" v-model="searchText" v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]" />
-            <div class="search-result">
+            <input
+              ref="textarea"
+              type="text"
+              :placeholder="$t('component.bookmark_tags.placeholder')"
+              v-model="searchText"
+              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            />
+            <div class="search-result" v-if="searchResultTags.length > 0">
               <div class="result-wrapper">
                 <TransitionGroup name="opacity">
                   <div
@@ -71,7 +77,7 @@ const minGap = ref<{ x: number; y: number }>({ x: 48, y: 0 })
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
-
+const textarea = ref<HTMLTextAreaElement>()
 const bookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const searchTags = ref<BookmarkTag[]>([])
 
@@ -262,10 +268,9 @@ const tagClickoutside = async () => {
   if (selectedTagList.value.length > 0) {
     await addBookmarkTags(selectedTagList.value.map(tag => ({ tagId: tag.id, tagName: tag.name })))
     selectedTagList.value = []
-    isAddingTag.value = false
-  } else {
-    isAddingTag.value = false
   }
+
+  isAddingTag.value = false
 }
 
 const searchTagClick = async (tag: BookmarkTag) => {
@@ -282,6 +287,21 @@ const searchTagClick = async (tag: BookmarkTag) => {
 const addingTagClick = (e: MouseEvent) => {
   e.stopPropagation()
   isAddingTag.value = !isAddingTag.value
+
+  if (searchResultTags.value.length === 0) {
+    focusTextinput()
+  }
+}
+
+const focusTextinput = () => {
+  nextTick(() => {
+    if (textarea.value) {
+      textarea.value.blur()
+      setTimeout(() => {
+        textarea.value?.focus()
+      }, 50)
+    }
+  })
 }
 </script>
 
@@ -341,7 +361,7 @@ const addingTagClick = (e: MouseEvent) => {
       }
 
       .text-placeholder {
-        --style: ml-8px text-(13px #a28d64) line-height-18px text-ellipsis overflow-hidden;
+        --style: ml-8px text-(13px #a28d64) line-height-18px text-ellipsis overflow-hidden cursor-pointer select-none;
       }
 
       .search-list {
@@ -389,7 +409,7 @@ const addingTagClick = (e: MouseEvent) => {
               }
 
               &.selected {
-                --style: border-#f4c982;
+                --style: border-#f4c982 bg-#a28d6414;
               }
 
               &:has(.ai) {

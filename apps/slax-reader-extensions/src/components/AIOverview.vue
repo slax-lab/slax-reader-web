@@ -109,11 +109,6 @@ const queryOverview = async (
     error?: Error
   ) => void
 ) => {
-  if (isLoading.value) {
-    return
-  }
-
-  isLoading.value = true
   const requestCallback = await request.stream({
     url: RESTMethodPath.BOOKMARK_OVERVIEW,
     method: RequestMethodType.post,
@@ -127,6 +122,11 @@ const queryOverview = async (
 
   requestCallback &&
     requestCallback((text: string, done: boolean) => {
+      if (text.length === 0 && done && !isDone.value) {
+        callback(null, true)
+        return
+      }
+
       try {
         let parsedJsons = []
         try {
@@ -150,11 +150,17 @@ const queryOverview = async (
             const res = parsedJsons[i]
             if (res.type === 'error') {
               throw new Error(res.message)
-            } else if (res.type === 'done') {
+            } else if (res.type === 'done' || 'done' in res.data) {
               callback(null, true)
+              if (done) {
+                isLoading.value = false
+                isDone.value = true
+              }
+
+              return
             } else {
               const isDone = i === parsedJsons.length - 1 ? done : false
-              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : res.data.tag ? 'tag' : res.data.key_takeaways ? 'key_takeaways' : ''
+              const type = 'overview' in res.data ? 'overview' : 'tags' in res.data ? 'tags' : 'tag' in res.data ? 'tag' : 'key_takeaways' in res.data ? 'key_takeaways' : ''
 
               switch (type) {
                 case 'overview': {
@@ -206,34 +212,31 @@ const queryOverview = async (
             }
           }
         }
-
-        isLoading.value = overviewContent.value.length === 0
-        if (done) {
-          isDone.value = true
-          isLoading.value = false
-        }
       } catch (error) {
         console.log(error, text)
+
+        callback(null, true)
 
         Toast.showToast({
           text: `${error}`,
           type: ToastType.Error
         })
-
-        isLoading.value = false
-        isDone.value = true
-
-        callback(null, isDone.value)
       }
     })
 }
 
 const loadOverview = (options?: { refresh: boolean }) => {
+  if (isLoading.value) {
+    return
+  }
+
   let step = 0
   const timeInterval = setInterval(() => {
     step += 1
   }, 2000)
   let executeStep = 0
+
+  isLoading.value = true
   queryOverview(options?.refresh || false, (responseData, done) => {
     if (!responseData) {
     } else {
@@ -259,7 +262,11 @@ const loadOverview = (options?: { refresh: boolean }) => {
       }
     }
 
+    isLoading.value = overviewContent.value.length === 0
+
     if (done) {
+      isLoading.value = false
+      isDone.value = true
       clearInterval(timeInterval)
     } else if (executeStep < step) {
       executeStep = step
