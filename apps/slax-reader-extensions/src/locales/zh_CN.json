@@ -53,7 +53,8 @@
     },
     "bookmark_tags": {
       "add": "添加标签",
-      "placeholder": "输入新标签 (按 Enter 确认)"
+      "placeholder": "输入新标签 (按 Enter 确认)",
+      "add_placeholder": "增加：$1"
     },
     "chat_bot": {
       "access_complete": "访问完成",

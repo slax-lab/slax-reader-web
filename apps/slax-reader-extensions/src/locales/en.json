@@ -53,7 +53,8 @@
     },
     "bookmark_tags": {
       "add": "Add Tags",
-      "placeholder": "Enter new tag (press Enter to confirm)"
+      "placeholder": "Enter new tag (press Enter to confirm)",
+      "add_placeholder": "Create: $1"
     },
     "chat_bot": {
       "access_complete": "Access complete",

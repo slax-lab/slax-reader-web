@@ -2,11 +2,12 @@
   <div class="bookmark-tags" ref="bookmarkTagsEle">
     <div class="list-container">
       <TransitionGroup name="cell">
-        <div class="tag" ref="bookmarkTagCells" v-for="tag in bookmarkTags" :key="tag.show_name" :class="{ group: !props.readonly }">
+        <div class="tag" ref="bookmarkTagCells" v-for="tag in bookmarkTags" :key="tag.key" :class="{ group: !props.readonly }">
           <span> {{ tag.show_name }} </span>
-          <button v-if="!props.readonly" class="!group-hover:visible !group-hover:opacity-100" @click="deleteBookmarkTag(tag.id)">
+          <button v-if="!props.readonly" class="!group-hover:visible !group-hover:opacity-100" @click="() => !tag.loading && deleteBookmarkTag(tag.id)">
             <i class="seperator"></i>
-            <img src="@/assets/tiny-cross-gold-icon.png" alt="" />
+            <img v-if="!tag.loading" src="@/assets/tiny-cross-gold-icon.png" alt="" />
+            <div v-else class="i-svg-spinners:90-ring size-14px color-#f4c982"></div>
           </button>
         </div>
       </TransitionGroup>
@@ -20,27 +21,36 @@
         <span class="text-placeholder" v-if="tags.length === 0" @click="addingTagClick"> {{ $t('component.bookmark_tags.add') }} </span>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="tagClickoutside">
-            <input
-              ref="textarea"
-              type="text"
-              :placeholder="$t('component.bookmark_tags.placeholder')"
-              v-model="searchText"
-              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-            />
+            <div class="search-wrapper" :class="{ focus: isFocus }">
+              <img src="@/assets/tiny-search-outline-icon.png" alt="" />
+              <input
+                ref="textarea"
+                type="text"
+                :placeholder="$t('component.bookmark_tags.placeholder')"
+                @focus="isFocus = true"
+                @blur="isFocus = false"
+                @compositionstart="compositionAppear = true"
+                @compositionend="compositionAppear = false"
+                v-model="searchText"
+                v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+              />
+            </div>
             <div class="search-result" v-if="searchResultTags.length > 0">
               <div class="result-wrapper">
                 <TransitionGroup name="opacity">
-                  <div
-                    class="search-tag"
-                    :class="{ 'ai-style': true, selected: tagIsSelected(tag) }"
-                    v-for="tag in searchResultTags"
-                    :key="tag.show_name"
-                    @click="searchTagClick(tag)"
-                  >
+                  <div class="search-tag" :class="{ 'ai-style': true }" v-for="tag in searchResultTags" :key="tag.key" @click="searchTagClick(tag)">
+                    <img class="tag-icon" src="@/assets/tiny-tags-outline-icon.png" alt="" />
+                    <img class="tag-icon highlighted" src="@/assets/tiny-tags-outline-highlighted-icon.png" alt="" />
                     <span>{{ tag.show_name }}</span>
                     <i class="ai" v-if="tag.system"></i>
                   </div>
                 </TransitionGroup>
+              </div>
+            </div>
+            <div class="create-wrapper" v-if="searchText.length > 0">
+              <div class="search-tag highlighted" @click="addLocalTag">
+                <img class="tag-icon" src="@/assets/tiny-tags-outline-highlighted-icon.png" alt="" />
+                <span>{{ $t('component.bookmark_tags.add_placeholder', [searchText]) }}</span>
               </div>
             </div>
             <div class="list-loading" v-if="isAddingLoading">
@@ -58,6 +68,11 @@ import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 
+interface BookmarkTagItem extends BookmarkTag {
+  loading: boolean
+  key: string
+}
+
 const props = defineProps({
   bookmarkId: {
     type: Number,
@@ -73,28 +88,36 @@ const props = defineProps({
   }
 })
 
+const tagWrapper = (tag: BookmarkTag) => {
+  return {
+    ...tag,
+    loading: false,
+    key: `${tag.id}_${tag.show_name}`
+  }
+}
+
 const minGap = ref<{ x: number; y: number }>({ x: 48, y: 0 })
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 const textarea = ref<HTMLTextAreaElement>()
-const bookmarkTags = ref<BookmarkTag[]>(props.tags || [])
-const searchTags = ref<BookmarkTag[]>([])
 
+const bookmarkTags = ref<BookmarkTagItem[]>(props.tags.map(tagWrapper))
+const searchTags = ref<BookmarkTagItem[]>([])
+
+const isFocus = ref(false)
+const compositionAppear = ref(false)
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
 const isAddingTag = ref(false)
 const searchText = ref('')
-const currentBookmarkTagIds = computed(() => bookmarkTags.value.map(tag => tag.id) || [])
+const currentBookmarkTagKeys = computed(() => bookmarkTags.value.map(tag => tag.key).filter(key => !!key) || [])
 const bookmarkTagCells = ref<HTMLDivElement[]>([])
 
 const filteredSearchTags = computed(() => {
-  const filters = [...searchedTagList.value, ...searchTags.value].filter(tag => currentBookmarkTagIds.value.indexOf(tag.id) === -1)
+  const filters = [...searchTags.value].filter(tag => currentBookmarkTagKeys.value.indexOf(tag.key) === -1)
   return filters
 })
-
-const selectedTagList = ref<{ id?: number; name?: string }[]>([])
-const searchedTagList = ref<BookmarkTag[]>([])
 
 const searchResultTags = computed(() => {
   if (!searchText.value) {
@@ -107,7 +130,7 @@ const searchResultTags = computed(() => {
 watch(
   () => props.tags,
   newTags => {
-    bookmarkTags.value = newTags
+    bookmarkTags.value = tagsHandler(newTags)
   },
   { deep: true }
 )
@@ -118,7 +141,7 @@ watch(
     if (value) {
       const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
       const rect = add.value?.getBoundingClientRect()
-      console.log(eleRect, rect)
+
       if (eleRect && rect && searchList.value) {
         const { x, y } = minGap.value
         const xGap = Math.abs(x)
@@ -133,12 +156,9 @@ watch(
       searchingTags()
     } else {
       searchText.value = ''
-      searchedTagList.value = []
     }
   }
 )
-
-onMounted(() => {})
 
 const searchingTags = async () => {
   if (isAddingLoading.value) {
@@ -151,22 +171,10 @@ const searchingTags = async () => {
   })
 
   if (res) {
-    searchTags.value = res
+    searchTags.value = res.map(tagWrapper)
   }
 
   isAddingLoading.value = false
-}
-
-const tagIsSelected = (tag: BookmarkTag) => {
-  return !!selectedTagList.value.find(selectedTag => {
-    if (tag.id !== 0 && tag.id === selectedTag.id) {
-      return true
-    } else if (tag.name === selectedTag.name) {
-      return true
-    }
-
-    return false
-  })
 }
 
 const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) => {
@@ -174,26 +182,42 @@ const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) =
     return
   }
 
-  isAddingLoading.value = true
-
-  const res = await request.post<BookmarkTag[]>({
-    url: RESTMethodPath.ADD_BOOKMARK_TAGS,
-    body: {
-      bookmark_id: props.bookmarkId,
-      tags: params.map(tag => ({
-        name: tag.tagName,
-        id: tag.tagId
-      }))
-    }
+  const filterLoadingTags = params.filter(item => {
+    return !bookmarkTags.value.find(tag => tag.show_name === item.tagName && tag.loading)
   })
 
-  if (res) {
-    bookmarkTags.value.push(...res)
-    searchTags.value.push(...res)
+  if (filterLoadingTags.length === 0) {
+    return
   }
 
-  isAddingLoading.value = false
-  isAddingTag.value = false
+  bookmarkTags.value.push(
+    ...filterLoadingTags.map(item => ({ ...tagWrapper({ id: item.tagId || 0, name: item.tagName || '', show_name: item.tagName || '', system: false }), loading: true }))
+  )
+
+  try {
+    const res = await request.post<BookmarkTag[]>({
+      url: RESTMethodPath.ADD_BOOKMARK_TAGS,
+      body: {
+        bookmark_id: props.bookmarkId,
+        tags: params.map(tag => ({
+          name: tag.tagName,
+          id: tag.tagId
+        }))
+      }
+    })
+
+    if (!res) {
+      throw new Error(res)
+    }
+
+    bookmarkTags.value = bookmarkTags.value.map(tag => {
+      const newTag = res.find(t => t.show_name === tag.show_name)
+      return newTag ? tagWrapper(newTag) : tag
+    })
+  } catch (error) {
+    console.error(error)
+    bookmarkTags.value = bookmarkTags.value.filter(tag => !filterLoadingTags.find(t => t.tagName === tag.show_name))
+  }
 }
 
 const deleteBookmarkTag = async (tagId: number) => {
@@ -201,7 +225,11 @@ const deleteBookmarkTag = async (tagId: number) => {
     return
   }
 
-  request.post<{ ok: boolean }>({
+  const index = bookmarkTags.value.findIndex(tag => tag.id === tagId)
+  const tag = bookmarkTags.value[index]
+
+  tag.loading = true
+  await request.post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_BOOKMARK_TAG,
     body: {
       bookmark_id: props.bookmarkId,
@@ -209,7 +237,7 @@ const deleteBookmarkTag = async (tagId: number) => {
     }
   })
 
-  const index = bookmarkTags.value.findIndex(tag => tag.id === tagId)
+  tag.loading = false
   if (index > -1) {
     bookmarkTags.value.splice(index, 1)
   }
@@ -220,33 +248,27 @@ const onKeyDown = async (e: KeyboardEvent) => {
     return
   }
 
-  const findTag = bookmarkTags.value.find(tag => tag.show_name === searchText.value)
+  addLocalTag()
+}
+
+const addLocalTag = async () => {
+  const text = searchText.value
+  const findTag = bookmarkTags.value.find(tag => tag.show_name === text)
   if (findTag) {
     highlightTagCell(bookmarkTags.value.indexOf(findTag))
     return
   }
 
-  const tag = searchTags.value.find(tag => tag.show_name === searchText.value)
-  if (tag) {
-    selectedTagList.value.push({
-      id: tag.id,
-      name: tag.show_name
-    })
-  } else {
-    selectedTagList.value.push({
-      name: searchText.value
-    })
-
-    searchedTagList.value.push({
-      id: 0,
-      name: searchText.value,
-      show_name: searchText.value,
-      system: false,
-      display: true
-    })
-  }
+  const findSearchTag = searchTags.value.find(tag => tag.show_name === text)
+  addBookmarkTags([
+    {
+      tagName: text,
+      tagId: findSearchTag?.id
+    }
+  ])
 
   searchText.value = ''
+  isAddingTag.value = false
 }
 
 const highlightTagCell = (index: number) => {
@@ -265,23 +287,16 @@ const highlightTagCell = (index: number) => {
 }
 
 const tagClickoutside = async () => {
-  if (selectedTagList.value.length > 0) {
-    await addBookmarkTags(selectedTagList.value.map(tag => ({ tagId: tag.id, tagName: tag.name })))
-    selectedTagList.value = []
-  }
-
   isAddingTag.value = false
 }
 
 const searchTagClick = async (tag: BookmarkTag) => {
-  if (!selectedTagList.value.find(selectedTag => (tag.id !== 0 && selectedTag.id === tag.id) || selectedTag.name === tag.show_name)) {
-    selectedTagList.value.push({
-      id: tag.id,
-      name: tag.show_name
-    })
-  } else {
-    selectedTagList.value = selectedTagList.value.filter(selectedTag => selectedTag.id !== tag.id && selectedTag.name !== tag.show_name)
-  }
+  addBookmarkTags([
+    {
+      tagName: tag.show_name,
+      tagId: tag.id
+    }
+  ])
 }
 
 const addingTagClick = (e: MouseEvent) => {
@@ -302,6 +317,18 @@ const focusTextinput = () => {
       }, 50)
     }
   })
+}
+
+const tagsHandler = (tags: BookmarkTag[]) => {
+  const loadingRef: Record<string, boolean> = {}
+  bookmarkTags.value.forEach(tag => {
+    loadingRef[tag.show_name] = tag.loading
+  })
+
+  return tags.map(tag => ({
+    ...tagWrapper(tag),
+    loading: loadingRef[tag.show_name] || false
+  }))
 }
 </script>
 
@@ -339,8 +366,9 @@ const focusTextinput = () => {
           --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px;
           --style: 'border-#0f141914 dark:border-#FFFFFF1F';
         }
+
         img {
-          --style: w-16px h-16px object-fit;
+          --style: size-16px object-fit;
         }
       }
     }
@@ -365,28 +393,50 @@ const focusTextinput = () => {
       }
 
       .search-list {
-        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(3px solid #ffffff0a) shadow-[0px_40px_80px_0px_#00000052] px-12px py-16px pb-12px z-10;
-        --style: 'bg-#fff dark:(bg-#1F1F1F)';
+        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #a28d643d) shadow-[0px_40px_80px_0px_#00000052] px-12px py-16px z-10 select-none;
+        --style: 'bg-#fff dark:(bg-#141414)';
 
-        input {
-          --style: rounded-6px border-(1px solid) px-10px py-9px h-36px text-(13px) line-height-18px w-full transition-all duration-300;
-          --style: 'bg-#fcfcfc border-#3333330d text-#999 dark:(bg-#262626 border-#3333330D text-#999)';
-          &:focus {
-            --style: border-(1.5px #f4c982) text-#A28D64;
+        &:focus {
+          --style: border-(1.5px #e4d6ba66) text-#A28D64;
+        }
+
+        &:has(.search-tag) {
+          --style: pb-0;
+        }
+
+        .search-wrapper {
+          --style: select-none border-(1px solid) flex items-center rounded-6px h-36px transition-all duration-300;
+          --style: ' border-#3333330d dark:(border-#FFFFFF14)';
+
+          &.focus {
+            --style: border-(1.5px #e4d6ba66);
           }
 
-          &::placeholder,
-          &::-webkit-input-placeholder {
-            --style: text-(13px #999999) line-height-21px;
+          img {
+            --style: size-16px ml-8px;
+          }
+
+          input {
+            --style: ml-8px bg-transparent border-none text-(13px) line-height-18px w-full h-full;
+            --style: 'text-#999 dark:(text-#A28D64)';
+
+            &:placeholder-shown {
+              text-overflow: ellipsis;
+            }
+
+            &::placeholder,
+            &::-webkit-input-placeholder {
+              --style: text-(13px #999999 ellipsis) whitespace-nowrap overflow-hidden line-height-21px w-95%;
+            }
           }
         }
 
         .search-result {
-          --style: mt-12px overflow-y-scroll relative;
+          --style: mt-16px overflow-y-scroll relative;
           &::before,
           &::after {
             --style: z-2 content-empty absolute h-4px w-full left-0 to-transprent;
-            --style: 'from-#fff dark:(from-#1F1F1F)';
+            --style: 'from-#fff dark:(from-#141414)';
           }
 
           &::before {
@@ -396,39 +446,71 @@ const focusTextinput = () => {
           &::after {
             --style: top-0 bg-gradient-to-b;
           }
+        }
 
-          .result-wrapper {
-            --style: max-h-422px py-4px overflow-y-scroll;
+        .result-wrapper,
+        .create-wrapper {
+          .search-tag {
+            --style: border-none rounded-6px p-8px flex items-center justify-between cursor-pointer transition-all duration-250 whitespace-nowrap select-none;
+            --style: 'not-first:(mt-4px) border-#e4d6ba dark:border-#e4d6ba3d';
 
-            .search-tag {
-              --style: 'border-(1px solid) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-250 whitespace-nowrap';
-              --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
+            .tag-icon {
+              --style: size-16px object-contain;
 
-              span {
-                --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden;
+              &.highlighted {
+                --style: hidden;
               }
+            }
 
-              &.selected {
-                --style: border-#f4c982 bg-#a28d6414;
-              }
+            span {
+              --style: ml-12px flex-1 text-(15px #ffffff99) line-height-16px text-ellipsis overflow-hidden transition-colors duration-250;
+            }
 
-              &:has(.ai) {
-                --style: border-#e4d6ba4d;
-                span {
-                  --style: text-#333333ad;
+            &:hover {
+              --style: border-#f4c982 bg-#1F1F1F;
+              .tag-icon {
+                --style: '!hidden';
+
+                &.highlighted {
+                  --style: '!inline-block';
                 }
               }
 
-              &:hover {
-                --style: '!border-(#f4c982)';
-              }
-
-              .ai {
-                --style: bg-contain w-16px h-16px shrink-0;
-                background-image: url('@/assets/cell-ai-style-icon.png');
+              span {
+                --style: text-#A28D64;
               }
             }
+
+            &:has(.ai) {
+              --style: border-#e4d6ba4d;
+              span {
+                --style: text-#333333ad;
+              }
+            }
+
+            &.highlighted {
+              .tag-icon {
+                --style: '!inline-block';
+              }
+
+              span {
+                --style: '!text-#A28D64';
+              }
+            }
+
+            .ai {
+              --style: ml-12px bg-contain w-16px h-16px shrink-0;
+              background-image: url('@/assets/cell-ai-style-icon.png');
+            }
           }
+        }
+
+        .result-wrapper {
+          --style: max-h-422px py-4px overflow-y-scroll pb-16px;
+        }
+
+        .create-wrapper {
+          --style: py-8px border-t-(1px solid #ffffff0f);
         }
 
         .list-loading {
