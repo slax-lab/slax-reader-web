@@ -18,7 +18,7 @@
         <button ref="add" class="add" @click="addingTagClick">
           <img src="@/assets/tiny-plus-icon.png" alt="" />
         </button>
-        <span class="text-placeholder" v-if="tags.length === 0" @click="addingTagClick"> {{ $t('component.bookmark_tags.add') }} </span>
+        <span class="text-placeholder" v-if="bookmarkTags.length === 0" @click="addingTagClick"> {{ $t('component.bookmark_tags.add') }} </span>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="tagClickoutside">
             <div class="search-wrapper" :class="{ focus: isFocus }">
@@ -177,13 +177,13 @@ const searchingTags = async () => {
   isAddingLoading.value = false
 }
 
-const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) => {
+const addingBookmarkTags = (params: { tagName?: string; tagId?: number }[]) => {
   if (!props.bookmarkId || !params.length) {
     return
   }
 
   const filterLoadingTags = params.filter(item => {
-    return !bookmarkTags.value.find(tag => tag.show_name === item.tagName && tag.loading)
+    return !bookmarkTags.value.find(tag => tag.show_name === item.tagName)
   })
 
   if (filterLoadingTags.length === 0) {
@@ -194,6 +194,19 @@ const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) =
     ...filterLoadingTags.map(item => ({ ...tagWrapper({ id: item.tagId || 0, name: item.tagName || '', show_name: item.tagName || '', system: false }), loading: true }))
   )
 
+  requestAddingBookmarkTags(params)
+    .then(res => {
+      bookmarkTags.value = bookmarkTags.value.map(tag => {
+        const newTag = res.find(t => t.show_name === tag.show_name)
+        return newTag ? tagWrapper(newTag) : tag
+      })
+    })
+    .catch(err => {
+      bookmarkTags.value = bookmarkTags.value.filter(tag => !filterLoadingTags.find(t => t.tagName === tag.show_name))
+    })
+}
+
+const requestAddingBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) => {
   try {
     const res = await request.post<BookmarkTag[]>({
       url: RESTMethodPath.ADD_BOOKMARK_TAGS,
@@ -210,13 +223,10 @@ const addBookmarkTags = async (params: { tagName?: string; tagId?: number }[]) =
       throw new Error(res)
     }
 
-    bookmarkTags.value = bookmarkTags.value.map(tag => {
-      const newTag = res.find(t => t.show_name === tag.show_name)
-      return newTag ? tagWrapper(newTag) : tag
-    })
+    return res
   } catch (error) {
     console.error(error)
-    bookmarkTags.value = bookmarkTags.value.filter(tag => !filterLoadingTags.find(t => t.tagName === tag.show_name))
+    throw error
   }
 }
 
@@ -260,7 +270,7 @@ const addLocalTag = async () => {
   }
 
   const findSearchTag = searchTags.value.find(tag => tag.show_name === text)
-  addBookmarkTags([
+  addingBookmarkTags([
     {
       tagName: text,
       tagId: findSearchTag?.id
@@ -291,7 +301,7 @@ const tagClickoutside = async () => {
 }
 
 const searchTagClick = async (tag: BookmarkTag) => {
-  addBookmarkTags([
+  addingBookmarkTags([
     {
       tagName: tag.show_name,
       tagId: tag.id

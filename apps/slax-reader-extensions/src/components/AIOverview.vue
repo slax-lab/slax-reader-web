@@ -12,14 +12,18 @@
         <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
       </div>
     </div>
-    <div class="overview-content" v-if="!isLoading && overviewContent.length > 0">
-      <div class="text-content" ref="textContainer">
+    <div class="overview-content" v-if="!isLoading">
+      <div class="text-content" ref="textContainer" v-if="overviewContent">
         <MarkdownText :text="markdownedOverview" v-resize="resizeHandler" />
+      </div>
+      <div class="retry" v-else>
+        <span>{{ $t('component.overview.text_content_title') }}</span>
+        <button @click="loadOverview()">{{ $t('component.overview.retry') }}</button>
       </div>
       <div class="loading-bottom" ref="loadingBottom" v-if="!isDone && isLoading">
         <DotLoading />
       </div>
-      <div class="graph-content">
+      <div class="graph-content" v-if="overviewContent">
         <div class="content-rows" v-for="(item, index) in keyTakaways" :key="index">
           <div class="graph-prefix"></div>
           <span> {{ item }} </span>
@@ -364,14 +368,6 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
 
       span {
         --style: text-16px line-height-24px;
-
-        &:nth-child(1) {
-          --style: text-#999999ff;
-        }
-
-        &:nth-child(2) {
-          --style: text-#FFFFFFCC;
-        }
       }
 
       .markdown-text {
@@ -386,6 +382,18 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
         &:deep(p + p) {
           --style: mt-24px;
         }
+      }
+    }
+
+    .retry {
+      --style: mt-24px whitespace-pre overflow-hidden flex items-center;
+
+      span {
+        --style: text-#999999ff;
+      }
+
+      button {
+        --style: text-16px line-height-24px text-#16B998FF;
       }
     }
 
