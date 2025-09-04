@@ -461,8 +461,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
         .result-wrapper,
         .create-wrapper {
           .search-tag {
-            --style: border-none rounded-6px p-8px flex items-center justify-between cursor-pointer transition-all duration-250 whitespace-nowrap select-none;
-            --style: 'not-first:(mt-4px) border-#e4d6ba dark:border-#e4d6ba3d';
+            --style: border-none rounded-6px p-10px flex items-center justify-between cursor-pointer transition-all duration-250 whitespace-nowrap select-none;
+            --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
 
             .tag-icon {
               --style: size-16px object-contain;
@@ -516,11 +516,11 @@ const tagsHandler = (tags: BookmarkTag[]) => {
         }
 
         .result-wrapper {
-          --style: max-h-422px py-4px overflow-y-scroll pb-16px;
+          --style: max-h-422px py-4px overflow-y-scroll pb-14px;
         }
 
         .create-wrapper {
-          --style: py-8px border-t-(1px solid #ffffff0f);
+          --style: py-4px border-t-(1px solid #ffffff0f);
         }
 
         .list-loading {
