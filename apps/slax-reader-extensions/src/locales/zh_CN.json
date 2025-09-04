@@ -39,8 +39,8 @@
       "comment_failed": "评论失败",
       "comment_placeholder": "回复 $1",
       "comments": {
-        "title": "评论列表",
-        "placeholder": "对这篇文章有何看法？\n欢迎在文章中划线并分享您的评价"
+        "placeholder": "对这篇文章有何看法？\n欢迎在文章中划线并分享您的评价",
+        "title": "评论列表"
       },
       "hours_ago": "小时前",
       "just_now": "刚刚",
@@ -53,6 +53,7 @@
     },
     "bookmark_tags": {
       "add": "添加标签",
+      "add_placeholder": "增加：$1",
       "placeholder": "输入新标签 (按 Enter 确认)"
     },
     "chat_bot": {
@@ -64,10 +65,10 @@
       "generating_question": "生成问题中...",
       "hello": "你好，我是 Slax Reader AI 助手：",
       "now_accessing": "正在访问中...",
-      "search_complete": "搜索完成",
-      "search_failed": "搜索失败",
       "search_bookmark_complete": "资料库搜索完成",
       "search_bookmark_failed": "资料库搜索失败",
+      "search_complete": "搜索完成",
+      "search_failed": "搜索失败",
       "searching_token": "搜索中",
       "tips_accessing": "\"$1\" 访问中...",
       "tips_searching": "\"$1\" 搜索中...",
@@ -89,6 +90,7 @@
       "title": "你的反馈将帮助我们变得更好"
     },
     "overview": {
+      "retry": "点击重新获取",
       "text_content_title": "全文概要："
     },
     "share_modal": {
@@ -133,10 +135,10 @@
       "browser_finished": "访问完成",
       "generate_question": "问题生成中",
       "generate_question_finished": "生成完成",
-      "search_finished": "搜索完成",
       "search_bookmark": "搜索资料库",
+      "search_bookmark_failed": "资料库搜索失败",
       "search_bookmark_finished": "资料库搜索完成",
-      "search_bookmark_failed": "资料库搜索失败"
+      "search_finished": "搜索完成"
     }
   }
 }

@@ -12,14 +12,18 @@
         <div class="row" v-for="(_, index) in Array.from({ length: 3 })" :key="index"></div>
       </div>
     </div>
-    <div class="overview-content" v-if="!isLoading && overviewContent.length > 0">
-      <div class="text-content" ref="textContainer">
+    <div class="overview-content" v-if="!isLoading">
+      <div class="text-content" ref="textContainer" v-if="overviewContent">
         <MarkdownText :text="markdownedOverview" v-resize="resizeHandler" />
+      </div>
+      <div class="retry" v-else>
+        <span>{{ $t('component.overview.text_content_title') }}</span>
+        <button @click="loadOverview()">{{ $t('component.overview.retry') }}</button>
       </div>
       <div class="loading-bottom" ref="loadingBottom" v-if="!isDone && isLoading">
         <DotLoading />
       </div>
-      <div class="graph-content">
+      <div class="graph-content" v-if="overviewContent">
         <div class="content-rows" v-for="(item, index) in keyTakaways" :key="index">
           <div class="graph-prefix"></div>
           <span> {{ item }} </span>
@@ -76,6 +80,7 @@ const tags = ref<BookmarkTag[]>(props.bookmarkBriefInfo.tags)
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
 const overviewContent = ref(props.bookmarkBriefInfo.overview)
 const keyTakaways = ref<string[]>(props.bookmarkBriefInfo.key_takeaways)
+const haveReconnected = ref(false)
 
 const markdownedOverview = computed(() => {
   if (overviewContent.value.length > 0) {
@@ -109,11 +114,6 @@ const queryOverview = async (
     error?: Error
   ) => void
 ) => {
-  if (isLoading.value) {
-    return
-  }
-
-  isLoading.value = true
   const requestCallback = await request.stream({
     url: RESTMethodPath.BOOKMARK_OVERVIEW,
     method: RequestMethodType.post,
@@ -127,6 +127,11 @@ const queryOverview = async (
 
   requestCallback &&
     requestCallback((text: string, done: boolean) => {
+      if (text.length === 0 && done && !isDone.value) {
+        callback(null, true)
+        return
+      }
+
       try {
         let parsedJsons = []
         try {
@@ -150,11 +155,17 @@ const queryOverview = async (
             const res = parsedJsons[i]
             if (res.type === 'error') {
               throw new Error(res.message)
-            } else if (res.type === 'done') {
+            } else if (res.type === 'done' || 'done' in res.data) {
               callback(null, true)
+              if (done) {
+                isLoading.value = false
+                isDone.value = true
+              }
+
+              return
             } else {
               const isDone = i === parsedJsons.length - 1 ? done : false
-              const type = res.data.overview ? 'overview' : res.data.tags ? 'tags' : res.data.tag ? 'tag' : res.data.key_takeaways ? 'key_takeaways' : ''
+              const type = 'overview' in res.data ? 'overview' : 'tags' in res.data ? 'tags' : 'tag' in res.data ? 'tag' : 'key_takeaways' in res.data ? 'key_takeaways' : ''
 
               switch (type) {
                 case 'overview': {
@@ -206,35 +217,38 @@ const queryOverview = async (
             }
           }
         }
-
-        isLoading.value = overviewContent.value.length === 0
-        if (done) {
-          isDone.value = true
-          isLoading.value = false
-        }
       } catch (error) {
         console.log(error, text)
+
+        callback(null, true)
 
         Toast.showToast({
           text: `${error}`,
           type: ToastType.Error
         })
-
-        isLoading.value = false
-        isDone.value = true
-
-        callback(null, isDone.value)
       }
     })
 }
 
 const loadOverview = (options?: { refresh: boolean }) => {
+  if (isLoading.value) {
+    return
+  }
+
   let step = 0
   const timeInterval = setInterval(() => {
     step += 1
   }, 2000)
   let executeStep = 0
+
+  isLoading.value = true
+
+  let isQueryDone = false
   queryOverview(options?.refresh || false, (responseData, done) => {
+    if (isQueryDone) {
+      return
+    }
+
     if (!responseData) {
     } else {
       if (responseData.type === 'tags') {
@@ -259,8 +273,19 @@ const loadOverview = (options?: { refresh: boolean }) => {
       }
     }
 
-    if (done) {
+    isLoading.value = overviewContent.value.length === 0
+    isQueryDone = done
+
+    if (isQueryDone) {
+      isLoading.value = false
+      isDone.value = true
       clearInterval(timeInterval)
+
+      if (!haveReconnected.value) {
+        haveReconnected.value = true
+        isDone.value = false
+        loadOverview(options)
+      }
     } else if (executeStep < step) {
       executeStep = step
     }
@@ -343,14 +368,6 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
 
       span {
         --style: text-16px line-height-24px;
-
-        &:nth-child(1) {
-          --style: text-#999999ff;
-        }
-
-        &:nth-child(2) {
-          --style: text-#FFFFFFCC;
-        }
       }
 
       .markdown-text {
@@ -365,6 +382,18 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
         &:deep(p + p) {
           --style: mt-24px;
         }
+      }
+    }
+
+    .retry {
+      --style: mt-24px whitespace-pre overflow-hidden flex items-center;
+
+      span {
+        --style: text-#999999ff;
+      }
+
+      button {
+        --style: text-16px line-height-24px text-#16B998FF;
       }
     }
 
