@@ -48,6 +48,7 @@ class SlaxWebSocket {
   private reconnectAttempts: number = 0
   private eventHandlers: Map<string, Set<Function>> = new Map()
   private isManualClosed: boolean = false
+  private pingPongInterval?: NodeJS.Timeout
 
   /**
    * 构造函数
@@ -70,9 +71,15 @@ class SlaxWebSocket {
     try {
       this.ws = new WebSocket(this.url, this.protocols)
 
-      this.ws.onopen = event => this.handleEvent('open', event)
+      this.ws.onopen = event => {
+        this.handleEvent('open', event)
+        this.startPing()
+      }
       this.ws.onmessage = event => this.handleEvent('message', event)
-      this.ws.onclose = event => this.handleClose(event)
+      this.ws.onclose = event => {
+        this.handleClose(event)
+        this.stopPing()
+      }
       this.ws.onerror = event => this.handleEvent('error', event)
     } catch (error) {
       console.error('WebSocket connection error:', error)
@@ -219,6 +226,27 @@ class SlaxWebSocket {
     }
 
     this.connect()
+  }
+
+  /**
+   * 开启定时发送ping消息功能
+   */
+  private startPing(): void {
+    this.pingPongInterval = setInterval(() => {
+      if (this.isConnected) {
+        this.sendJSON({ type: 'ping' })
+      }
+    }, 30000)
+  }
+
+  /**
+   * 停止定时发送ping消息功能
+   */
+  private stopPing(): void {
+    if (this.pingPongInterval) {
+      clearInterval(this.pingPongInterval)
+      this.pingPongInterval = undefined
+    }
   }
 }
 
