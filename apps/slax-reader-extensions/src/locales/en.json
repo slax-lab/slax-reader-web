@@ -53,8 +53,8 @@
     },
     "bookmark_tags": {
       "add": "Add Tags",
-      "placeholder": "Enter new tag (press Enter to confirm)",
-      "add_placeholder": "Create: $1"
+      "add_placeholder": "Create: $1",
+      "placeholder": "Enter new tag (press Enter to confirm)"
     },
     "chat_bot": {
       "access_complete": "Access complete",
@@ -65,10 +65,10 @@
       "generating_question": "Generating question...",
       "hello": "Hello, I am the Slax Reader AI assistant:",
       "now_accessing": "Accessing...",
-      "search_complete": "Search completed",
-      "search_failed": "Search failed",
       "search_bookmark_complete": "Knowledge base search completed",
       "search_bookmark_failed": "Knowledge base search failed",
+      "search_complete": "Search completed",
+      "search_failed": "Search failed",
       "searching_token": "searching",
       "tips_accessing": "\"$1\" Accessing...",
       "tips_searching": "\"$1\" Searching...",
@@ -90,6 +90,7 @@
       "title": "Your feedback will help us improve"
     },
     "overview": {
+      "retry": "Regenerate Overview",
       "text_content_title": "Overview: "
     },
     "share_modal": {
@@ -134,10 +135,10 @@
       "browser_finished": "Access complete",
       "generate_question": "Generating question",
       "generate_question_finished": "Finished",
-      "search_finished": "Search complete",
       "search_bookmark": "Searching knowledge base",
+      "search_bookmark_failed": "Knowledge base search failed",
       "search_bookmark_finished": "Knowledge base search complete",
-      "search_bookmark_failed": "Knowledge base search failed"
+      "search_finished": "Search complete"
     }
   }
 }
