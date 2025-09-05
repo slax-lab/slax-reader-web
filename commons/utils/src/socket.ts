@@ -75,7 +75,13 @@ class SlaxWebSocket {
         this.handleEvent('open', event)
         this.startPing()
       }
-      this.ws.onmessage = event => this.handleEvent('message', event)
+      this.ws.onmessage = event => {
+        if (event.data === 'pong') {
+          return
+        }
+
+        this.handleEvent('message', event)
+      }
       this.ws.onclose = event => {
         this.handleClose(event)
         this.stopPing()
@@ -234,7 +240,7 @@ class SlaxWebSocket {
   private startPing(): void {
     this.pingPongInterval = setInterval(() => {
       if (this.isConnected) {
-        this.sendJSON({ type: 'ping' })
+        this.send('ping')
       }
     }, 30000)
   }
