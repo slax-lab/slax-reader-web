@@ -281,7 +281,7 @@ const loadOverview = (options?: { refresh: boolean }) => {
       isDone.value = true
       clearInterval(timeInterval)
 
-      if (!haveReconnected.value) {
+      if (overviewContent.value.length === 0 && !haveReconnected.value) {
         haveReconnected.value = true
         isDone.value = false
         loadOverview(options)
