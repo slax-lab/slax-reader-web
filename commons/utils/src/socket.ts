@@ -234,7 +234,7 @@ class SlaxWebSocket {
   private startPing(): void {
     this.pingPongInterval = setInterval(() => {
       if (this.isConnected) {
-        this.sendJSON({ type: 'ping' })
+        this.send('ping')
       }
     }, 30000)
   }
