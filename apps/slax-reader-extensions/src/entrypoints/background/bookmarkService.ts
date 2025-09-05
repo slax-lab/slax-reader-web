@@ -352,6 +352,7 @@ export class BookmarkService {
     })
 
     this.socket.on('message', async event => {
+      debugger
       console.log('Received message:', event.data)
       const data = JSON.parse(event.data) as BookmarkSocketData
       if (!data) {
