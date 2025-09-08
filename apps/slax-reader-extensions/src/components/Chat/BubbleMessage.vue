@@ -340,7 +340,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .links {
-    --style: relative w-full;
+    --style: relative w-full select-none;
 
     .links-title {
       --style: text-(12px #999999ff) line-height-17px;
@@ -409,7 +409,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .bookmarks {
-    --style: relative w-full;
+    --style: relative w-full select-none;
 
     .bookmarks-title {
       --style: text-(12px) line-height-17px mb-8px;
@@ -436,7 +436,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .tips {
-    --style: flex items-center;
+    --style: flex items-center select-none;
     span {
       --style: text-(12px #ffffff99) line-height-17px;
 
@@ -461,7 +461,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .related-question {
-    --style: max-w-366px;
+    --style: max-w-366px select-none;
     .related-question-title {
       --style: text-(12px #ffffff66) line-height-17px;
     }
