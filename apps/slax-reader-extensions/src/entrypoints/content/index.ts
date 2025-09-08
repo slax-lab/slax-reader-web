@@ -19,12 +19,12 @@ export default defineContentScript({
     const collectUI = await createShadowRootUi(ctx, {
       name: 'slax-reader-modal',
       position: 'overlay',
-      zIndex: 99999999,
+      zIndex: 99999999999,
       anchor: 'body',
       append: 'after',
       css: `
         html{
-          z-index: 99999999 !important;
+          z-index: 99999999999 !important;
         }
       `,
       onMount: container => {
@@ -45,12 +45,12 @@ export default defineContentScript({
       name: 'slax-reader-panel',
       position: 'overlay',
       alignment: 'top-left',
-      zIndex: 99999999,
+      zIndex: 99999999999,
       anchor: 'body',
       append: 'before',
       css: `
       html{
-        z-index: 99999999 !important;
+        z-index: 99999999999 !important;
       }
     `,
       onMount: container => {
