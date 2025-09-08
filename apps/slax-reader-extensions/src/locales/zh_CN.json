@@ -70,6 +70,7 @@
       "search_complete": "搜索完成",
       "search_failed": "搜索失败",
       "searching_token": "搜索中",
+      "selected_image": "[已选中 $1 张图片]",
       "tips_accessing": "\"$1\" 访问中...",
       "tips_searching": "\"$1\" 搜索中...",
       "tips_searching_bookmark": "\"$1\" 搜索资料库..."
@@ -92,6 +93,9 @@
     "overview": {
       "retry": "点击重新获取",
       "text_content_title": "全文概要："
+    },
+    "panel": {
+      "close_tips": "展开/收缩 侧边栏"
     },
     "share_modal": {
       "copy_link": "复制链接",
