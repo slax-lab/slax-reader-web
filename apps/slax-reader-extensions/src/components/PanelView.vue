@@ -17,7 +17,7 @@
         </div>
         <div class="sidebar-panel">
           <div class="operate-button top">
-            <button class="close" @click="closePanel">
+            <button class="close" :title="`${$t('component.panel.close_tips')} (${shortcutString})`" @click="closePanel">
               <img src="@/assets/button-dialog-close.png" />
             </button>
           </div>
@@ -62,6 +62,8 @@ const defaultContentWidth = 560
 const contentWidth = ref(Math.min(window.innerWidth, defaultContentWidth))
 
 const VERSION = `v${process.env.VERSION}`
+const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
+const shortcutString = isMac ? '⌃ + ⇧ + Z' : 'Ctrl + Shift⇧ + Z'
 
 watch(
   () => webPanelDraggble.value,

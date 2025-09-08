@@ -32,7 +32,11 @@
         <div class="quote-container" v-if="quoteInfo && quoteInfo.data.length > 0">
           <div class="quote">
             <i class="img bg-[url('@/assets/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
-            <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
+            <span>{{
+              quoteData.imageCount
+                ? `${$t('component.chat_bot.selected_image', [`${quoteData.imageCount}`, quoteData.imageCount > 1 ? 's' : ''])} ` + quoteData.text
+                : quoteData.text
+            }}</span>
           </div>
           <button class="bg-[url('@/assets/button-circle-close.png')]" @click="closeQuote"></button>
         </div>
@@ -289,6 +293,19 @@ const sendable = computed(() => {
 
 const showQuoteImage = computed(() => {
   return quoteInfo.value && quoteInfo.value.data.length > 0 && !!quoteInfo.value.data.find(item => item.type === 'image')
+})
+
+const quoteData = computed(() => {
+  const quoteText =
+    quoteInfo.value?.data
+      .filter(item => item.type === 'text')
+      .map(item => item.content)
+      .join('\n') || ' '
+  const quoteImageCount = quoteInfo.value?.data.filter(item => item.type === 'image').length || 0
+  return {
+    text: quoteText,
+    imageCount: quoteImageCount
+  }
 })
 
 watch(
@@ -715,6 +732,9 @@ const getParsedText = (markdownText: string) => {
 
 const addQuoteData = (data: QuoteData) => {
   quoteInfo.value = data
+  nextTick(() => {
+    scrollToBottom(true)
+  })
 }
 
 const focusTextarea = () => {

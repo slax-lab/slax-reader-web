@@ -70,6 +70,7 @@
       "search_complete": "Search completed",
       "search_failed": "Search failed",
       "searching_token": "searching",
+      "selected_image": "[$1 selected image$2]",
       "tips_accessing": "\"$1\" Accessing...",
       "tips_searching": "\"$1\" Searching...",
       "tips_searching_bookmark": "\"$1\" Searching knowledge base..."
@@ -92,6 +93,9 @@
     "overview": {
       "retry": "Regenerate Overview",
       "text_content_title": "Overview: "
+    },
+    "panel": {
+      "close_tips": "Toggle Panel"
     },
     "share_modal": {
       "copy_link": "Copy link",

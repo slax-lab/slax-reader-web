@@ -629,6 +629,7 @@ $copyButtonXOffset: 20px;
 
       &:not(.expanded) {
         --style: py-14px px-13px rounded-8px border-(1px solid #ffffff0a) cursor-pointer;
+        --style: 'transition-colors duration-250 hover:(bg-#1f1f1f)';
       }
 
       &.expanded {

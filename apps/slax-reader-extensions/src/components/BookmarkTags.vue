@@ -419,7 +419,7 @@ const tagsHandler = (tags: BookmarkTag[]) => {
           --style: ' border-#3333330d dark:(border-#FFFFFF14)';
 
           &.focus {
-            --style: border-(#e4d6ba66);
+            --style: border-(#e4d6ba99);
           }
 
           img {

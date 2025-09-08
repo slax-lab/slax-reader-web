@@ -20,8 +20,9 @@
       <button class="panel-button" @click="dotsClick">
         <div class="icon-wrapper">
           <div class="icon">
-            <img class="normal" :src="moreImage" alt="" />
-            <img class="highlighted" :src="moreHighlightedImage" alt="" />
+            <i :class="{ star: isStar }"></i>
+            <i :class="{ archive: isArchive }"></i>
+            <i></i>
           </div>
         </div>
         <span>{{ $t('component.sidebar.more') }}</span>
@@ -54,9 +55,6 @@
 </template>
 
 <script lang="ts" setup>
-import moreImage from '~/assets/panel-item-more.png'
-import moreHighlightedImage from '~/assets/panel-item-more-highlighted.png'
-
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
 import { vOnClickOutside } from '@vueuse/components'
@@ -202,6 +200,30 @@ const panelClick = async (panel: PanelItem) => {
           .highlighted {
             --style: opacity-0;
           }
+
+          i {
+            --style: absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 size-3.5px bg-#fcfcfc opacity-60 transition-all duration-250;
+
+            &:nth-child(1) {
+              --style: top-1/3;
+            }
+
+            &:nth-child(2) {
+              --style: top-1/2;
+            }
+
+            &:nth-child(3) {
+              --style: top-2/3;
+            }
+
+            &.star {
+              --style: bg-#ffc787;
+            }
+
+            &.archive {
+              --style: bg-#16b998;
+            }
+          }
         }
       }
 
@@ -214,6 +236,10 @@ const panelClick = async (panel: PanelItem) => {
           }
 
           .highlighted {
+            --style: opacity-100;
+          }
+
+          i {
             --style: opacity-100;
           }
         }
@@ -245,6 +271,20 @@ const panelClick = async (panel: PanelItem) => {
 
             .highlighted {
               --style: opacity-0;
+            }
+          }
+
+          &:hover {
+            --style: '!max-w-160px';
+
+            .icon {
+              .normal {
+                --style: opacity-0;
+              }
+
+              .highlighted {
+                --style: opacity-100;
+              }
             }
           }
 

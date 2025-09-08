@@ -13,11 +13,14 @@ import commentsSubImage from '~/assets/panel-item-comments-sub.png'
 
 import archieveImage from '~/assets/panel-item-archieve.png'
 import archieveSelectedImage from '~/assets/panel-item-archieve-selected.png'
+import archieveHighlightedImage from '~/assets/panel-item-archieve-highlighted.png'
 import starImage from '~/assets/panel-item-star.png'
 import starSelectedImage from '~/assets/panel-item-star-selected.png'
+import starHighlightedImage from '~/assets/panel-item-star-highlighted.png'
 
 import feedbackImage from '~/assets/panel-item-feedback.png'
 import shareImage from '~/assets/panel-item-share.png'
+import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
 export enum PanelItemType {
   'AI' = 'ai',
@@ -71,19 +74,19 @@ export const Images: Record<'ai' | 'chatbot' | 'comments' | 'star' | 'archieve' 
   star: {
     main: starImage,
     sub: starImage,
-    highlighted: starImage,
+    highlighted: starHighlightedImage,
     selected: starSelectedImage
   },
   archieve: {
     main: archieveImage,
     sub: archieveImage,
-    highlighted: archieveImage,
+    highlighted: archieveHighlightedImage,
     selected: archieveSelectedImage
   },
   share: {
     main: shareImage,
     sub: shareImage,
-    highlighted: shareImage,
+    highlighted: shareHighlightedImage,
     selected: shareImage
   },
   feedback: {

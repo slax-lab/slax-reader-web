@@ -102,6 +102,7 @@ export class MarkModal extends Base {
 
     nextTick(() => {
       const scrollOffsetY = this.window.scrollY
+      const windowHeight = this.window.innerHeight
       const menuRect = articleSelectionMenus.getBoundingClientRect()
       if (menuRect) {
         const gap = 10
@@ -114,7 +115,12 @@ export class MarkModal extends Base {
           targetOffsetY = minY - (menuRect.height + gap)
         }
 
-        offsetY = scrollOffsetY + targetOffsetY
+        const resY = scrollOffsetY + targetOffsetY
+
+        // 在视窗内才执行位置更新
+        if (scrollOffsetY + windowHeight > resY && scrollOffsetY < resY) {
+          offsetY = scrollOffsetY + targetOffsetY
+        }
       }
 
       if (offsetX + menuRect.width > bodyRect.width) {
