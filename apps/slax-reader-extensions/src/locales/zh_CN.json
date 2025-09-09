@@ -39,7 +39,7 @@
       "comment_failed": "评论失败",
       "comment_placeholder": "回复 $1",
       "comments": {
-        "placeholder": "对这篇文章有何看法？\n欢迎在文章中划线并分享您的评价",
+        "placeholder": "你怎么看？\n请在下方留言评论",
         "title": "评论列表"
       },
       "hours_ago": "小时前",
@@ -95,7 +95,7 @@
       "text_content_title": "全文概要："
     },
     "panel": {
-      "close_tips": "展开/收缩 侧边栏"
+      "close_tips": "展开/收缩快捷键"
     },
     "share_modal": {
       "copy_link": "复制链接",

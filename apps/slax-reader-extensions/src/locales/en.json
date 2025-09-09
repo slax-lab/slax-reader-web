@@ -20,18 +20,18 @@
     "tips": {
       "copy_content_success": "Content copied successfully",
       "share_failed": "Create share failed",
-      "sidebar_tips": "Web pages have been collected ~\n\nYou can quickly experience the core features of Slax Reader"
+      "sidebar_tips": "Pages saved!\n\nReady to highlight, comment, and explore with AI"
     }
   },
   "component": {
     "ai_summaries": {
-      "analyzed_title": "Analyzed Article",
-      "click_to_expand": "Click the colored dots to expand/collapse nodes",
+      "analyzed_title": "Article Outline",
+      "click_to_expand": "Click any circle to explore more details",
       "click_to_interpret": "Click the button to interpret this article",
       "copy_content_success": "Content copied successfully",
       "interpret": "Interpret this article",
       "mindmap": "Mind Map",
-      "processing": "Content is being analyzed",
+      "processing": "Analyzing",
       "title": "Analysis Results"
     },
     "article_selection": {
@@ -39,14 +39,14 @@
       "comment_failed": "Comment failed",
       "comment_placeholder": "Reply to $1",
       "comments": {
-        "placeholder": "What do you think of this article?\nWelcome to mark and share your comments in the article",
+        "placeholder": "What do you think?\nLeave a comment below",
         "title": "Comments"
       },
       "hours_ago": "hours ago",
       "just_now": "Just now",
       "minutes_ago": "minutes ago",
       "perceptions": "Perceptions",
-      "placeholder": "Post your opinion",
+      "placeholder": "Share your thoughts",
       "reply": "Reply to...",
       "stroke_failed": "Highlight failed",
       "title": "Post a comment"
@@ -70,7 +70,7 @@
       "search_complete": "Search completed",
       "search_failed": "Search failed",
       "searching_token": "searching",
-      "selected_image": "[$1 selected image$2]",
+      "selected_image": "[$1 image$2 selected]",
       "tips_accessing": "\"$1\" Accessing...",
       "tips_searching": "\"$1\" Searching...",
       "tips_searching_bookmark": "\"$1\" Searching knowledge base..."
@@ -95,7 +95,7 @@
       "text_content_title": "Overview: "
     },
     "panel": {
-      "close_tips": "Toggle Panel"
+      "close_tips": "Keyboard shortcuts"
     },
     "share_modal": {
       "copy_link": "Copy link",
