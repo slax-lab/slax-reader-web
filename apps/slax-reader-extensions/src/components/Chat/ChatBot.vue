@@ -71,7 +71,7 @@ import { parseMarkdownText } from '@commons/utils/parse'
 import { getUUID } from '@commons/utils/random'
 
 import 'highlight.js/styles/base16/equilibrium-gray-light.css'
-import { ChatBot, type ChatBotParams, ChatParamsType, type ChatResponseData, ChatResponseType } from './chatbot'
+import { ChatBot, type ChatBotParams, ChatParamsType, type ChatResponseCallback, type ChatResponseData, ChatResponseType } from './chatbot'
 import type { BubbleMessageContent, BubbleMessageItem, MessageItem, QuestionMessageItem, QuoteData } from './type'
 import { Readability } from '@slax-lab/readability'
 import { vOnKeyStroke } from '@vueuse/components'
@@ -119,9 +119,9 @@ const botParams: ChatBotParams = (() => {
   }
 })()
 
-const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: ChatResponseData }) => {
+const bot = new ChatBot(botParams, (params: ChatResponseCallback) => {
   // 负责处理chatbot消息的回复
-  const { type, data } = params
+  const { type, data, sessionId } = params
   if (type === ChatResponseType.FUNCTION) {
     if (!data[type]) {
       return
@@ -163,12 +163,14 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
             content: args,
             rawContent: args
           }
-        ]
+        ],
+        sessionId
       })
     } else if (name === 'search' && args) {
       pushBuffer({
         type: 'links',
-        content: args
+        content: args,
+        sessionId
       })
     } else if (name === 'searchBookmark' && args) {
       let data = []
@@ -194,14 +196,16 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
 
         pushBuffer({
           type: 'bookmarks',
-          content: bookmarks
+          content: bookmarks,
+          sessionId
         })
       }
     }
   } else if (type === ChatResponseType.CONTENT) {
     pushBuffer({
       type: 'text',
-      content: data[type] || ''
+      content: data[type] || '',
+      sessionId
     })
   } else if (type === ChatResponseType.STATUS_UPDATE) {
     if (!data[type]) {
@@ -215,28 +219,32 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
           type: 'tips',
           tips: $t(`component.chat_bot.generating_question`),
           loading: true,
-          tipsType: name
+          tipsType: name,
+          sessionId
         })
       } else if (name === 'browser') {
         pushBuffer({
           type: 'tips',
           tips: tips ? $t(`component.chat_bot.tips_accessing`, [tips]) : $t('component.chat_bot.now_accessing'),
           loading: true,
-          tipsType: name
+          tipsType: name,
+          sessionId
         })
       } else if (name === 'search') {
         pushBuffer({
           type: 'tips',
           tips: $t(`component.chat_bot.tips_searching`, [tips]),
           loading: true,
-          tipsType: name
+          tipsType: name,
+          sessionId
         })
       } else if (name === 'searchBookmark') {
         pushBuffer({
           type: 'tips',
           tips: $t(`component.chat_bot.tips_searching_bookmark`, [tips]),
           loading: true,
-          tipsType: name
+          tipsType: name,
+          sessionId
         })
       }
     } else if (status === 'finished') {
@@ -388,9 +396,11 @@ const sendMessage = () => {
     contents: [
       {
         type: 'text',
-        content: text
+        content: text,
+        sessionId: 0
       }
     ],
+    sessionId: 0,
     quote: quoteInfo.value ? quoteInfo.value : undefined,
     id: `bubble_right_${text}`
   })
@@ -534,7 +544,8 @@ const pushBuffer = (content: BubbleMessageContent) => {
       direction: 'left',
       contents: [],
       isBuffering: true,
-      id: `bubble_buffer`
+      id: `bubble_buffer`,
+      sessionId: content.sessionId
     }
   }
 
@@ -555,7 +566,8 @@ const pushBuffer = (content: BubbleMessageContent) => {
         direction: 'left',
         contents: [] as BubbleMessageContent[],
         isBuffering: true,
-        id: `bubble_buffer`
+        id: `bubble_buffer`,
+        sessionId: content.sessionId
       }
     }
 
@@ -606,7 +618,24 @@ const bufferToMessage = () => {
     // 插入buffer消息进消息列表
     bufferMessage.value.isBuffering = false
     bufferMessage.value.id = `bubble_${getUUID()}_${new Date().getTime()}`
-    messageList.value.push(bufferMessage.value)
+
+    const findMessage = messageList.value.find(item => item.type === 'bubble' && item.direction === 'left' && item.sessionId === bufferMessage.value?.sessionId)
+    if (!findMessage) {
+      messageList.value.push(bufferMessage.value)
+    } else if (findMessage.type === 'bubble') {
+      // 针对存在相同session的内容，将它们返回的text内容进行合并
+      const textContent = findMessage.contents?.find(content => content.type === 'text')
+      if (textContent?.rawContent) {
+        textContent.rawContent += bufferMessage.value.contents
+          ?.filter(content => content.type === 'text')
+          .map(content => content.rawContent || '')
+          .join('')
+        textContent.content = getParsedText(textContent.rawContent)
+      }
+
+      bufferMessage.value.contents = bufferMessage.value.contents?.filter(content => content.type !== 'text')
+      messageList.value.push(bufferMessage.value)
+    }
 
     bufferMessage.value = null
     discardSearch()

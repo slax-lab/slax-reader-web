@@ -57,6 +57,12 @@ export interface ChatResponseData {
   [ChatResponseType.STATUS_UPDATE]?: ChatResponseStatusUpdateData
 }
 
+export interface ChatResponseCallback {
+  type: ChatResponseType
+  data: ChatResponseData
+  sessionId: number
+}
+
 export class ChatBot {
   private _isChatting = false
   bookmarkId?: number
@@ -66,10 +72,13 @@ export class ChatBot {
     title: string
     raw_content: string
   }
-  responseCallback?: (params: { type: ChatResponseType; data: ChatResponseData }) => void
+
+  private currentSessionsCount = 0
+
+  responseCallback?: (params: ChatResponseCallback) => void
   chatStatusUpdateHandler?: (isChatting: boolean) => void
 
-  constructor(params: ChatBotParams, responseCallback: (params: { type: ChatResponseType; data: ChatResponseData }) => void) {
+  constructor(params: ChatBotParams, responseCallback: (params: ChatResponseCallback) => void) {
     if ('bookmarkId' in params) {
       this.bookmarkId = params.bookmarkId
     } else if ('shareCode' in params) {
@@ -98,6 +107,8 @@ export class ChatBot {
       body: messages
     })
 
+    const sessionId = ++this.currentSessionsCount
+
     callBack &&
       callBack((text: string, isDone: boolean) => {
         if (isDone) {
@@ -107,7 +118,7 @@ export class ChatBot {
             if (sse) {
               try {
                 const data = JSON.parse(sse.data) as ChatCompletionChunk
-                this.handleData(data)
+                this.handleData(data, sessionId)
               } catch (e) {
                 console.error(e)
               }
@@ -125,7 +136,7 @@ export class ChatBot {
           if (sse) {
             try {
               const data = JSON.parse(sse.data) as ChatCompletionChunk
-              this.handleData(data)
+              this.handleData(data, sessionId)
             } catch (e) {
               console.log('error daata', sse.data)
               console.error(e)
@@ -143,7 +154,7 @@ export class ChatBot {
     return this._isChatting
   }
 
-  private handleData(data: ChatCompletionChunk) {
+  private handleData(data: ChatCompletionChunk, sessionId: number) {
     if (data.choices.length === 0) {
       return
     }
@@ -156,7 +167,7 @@ export class ChatBot {
       for (const delta of choice.delta) {
         if (delta.role === 'assistant') {
           if (delta.content) {
-            this.responseCallback({ type: ChatResponseType.CONTENT, data: { [ChatResponseType.CONTENT]: delta.content || '' } })
+            this.responseCallback({ type: ChatResponseType.CONTENT, data: { [ChatResponseType.CONTENT]: delta.content || '' }, sessionId })
           }
         } else if (delta.role === 'tool') {
           const funcName = delta.name
@@ -174,72 +185,83 @@ export class ChatBot {
             choice.status === 'processing' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'generateQuestion', tips: $t('util.chatbot.generate_question'), status: 'processing' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'generateQuestion', tips: $t('util.chatbot.generate_question'), status: 'processing' } },
+                sessionId
               })
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'generateQuestion', tips: $t('util.chatbot.generate_question_finished'), status: 'finished' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'generateQuestion', tips: $t('util.chatbot.generate_question_finished'), status: 'finished' } },
+                sessionId
               })
 
             choice.status === 'finished_successfully' &&
-              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string[] } } })
+              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string[] } }, sessionId })
           } else if (funcName === 'browser') {
             choice.status === 'processing' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: `${delta.content || ''}`, status: 'processing' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: `${delta.content || ''}`, status: 'processing' } },
+                sessionId
               })
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: $t('util.chatbot.browser_finished'), status: 'finished' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: $t('util.chatbot.browser_finished'), status: 'finished' } },
+                sessionId
               })
 
             choice.status === 'finished_failed' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: $t('util.chatbot.browser_finished'), status: 'failed' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'browser', tips: $t('util.chatbot.browser_finished'), status: 'failed' } },
+                sessionId
               })
           } else if (funcName === 'search') {
             choice.status === 'processing' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'search', tips: `${delta.content}`, status: 'processing' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'search', tips: `${delta.content}`, status: 'processing' } },
+                sessionId
               })
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'search', tips: $t('util.chatbot.search_finished'), status: 'finished' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'search', tips: $t('util.chatbot.search_finished'), status: 'finished' } },
+                sessionId
               })
 
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.FUNCTION,
-                data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as { url: string; title: string; content: string; icon: string }[] } }
+                data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as { url: string; title: string; content: string; icon: string }[] } },
+                sessionId
               })
           } else if (funcName === 'relatedQuestion') {
             choice.status === 'finished_successfully' &&
-              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } } })
+              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } }, sessionId })
           } else if (funcName === 'searchBookmark') {
             choice.status === 'processing' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: `${delta.content || ''}`, status: 'processing' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: `${delta.content || ''}`, status: 'processing' } },
+                sessionId
               })
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_finished'), status: 'finished' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_finished'), status: 'finished' } },
+                sessionId
               })
             choice.status === 'finished_failed' &&
               this.responseCallback({
                 type: ChatResponseType.STATUS_UPDATE,
-                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_failed'), status: 'failed' } }
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'searchBookmark', tips: $t('util.chatbot.search_bookmark_failed'), status: 'failed' } },
+                sessionId
               })
 
             choice.status === 'finished_successfully' &&
-              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } } })
+              this.responseCallback({ type: ChatResponseType.FUNCTION, data: { [ChatResponseType.FUNCTION]: { name: `${funcName}`, args: parseArg as string } }, sessionId })
           }
         }
       }
