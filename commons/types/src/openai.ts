@@ -39,7 +39,15 @@ export namespace ChatCompletionChunk {
      */
     delta: Choice.Delta[]
 
-    finish_reason: null
+    /**
+     * The reason the model stopped generating tokens. This will be `stop` if the model
+     * hit a natural stop point or a provided stop sequence, `length` if the maximum
+     * number of tokens specified in the request was reached, `content_filter` if
+     * content was omitted due to a flag from our content filters, `tool_calls` if the
+     * model called a tool, or `function_call` (deprecated) if the model called a
+     * function.
+     */
+    finish_reason: 'stop' | 'length' | 'tool_calls' | 'content_filter' | 'function_call' | null
 
     /**
      * The index of the choice in the list of choices.
@@ -49,7 +57,7 @@ export namespace ChatCompletionChunk {
     /**
      * Slax reader 指示当前消息的状态
      */
-    status: null | 'processing' | 'finished_successfully' | 'finished_failed'
+    status: null | 'processing' | 'finished_successfully' | 'finished_failed' | 'completed'
   }
 
   export namespace Choice {

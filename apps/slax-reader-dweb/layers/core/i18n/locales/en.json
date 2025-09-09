@@ -143,12 +143,12 @@
       }
     },
     "ai_summaries": {
-      "click_to_expand": "Click the colored dots to expand/collapse nodes",
+      "click_to_expand": "Click any circle to explore more details",
       "click_to_interpret": "Click the button to interpret this article",
       "copy_content_success": "Content copied successfully",
       "interpret": "Interpret this article",
       "mindmap": "Mind Map",
-      "processing": "Content is being analyzed",
+      "processing": "Analyzing",
       "title": "Analysis Results"
     },
     "article_ce_tweet": {
