@@ -138,7 +138,7 @@ export class ChatBot {
               const data = JSON.parse(sse.data) as ChatCompletionChunk
               this.handleData(data, sessionId)
             } catch (e) {
-              console.log('error daata', sse.data)
+              console.log('error data', sse.data)
               console.error(e)
             }
           }
