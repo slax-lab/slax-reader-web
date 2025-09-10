@@ -374,7 +374,7 @@ const tagsHandler = (tags: BookmarkTag[]) => {
         --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-250 active:scale-110 opacity-100';
         .seperator {
           --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px;
-          --style: 'border-#0f141914 dark:border-#FFFFFF1F';
+          --style: 'bg-#0f141914 dark:bg-#FFFFFF1F';
         }
 
         img {

@@ -162,7 +162,7 @@ const actionClick = (panel: PanelItem) => {
 
       button.subpanel-button {
         --style: flex items-center h-32px px-8px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
-        --style: 'hover:(bg-#00000029)';
+        --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
 
         .icon {
           --style: relative size-16px;
@@ -180,7 +180,7 @@ const actionClick = (panel: PanelItem) => {
         }
 
         span {
-          --style: ml-8px text-(13px #ffffffcc) line-height-18px;
+          --style: ml-8px text-(13px) line-height-18px transition-all duration-250;
         }
       }
 
@@ -196,12 +196,10 @@ const actionClick = (panel: PanelItem) => {
 
       &:nth-child(2) {
         --style: py-4px;
-        span {
-          --style: '!text-#FFFFFF66';
-        }
 
         button.subpanel-button {
           --style: py-6px h-30px;
+          --style: 'text-#FFFFFF66 hover:(text-#ffffffe6)';
         }
       }
     }
