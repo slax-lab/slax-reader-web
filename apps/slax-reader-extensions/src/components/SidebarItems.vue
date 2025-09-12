@@ -217,11 +217,11 @@ const panelClick = async (panel: PanelItem) => {
             }
 
             &.star {
-              --style: bg-#ffc787;
+              --style: bg-#ffc787 opacity-100;
             }
 
             &.archive {
-              --style: bg-#16b998;
+              --style: bg-#16b998 opacity-100;
             }
           }
         }

@@ -19,6 +19,7 @@ import starSelectedImage from '~/assets/panel-item-star-selected.png'
 import starHighlightedImage from '~/assets/panel-item-star-highlighted.png'
 
 import feedbackImage from '~/assets/panel-item-feedback.png'
+import feedbackHighlightedImage from '~/assets/panel-item-feedback-highlighted.png'
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 
@@ -92,7 +93,7 @@ export const Images: Record<'ai' | 'chatbot' | 'comments' | 'star' | 'archieve' 
   feedback: {
     main: feedbackImage,
     sub: feedbackImage,
-    highlighted: feedbackImage,
-    selected: feedbackImage
+    highlighted: feedbackHighlightedImage,
+    selected: feedbackHighlightedImage
   }
 }

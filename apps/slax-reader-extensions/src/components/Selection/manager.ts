@@ -591,7 +591,11 @@ export class MarkManager extends Base {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
       } else if ([MarkType.COMMENT, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.id)
-        if (comment) markInfoItem.comments.push(comment)
+        if (!comment || (comment.isDeleted && comment.children.length === 0)) {
+          continue
+        }
+
+        markInfoItem.comments.push(comment)
       }
     }
 
