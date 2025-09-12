@@ -182,6 +182,18 @@ const actionClick = (panel: PanelItem) => {
         span {
           --style: ml-8px text-(13px) line-height-18px transition-all duration-250;
         }
+
+        &:hover {
+          .icon {
+            .normal {
+              --style: opacity-0;
+            }
+
+            .highlighted {
+              --style: opacity-100;
+            }
+          }
+        }
       }
 
       &:not(:first-child) {
