@@ -25,7 +25,7 @@ const useAuth = {
     location.href = url + '?' + new URLSearchParams(params)
   },
   async grantAuth(code: string, redirectUri: string, affCode: string): Promise<string> {
-    const resp = await request.post<{ token: string }>({
+    const resp = await request().post<{ token: string }>({
       url: RESTMethodPath.LOGIN,
       body: {
         code,

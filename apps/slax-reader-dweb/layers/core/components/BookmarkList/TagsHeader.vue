@@ -101,7 +101,7 @@ const loadUserTags = async () => {
   }
 
   isTagLoading.value = true
-  const res = await request.get<BookmarkTag[]>({
+  const res = await request().get<BookmarkTag[]>({
     url: RESTMethodPath.TAG_LIST
   })
 
@@ -180,7 +180,7 @@ const saveTag = async () => {
   }
 
   isAddingTagLoading.value = true
-  const res = await request.post<BookmarkTag>({
+  const res = await request().post<BookmarkTag>({
     url: RESTMethodPath.ADD_USER_TAG,
     body: { tag_name: tagName }
   })

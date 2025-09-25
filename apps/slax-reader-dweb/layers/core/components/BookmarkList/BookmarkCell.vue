@@ -291,7 +291,7 @@ const archiveBookmark = async (archive: boolean) => {
 
   isArchiving.value = true
   try {
-    await request.post<{ bookmark_id: number; status: string }>({
+    await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.BOOKMARK_ARCHIVE,
       body: {
         bookmark_id: bookmark.value.id,
@@ -323,7 +323,7 @@ const retryBookmark = async () => {
 
   isRetrying.value = true
   try {
-    await request.post<{ bookmark_id: number; status: string }>({
+    await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.ADD_URL_BOOKMARK,
       body: {
         target_url: urlHttpString(bookmark.value.target_url)
@@ -354,7 +354,7 @@ const clickDelete = async (event: MouseEvent) => {
   }
 
   const id = bookmark.value.id
-  request.post<EmptyBookmarkResp>({
+  request().post<EmptyBookmarkResp>({
     url: RESTMethodPath.TRASH_BOOKMARK,
     body: {
       bookmark_id: id
@@ -370,7 +370,7 @@ const clickRevert = async () => {
   }
 
   const id = bookmark.value.id
-  request.post<EmptyBookmarkResp>({
+  request().post<EmptyBookmarkResp>({
     url: RESTMethodPath.REVERT_BOOKMARK,
     body: {
       bookmark_id: id
@@ -427,7 +427,7 @@ const updateBookmarkTitle = () => {
     alias_title: editingTitle.value
   }
 
-  request.post({
+  request().post({
     url: RESTMethodPath.BOOKMARK_ALIAS_TITLE,
     body: req
   })
@@ -443,7 +443,7 @@ const updateBookmarkTitle = () => {
 const starBookmark = async (isStar: boolean) => {
   const status = !isStar ? 'unstar' : 'star'
   try {
-    await request.post<{ bookmark_id: number; status: string }>({
+    await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.BOOKMARK_STAR,
       body: {
         bookmark_id: bookmark.value.id,

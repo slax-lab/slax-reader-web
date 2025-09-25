@@ -113,7 +113,7 @@ const aiLanguageOptionIndex = computed(() => {
 })
 
 const getUserDetailInfo = async () => {
-  const res = await request.get<UserDetailInfo>({
+  const res = await request().get<UserDetailInfo>({
     url: RESTMethodPath.USER_INFO
   })
 
@@ -134,7 +134,7 @@ const navigateToTelegramChannel = () => {
 const aiResponseLanguageSelect = async (index: number) => {
   const locale = aiLanguageOptions.value[index]
 
-  await request.post({
+  await request().post({
     url: RESTMethodPath.USER_INFO_SETTING,
     body: {
       key: 'ai_lang',

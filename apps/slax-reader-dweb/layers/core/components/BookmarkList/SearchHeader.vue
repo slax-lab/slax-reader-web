@@ -80,7 +80,7 @@ onMounted(() => {
 })
 
 const searchApi = async (text: string) => {
-  return await request.post<SearchResultItem[]>({
+  return await request().post<SearchResultItem[]>({
     url: RESTMethodPath.SEARCH_CONTENT,
     body: {
       keyword: text

@@ -493,7 +493,7 @@ const handleDelete = (id: number) => {
 }
 
 const queryBookmarks = async () => {
-  return await request.get<BookmarkItem[]>({
+  return await request().get<BookmarkItem[]>({
     url: RESTMethodPath.BOOKMARK_LIST,
     query: {
       page: page.value,
@@ -506,7 +506,7 @@ const queryBookmarks = async () => {
 }
 
 const queryHighlights = async () => {
-  return await request.get<HighlightItem[]>({
+  return await request().get<HighlightItem[]>({
     url: RESTMethodPath.HIGHLIGHT_LIST,
     query: {
       page: page.value,
@@ -516,7 +516,7 @@ const queryHighlights = async () => {
 }
 
 const queryNotifications = async () => {
-  const res = await request.get<UserNotificationMessageItem[]>({
+  const res = await request().get<UserNotificationMessageItem[]>({
     url: RESTMethodPath.NOTIFICATION_LIST,
     query: {
       page: page.value,
@@ -525,7 +525,7 @@ const queryNotifications = async () => {
   })
 
   if (page.value === 1) {
-    request.post({ url: RESTMethodPath.NOTIFICATION_MARK_READ_ALL })
+    request().post({ url: RESTMethodPath.NOTIFICATION_MARK_READ_ALL })
   }
 
   return res

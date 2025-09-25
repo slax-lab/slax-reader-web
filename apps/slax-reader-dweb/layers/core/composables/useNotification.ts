@@ -60,7 +60,7 @@ const useNotification = () => {
       const subscription = await getSubscription()
       if (!subscription) {
         subscribe(options).then(res => {
-          request.post({
+          request().post({
             url: RESTMethodPath.SUBSCRIBE_PUSH,
             body: res
           })

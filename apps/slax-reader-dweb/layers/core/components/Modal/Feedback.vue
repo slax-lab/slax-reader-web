@@ -63,7 +63,7 @@ const reportFeedbackContent = async () => {
     ...props.params
   }
 
-  request
+  request()
     .post({
       url: RESTMethodPath.REPORT_FEEDBACK,
       body: req

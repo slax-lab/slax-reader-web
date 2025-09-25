@@ -128,7 +128,7 @@ onMounted(() => {
 const getShareInfo = async () => {
   isLoading.value = true
   try {
-    const res = await request.get<ShareDetailInfo>({
+    const res = await request().get<ShareDetailInfo>({
       url: RESTMethodPath.EXISTS_SHARE_BOOKMARK,
       query: {
         bookmark_id: String(props.bookmarkId)
@@ -177,7 +177,7 @@ const updateShare = async (params?: { commentLine?: boolean; userInfo?: boolean;
   const showUserinfo = params?.userInfo ?? userInfo.selected
   const allowActionSelected = params?.allowAction ?? allowAction.selected
 
-  const res = await request.post<ShareDetailInfo>({
+  const res = await request().post<ShareDetailInfo>({
     url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
     body: {
       bookmark_id: props.bookmarkId,
@@ -206,7 +206,7 @@ const updateShare = async (params?: { commentLine?: boolean; userInfo?: boolean;
 }
 
 const closeShare = async () => {
-  const res = await request.post<{ ok: boolean }>({
+  const res = await request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_SHARE_BOOKMARK,
     body: {
       bookmark_id: props.bookmarkId

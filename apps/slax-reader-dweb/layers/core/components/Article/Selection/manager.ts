@@ -161,7 +161,7 @@ export class MarkManager extends Base {
     const markId = info.stroke.find(item => item.userId === userId)?.mark_id
     if (!markId) return
 
-    await request.post({
+    await request().post({
       url: RESTMethodPath.DELETE_MARK,
       body: { bm_id: this.config.bookmarkId, mark_id: markId }
     })
@@ -209,7 +209,7 @@ export class MarkManager extends Base {
     }
 
     try {
-      await request.post({
+      await request().post({
         url: RESTMethodPath.DELETE_MARK,
         body: { bm_id: this.config.bookmarkId, mark_id: markId }
       })
@@ -422,7 +422,7 @@ export class MarkManager extends Base {
 
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
-      const res = await request.post<{ mark_id: number; root_id: number }>({
+      const res = await request().post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
           share_code: this.config.shareCode,

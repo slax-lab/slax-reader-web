@@ -7,6 +7,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '#layers/core/stores/user'
+import { isClient } from '@commons/utils/is'
 
 const cacheRoutes = ['bookmarks']
 const userStore = useUserStore()
@@ -16,7 +17,9 @@ if (userStore.currentLocale !== locale.value) {
   userStore.changeLocalLocale(userStore.currentLocale)
 }
 
-userStore.checkAndRefreshUserToken()
+if (isClient) {
+  userStore.checkAndRefreshUserToken()
+}
 
 useHead({
   htmlAttrs: {

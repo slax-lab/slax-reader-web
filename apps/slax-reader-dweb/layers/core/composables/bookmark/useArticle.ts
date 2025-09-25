@@ -29,7 +29,7 @@ export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
         }
 
         const status = !isStar ? 'unstar' : 'star'
-        await request.post<{ bookmark_id: number; status: string }>({
+        await request().post<{ bookmark_id: number; status: string }>({
           url: RESTMethodPath.BOOKMARK_STAR,
           body: {
             bookmark_id: bookmarkId,

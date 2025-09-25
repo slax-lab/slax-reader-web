@@ -53,7 +53,7 @@ const addUrlButtonEnable = computed(() => {
 const topModalClick = async () => {
   searchModalLoading.value = true
 
-  await request.post<{ bookmark_id: number; status: string }>({
+  await request().post<{ bookmark_id: number; status: string }>({
     url: RESTMethodPath.ADD_URL_BOOKMARK,
     body: {
       target_url: addUrlText.value
