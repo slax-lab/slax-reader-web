@@ -144,7 +144,7 @@ export class ArticleSelection extends Base {
             currentInfo.id = getUUID()
             this.manager.strokeSelection({ info: currentInfo })
           } else if (type === MenuType.Copy) {
-            this.manager.copyMarkedText(source, event)
+            this.manager.copyMarkedText({ source, event })
           } else if (type === MenuType.Comment) {
             currentInfo.id = getUUID()
             this.manager.showPanel({ fallbackYOffset: menusY })

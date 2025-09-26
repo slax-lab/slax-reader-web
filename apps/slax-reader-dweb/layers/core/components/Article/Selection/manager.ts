@@ -220,26 +220,32 @@ export class MarkManager extends Base {
     }
   }
 
-  async copyMarkedText(markItems: MarkPathItem[], event?: MouseEvent) {
+  async copyMarkedText(infos: { source?: MarkPathItem[]; approx?: MarkPathApprox; event?: MouseEvent }) {
+    const { source, approx, event } = infos
     const texts: string[] = []
-    let lastNode: Node | null = null
-    for (const markItem of markItems) {
-      const infos = this.renderer.transferNodeInfos(markItem)
-      for (const info of infos) {
-        if (info.type === 'image') continue
-        const range = this.document.createRange()
-        range.setStart(info.node, info.start)
-        range.setEnd(info.node, info.end)
 
-        if (
-          lastNode &&
-          lastNode.parentElement?.nextElementSibling !== info.node.parentElement &&
-          lastNode.parentElement?.parentElement?.nextElementSibling !== info.node.parentElement
-        ) {
-          texts.push('\n')
+    if (approx) {
+      texts.push(approx.exact)
+    } else if (source && source.length > 0) {
+      let lastNode: Node | null = null
+      for (const markItem of source) {
+        const infos = this.renderer.transferNodeInfos(markItem)
+        for (const info of infos) {
+          if (info.type === 'image') continue
+          const range = this.document.createRange()
+          range.setStart(info.node, info.start)
+          range.setEnd(info.node, info.end)
+
+          if (
+            lastNode &&
+            lastNode.parentElement?.nextElementSibling !== info.node.parentElement &&
+            lastNode.parentElement?.parentElement?.nextElementSibling !== info.node.parentElement
+          ) {
+            texts.push('\n')
+          }
+          texts.push(range.toString())
+          if (lastNode !== info.node) lastNode = info.node
         }
-        texts.push(range.toString())
-        if (lastNode !== info.node) lastNode = info.node
       }
     }
 
@@ -288,7 +294,7 @@ export class MarkManager extends Base {
       actionCallback: (type, meta) => {
         if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
-        else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
+        else if (type === MenuType.Copy) this.copyMarkedText({ source: meta.info.source, approx: meta.info.approx, event: meta.event })
         else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
           const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source, meta.info.approx) }
