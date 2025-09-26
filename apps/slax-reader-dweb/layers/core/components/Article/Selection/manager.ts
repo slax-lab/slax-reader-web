@@ -161,7 +161,7 @@ export class MarkManager extends Base {
     const markId = info.stroke.find(item => item.userId === userId)?.mark_id
     if (!markId) return
 
-    await request.post({
+    await request().post({
       url: RESTMethodPath.DELETE_MARK,
       body: { bm_id: this.config.bookmarkId, mark_id: markId }
     })
@@ -209,7 +209,7 @@ export class MarkManager extends Base {
     }
 
     try {
-      await request.post({
+      await request().post({
         url: RESTMethodPath.DELETE_MARK,
         body: { bm_id: this.config.bookmarkId, mark_id: markId }
       })
@@ -220,26 +220,32 @@ export class MarkManager extends Base {
     }
   }
 
-  async copyMarkedText(markItems: MarkPathItem[], event?: MouseEvent) {
+  async copyMarkedText(infos: { source?: MarkPathItem[]; approx?: MarkPathApprox; event?: MouseEvent }) {
+    const { source, approx, event } = infos
     const texts: string[] = []
-    let lastNode: Node | null = null
-    for (const markItem of markItems) {
-      const infos = this.renderer.transferNodeInfos(markItem)
-      for (const info of infos) {
-        if (info.type === 'image') continue
-        const range = this.document.createRange()
-        range.setStart(info.node, info.start)
-        range.setEnd(info.node, info.end)
 
-        if (
-          lastNode &&
-          lastNode.parentElement?.nextElementSibling !== info.node.parentElement &&
-          lastNode.parentElement?.parentElement?.nextElementSibling !== info.node.parentElement
-        ) {
-          texts.push('\n')
+    if (approx) {
+      texts.push(approx.exact)
+    } else if (source && source.length > 0) {
+      let lastNode: Node | null = null
+      for (const markItem of source) {
+        const infos = this.renderer.transferNodeInfos(markItem)
+        for (const info of infos) {
+          if (info.type === 'image') continue
+          const range = this.document.createRange()
+          range.setStart(info.node, info.start)
+          range.setEnd(info.node, info.end)
+
+          if (
+            lastNode &&
+            lastNode.parentElement?.nextElementSibling !== info.node.parentElement &&
+            lastNode.parentElement?.parentElement?.nextElementSibling !== info.node.parentElement
+          ) {
+            texts.push('\n')
+          }
+          texts.push(range.toString())
+          if (lastNode !== info.node) lastNode = info.node
         }
-        texts.push(range.toString())
-        if (lastNode !== info.node) lastNode = info.node
       }
     }
 
@@ -288,7 +294,7 @@ export class MarkManager extends Base {
       actionCallback: (type, meta) => {
         if (type === MenuType.Stroke) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Stroke_Delete) this.deleteStroke(meta.info)
-        else if (type === MenuType.Copy) this.copyMarkedText(meta.info.source, meta.event)
+        else if (type === MenuType.Copy) this.copyMarkedText({ source: meta.info.source, approx: meta.info.approx, event: meta.event })
         else if (type === MenuType.Comment) this.strokeSelection(meta as StrokeSelectionMeta)
         else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
           const quote = { source: { id: meta.info.id }, data: this.createQuote(meta.info.source, meta.info.approx) }
@@ -422,7 +428,7 @@ export class MarkManager extends Base {
 
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
-      const res = await request.post<{ mark_id: number; root_id: number }>({
+      const res = await request().post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
           share_code: this.config.shareCode,

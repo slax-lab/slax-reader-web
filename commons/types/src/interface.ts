@@ -462,4 +462,5 @@ export interface PanelPosition {
 }
 export interface LocalConfig {
   webPanelPosition?: PanelPosition
+  autoToggle?: boolean
 }

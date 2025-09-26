@@ -1,8 +1,10 @@
-import { isClient } from '@commons/utils/is'
+import { isClient, isServer } from '@commons/utils/is'
 import { type FetchOptions, FetchRequest, type FetchResult, RequestError, RequestMethodType } from '@commons/utils/request'
 
 import { useCookies } from '@vueuse/integrations/useCookies'
 import Toast, { ToastType } from '#layers/core/components/Toast'
+
+let requestInstance: FetchRequest | null = null
 
 class ServerRequest extends FetchRequest {
   override async fetchRequest(options: FetchOptions) {
@@ -24,41 +26,52 @@ class ServerRequest extends FetchRequest {
   }
 }
 
-export const request = new (isClient ? FetchRequest : ServerRequest)({
-  baseUrl: () => useNuxtApp().$config.public.DWEB_API_BASE_URL as string,
-  requestInterceptors: async options => {
-    const token = getUserToken()
-    if (token) {
-      options.headers = {
-        Authorization: `Bearer ${token}`,
-        ...(options.headers ?? {})
-      }
-    }
-    return options
-  },
-  responseInterceptors: async <T = unknown>(response: FetchResult<unknown>) => {
-    if (response.status === 401) {
-      await useAuth().clearAuth()
-      await navigateTo('/login')
-    }
+export const request = () => {
+  if (!requestInstance) {
+    const baseUrl = useNuxtApp().$config.public.DWEB_API_BASE_URL as string
+    requestInstance = new (isClient ? FetchRequest : ServerRequest)({
+      baseUrl,
+      requestInterceptors: async options => {
+        const token = getUserToken()
+        if (token) {
+          options.headers = {
+            Authorization: `Bearer ${token}`,
+            ...(options.headers ?? {})
+          }
+        }
+        return options
+      },
+      responseInterceptors: async <T = unknown>(response: FetchResult<unknown>) => {
+        if (response.status === 401) {
+          await useAuth().clearAuth()
+          await navigateTo('/login')
+        }
 
-    return response as FetchResult<T>
-  },
-  errorInterceptors: error => {
-    console.log(error)
-    if (error instanceof RequestError && error.message) {
-      Toast.showToast({
-        text: error.message,
-        type: ToastType.Error
-      })
-    } else {
-      Toast.showToast({
-        text: `${error}`,
-        type: ToastType.Error
-      })
-    }
+        return response as FetchResult<T>
+      },
+      errorInterceptors: error => {
+        console.log(error)
+        if (isServer) {
+          return error
+        }
+
+        if (error instanceof RequestError && error.message) {
+          Toast.showToast({
+            text: error.message,
+            type: ToastType.Error
+          })
+        } else {
+          Toast.showToast({
+            text: `${error}`,
+            type: ToastType.Error
+          })
+        }
+      }
+    })
   }
-})
+
+  return requestInstance
+}
 
 export const getUserToken = () => {
   const COOKIE_TOKEN_NAME = useNuxtApp().$config.public.COOKIE_TOKEN_NAME

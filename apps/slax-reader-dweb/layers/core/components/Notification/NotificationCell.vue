@@ -117,7 +117,7 @@ const handleClick = (): void => {
 
   const markNotificationRead = async () => {
     if (!id || isRead) return
-    await request.post({ url: RESTMethodPath.NOTIFICATION_MARK_READ, body: { id } })
+    await request().post({ url: RESTMethodPath.NOTIFICATION_MARK_READ, body: { id } })
   }
 
   const urlMap: Record<string, () => string> = {

@@ -156,7 +156,7 @@ const loadInlineBookmarkDetail = async () => {
 
   isLoading.value = true
   try {
-    const res = await request.get<BookmarkBriefDetail>({
+    const res = await request().get<BookmarkBriefDetail>({
       url: RESTMethodPath.BOOKMARK_BRIEF,
       method: RequestMethodType.get,
       query: {

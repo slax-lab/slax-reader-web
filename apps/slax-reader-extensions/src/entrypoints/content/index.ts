@@ -10,11 +10,17 @@ const extensionInvalidate = () => {
   // console.error('extension invalidated')
 }
 
+const styleReset = () => {
+  document.documentElement.style.transformStyle = 'flat' // revert transformStyle to avoid 3d issue (affecting fixed position)
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_idle',
   cssInjectionMode: 'ui',
   async main(ctx) {
+    styleReset()
+
     ctx.onInvalidated(extensionInvalidate)
     const collectUI = await createShadowRootUi(ctx, {
       name: 'slax-reader-modal',

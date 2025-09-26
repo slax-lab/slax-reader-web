@@ -1,6 +1,13 @@
 <template>
   <div class="side-panel">
-    <div class="main-panel" ref="panelContainer" :class="{ appear: showPanel }">
+    <div
+      class="main-panel"
+      ref="panelContainer"
+      :class="{ appear: showPanel }"
+      v-click-outside="{
+        handler: handleClickOutside
+      }"
+    >
       <div class="drag" ref="draggble" />
       <div class="sidebar-container" :style="contentWidth ? { width: contentWidth + 'px' } : {}">
         <div class="sidebar-wrapper" :class="{ dragging: isDragging }">
@@ -9,6 +16,12 @@
               <img src="@/assets/tiny-app-logo-gray.png" alt="" />
               <span class="name">Slax Reader</span>
               <span class="version">{{ VERSION }}</span>
+            </div>
+            <div class="header-toggle">
+              <span>{{ $t('component.panel.auto_toggle') }}</span>
+              <div class="switch" @click="switchClick">
+                <div class="ball" :class="{ open: isAutoToggle }"></div>
+              </div>
             </div>
           </div>
           <div class="sidebar-content">
@@ -34,10 +47,12 @@
 </template>
 
 <script lang="ts" setup>
+import { ClickOutside } from '@commons/utils/directive'
+import { MouseTrack } from '@commons/utils/mouse'
+
 import { LocalStorageKey } from '@commons/types/const'
 import type { LocalConfig, PanelPosition } from '@commons/types/interface'
-import { type Position, useDraggable, useElementBounding, useScrollLock } from '@vueuse/core'
-import { MouseTrack } from '@commons/utils/mouse'
+import { type Position, useDebounceFn, useDraggable, useElementBounding, useScrollLock } from '@vueuse/core'
 
 const props = defineProps({
   showPanel: {
@@ -48,6 +63,7 @@ const props = defineProps({
 
 const emits = defineEmits(['close'])
 
+const vClickOutside = ClickOutside
 const localConfig = storage.defineItem<LocalConfig>(`${LocalStorageKey.LOCAL_CONFIG}`)
 
 const isDraggledWebPaneled = ref(false)
@@ -64,11 +80,12 @@ const contentWidth = ref(Math.min(window.innerWidth, defaultContentWidth))
 const VERSION = `v${process.env.VERSION}`
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const shortcutString = isMac ? '⌃ + ⇧ + Z' : 'Ctrl + Shift⇧ + Z'
+const isAutoToggle = ref(false)
 
 watch(
   () => webPanelDraggble.value,
   () => {
-    initialPanelPosition()
+    loadLocalConfig()
   }
 )
 watch(
@@ -83,6 +100,7 @@ watch(
 
 onMounted(() => {
   tracking.mouseTrack(true)
+  loadLocalConfig()
 })
 
 onUnmounted(() => {
@@ -126,7 +144,7 @@ const { isDragging } = useDraggable(draggble, {
   }
 })
 
-const initialPanelPosition = async () => {
+const loadLocalConfig = async () => {
   const config = await localConfig.getValue()
 
   if (webPanelDraggble.value && config?.webPanelPosition) {
@@ -135,6 +153,8 @@ const initialPanelPosition = async () => {
       webPanelDraggble.value.style[key as any] = config.webPanelPosition[key as keyof typeof config.webPanelPosition]!
     }
   }
+
+  isAutoToggle.value = config?.autoToggle ?? false
 }
 
 const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef: Ref<boolean>, onPositionChange: (position: PanelPosition) => void) => {
@@ -199,11 +219,38 @@ const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef:
   })
 }
 
+const switchClick = () => {
+  isAutoToggle.value = !isAutoToggle.value
+  updateToggle(isAutoToggle.value)
+}
+
+const updateToggle = useDebounceFn(
+  (autoToggle: boolean) => {
+    updateConfig({
+      autoToggle
+    })
+  },
+  500,
+  { maxWait: 5000 }
+)
+
+const handleClickOutside = () => {
+  if (isAutoToggle.value) {
+    emits('close')
+  }
+}
+
 const webPanelCallback = async (position: PanelPosition) => {
+  await updateConfig({
+    webPanelPosition: position
+  })
+}
+
+const updateConfig = async (config: LocalConfig) => {
   const localconfig = await localConfig.getValue()
   localConfig.setValue({
     ...localconfig,
-    webPanelPosition: position
+    ...config
   })
 }
 
@@ -247,7 +294,7 @@ const closePanel = () => {
           --style: absolute left-1/2 -translate-x-1/2 flex items-center justify-center;
 
           &.top {
-            --style: top-16px;
+            --style: top-15px;
           }
 
           &.bottom {
@@ -279,7 +326,7 @@ const closePanel = () => {
         }
 
         .sidebar-header {
-          --style: w-full h-48px pl-20px bg-#1F1F1F flex items-center justify-start select-none;
+          --style: w-full h-48px pl-20px pr-4px bg-#1F1F1F flex items-center justify-between select-none;
 
           .header-text {
             --style: cursor-pointer flex-center;
@@ -293,6 +340,27 @@ const closePanel = () => {
 
             .version {
               --style: ml-6px flex px-3px rounded-2px border-(0.5px solid #97979766) text-(9px #ffffff66) line-height-14px;
+            }
+          }
+
+          .header-toggle {
+            --style: flex-center;
+            span {
+              --style: text-(14px #ffffff33) line-height-20px;
+            }
+
+            .switch {
+              --style: ml-8px opacity-40 cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-250 bg-#c5c6cb80;
+              &:has(.open) {
+                --style: bg-#16b998;
+              }
+
+              .ball {
+                --style: w-14px h-14px rounded-full bg-#fff transition-all -translate-x-7px duration-250;
+                &.open {
+                  --style: translate-x-7px;
+                }
+              }
             }
           }
         }

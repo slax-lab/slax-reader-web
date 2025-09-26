@@ -17,39 +17,40 @@
       </button>
     </div>
     <div class="button-wrapper">
-      <button class="panel-button" @click="dotsClick">
+      <div class="more-wrapper">
         <div class="icon-wrapper">
-          <div class="icon">
-            <i :class="{ star: isStar }"></i>
-            <i :class="{ archive: isArchive }"></i>
-            <i></i>
-          </div>
-        </div>
-        <span>{{ $t('component.sidebar.more') }}</span>
-      </button>
-      <Transition name="more">
-        <div class="more-options-wrapper" v-show="moreShow" v-on-click-outside="outsideClick">
-          <div class="more-options">
-            <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
-              <div class="icon">
-                <template v-if="panel.isLoading">
-                  <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
-                </template>
-                <template v-else>
-                  <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                    <img class="normal" :src="panel.icon" alt="" />
-                    <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-                  </template>
-                  <template v-else>
-                    <img class="selected" :src="panel.selectedIcon" alt="" />
-                  </template>
-                </template>
+          <div class="more-options-container" ref="moreContainer" :class="{ focus: isMoreHovered }">
+            <Transition name="opacity">
+              <div class="icon" v-show="!isMoreHovered">
+                <i :class="{ star: isStar }"></i>
+                <i :class="{ archive: isArchive }"></i>
+                <i></i>
               </div>
-              <span>{{ panel.title }}</span>
-            </button>
+            </Transition>
+            <Transition name="opacity">
+              <div class="more-options" v-show="isMoreHovered">
+                <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
+                  <div class="icon">
+                    <template v-if="panel.isLoading">
+                      <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
+                    </template>
+                    <template v-else>
+                      <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                        <img class="normal" :src="panel.icon" alt="" />
+                        <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                      </template>
+                      <template v-else>
+                        <img class="selected" :src="panel.selectedIcon" alt="" />
+                      </template>
+                    </template>
+                  </div>
+                  <span>{{ panel.title }}</span>
+                </button>
+              </div>
+            </Transition>
           </div>
         </div>
-      </Transition>
+      </div>
     </div>
   </div>
 </template>
@@ -57,7 +58,7 @@
 <script lang="ts" setup>
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
-import { vOnClickOutside } from '@vueuse/components'
+import { useElementHover } from '@vueuse/core'
 
 const props = defineProps({
   isSummaryShowing: {
@@ -120,7 +121,9 @@ const morePanelItem = ref<PanelItem[]>([
     icon: Images.star.main,
     highlighedIcon: Images.star.highlighted,
     selectedIcon: Images.star.selected,
-    title: $t('component.sidebar.star'),
+    title: computed(() => {
+      return props.isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star')
+    }),
     hovered: false,
     isSelected: () => props.isStar
   },
@@ -129,7 +132,9 @@ const morePanelItem = ref<PanelItem[]>([
     icon: Images.archieve.main,
     highlighedIcon: Images.archieve.highlighted,
     selectedIcon: Images.archieve.selected,
-    title: $t('component.sidebar.archieve'),
+    title: computed(() => {
+      return props.isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve')
+    }),
     hovered: false,
     isSelected: () => props.isArchive
   },
@@ -143,6 +148,8 @@ const morePanelItem = ref<PanelItem[]>([
 ])
 
 const moreShow = ref(false)
+const moreContainer = ref<HTMLElement>()
+const isMoreHovered = useElementHover(moreContainer)
 
 const outsideClick = () => {
   moreShow.value = false
@@ -185,7 +192,7 @@ const panelClick = async (panel: PanelItem) => {
         transition-max-width duration-250;
 
       .icon-wrapper {
-        --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
+        --style: relative border-(1px solid #ffffff14) rounded-6px shrink-0;
 
         .icon {
           --style: relative size-36px;
@@ -199,30 +206,6 @@ const panelClick = async (panel: PanelItem) => {
 
           .highlighted {
             --style: opacity-0;
-          }
-
-          i {
-            --style: absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 size-3.5px bg-#fcfcfc opacity-60 transition-all duration-250;
-
-            &:nth-child(1) {
-              --style: top-1/3;
-            }
-
-            &:nth-child(2) {
-              --style: top-1/2;
-            }
-
-            &:nth-child(3) {
-              --style: top-2/3;
-            }
-
-            &.star {
-              --style: bg-#ffc787 opacity-100;
-            }
-
-            &.archive {
-              --style: bg-#16b998 opacity-100;
-            }
           }
         }
       }
@@ -250,73 +233,90 @@ const panelClick = async (panel: PanelItem) => {
       }
     }
 
-    .more-options-wrapper {
-      --style: cursor-default absolute top-0 -right-4px w-150px h-110px rounded-8px bg-#262626;
-      .more-options {
-        --style: flex flex-col py-7px px-8px opacity-100;
+    .more-wrapper {
+      --style: absolute top-0 right-0 w-44px h-44px p-4px rounded-(lt-8px lb-8px) flex items-center flex-nowrap whitespace-nowrap;
+      .icon-wrapper {
+        --style: shrink-0 size-38px relative;
 
-        button.subpanel-button {
-          --style: flex items-center h-32px px-16px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
-          --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
+        .more-options-container {
+          --style: absolute size-36px right-0 top-0 bg-#262626 border-(1px solid #ffffff14) rounded-6px transition-all duration-250;
+
+          &.focus {
+            --style: -right-4px w-150px h-110px cursor-default border-(1px solid transparent);
+          }
 
           .icon {
-            --style: relative size-16px;
-            img {
-              --style: absolute size-full left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-            }
+            --style: absolute top-0 right-0 size-36px;
 
-            .normal {
-              --style: opacity-100;
-            }
+            i {
+              --style: absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 size-3.5px bg-#fcfcfc opacity-60 transition-all duration-250;
 
-            .highlighted {
-              --style: opacity-0;
+              &:nth-child(1) {
+                --style: top-1/3;
+              }
+
+              &:nth-child(2) {
+                --style: top-1/2;
+              }
+
+              &:nth-child(3) {
+                --style: top-2/3;
+              }
+
+              &.star {
+                --style: bg-#ffc787 opacity-100;
+              }
+
+              &.archive {
+                --style: bg-#16b998 opacity-100;
+              }
             }
           }
 
-          &:hover {
-            --style: '!max-w-160px';
+          .more-options {
+            --style: flex flex-col py-7px px-8px opacity-100;
 
-            .icon {
-              .normal {
-                --style: opacity-0;
+            button.subpanel-button {
+              --style: flex items-center h-32px px-16px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
+              --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
+
+              .icon {
+                --style: relative size-16px;
+                img {
+                  --style: absolute size-full left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+                }
+
+                .normal {
+                  --style: opacity-100;
+                }
+
+                .highlighted {
+                  --style: opacity-0;
+                }
               }
 
-              .highlighted {
-                --style: opacity-100;
+              &:hover {
+                --style: '!max-w-160px';
+
+                .icon {
+                  .normal {
+                    --style: opacity-0;
+                  }
+
+                  .highlighted {
+                    --style: opacity-100;
+                  }
+                }
+              }
+
+              span {
+                --style: ml-8px text-13px line-height-18px transition-all duration-250;
               }
             }
-          }
-
-          span {
-            --style: ml-8px text-13px line-height-18px transition-all duration-250;
           }
         }
       }
     }
-  }
-}
-
-.more-leave-active {
-  transition:
-    all 0.4s,
-    opacity 0.2s ease 0.2s;
-
-  .more-options {
-    transition: all 0.4s;
-  }
-}
-
-.more-enter-active {
-  transition: all 0.4s;
-}
-
-.more-enter-from,
-.more-leave-to {
-  --style: '!w-full !h-full !right-0 !opacity-0';
-
-  .more-options {
-    --style: '!opacity-0';
   }
 }
 </style>

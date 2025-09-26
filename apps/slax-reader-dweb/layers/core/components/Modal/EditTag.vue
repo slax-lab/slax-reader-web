@@ -83,7 +83,7 @@ const editTagName = async () => {
     tag_name: editname.value
   }
 
-  await request.post({
+  await request().post({
     url: RESTMethodPath.UPDATE_USER_TAG,
     body: req
   })
@@ -100,7 +100,7 @@ const deleteTag = async () => {
 
   isLoading.value = true
 
-  const res = await request.post<{ ok: boolean }>({
+  const res = await request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_USER_TAG,
     body: {
       tag_id: props.tagId

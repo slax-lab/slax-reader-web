@@ -173,7 +173,7 @@ const loadBookmark = async () => {
 
   loading.value = true
   try {
-    const res = await request.get<BookmarkDetail>({
+    const res = await request().get<BookmarkDetail>({
       url: RESTMethodPath.BOOKMARK_DETAIL,
       query: {
         bookmark_id: String(bmId)
@@ -271,7 +271,7 @@ const checkStatusInterval = () => {
 
 const trashBookmark = async (trash: boolean) => {
   const id = detail.value?.bookmark_id
-  await request.post<EmptyBookmarkResp>({
+  await request().post<EmptyBookmarkResp>({
     url: trash ? RESTMethodPath.TRASH_BOOKMARK : RESTMethodPath.REVERT_BOOKMARK,
     body: {
       bookmark_id: id
@@ -308,7 +308,7 @@ const shareUrl = async () => {
 const archiveBookmark = async (isCancel: boolean) => {
   const status = !isCancel ? 'archive' : 'inbox'
   try {
-    await request.post<{ bookmark_id: number; status: string }>({
+    await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.BOOKMARK_ARCHIVE,
       body: {
         bookmark_id: bmId,

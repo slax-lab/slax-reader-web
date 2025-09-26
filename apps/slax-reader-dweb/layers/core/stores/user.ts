@@ -87,7 +87,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
   },
   actions: {
     async refreshUserInfo(): Promise<UserInfo> {
-      const resp = await request.get<UserInfo>({
+      const resp = await request().get<UserInfo>({
         url: RESTMethodPath.ME
       })
 
@@ -132,7 +132,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
       })
     },
     async changeUserSetting(key: string, value: string) {
-      return await request.post({
+      return await request().post({
         url: RESTMethodPath.USER_INFO_SETTING,
         body: {
           key,

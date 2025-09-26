@@ -10,7 +10,7 @@ const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
 
-const Version = '1.8.5'
+const Version = '1.8.8'
 const envConfig = getExtensionsConfig()
 
 const convertToProcessEnv = (env: Record<string, unknown>) => {
@@ -138,5 +138,8 @@ export default defineConfig({
     //   config.plugins!.push(UnoCSS(), autoImportUnoCSS(['content/index.ts']))
     // },
     'build:publicAssets': autoMigrateIcons(getEnv())
+  },
+  webExt: {
+    chromiumArgs: isDev ? ['--disable-blink-features=AutomationControlled'] : []
   }
 })

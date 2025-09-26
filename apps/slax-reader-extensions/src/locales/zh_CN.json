@@ -95,6 +95,7 @@
       "text_content_title": "全文概要："
     },
     "panel": {
+      "auto_toggle": "边栏自动收起",
       "close_tips": "展开/收缩快捷键"
     },
     "share_modal": {

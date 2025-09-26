@@ -75,7 +75,7 @@ const editBookmarkName = async () => {
     alias_title: editname.value
   }
 
-  await request.post({
+  await request().post({
     url: RESTMethodPath.BOOKMARK_ALIAS_TITLE,
     body: req
   })

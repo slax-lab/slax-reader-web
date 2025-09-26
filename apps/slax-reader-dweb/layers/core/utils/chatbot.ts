@@ -81,7 +81,7 @@ export class ChatBot {
     const lineDecoder = new LineDecoder()
 
     const messages = this.createMessages(params)
-    const callBack = await request.stream({
+    const callBack = await request().stream({
       url: RESTMethodPath.BOT_CHAT,
       method: RequestMethodType.post,
       body: messages

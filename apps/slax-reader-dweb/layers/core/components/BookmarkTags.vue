@@ -122,7 +122,7 @@ const searchingTags = async () => {
   }
 
   isAddingLoading.value = true
-  const res = await request.get<BookmarkTag[]>({
+  const res = await request().get<BookmarkTag[]>({
     url: RESTMethodPath.TAG_LIST
   })
 
@@ -145,7 +145,7 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
 
   isAddingLoading.value = true
 
-  const res = await request.post<BookmarkTag>({
+  const res = await request().post<BookmarkTag>({
     url: RESTMethodPath.ADD_BOOKMARK_TAG,
     body: {
       bookmark_id: props.bookmarkId,
@@ -168,7 +168,7 @@ const deleteBookmarkTag = async (tagId: number) => {
     return
   }
 
-  request.post<{ ok: boolean }>({
+  request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_BOOKMARK_TAG,
     body: {
       bookmark_id: props.bookmarkId,

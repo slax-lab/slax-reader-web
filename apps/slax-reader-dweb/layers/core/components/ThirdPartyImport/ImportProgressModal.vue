@@ -43,7 +43,7 @@ const isLoading = ref(false)
 
 const getImportProgressData = async () => {
   isLoading.value = true
-  request
+  request()
     .get<ImportProcessResp[]>({
       url: RESTMethodPath.IMPORT_THIRD_PARTY_DATA_PROGRESS
     })

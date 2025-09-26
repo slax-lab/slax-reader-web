@@ -3,6 +3,7 @@ import { z } from 'zod'
 // 共用的环境变量定义 Schema
 const baseEnvSchema = z.object({
   PUBLIC_BASE_URL: z.string().startsWith('http'),
+  AUTH_BASE_URL: z.string().startsWith('http'),
   COOKIE_DOMAIN: z.string(),
   COOKIE_TOKEN_NAME: z.string().min(5),
   SHARE_BASE_URL: z.string().startsWith('http')

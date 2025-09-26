@@ -167,7 +167,7 @@ const defineSeo = () => {
 
 const loadBookmarkDetail = async () => {
   if (!detail.value) {
-    const data = await request.get<ShareBookmarkDetail>({
+    const data = await request().get<ShareBookmarkDetail>({
       url: RESTMethodPath.SHARE_BOOKMARK_DETAIL,
       query: {
         share_code: shareCode
@@ -189,6 +189,35 @@ const loadBookmarkDetail = async () => {
     }
   })
 }
+
+const fetchServerData = async () => {
+  const { data } = await useAsyncData('detail', () =>
+    request().get<ShareBookmarkDetail>({
+      url: RESTMethodPath.SHARE_BOOKMARK_DETAIL,
+      query: {
+        share_code: shareCode
+      }
+    })
+  )
+
+  data.value && (detail.value = data.value)
+}
+
+const renderServerData = async () => {
+  try {
+    isServer &&
+      defineOgImageComponent('Share', {
+        title: `${detail.value?.title || ''}`
+      })
+
+    defineSeo()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+await fetchServerData()
+await renderServerData()
 
 const {
   user,
@@ -224,28 +253,6 @@ const {
     }
   },
   initialRequestTask: async () => {
-    const { data } = await useAsyncData('detail', () =>
-      request.get<ShareBookmarkDetail>({
-        url: RESTMethodPath.SHARE_BOOKMARK_DETAIL,
-        query: {
-          share_code: shareCode
-        }
-      })
-    )
-
-    data.value && (detail.value = data.value)
-
-    try {
-      isServer &&
-        defineOgImageComponent('Share', {
-          title: `${detail.value?.title || ''}`
-        })
-
-      defineSeo()
-    } catch (error) {
-      console.error(error)
-    }
-
     if (!isClient) {
       return
     }
@@ -270,7 +277,7 @@ const {
 })
 
 const checkShowTransferButton = () => {
-  request
+  request()
     .post<BookmarkExistsResp>({
       url: RESTMethodPath.BOOKMARK_EXISTS,
       body: {
@@ -296,7 +303,7 @@ if (isClient) {
 
 const loadMarks = async () => {
   try {
-    const res = await request.get<MarkDetail>({
+    const res = await request().get<MarkDetail>({
       url: RESTMethodPath.SHARE_BOOKMARK_MARK_LIST,
       query: {
         share_code: shareCode
@@ -325,7 +332,7 @@ const transferSaveClick = () => {
     return
   }
 
-  request
+  request()
     .post<{ bmId: number }>({
       url: RESTMethodPath.ADD_URL_BOOKMARK,
       body: {

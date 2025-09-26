@@ -180,7 +180,7 @@ const checkAndQueryNotifications = async () => {
   loading.value = true
 
   try {
-    const res = await request.get<UserNotificationMessageItem[]>({
+    const res = await request().get<UserNotificationMessageItem[]>({
       url: RESTMethodPath.NOTIFICATION_LIST,
       query: {
         page: 1,
@@ -211,7 +211,7 @@ if (notification.isSupportedNotification) {
     })
   })
 } else {
-  request
+  request()
     .get<{ unread_count: number }>({
       url: RESTMethodPath.GET_UNREAD_COUNT
     })

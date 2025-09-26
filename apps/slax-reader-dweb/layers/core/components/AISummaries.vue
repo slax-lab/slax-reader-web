@@ -217,7 +217,7 @@ const getSummariesList = async () => {
 
   loading.value = true
   // 获取当前书签所有总结，同时会将属于自己的总结放在第1位
-  const list = await request.get<SummaryItemModel[]>({
+  const list = await request().get<SummaryItemModel[]>({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
     query: {
       ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
@@ -246,7 +246,7 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
   }
 
   loading.value = true
-  const callBack = await request.stream({
+  const callBack = await request().stream({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
     method: RequestMethodType.post,
     body: {
