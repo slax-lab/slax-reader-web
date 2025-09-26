@@ -60,20 +60,15 @@ const props = defineProps({
   }
 })
 
-const getArchiveTitle = computed(() => {
-  if (props.isArchive) {
-    return $t('component.sidebar.archieved')
-  }
-  return $t('component.sidebar.archieve')
-})
-
 const morePanelItem = ref<PanelItem[]>([
   {
     type: PanelItemType.Star,
     icon: Images.star.main,
     highlighedIcon: Images.star.highlighted,
     selectedIcon: Images.star.selected,
-    title: $t('component.sidebar.star'),
+    title: computed(() => {
+      return props.isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star')
+    }),
     hovered: false,
     isSelected: () => props.isStar
   },
@@ -82,7 +77,9 @@ const morePanelItem = ref<PanelItem[]>([
     icon: Images.archieve.main,
     highlighedIcon: Images.archieve.highlighted,
     selectedIcon: Images.archieve.selected,
-    title: $t('component.sidebar.archieve'),
+    title: computed(() => {
+      return props.isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve')
+    }),
     hovered: false,
     isSelected: () => props.isArchive
   },
