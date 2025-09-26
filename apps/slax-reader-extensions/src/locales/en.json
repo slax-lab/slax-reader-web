@@ -95,6 +95,7 @@
       "text_content_title": "Overview: "
     },
     "panel": {
+      "auto_toggle": "Auto-hide sidebar",
       "close_tips": "Keyboard shortcuts"
     },
     "share_modal": {

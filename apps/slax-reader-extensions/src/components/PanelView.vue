@@ -18,7 +18,7 @@
               <span class="version">{{ VERSION }}</span>
             </div>
             <div class="header-toggle">
-              <span>边栏自动收起</span>
+              <span>{{ $t('component.panel.auto_toggle') }}</span>
               <div class="switch" @click="switchClick">
                 <div class="ball" :class="{ open: isAutoToggle }"></div>
               </div>
