@@ -138,5 +138,8 @@ export default defineConfig({
     //   config.plugins!.push(UnoCSS(), autoImportUnoCSS(['content/index.ts']))
     // },
     'build:publicAssets': autoMigrateIcons(getEnv())
+  },
+  webExt: {
+    chromiumArgs: isDev ? ['--disable-blink-features=AutomationControlled'] : []
   }
 })

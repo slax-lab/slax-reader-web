@@ -32,7 +32,7 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
     "vue-tsc": "^3.0.8",
-    "wxt": "^0.20.8"
+    "wxt": "^0.20.9"
   },
   "keywords": [],
   "author": "",
