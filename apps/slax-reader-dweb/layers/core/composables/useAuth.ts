@@ -11,12 +11,12 @@ const useAuth = {
     const url = `https://accounts.google.com/o/oauth2/v2/auth`
     const params = {
       client_id: $config.GOOGLE_OAUTH_CLIENT_ID as string,
-      redirect_uri: `${$config.PUBLIC_BASE_URL}/auth`,
+      redirect_uri: `${$config.AUTH_BASE_URL}/auth`,
       scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
       response_type: 'code',
       state: JSON.stringify({
         nonce: 'random',
-        redirectUrl: `${$config.PUBLIC_BASE_URL}/auth`,
+        redirectUrl: `${$config.AUTH_BASE_URL}/auth`,
         target: redirect,
         affCode: affCode
       })
