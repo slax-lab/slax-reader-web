@@ -95,7 +95,13 @@
       "text_content_title": "Overview: "
     },
     "panel": {
-      "auto_toggle": "Auto-hide sidebar",
+      "auto_toggle": {
+        "on": "ON",
+        "off": "OFF",
+        "tips": "Auto-hide sidebar",
+        "enabled_tips": "Auto-close on outside click",
+        "disabled_tips": "Manual close: 'X' or $1"
+      },
       "close_tips": "Keyboard shortcuts"
     },
     "share_modal": {

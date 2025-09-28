@@ -95,7 +95,13 @@
       "text_content_title": "全文概要："
     },
     "panel": {
-      "auto_toggle": "边栏自动收起",
+      "auto_toggle": {
+        "on": "ON",
+        "off": "OFF",
+        "tips": "边栏自动收起",
+        "enabled_tips": "点击外部自动关闭",
+        "disabled_tips": "手动关闭: 'X' 或 $1"
+      },
       "close_tips": "展开/收缩快捷键"
     },
     "share_modal": {
