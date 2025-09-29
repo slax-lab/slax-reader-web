@@ -18,10 +18,10 @@
               <span class="version">{{ VERSION }}</span>
             </div>
             <div class="header-toggle">
-              <span>{{ $t('component.panel.auto_toggle') }}</span>
-              <div class="switch" @click="switchClick">
-                <div class="ball" :class="{ open: isAutoToggle }"></div>
-              </div>
+              <span>{{ isAutoToggle ? $t('component.panel.auto_toggle.on') : $t('component.panel.auto_toggle.off') }}</span>
+              <TextTips :tips="isAutoToggle ? $t('component.panel.auto_toggle.enabled_tips') : $t('component.panel.auto_toggle.disabled_tips', [shortcutString])">
+                <button :class="{ enabled: isAutoToggle }" @click="switchClick"></button>
+              </TextTips>
             </div>
           </div>
           <div class="sidebar-content">
@@ -30,9 +30,11 @@
         </div>
         <div class="sidebar-panel">
           <div class="operate-button top">
-            <button class="close" :title="`${$t('component.panel.close_tips')} (${shortcutString})`" @click="closePanel">
-              <img src="@/assets/button-dialog-close.png" />
-            </button>
+            <TextTips :tips="`${$t('component.panel.close_tips')} (${shortcutString})`">
+              <button class="close" @click="closePanel">
+                <img src="@/assets/button-dialog-close.png" />
+              </button>
+            </TextTips>
           </div>
           <div class="panel-buttons">
             <slot name="tabbars" />
@@ -47,6 +49,8 @@
 </template>
 
 <script lang="ts" setup>
+import TextTips from './Tips/TextTips.vue'
+
 import { ClickOutside } from '@commons/utils/directive'
 import { MouseTrack } from '@commons/utils/mouse'
 
@@ -346,20 +350,17 @@ const closePanel = () => {
           .header-toggle {
             --style: flex-center;
             span {
-              --style: text-(14px #ffffff33) line-height-20px;
+              --style: text-(8px #848484ff) font-medium line-height-11px;
             }
 
-            .switch {
-              --style: ml-8px opacity-40 cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-250 bg-#c5c6cb80;
-              &:has(.open) {
-                --style: bg-#16b998;
-              }
+            button {
+              --style: ml-4px w-18px h-16px bg-center;
+              --style: 'bg-[length:18px_16px] hover:(scale-103) active:(scale-105) transition-all duration-250';
 
-              .ball {
-                --style: w-14px h-14px rounded-full bg-#fff transition-all -translate-x-7px duration-250;
-                &.open {
-                  --style: translate-x-7px;
-                }
+              background-image: url('@/assets/tiny-toggle-disabled-icon.png');
+
+              &.enabled {
+                background-image: url('@/assets/tiny-toggle-enabled-icon.png');
               }
             }
           }
