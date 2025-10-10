@@ -102,7 +102,7 @@ defineExpose({
     .right {
       --style: h-full flex-1 flex items-center relative;
       .operates {
-        --style: 'min-w-280px pl-9px pr-40px relative flex flex-row items-center max-md:(justify-end) md:(justify-start)  gap-16px';
+        --style: 'pl-9px pr-40px relative flex flex-row items-center md:(min-w-280px justify-start) max-md:(justify-end)  gap-16px';
       }
 
       .tools {
