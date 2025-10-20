@@ -6,15 +6,9 @@ export default defineNuxtPlugin(() => {
     () => route.fullPath,
     () => {
       const baseUrl = config.public.PUBLIC_BASE_URL || 'https://r.slax.com'
-      let canonicalUrl = `${baseUrl}`
+      const canonicalUrl = `${baseUrl}${route.path}/` // 不包含查询参数
 
-      try {
-        const multipleLevelPath = route.path.split('/').filter(s => s.length > 0).length > 1
-        canonicalUrl = multipleLevelPath ? `${baseUrl}${route.path}` : `${baseUrl}`
-      } catch (error) {
-        console.error('Error setting canonical URL:', error)
-      }
-
+      // 更新 head 中的规范标记
       useHead({
         link: [
           {

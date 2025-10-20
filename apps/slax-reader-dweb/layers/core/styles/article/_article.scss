@@ -1,4 +1,8 @@
 @mixin article {
+  * {
+    text-autospace: normal;
+  }
+
   video,
   section,
   pre,
