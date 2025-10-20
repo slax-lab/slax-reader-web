@@ -249,6 +249,7 @@ const quoteClick = (quote: QuoteData) => {
 
   .text {
     --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line;
+    text-autospace: normal;
 
     &:deep(& :not(code)) {
       --style: m-0;
