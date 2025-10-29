@@ -34,14 +34,16 @@
 </template>
 
 <script lang="ts" setup>
-import type { BookmarkBriefDetail, BookmarkTag } from '@commons/types/interface'
 import BookmarkTags from './BookmarkTags.vue'
-import { RESTMethodPath } from '@commons/types/const'
-import { RequestMethodType } from '@commons/utils/request'
-import Toast, { ToastType } from './Toast'
-import MarkdownText from './Markdown/MarkdownText.vue'
 import DotLoading from './DotLoading.vue'
+import MarkdownText from './Markdown/MarkdownText.vue'
+
 import { Resize } from '@commons/utils/directive'
+import { RequestMethodType } from '@commons/utils/request'
+
+import Toast, { ToastType } from './Toast'
+import { RESTMethodPath } from '@commons/types/const'
+import type { BookmarkBriefDetail, BookmarkTag } from '@commons/types/interface'
 
 type OverviewSocketData =
   | {
