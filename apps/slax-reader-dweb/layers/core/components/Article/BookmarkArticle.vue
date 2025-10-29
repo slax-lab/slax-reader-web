@@ -279,6 +279,21 @@ const handleHTMLImgs = (imgs: HTMLImageElement[]) => {
     }
 
     img.classList.add(loadingKey)
+
+    const parentElement = img.parentElement
+    const parentChilds = parentElement ? Array.from(parentElement.childNodes) : []
+
+    const isOnlyImages = parentChilds.every(child => {
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        const element = child as HTMLElement
+        return element.tagName.toLowerCase() === 'img'
+      }
+      return true
+    })
+
+    if (isOnlyImages) {
+      img.style.cssFloat = 'none'
+    }
   })
 }
 
