@@ -1,5 +1,6 @@
 import { getElementFullSelector } from '@commons/utils/dom'
 import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
+import { getRangeTextWithNewlines } from '@commons/utils/string'
 
 import type { QuoteData } from '../Chat/type'
 import Toast, { ToastType } from '../Toast'
@@ -226,7 +227,7 @@ export class MarkManager extends Base {
     const texts: string[] = []
 
     if (approx) {
-      texts.push(approx.exact)
+      texts.push(approx.raw_text ?? approx.exact)
     } else if (source && source.length > 0) {
       let lastNode: Node | null = null
       for (const markItem of source) {
@@ -510,6 +511,7 @@ export class MarkManager extends Base {
 
   private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
     const bookmarkId = await this.config.bookmarkIdQuery()
+    const { raw_text: _, ...approxSource } = approx
     try {
       const res = await request.post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
@@ -520,7 +522,7 @@ export class MarkManager extends Base {
           source: value,
           parent_id: replyToId,
           select_content: this._selectContent.value,
-          approx_source: approx
+          approx_source: approxSource
         }
       })
       return res || null
@@ -578,6 +580,7 @@ export class MarkManager extends Base {
   }
 
   private generateMarkItemInfos(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>): MarkItemInfo[] {
+    const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
     const infoItems: MarkItemInfo[] = []
     for (const mark of markList) {
       const userId = mark.user_id
@@ -589,6 +592,14 @@ export class MarkManager extends Base {
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
 
       if (!markInfoItem) {
+        try {
+          const newRange = rangeSvc.getRange(mark.approx_source)
+          const rawText = newRange ? getRangeTextWithNewlines(newRange) : undefined
+          mark.approx_source.raw_text = rawText
+        } catch (error) {
+          console.error('create raw text failed', error, mark.approx_source.exact)
+        }
+
         markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
         infoItems.push(markInfoItem)
       }
