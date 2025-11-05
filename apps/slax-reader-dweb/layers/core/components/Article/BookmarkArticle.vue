@@ -245,6 +245,9 @@ const handleHTMLImgs = (imgs: HTMLImageElement[]) => {
           img.setAttribute('style', `width: ${img.naturalWidth}px !important;`)
           return
         }
+
+        img.setAttribute('style', `padding: 0 !important`)
+        img.setAttribute('style', `height: auto !important;`)
       }
 
       img.onclick = () => {
