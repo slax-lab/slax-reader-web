@@ -593,11 +593,13 @@ export class MarkManager extends Base {
 
       if (!markInfoItem) {
         try {
-          const newRange = rangeSvc.getRange(mark.approx_source)
-          const rawText = newRange ? getRangeTextWithNewlines(newRange) : undefined
-          mark.approx_source.raw_text = rawText
+          if (mark.approx_source) {
+            const newRange = rangeSvc.getRange(mark.approx_source)
+            const rawText = newRange ? getRangeTextWithNewlines(newRange) : undefined
+            mark.approx_source.raw_text = rawText
+          }
         } catch (error) {
-          console.error('create raw text failed', error, mark.approx_source.exact)
+          console.error('create raw text failed', error, mark.approx_source?.exact)
         }
 
         markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }

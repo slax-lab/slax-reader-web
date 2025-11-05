@@ -1,4 +1,5 @@
 import search from 'approx-string-match'
+import { getRangeTextWithNewlines } from './string'
 
 export interface HighlightRangeInfo {
   // postion selector
@@ -9,6 +10,7 @@ export interface HighlightRangeInfo {
   exact: string
   prefix: string
   suffix: string
+  raw_text?: string
 }
 
 export class HighlightRange {
@@ -221,7 +223,8 @@ export class HighlightRange {
       prefix,
       suffix,
       position_start: startOffset,
-      position_end: endOffset
+      position_end: endOffset,
+      raw_text: getRangeTextWithNewlines(range)
     }
   }
 
