@@ -246,8 +246,9 @@ const handleHTMLImgs = (imgs: HTMLImageElement[]) => {
           return
         }
 
-        img.setAttribute('style', `padding: 0 !important`)
-        img.setAttribute('style', `height: auto !important;`)
+        ;[`padding: 0 !important`, `height: auto !important;`].forEach(style => {
+          img.setAttribute('style', style)
+        })
       }
 
       img.onclick = () => {
