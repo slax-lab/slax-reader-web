@@ -19,7 +19,7 @@
       <BookmarkTags :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
     </div>
     <div class="article-detail" ref="articleDetail" :class="{ [articleStyle]: true }">
-      <div class="html-text" v-html="articleHTML"></div>
+      <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
     <div class="end">
       <div class="line"></div>
@@ -245,6 +245,10 @@ const handleHTMLImgs = (imgs: HTMLImageElement[]) => {
           img.setAttribute('style', `width: ${img.naturalWidth}px !important;`)
           return
         }
+
+        ;[`padding: 0 !important`, `height: auto !important;`].forEach(style => {
+          img.setAttribute('style', style)
+        })
       }
 
       img.onclick = () => {
@@ -680,7 +684,7 @@ defineExpose({
 }
 
 .article-detail {
-  --style: mt-24px;
+  --style: mt-24px hyphens-auto;
   @include article.reset;
 
   &.default {

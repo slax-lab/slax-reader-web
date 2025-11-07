@@ -55,6 +55,7 @@ export type MarkPathApprox = {
   suffix: string
   position_start: number
   position_end: number
+  raw_text?: string
 }
 
 export interface ShareInfo {

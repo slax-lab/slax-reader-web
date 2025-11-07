@@ -1,4 +1,5 @@
 import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
+import { getRangeTextWithNewlines } from '@commons/utils/string'
 
 import type { QuoteData } from '../../Chat/type'
 import { Base } from './base'
@@ -225,7 +226,7 @@ export class MarkManager extends Base {
     const texts: string[] = []
 
     if (approx) {
-      texts.push(approx.exact)
+      texts.push(approx.raw_text ?? approx.exact)
     } else if (source && source.length > 0) {
       let lastNode: Node | null = null
       for (const markItem of source) {
@@ -498,6 +499,7 @@ export class MarkManager extends Base {
   }
 
   private generateMarkItemInfos(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>): MarkItemInfo[] {
+    const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
     const infoItems: MarkItemInfo[] = []
     for (const mark of markList) {
       const userId = mark.user_id
@@ -509,6 +511,16 @@ export class MarkManager extends Base {
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
 
       if (!markInfoItem) {
+        try {
+          if (mark.approx_source) {
+            const newRange = rangeSvc.getRange(mark.approx_source)
+            const rawText = newRange ? getRangeTextWithNewlines(newRange) : undefined
+            mark.approx_source.raw_text = rawText
+          }
+        } catch (error) {
+          console.error('create raw text failed', error, mark.approx_source?.exact)
+        }
+
         markInfoItem = { id: getUUID(), source: markSources, comments: [], stroke: [], approx: mark.approx_source }
         infoItems.push(markInfoItem)
       }
