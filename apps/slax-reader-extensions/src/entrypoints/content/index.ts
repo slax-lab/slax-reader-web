@@ -58,6 +58,12 @@ export default defineContentScript({
       html{
         z-index: 99999999999 !important;
       }
+
+      @media print {
+        :host, html {
+          display: none !important;
+        }
+      }
     `,
       onMount: container => {
         const app = createApp(SidePanel, {

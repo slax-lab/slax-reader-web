@@ -411,7 +411,7 @@ export class MarkManager extends Base {
   }
 
   getApproxText(range: Range): HighlightRangeInfo | undefined {
-    if (!range) {
+    if (!range || range.collapsed || range.toString().trim().length === 0) {
       return undefined
     }
 

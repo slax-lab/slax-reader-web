@@ -177,7 +177,7 @@ watch(
     }
 
     loadBriefDetail().then(() => {
-      loadSelection()
+      bookmarkBriefInfo.value && loadSelection()
     })
   }
 )
@@ -211,7 +211,7 @@ props.browser.runtime.onMessage.addListener(
 onMounted(() => {
   updateBookmarkStatus()
   loadBriefDetail().then(() => {
-    loadSelection()
+    bookmarkBriefInfo.value && loadSelection()
   })
 
   tryGetUserInfo(true).then(res => {
