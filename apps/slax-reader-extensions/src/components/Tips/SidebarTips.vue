@@ -15,6 +15,9 @@
         <div class="bubble-container" :style="{ 'margin-top': topGap + 'px', 'margin-right': rightGap + 'px' }" ref="bubbleContainer" v-resize-observer="[onResizeObserver, {}]">
           <span class="bubble-title">{{ $t('common.tips.sidebar_tips') }}</span>
         </div>
+        <button class="bubble-close">
+          <img src="@/assets/tiny-close-icon.png" />
+        </button>
       </div>
     </Transition>
   </div>
@@ -110,6 +113,13 @@ const onResizeObserver = (entries: unknown | ReadonlyArray<ResizeObserverEntry>)
 
       .bubble-title {
         --style: text-(12px #333333ff) line-height-17px;
+      }
+    }
+
+    .bubble-close {
+      --style: absolute flex top-8px right-14px p-0;
+      img {
+        --style: size-8px object-fit;
       }
     }
   }
