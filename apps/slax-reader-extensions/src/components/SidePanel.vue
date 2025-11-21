@@ -88,12 +88,20 @@ import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
 import { RequestError, RequestMethodType } from '@commons/utils/request'
 
-import type { QuoteData } from './Chat/type'
 import { showFeedbackModal, showShareConfigModal } from './Modal'
-import { ArticleSelection } from './Selection/selection'
-import type { MarkCommentInfo, MarkItemInfo } from './Selection/type'
+import {
+  ExtensionsBookmarkProvider,
+  ExtensionsEnvironmentAdapter,
+  ExtensionsHttpClient,
+  ExtensionsI18nService,
+  ExtensionsToastService,
+  ExtensionsUserProvider
+} from './Selection/adapters'
+import { ExtensionsArticleSelection } from './Selection/ExtensionsArticleSelection'
+import { MarkModal } from './Selection/modal'
+import type { MarkCommentInfo, MarkItemInfo, QuoteData } from '@slax-reader/selection/types'
 import { RESTMethodPath } from '@commons/types/const'
-import type { AddBookmarkReq, AddBookmarkResp, BookmarkBriefDetail, UserInfo } from '@commons/types/interface'
+import { MarkType as BackendMarkType, type AddBookmarkReq, type AddBookmarkResp, type BookmarkBriefDetail, type UserInfo } from '@commons/types/interface'
 import { onKeyStroke } from '@vueuse/core'
 import type { WxtBrowser } from 'wxt/browser'
 
@@ -155,7 +163,7 @@ const isCommentShowing = ref(false)
 
 const isLoading = ref(false)
 
-let articleSelection: ArticleSelection | null = null
+let articleSelection: ExtensionsArticleSelection | null = null
 
 const userInfo = ref<UserInfo | null>(null)
 
@@ -291,18 +299,10 @@ const loadSelection = async () => {
     const markList = bookmarkBriefInfo.value?.marks
     const user = userInfo.value ?? (await tryGetUserInfo())
 
-    articleSelection = new ArticleSelection({
+    const config = {
       allowAction: true,
       containerDom: menus.value!,
       monitorDom: document.body as HTMLDivElement,
-      userInfo: user,
-      bookmarkIdQuery: async () => {
-        if (bookmarkId.value === 0) {
-          await addBookmark()
-        }
-
-        return bookmarkId.value
-      },
       postQuoteDataHandler: (data: QuoteData) => {
         closePanel()
         isChatbotShowing.value = true
@@ -319,7 +319,36 @@ const loadSelection = async () => {
         isCommentShowing.value = true
         comments.value?.showPostCommentView(info, data)
       }
-    })
+    }
+
+    const dependencies = {
+      userProvider: new ExtensionsUserProvider(user ?? null),
+      httpClient: new ExtensionsHttpClient(),
+      toastService: new ExtensionsToastService(),
+      i18nService: new ExtensionsI18nService(),
+      environmentAdapter: new ExtensionsEnvironmentAdapter(),
+      bookmarkProvider: new ExtensionsBookmarkProvider(async () => {
+        if (bookmarkId.value === 0) {
+          await addBookmark()
+        }
+        return bookmarkId.value
+      }),
+      refFactory: ref, // 使用 Vue 的 ref 作为工厂函数
+      getMarkType: (type: 'comment' | 'reply' | 'line') => {
+        // Extensions 端总是返回 ORIGIN 类型
+        if (type === 'comment') {
+          return BackendMarkType.ORIGIN_COMMENT
+        } else if (type === 'reply') {
+          return BackendMarkType.REPLY
+        } else {
+          return BackendMarkType.ORIGIN_LINE
+        }
+      }
+    }
+
+    const modal = new MarkModal(config, dependencies.userProvider)
+
+    articleSelection = new ExtensionsArticleSelection(config, dependencies, modal)
 
     if (markList) {
       articleSelection.drawMark(markList)

@@ -94,8 +94,18 @@ import { RequestError, RequestMethodType } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkBriefDetail } from '@commons/types/interface'
+import { MarkType } from '@commons/types/interface'
 import { PanelItemType, useWebBookmark, useWebBookmarkDetail } from '#layers/core//composables/bookmark/useWebBookmark'
-import { ArticleSelection } from '#layers/core/components/Article/Selection/selection'
+import {
+  DwebBookmarkProvider,
+  DwebEnvironmentAdapter,
+  DwebHttpClient,
+  DwebI18nService,
+  DwebToastService,
+  DwebUserProvider
+} from '#layers/core/components/Article/Selection/adapters'
+import { DwebArticleSelection } from '#layers/core/components/Article/Selection/DwebArticleSelection'
+import { MarkModal } from '#layers/core/components/Article/Selection/modal'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 import { showShareConfigModal } from '#layers/core/components/Modal'
 import markCss from '#layers/core/styles/mark.css?raw'
@@ -107,7 +117,7 @@ const iframeRef = ref<HTMLIFrameElement | null>(null)
 const iframeDocument = ref<Document | null>(null)
 const iframeWindow = ref<Window | null>(null)
 const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
-const articleSelection = ref<ArticleSelection | null>(null)
+const articleSelection = ref<DwebArticleSelection | null>(null)
 const rawWebPanel = ref<InstanceType<typeof RawWebPanel>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isLoading = ref(false)
@@ -132,7 +142,7 @@ const { progress, start, finish, clear } = useLoadingIndicator({
 const highlightMarks = async () => {
   if (!iframeDocument.value!.body) return
 
-  articleSelection.value = new ArticleSelection({
+  const config = {
     bookmarkId: Number(id),
     allowAction: allowAction.value,
     ownerUserId: bookmarkUserId.value,
@@ -142,7 +152,39 @@ const highlightMarks = async () => {
     postQuoteDataHandler: (data: QuoteData) => {
       chatBotQuote(data)
     }
-  })
+  }
+
+  const dependencies = {
+    userProvider: new DwebUserProvider(),
+    httpClient: new DwebHttpClient(),
+    toastService: new DwebToastService(),
+    i18nService: new DwebI18nService(),
+    environmentAdapter: new DwebEnvironmentAdapter(),
+    bookmarkProvider: new DwebBookmarkProvider({
+      bookmarkId: Number(id),
+      shareCode: '',
+      collection: undefined,
+      ownerUserId: bookmarkUserId.value
+    }),
+    refFactory: ref,
+    getMarkType: (type: 'comment' | 'reply' | 'line') => {
+      if (type === 'comment') {
+        return !!config.iframe ? MarkType.ORIGIN_COMMENT : MarkType.COMMENT
+      } else if (type === 'reply') {
+        return MarkType.REPLY
+      } else {
+        return !!config.iframe ? MarkType.ORIGIN_LINE : MarkType.LINE
+      }
+    }
+  }
+
+  const modal = new MarkModal(config)
+
+  articleSelection.value = new DwebArticleSelection(config, dependencies, modal)
+
+  if (articleSelection.value == null) {
+    throw new Error('ArticleSelection initialization failed')
+  }
 
   if (bookmarkBriefInfo.value?.marks) {
     articleSelection.value.drawMark(bookmarkBriefInfo.value?.marks)

@@ -15,6 +15,7 @@
     "ssr:dev": "pnpm build && pnpm wrangler pages dev --port 3000"
   },
   "dependencies": {
+    "@slax-reader/selection": "workspace:*",
     "@nuxtjs/i18n": "^10.1.0",
     "@nuxtjs/robots": "^5.5.5",
     "@nuxtjs/sitemap": "^7.4.7",

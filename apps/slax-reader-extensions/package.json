@@ -17,6 +17,7 @@
     "update:utils": "pnpm install @commons/utils"
   },
   "dependencies": {
+    "@slax-reader/selection": "workspace:*",
     "@slax-lab/readability": "^0.6.3",
     "@wxt-dev/analytics": "^0.5.1",
     "@wxt-dev/i18n": "^0.2.4",

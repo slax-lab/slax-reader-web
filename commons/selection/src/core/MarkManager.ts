@@ -1,14 +1,5 @@
-import { getElementFullSelector } from '@commons/utils/dom'
 import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 import { getRangeTextWithNewlines } from '@commons/utils/string'
-
-import type { QuoteData } from '../Chat/type'
-import Toast, { ToastType } from '../Toast'
-import { Base } from './base'
-import { MarkModal } from './modal'
-import { MarkRenderer } from './renderer'
-import { copyText, getUUID, objectDeepEqual, t } from './tools'
-import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta } from './type'
 import { RESTMethodPath } from '@commons/types/const'
 import {
   type MarkDetail,
@@ -16,30 +7,157 @@ import {
   type MarkPathApprox,
   type MarkPathItem,
   type MarkSelectContent,
-  MarkType,
+  MarkType as BackendMarkType,
   type MarkUserInfo,
   type UserList
 } from '@commons/types/interface'
+import type { Ref } from 'vue'
 
+import { Base } from './Base'
+import type { MarkRenderer } from './MarkRenderer'
+import { copyText, getUUID, objectDeepEqual } from './utils'
+import { type MarkCommentInfo, type MarkItemInfo, MenuType, type SelectionConfig, type SelectTextInfo, type StrokeSelectionMeta, type QuoteData } from '../types'
+import type { IEnvironmentAdapter, IUserProvider, IHttpClient, IToastService, II18nService, IBookmarkProvider, ToastType } from '../adapters'
+
+// 重新导出 Ref 类型供外部使用
+export type { Ref }
+
+/**
+ * MarkModal接口定义
+ *
+ * 定义了MarkModal需要实现的方法，用于显示菜单和面板
+ */
+export interface IMarkModal {
+  /**
+   * 检查面板是否存在
+   * @param container 容器元素
+   */
+  isPanelExist(container?: HTMLDivElement): boolean
+
+  /**
+   * 显示选择菜单
+   * @param options 菜单配置选项
+   */
+  showMenus(options: {
+    event: MouseEvent | TouchEvent
+    callback?: (type: MenuType, event: MouseEvent) => void
+    positionCallback?: (position: { x: number; y: number }) => void
+    noActionCallback?: () => void
+  }): void
+
+  /**
+   * 显示面板
+   * @param options 面板配置选项
+   */
+  showPanel(options: {
+    info: MarkItemInfo
+    fallbackYOffset: number
+    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
+    commentDeleteCallback?: (id: string, markId: number) => void
+    dismissCallback?: () => void
+  }): void
+
+  /**
+   * 关闭面板
+   */
+  dismissPanel(): Promise<void>
+}
+
+/**
+ * MarkManager依赖项接口
+ */
+export interface MarkManagerDependencies {
+  /** 用户信息提供者 */
+  userProvider: IUserProvider
+  /** HTTP客户端 */
+  httpClient: IHttpClient
+  /** Toast提示服务 */
+  toastService: IToastService
+  /** 国际化服务 */
+  i18nService: II18nService
+  /** 书签信息提供者 */
+  bookmarkProvider: IBookmarkProvider
+  /** 用于创建响应式引用的工厂函数（必需，必须使用 Vue 的 ref） */
+  refFactory: <T>(value: T) => Ref<T>
+  /** 获取标记类型的函数（必需，不同环境有不同实现） */
+  getMarkType: (type: 'comment' | 'reply' | 'line') => BackendMarkType
+}
+
+/**
+ * 标记管理器
+ *
+ * 负责管理标记（划线和评论）的生命周期，包括：
+ * - 绘制标记
+ * - 添加/删除划线
+ * - 添加/删除评论
+ * - 复制标记内容
+ * - 与后端API交互
+ *
+ * 通过适配器模式统一dweb和extensions的实现差异
+ */
 export class MarkManager extends Base {
-  private _markItemInfos = ref<MarkItemInfo[]>([])
-  private _currentMarkItemInfo = ref<MarkItemInfo | null>(null)
-  private _selectContent = ref<MarkSelectContent[]>([])
+  private _markItemInfos: Ref<MarkItemInfo[]>
+  private _currentMarkItemInfo: Ref<MarkItemInfo | null>
+  private _selectContent: Ref<MarkSelectContent[]>
   private _findQuote: (quote: QuoteData) => void
   private _highlightRange: HighlightRange
 
+  // 依赖项
+  private userProvider: IUserProvider
+  private httpClient: IHttpClient
+  private toastService: IToastService
+  private i18nService: II18nService
+  private bookmarkProvider: IBookmarkProvider
+  private getMarkType: (type: 'comment' | 'reply' | 'line') => BackendMarkType
+
+  // 渲染器和模态框
+  private renderer: MarkRenderer
+  private modal: IMarkModal
+
+  /**
+   * 构造函数
+   * @param config Selection配置
+   * @param environmentAdapter 环境适配器
+   * @param dependencies 依赖项集合
+   * @param renderer 标记渲染器
+   * @param modal 标记模态框
+   * @param findQuote 查找引用回调
+   */
   constructor(
     config: SelectionConfig,
-    private renderer: MarkRenderer,
-    private modal: MarkModal,
+    environmentAdapter: IEnvironmentAdapter,
+    dependencies: MarkManagerDependencies,
+    renderer: MarkRenderer,
+    modal: IMarkModal,
     findQuote: (quote: QuoteData) => void
   ) {
-    super(config)
-    this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
+    super(config, environmentAdapter)
+
+    this.userProvider = dependencies.userProvider
+    this.httpClient = dependencies.httpClient
+    this.toastService = dependencies.toastService
+    this.i18nService = dependencies.i18nService
+    this.bookmarkProvider = dependencies.bookmarkProvider
+    this.getMarkType = dependencies.getMarkType
+
+    this.renderer = renderer
+    this.modal = modal
     this._findQuote = findQuote
+
+    // 使用 Vue 的 ref 创建响应式引用
+    const refFactory = dependencies.refFactory
+    this._markItemInfos = refFactory<MarkItemInfo[]>([])
+    this._currentMarkItemInfo = refFactory<MarkItemInfo | null>(null)
+    this._selectContent = refFactory<MarkSelectContent[]>([])
+
     this._highlightRange = new HighlightRange(this.document)
+    this.renderer.setMarkClickHandler(this.handleMarkClick.bind(this))
   }
 
+  /**
+   * 绘制所有标记
+   * @param marks 标记详情数据
+   */
   async drawMarks(marks: MarkDetail) {
     const userMap = this.createUserMap(marks.user_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
@@ -50,17 +168,23 @@ export class MarkManager extends Base {
     }
   }
 
+  /**
+   * 添加划线或评论
+   * @param meta 划线选择元数据
+   * @returns 标记信息ID
+   */
   async strokeSelection(meta: StrokeSelectionMeta) {
     const { info, comment, replyToId } = meta
 
     const approx = info.approx
     const markItems = info.source
-    const userInfo = this.config.userInfo
-    if (!userInfo) return
+    const userInfo = this.userProvider.getUserInfo()
 
-    if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
-      return info.id
-    }
+    // TODO 需要检查这个逻辑修复的具体内容是什么
+    // if (info.stroke.find(item => item.userId === userInfo?.userId) && !comment) {
+    //   console.log('strokeSelection return info.id', info.id)
+    //   return info.id
+    // }
 
     const infoItem = info
     const replyToComment = replyToId && replyToId !== 0 ? this.findCommentById(replyToId, infoItem) : null
@@ -103,24 +227,14 @@ export class MarkManager extends Base {
       infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
     }
 
-    const getType = (type: 'comment' | 'reply' | 'line') => {
-      if (type === 'comment') {
-        return MarkType.ORIGIN_COMMENT
-      } else if (type === 'reply') {
-        return MarkType.REPLY
-      } else {
-        return MarkType.ORIGIN_LINE
-      }
-    }
-
-    const markType = commentItem ? (replyToId ? getType('reply') : getType('comment')) : getType('line')
+    const markType = commentItem ? (replyToId ? this.getMarkType('reply') : this.getMarkType('comment')) : this.getMarkType('line')
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
     const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
     if (!res) {
-      Toast.showToast({
-        text: commentItem ? t('component.article_selection.comment_failed') : t('component.article_selection.stroke_failed'),
-        type: ToastType.Error
+      this.toastService.showToast({
+        text: commentItem ? this.i18nService.t('component.article_selection.comment_failed') : this.i18nService.t('component.article_selection.stroke_failed'),
+        type: 'error' as ToastType
       })
 
       if (commentItem) {
@@ -153,15 +267,19 @@ export class MarkManager extends Base {
     return infoItem.id
   }
 
+  /**
+   * 删除划线
+   * @param info 标记信息
+   */
   async deleteStroke(info: MarkItemInfo) {
-    const userId = this.config.userInfo?.userId
+    const userId = this.userProvider.getUserId()
     if (!userId) return
 
     const markId = info.stroke.find(item => item.userId === userId)?.mark_id
     if (!markId) return
 
-    const bookmarkId = await this.config.bookmarkIdQuery()
-    request.post({
+    const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+    await this.httpClient.post({
       url: RESTMethodPath.DELETE_MARK,
       body: { bm_id: bookmarkId, mark_id: markId }
     })
@@ -175,6 +293,11 @@ export class MarkManager extends Base {
     await this.modal.dismissPanel()
   }
 
+  /**
+   * 删除评论
+   * @param id 标记信息ID
+   * @param markId 评论ID
+   */
   async deleteComment(id: string, markId: number) {
     const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.value.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
@@ -209,9 +332,8 @@ export class MarkManager extends Base {
     }
 
     try {
-      const bookmarkId = await this.config.bookmarkIdQuery()
-
-      await request.post({
+      const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+      await this.httpClient.post({
         url: RESTMethodPath.DELETE_MARK,
         body: { bm_id: bookmarkId, mark_id: markId }
       })
@@ -222,8 +344,12 @@ export class MarkManager extends Base {
     }
   }
 
+  /**
+   * 复制标记文本
+   * @param infos 标记信息（包含source、approx和event）
+   */
   async copyMarkedText(infos: { source?: MarkPathItem[]; approx?: MarkPathApprox; event?: MouseEvent }) {
-    const { source, approx } = infos
+    const { source, approx, event } = infos
     const texts: string[] = []
 
     if (approx) {
@@ -254,10 +380,35 @@ export class MarkManager extends Base {
     const text = texts.join('')
     copyText(text)
 
-    Toast.showToast({ text: t('common.tips.copy_content_success'), type: ToastType.Success })
+    if (event) {
+      // 如果提供了showCursorToast，则使用光标Toast
+      if (this.toastService.showCursorToast) {
+        this.toastService.showCursorToast({
+          text: this.i18nService.t('common.tips.copy_content_success'),
+          trackDom: event.target as HTMLElement
+        })
+      } else {
+        this.toastService.showToast({
+          text: this.i18nService.t('common.tips.copy_content_success'),
+          type: 'success' as ToastType
+        })
+      }
+    } else {
+      this.toastService.showToast({
+        text: this.i18nService.t('common.tips.copy_content_success'),
+        type: 'success' as ToastType
+      })
+    }
   }
 
+  /**
+   * 检查两个标记源是否相同
+   * @param mark1 标记源1
+   * @param mark2 标记源2
+   * @returns 是否相同
+   */
   checkMarkSourceIsSame(mark1: MarkPathItem[], mark2: MarkPathItem[]) {
+    // TODO: 需要使其兼容approx的情况
     if (mark1.length !== mark2.length) return false
 
     for (let i = 0; i < mark1.length; i++) {
@@ -281,68 +432,12 @@ export class MarkManager extends Base {
     return true
   }
 
-  showMenus(event: MouseEvent | TouchEvent) {
-    const userInfo = this.config.userInfo
-    if (!userInfo) return
-
-    let menusY = 0
-    this.modal.showMenus({
-      event,
-      isStroked: !!this._currentMarkItemInfo.value?.stroke.find(item => item.userId === userInfo.userId),
-      callback: (type: MenuType, event: MouseEvent) => {
-        const currentInfo = this._currentMarkItemInfo.value
-        if (!currentInfo) return
-
-        if (type === MenuType.Stroke) {
-          if (currentInfo.id.length === 0) {
-            currentInfo.id = getUUID()
-          }
-
-          this.strokeSelection({ info: currentInfo })
-        } else if (type === MenuType.Stroke_Delete) {
-          this.deleteStroke(currentInfo)
-        } else if (type === MenuType.Copy) {
-          this.copyMarkedText({ source: currentInfo.source, approx: currentInfo.approx, event })
-        } else if (type === MenuType.Comment) {
-          if (currentInfo.id.length === 0) {
-            currentInfo.id = getUUID()
-          }
-
-          this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source, currentInfo.approx))
-          // this.showPanel({ fallbackYOffset: menusY })
-        } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
-          const quote: QuoteData = { source: {}, data: this.createQuote(currentInfo.source, currentInfo.approx) }
-          const selection = this.getSelection()
-          const range = selection?.rangeCount ? selection.getRangeAt(0) : undefined
-          const selected = this.getElementsList(range!)
-
-          if (!selected || selected.length === 0) {
-            quote.source.selection = range
-          } else {
-            const paths = this.getMarkPathItems(selected)
-            quote.source.paths = paths || (range ? undefined : [])
-            if (!paths && range) quote.source.selection = range
-          }
-
-          this.config.postQuoteDataHandler(quote)
-          this._findQuote(quote)
-        }
-
-        if (type !== MenuType.Comment) this.clearSelection()
-      },
-      positionCallback: ({ y }) => (menusY = y),
-      noActionCallback: () => {
-        this.updateCurrentMarkItemInfo(null)
-        this.clearSelectContent()
-      }
-    })
-  }
-
+  /**
+   * 显示面板
+   * @param options 显示选项
+   */
   showPanel(options?: { fallbackYOffset: number }) {
     if (!this._currentMarkItemInfo.value) return
-
-    const userInfo = this.config.userInfo
-    if (!userInfo) return
 
     const currentMarkItemInfo = this._currentMarkItemInfo.value
     this.modal.showPanel({
@@ -369,6 +464,12 @@ export class MarkManager extends Base {
     })
   }
 
+  /**
+   * 创建引用数据
+   * @param items 标记路径项数组
+   * @param approx 近似匹配信息
+   * @returns 引用数据
+   */
   createQuote(items: MarkPathItem[], approx?: MarkPathApprox): QuoteData['data'] {
     return items.map(item => {
       if (item.type === 'image') {
@@ -400,6 +501,11 @@ export class MarkManager extends Base {
     })
   }
 
+  /**
+   * 获取元素信息（包含选择的元素列表和近似文本）
+   * @param range 范围对象
+   * @returns 元素信息
+   */
   getElementInfo(range: Range): { list: SelectTextInfo[]; approx: HighlightRangeInfo | undefined } {
     const list = this.getElementsList(range)
     const approx = this.getApproxText(range)
@@ -410,8 +516,13 @@ export class MarkManager extends Base {
     }
   }
 
+  /**
+   * 获取近似文本信息
+   * @param range 范围对象
+   * @returns 近似文本信息
+   */
   getApproxText(range: Range): HighlightRangeInfo | undefined {
-    if (!range || range.collapsed || range.toString().trim().length === 0) {
+    if (!range) {
       return undefined
     }
 
@@ -419,6 +530,11 @@ export class MarkManager extends Base {
     return approx
   }
 
+  /**
+   * 获取选择的元素列表
+   * @param range 范围对象
+   * @returns 选择的元素列表
+   */
   getElementsList(range: Range): SelectTextInfo[] {
     if (!range) {
       return []
@@ -471,58 +587,57 @@ export class MarkManager extends Base {
     return selectedInfo.length > 0 && !selectedInfo.every(item => item.type === 'text' && item.text.trim().length === 0) ? selectedInfo : []
   }
 
+  /**
+   * 更新当前标记信息
+   * @param info 标记信息
+   */
   updateCurrentMarkItemInfo(info: MarkItemInfo | null) {
     this._currentMarkItemInfo.value = info
   }
 
+  /**
+   * 添加选择内容
+   * @param content 选择内容
+   */
   pushSelectContent(content: MarkSelectContent) {
     this._selectContent.value.push(content)
   }
 
+  /**
+   * 清空选择内容
+   */
   clearSelectContent() {
     this._selectContent.value = []
   }
 
-  getMarkPathItems(infos: SelectTextInfo[]): MarkPathItem[] | null {
-    const markItems: MarkPathItem[] = []
-    const ele = this.config.monitorDom?.querySelector('.html-text')
-    for (const info of infos) {
-      if (info.type === 'text') {
-        const selector = getElementFullSelector(info.node!.parentElement!, ['slax-mark'], ele!) // 假设存在此方法
-        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
-        if (!baseElement) return null
-
-        const nodes = this.renderer.getAllTextNodes(baseElement)
-        const nodeLengths = nodes.map(node => (node.textContent || '').length)
-        const nodeIndex = nodes.indexOf(info.node as Node)
-        if (nodeIndex === -1) continue
-
-        const base = nodeLengths.slice(0, nodeIndex).reduce((acc, cur) => acc + cur, 0)
-        markItems.push({ type: 'text', path: selector, start: base + info.startOffset, end: base + info.endOffset })
-      } else if (info.type === 'image') {
-        const selector = getElementFullSelector(info.ele as HTMLElement, ['slax-mark'], ele!)
-        const baseElement = this.config.monitorDom?.querySelector(selector) as HTMLElement
-        if (!baseElement) return null
-        markItems.push({ type: 'image', path: selector })
-      }
-    }
-    return markItems
-  }
-
-  private async saveMarkSelectContent(value: MarkPathItem[], type: MarkType, approx: MarkPathApprox, comment?: string, replyToId?: number) {
-    const bookmarkId = await this.config.bookmarkIdQuery()
-    const { raw_text: _, ...approxSource } = approx
+  /**
+   * 保存标记选择内容到后端
+   * @param value 标记路径项数组
+   * @param type 标记类型
+   * @param approx 近似匹配信息
+   * @param comment 评论内容
+   * @param replyToId 回复目标ID
+   * @returns 保存结果
+   */
+  private async saveMarkSelectContent(value: MarkPathItem[], type: BackendMarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
     try {
-      const res = await request.post<{ mark_id: number; root_id: number }>({
+      const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+      const shareCode = this.bookmarkProvider.getShareCode?.()
+      const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
+
+      const res = await this.httpClient.post<{ mark_id: number; root_id: number }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
+          share_code: shareCode,
           bm_id: bookmarkId,
           comment,
           type,
           source: value,
           parent_id: replyToId,
           select_content: this._selectContent.value,
-          approx_source: approxSource
+          approx_source: approx,
+          collection_code: collectionInfo?.code,
+          cb_id: collectionInfo?.cb_id
         }
       })
       return res || null
@@ -532,14 +647,25 @@ export class MarkManager extends Base {
     }
   }
 
+  /**
+   * 创建用户映射表
+   * @param userList 用户列表
+   * @returns 用户映射表
+   */
   private createUserMap(userList: UserList): Map<number, MarkUserInfo> {
     return new Map(Object.entries(userList).map(([key, value]) => [Number(key), value]))
   }
 
+  /**
+   * 构建评论映射表
+   * @param markList 标记列表
+   * @param userMap 用户映射表
+   * @returns 评论映射表
+   */
   private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<number, MarkCommentInfo> {
     const commentMap = new Map<number, MarkCommentInfo>()
     for (const mark of markList) {
-      if ([MarkType.COMMENT, MarkType.REPLY, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
+      if ([BackendMarkType.COMMENT, BackendMarkType.REPLY, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = {
           markId: mark.id,
           comment: mark.comment,
@@ -561,9 +687,14 @@ export class MarkManager extends Base {
     return commentMap
   }
 
+  /**
+   * 构建评论关系（回复关系）
+   * @param markList 标记列表
+   * @param commentMap 评论映射表
+   */
   private buildCommentRelationships(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>) {
     for (const mark of markList) {
-      if (mark.type !== MarkType.REPLY) continue
+      if (mark.type !== BackendMarkType.REPLY) continue
       if (!commentMap.has(mark.id) || !commentMap.has(mark.parent_id) || !commentMap.has(mark.root_id)) continue
 
       const comment = commentMap.get(mark.id)!
@@ -579,14 +710,20 @@ export class MarkManager extends Base {
     }
   }
 
+  /**
+   * 生成标记信息列表
+   * @param markList 标记列表
+   * @param commentMap 评论映射表
+   * @returns 标记信息列表
+   */
   private generateMarkItemInfos(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>): MarkItemInfo[] {
     const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
     const infoItems: MarkItemInfo[] = []
     for (const mark of markList) {
       const userId = mark.user_id
       const source = mark.source
-      if (typeof source === 'number' || mark.type === MarkType.REPLY) continue
-      if (!mark.approx_source || Object.keys(mark.approx_source).length === 0) continue // 插件划线针对旧版本划线直接过滤
+      if (typeof source === 'number' || mark.type === BackendMarkType.REPLY) continue
+      if ([BackendMarkType.ORIGIN_LINE, BackendMarkType.ORIGIN_COMMENT].includes(mark.type) && (!mark.approx_source || Object.keys(mark.approx_source).length === 0)) continue
 
       const markSources = source as MarkPathItem[]
       let markInfoItem = infoItems.find(infoItem => this.checkMarkSourceIsSame(infoItem.source, markSources))
@@ -606,9 +743,9 @@ export class MarkManager extends Base {
         infoItems.push(markInfoItem)
       }
 
-      if ([MarkType.LINE, MarkType.ORIGIN_LINE].includes(mark.type)) {
+      if ([BackendMarkType.LINE, BackendMarkType.ORIGIN_LINE].includes(mark.type)) {
         markInfoItem.stroke.push({ mark_id: mark.id, userId })
-      } else if ([MarkType.COMMENT, MarkType.ORIGIN_COMMENT].includes(mark.type)) {
+      } else if ([BackendMarkType.COMMENT, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.id)
         if (!comment || (comment.isDeleted && comment.children.length === 0)) {
           continue
@@ -621,6 +758,12 @@ export class MarkManager extends Base {
     return infoItems
   }
 
+  /**
+   * 根据ID查找评论
+   * @param targetId 目标评论ID
+   * @param infoItem 标记信息
+   * @returns 评论信息或null
+   */
   private findCommentById(targetId: number, infoItem: MarkItemInfo): MarkCommentInfo | null {
     for (const item of infoItem.comments) {
       if (item.markId === targetId) return item
@@ -631,7 +774,11 @@ export class MarkManager extends Base {
     return null
   }
 
-  private handleMarkClick(ele: HTMLElement, event: PointerEvent) {
+  /**
+   * 处理标记点击事件
+   * @param ele 被点击的元素
+   */
+  private handleMarkClick(ele: HTMLElement) {
     const id = ele.dataset.uuid
     if (!id) return
 
@@ -657,7 +804,7 @@ export class MarkManager extends Base {
           range.setStart(firstTextNode, 0)
           range.setEnd(lastTextNode, lastTextNode.length)
 
-          infoItem.approx = this.getApproxText(range)!
+          infoItem.approx = this.getApproxText(range)
         }
       } catch (error) {
         console.error(error)
@@ -665,29 +812,26 @@ export class MarkManager extends Base {
     }
 
     this._currentMarkItemInfo.value = infoItem
-    // this.showPanel()
-    if (this._currentMarkItemInfo.value.comments.length > 0) {
-      this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
-    }
-
-    this.showMenus(event)
+    this.showPanel()
   }
 
-  private clearSelection() {
-    const selection = this.getSelection()
-    if (selection) selection.removeAllRanges()
-    this.updateCurrentMarkItemInfo(null)
-    this.clearSelectContent()
-  }
-
+  /**
+   * 获取标记信息列表（响应式）
+   */
   get markItemInfos() {
     return this._markItemInfos
   }
 
+  /**
+   * 获取当前标记信息（响应式）
+   */
   get currentMarkItemInfo() {
     return this._currentMarkItemInfo
   }
 
+  /**
+   * 获取选择内容（响应式）
+   */
   get selectContent() {
     return this._selectContent
   }

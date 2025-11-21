@@ -4,7 +4,7 @@ import { LineDecoder, SSEDecoder } from '@commons/utils/decoder'
 import { partialParse } from '@commons/utils/json'
 import { RequestMethodType } from '@commons/utils/request'
 
-import type { QuoteData } from '@/components/Chat/type'
+import type { QuoteData } from '@slax-reader/selection/types'
 import { RESTMethodPath } from '@commons/types/const'
 import { type ChatCompletionChunk } from '@commons/types/openai'
 

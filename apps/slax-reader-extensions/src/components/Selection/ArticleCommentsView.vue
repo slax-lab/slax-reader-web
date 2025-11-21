@@ -63,9 +63,9 @@
 <script lang="ts" setup>
 import ArticleCommentCell from './ArticleCommentCell.vue'
 
-import type { QuoteData } from '../Chat/type'
-import { ArticleSelection } from './selection'
-import { type MarkCommentInfo, type MarkItemInfo } from './type'
+import { ExtensionsArticleSelection } from './ExtensionsArticleSelection'
+import type { QuoteData } from '@slax-reader/selection/types'
+import { type MarkCommentInfo, type MarkItemInfo } from '@slax-reader/selection/types'
 import { vOnKeyStroke } from '@vueuse/components'
 
 const props = defineProps({
@@ -75,7 +75,7 @@ const props = defineProps({
   },
   selection: {
     required: true,
-    type: Object as PropType<ArticleSelection>
+    type: Object as PropType<ExtensionsArticleSelection>
   },
   bookmarkUserId: {
     required: true,

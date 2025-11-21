@@ -3,8 +3,10 @@ import { createApp } from 'vue'
 import ArticleSelectionMenus from './ArticleSelectionMenus.vue'
 import ArticleSelectionPanel from './ArticleSelectionPanel.vue'
 
-import { Base } from './base'
-import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
+import { ExtensionsEnvironmentAdapter } from './adapters'
+import { Base, type IMarkModal } from '@slax-reader/selection'
+import type { IUserProvider } from '@slax-reader/selection/adapters'
+import type { MarkItemInfo, MenuType, SelectionConfig } from '@slax-reader/selection/types'
 
 const menusKey = `slax-reader-article-selection-menus-container`
 const panelKey = `slax-reader-article-selection-panel-container`
@@ -13,11 +15,14 @@ const isNullRect = (rect: DOMRect) => {
   return !rect || (rect.width === 0 && rect.height === 0 && rect.top === 0 && rect.left === 0)
 }
 
-export class MarkModal extends Base {
+export class MarkModal extends Base implements IMarkModal {
   currentPanel: InstanceType<typeof ArticleSelectionPanel> | null = null
+  private userProvider: IUserProvider
 
-  constructor(config: SelectionConfig) {
-    super(config)
+  constructor(config: SelectionConfig, userProvider: IUserProvider) {
+    const environmentAdapter = new ExtensionsEnvironmentAdapter()
+    super(config, environmentAdapter)
+    this.userProvider = userProvider
   }
 
   isPanelExist(container?: HTMLDivElement) {
@@ -25,7 +30,7 @@ export class MarkModal extends Base {
     return !!articleSelectionPanel
   }
 
-  dismissPanel = () => {
+  async dismissPanel() {
     if (this.currentPanel) {
       this.currentPanel.closeModal()
     }
@@ -142,7 +147,8 @@ export class MarkModal extends Base {
     dismissCallback?: () => void
   }) {
     const { info, actionCallback, commentDeleteCallback, dismissCallback } = options
-    const { containerDom, allowAction, userInfo } = this.config
+    const { containerDom, allowAction } = this.config
+    const userInfo = this.userProvider.getUserInfo()
     if (!containerDom || !userInfo) {
       return
     }

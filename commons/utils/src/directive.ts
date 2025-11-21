@@ -1,4 +1,4 @@
-import { ObjectDirective, type DirectiveBinding } from 'vue'
+import type { ObjectDirective, DirectiveBinding } from 'vue'
 import { getElementOwnerDocument } from './dom'
 
 interface ResizeElement extends HTMLElement {

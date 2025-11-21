@@ -1,4 +1,4 @@
-import type { MarkPathItem } from '@commons/types/interface'
+import type { QuoteData } from '@slax-reader/selection/types'
 
 // 每一个消息的基本结构
 export interface MessageBaseItem {
@@ -43,11 +43,5 @@ export interface TipsMessageItem extends MessageBaseItem {
 // 对话的消息结构类型
 export type MessageItem = BubbleMessageItem | QuestionMessageItem | TipsMessageItem
 
-export type QuoteData = {
-  source: {
-    id?: string
-    selection?: Range
-    paths?: MarkPathItem[]
-  }
-  data: { type: 'image' | 'text'; content: string }[]
-}
+// 重新导出 QuoteData 以便其他地方使用
+export type { QuoteData }
