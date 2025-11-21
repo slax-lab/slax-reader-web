@@ -15,7 +15,8 @@ const envConfig = getDWebConfig()
 export default defineNuxtConfig({
   devtools: { enabled: true },
   alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url))
+    '@': fileURLToPath(new URL('./src', import.meta.url)),
+    '@nuxt/content/server': fileURLToPath(new URL('./mocks/content-server.mjs', import.meta.url))
   },
 
   app: {
@@ -32,7 +33,17 @@ export default defineNuxtConfig({
 
   srcDir: 'src/',
 
-  modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxtjs/turnstile',
+    'nuxt-og-image',
+    'nuxt-schema-org',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap',
+    'nuxt-site-config',
+    '@vite-pwa/nuxt',
+    '@nuxt/test-utils/module',
+    '@nuxt/content'
+  ],
   future: {
     compatibilityVersion: 3
   },

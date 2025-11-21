@@ -42,9 +42,11 @@
     "workbox-strategies": "^7.3.0"
   },
   "devDependencies": {
+    "@nuxt/content": "^3.5.1",
     "@nuxt/test-utils": "^3.19.2",
     "@pinia/nuxt": "^0.11.2",
     "@rollup/plugin-replace": "^6.0.2",
+    "@slax-lab/liveproxy-sw": "1.0.3-dev.1",
     "@testing-library/vue": "^8.1.0",
     "@types/katex": "^0.16.7",
     "@unocss/nuxt": "^66.5.2",
@@ -54,7 +56,6 @@
     "nitro-cloudflare-dev": "^0.2.2",
     "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "wrangler": "^4.40.0",
-    "@slax-lab/liveproxy-sw": "1.0.3-dev.1"
+    "wrangler": "^4.40.0"
   }
 }
