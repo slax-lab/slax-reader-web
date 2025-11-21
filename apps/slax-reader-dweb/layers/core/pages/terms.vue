@@ -3,6 +3,7 @@
     <main>
       <div class="terms-wrapper">
         <ContentRenderer v-if="page" :value="page" />
+        <div v-else>Home not found</div>
       </div>
     </main>
   </div>

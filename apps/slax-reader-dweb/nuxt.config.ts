@@ -15,8 +15,7 @@ const envConfig = getDWebConfig()
 export default defineNuxtConfig({
   devtools: { enabled: true },
   alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url)),
-    '@nuxt/content/server': fileURLToPath(new URL('./mocks/content-server.mjs', import.meta.url))
+    '@': fileURLToPath(new URL('./src', import.meta.url))
   },
 
   app: {
@@ -178,12 +177,10 @@ export default defineNuxtConfig({
               lastmod: date
             }
           ]
-        },
-        includeAppSources: true
+        }
       },
       share: {
-        include: ['/s/**'],
-        includeAppSources: true
+        include: ['/s/**']
       }
     }
   },
