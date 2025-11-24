@@ -10,16 +10,8 @@
 </template>
 
 <script setup lang="ts">
-const { data: debug } = await useAsyncData('debug', () => queryCollection('content').all())
-if (import.meta.server) {
-  console.log(
-    'Debug Content Paths:',
-    debug.value?.map(c => c.path)
-  )
-}
-
 const { data: page } = await useAsyncData('terms', () => {
-  return queryCollection('content').path('/terms').first()
+  return queryCollection('article').path('/terms').first()
 })
 
 definePageMeta({

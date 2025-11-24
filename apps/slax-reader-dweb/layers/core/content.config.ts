@@ -1,10 +1,14 @@
-import { defineCollection, defineContentConfig, z } from '@nuxt/content'
+import { defineCollection, defineContentConfig } from '@nuxt/content'
+import path from 'node:path'
 
 export default defineContentConfig({
   collections: {
-    content: defineCollection({
+    article: defineCollection({
       type: 'page',
-      source: '**/*.md'
+      source: {
+        cwd: path.resolve('./layers/core/content'),
+        include: '*.md'
+      }
     })
   }
 })

@@ -85,7 +85,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/sitemap.xml', '/robots.txt'],
+      routes: ['/zh', '/en', '/privacy', '/terms', '/sitemap.xml', '/robots.txt'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -111,6 +111,13 @@ export default defineNuxtConfig({
           return rules
         },
         {} as Record<string, { ssr: true; prerender: false }>
+      ),
+      ...['/privacy', '/terms'].reduce(
+        (rules, route) => {
+          rules[route] = { ssr: true, prerender: true }
+          return rules
+        },
+        {} as Record<string, { ssr: true; prerender: true }>
       ),
       '/b': { redirect: '/bookmarks' }
     },

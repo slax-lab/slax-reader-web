@@ -9,16 +9,8 @@
 </template>
 
 <script setup lang="ts">
-const { data: debug } = await useAsyncData('debug', () => queryCollection('content').all())
-if (import.meta.server) {
-  console.log(
-    'Debug Content Paths:',
-    debug.value?.map(c => c.path)
-  )
-}
-
 const { data: page } = await useAsyncData('privacy', () => {
-  return queryCollection('content').path('/privacy').first()
+  return queryCollection('article').path('/privacy').first()
 })
 
 definePageMeta({
