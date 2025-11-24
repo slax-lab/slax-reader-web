@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@slax-reader/selection": "workspace:*",
+    "@nuxt/content": "^3.8.2",
     "@nuxtjs/i18n": "^10.1.0",
     "@nuxtjs/robots": "^5.5.5",
     "@nuxtjs/sitemap": "^7.4.7",
@@ -27,7 +28,7 @@
     "github-syntax-light": "^0.5.0",
     "jszip": "^3.10.1",
     "katex": "^0.16.22",
-    "nuxt": "3.16.2",
+    "nuxt": "3.19.3",
     "nuxt-og-image": "^5.1.11",
     "nuxt-schema-org": "^5.0.9",
     "nuxt-site-config": "^3.2.9",
@@ -46,6 +47,7 @@
     "@nuxt/test-utils": "^3.19.2",
     "@pinia/nuxt": "^0.11.2",
     "@rollup/plugin-replace": "^6.0.2",
+    "@slax-lab/liveproxy-sw": "1.0.3-dev.1",
     "@testing-library/vue": "^8.1.0",
     "@types/katex": "^0.16.7",
     "@unocss/nuxt": "^66.5.2",
@@ -55,7 +57,6 @@
     "nitro-cloudflare-dev": "^0.2.2",
     "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "wrangler": "^4.40.0",
-    "@slax-lab/liveproxy-sw": "1.0.3-dev.1"
+    "wrangler": "^4.40.0"
   }
 }
