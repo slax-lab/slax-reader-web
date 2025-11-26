@@ -36,8 +36,11 @@ import { urlHttpString } from '@commons/utils/string'
 
 import 'katex/dist/katex.css'
 import { PhotoSwiperDotsElement, registerComponents, TweetFooterInfoElement, TweetUserInfoElement, UnsupportedVideoElement, WechatVideoInfoElement } from './CEComponents'
-import { ArticleSelection } from './Selection/selection'
+import { DwebBookmarkProvider, DwebEnvironmentAdapter, DwebHttpClient, DwebI18nService, DwebToastService, DwebUserProvider } from './Selection/adapters'
+import { DwebArticleSelection } from './Selection/DwebArticleSelection'
+import { MarkModal } from './Selection/modal'
 import { type MarkDetail, MarkType } from '@commons/types/interface'
+import type { SelectionConfig } from '@slax-reader/selection'
 import { formatDate } from '@vueuse/core'
 import type { QuoteData } from '#layers/core/components/Chat/type'
 import CursorToast from '#layers/core/components/CursorToast'
@@ -96,7 +99,7 @@ const articleStyle = computed(() => {
   return ArticleStyle.Default
 })
 
-let articleSelection: ArticleSelection | null = null
+let articleSelection: DwebArticleSelection | null = null
 
 watch(
   () => props.marks,
@@ -489,7 +492,7 @@ const handleTweetComponents = async () => {
 
 const handleDrawMark = async () => {
   if (!articleSelection && bookmarkArticle.value && articleDetail.value) {
-    articleSelection = new ArticleSelection({
+    const config = {
       shareCode: shareCode || '',
       bookmarkId: bookmarkId || 0,
       collection: collection?.value,
@@ -500,7 +503,36 @@ const handleDrawMark = async () => {
       postQuoteDataHandler: (data: QuoteData) => {
         emits('chatBotQuote', data)
       }
-    })
+    } as SelectionConfig
+
+    const dependencies = {
+      userProvider: new DwebUserProvider(),
+      httpClient: new DwebHttpClient(),
+      toastService: new DwebToastService(),
+      i18nService: new DwebI18nService(),
+      environmentAdapter: new DwebEnvironmentAdapter(),
+      bookmarkProvider: new DwebBookmarkProvider({
+        bookmarkId: bookmarkId || 0,
+        shareCode: shareCode || '',
+        collection: collection?.value,
+        ownerUserId: bookmarkUserId.value
+      }),
+      refFactory: ref, // 使用 Vue 的 ref 作为工厂函数
+      getMarkType: (type: 'comment' | 'reply' | 'line') => {
+        // Dweb 端根据是否有 iframe 决定返回类型
+        if (type === 'comment') {
+          return !!config.iframe ? MarkType.ORIGIN_COMMENT : MarkType.COMMENT
+        } else if (type === 'reply') {
+          return MarkType.REPLY
+        } else {
+          return !!config.iframe ? MarkType.ORIGIN_LINE : MarkType.LINE
+        }
+      }
+    }
+
+    const modal = new MarkModal(config)
+
+    articleSelection = new DwebArticleSelection(config, dependencies, modal)
   }
 
   if (!articleSelection) {

@@ -1,0 +1,39 @@
+@mixin contentStyle {
+  * + * {
+    --style: mt-10px;
+  }
+
+  &::v-deep(h1) {
+    --style: text-(34px #1a1a1a) line-height-48px font-semibold;
+  }
+
+  &::v-deep(h2) {
+    --style: mt-45px text-(26px #1a1a1a) line-height-42px font-semibold;
+  }
+
+  &::v-deep(h3) {
+    --style: mt-45px text-(22px #1a1a1a) line-height-36px font-semibold;
+  }
+
+  &::v-deep(p) {
+    --style: mt-35px text-(17px #4d4d4d) line-height-34px font-medium;
+  }
+
+  &::v-deep(ul),
+  &::v-deep(ol) {
+    --style: py-5px pl-2em;
+  }
+
+  &::v-deep(li) {
+    --style: mt-10px text-(17px #4d4d4d) line-height-34px font-medium;
+  }
+
+  &::v-deep(a) {
+    --style: text-#4ECACD;
+  }
+
+  &::v-deep(h2 > a),
+  &::v-deep(h3 > a) {
+    --style: text-inherit decoration-none;
+  }
+}

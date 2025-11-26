@@ -1,17 +1,27 @@
-import { Base } from './base'
-import type { SelectionConfig } from './type'
+import { Base } from './Base'
+import type { SelectionConfig } from '../types'
+import type { IEnvironmentAdapter } from '../adapters'
 
+/**
+ * 选择监听器
+ *
+ * 负责监听用户的鼠标选择操作，触发对应的回调
+ * 此类在dweb和extensions中100%相同
+ */
 export class SelectionMonitor extends Base {
   private _isMonitoring = false
   private _monitorDom: HTMLElement | null = null
   private _mouseUpHandler: (e: MouseEvent | TouchEvent) => void
 
-  constructor(config: SelectionConfig, mouseUpHandler: (e: MouseEvent | TouchEvent) => void) {
-    super(config)
+  constructor(config: SelectionConfig, environmentAdapter: IEnvironmentAdapter, mouseUpHandler: (e: MouseEvent | TouchEvent) => void) {
+    super(config, environmentAdapter)
     this._monitorDom = this.config.monitorDom || null
     this._mouseUpHandler = mouseUpHandler
   }
 
+  /**
+   * 开始监听
+   */
   start() {
     if (!this._monitorDom) return
 
@@ -22,6 +32,9 @@ export class SelectionMonitor extends Base {
     this._isMonitoring = true
   }
 
+  /**
+   * 停止监听
+   */
   stop() {
     if (!this._monitorDom) return
 
@@ -31,6 +44,9 @@ export class SelectionMonitor extends Base {
     this._isMonitoring = false
   }
 
+  /**
+   * 清理尝试性的鼠标监听器
+   */
   clearMouseListenerTry() {
     this.document.removeEventListener('mouseup', this.mouseUpHandler)
     this._monitorDom?.removeEventListener('mouseenter', this.handleMouseEnter)
@@ -53,10 +69,16 @@ export class SelectionMonitor extends Base {
     this._monitorDom.addEventListener('mouseleave', this.handleMouseLeave)
   }
 
+  /**
+   * 获取监听状态
+   */
   get isMonitoring() {
     return this._isMonitoring
   }
 
+  /**
+   * 获取鼠标抬起处理函数
+   */
   get mouseUpHandler() {
     return this._mouseUpHandler
   }

@@ -6,8 +6,9 @@ import ArticleSelectionPanel from './ArticleSelectionPanel.ce.vue'
 import { createStyleWithSearchRules } from '@commons/utils/dom'
 import { isClient } from '@commons/utils/is'
 
-import { Base } from './base'
-import type { MarkItemInfo, MenuType, SelectionConfig } from './type'
+import { DwebEnvironmentAdapter } from './adapters'
+import { Base, type IMarkModal } from '@slax-reader/selection'
+import type { MarkItemInfo, MenuType, SelectionConfig } from '@slax-reader/selection/types'
 
 let styleElement: HTMLStyleElement | null = null
 const checkStyleElement = () => {
@@ -44,11 +45,12 @@ const resetElement = (element: HTMLElement) => {
   element.style.backgroundColor = 'transparent'
 }
 
-export class MarkModal extends Base {
+export class MarkModal extends Base implements IMarkModal {
   currentPanel: InstanceType<typeof ArticleSelectionPanel> | null = null
 
   constructor(config: SelectionConfig) {
-    super(config)
+    const environmentAdapter = new DwebEnvironmentAdapter(config.iframe)
+    super(config, environmentAdapter)
   }
 
   isPanelExist = (container?: HTMLDivElement) => {
@@ -56,7 +58,7 @@ export class MarkModal extends Base {
     return !!articleSelectionPanel
   }
 
-  dismissPanel = () => {
+  async dismissPanel() {
     if (this.currentPanel) {
       this.currentPanel.closeModal()
     }
