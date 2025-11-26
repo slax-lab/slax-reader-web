@@ -57,6 +57,6 @@
     "nitro-cloudflare-dev": "^0.2.2",
     "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "wrangler": "^4.40.0"
+    "wrangler": "^4.50.0"
   }
 }
