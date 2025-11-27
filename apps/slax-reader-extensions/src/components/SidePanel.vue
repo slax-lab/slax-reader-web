@@ -99,9 +99,9 @@ import {
 } from './Selection/adapters'
 import { ExtensionsArticleSelection } from './Selection/ExtensionsArticleSelection'
 import { MarkModal } from './Selection/modal'
-import type { MarkCommentInfo, MarkItemInfo, QuoteData } from '@slax-reader/selection/types'
 import { RESTMethodPath } from '@commons/types/const'
-import { MarkType as BackendMarkType, type AddBookmarkReq, type AddBookmarkResp, type BookmarkBriefDetail, type UserInfo } from '@commons/types/interface'
+import { type AddBookmarkReq, type AddBookmarkResp, type BookmarkBriefDetail, MarkType as BackendMarkType, type UserInfo } from '@commons/types/interface'
+import type { MarkCommentInfo, MarkItemInfo, QuoteData } from '@slax-reader/selection/types'
 import { onKeyStroke } from '@vueuse/core'
 import type { WxtBrowser } from 'wxt/browser'
 

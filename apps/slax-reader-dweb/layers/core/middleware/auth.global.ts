@@ -50,6 +50,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
   } else {
     if (isToLogin || isToAuth) {
+      const redirectUrl = to.query.redirect as string
+      if (redirectUrl) {
+        return navigateTo(decodeURIComponent(redirectUrl), { external: true })
+      }
+
       return navigateTo('/bookmarks')
     }
   }
