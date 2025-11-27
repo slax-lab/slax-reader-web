@@ -15,8 +15,8 @@
 import menuChatbotImage from '@/assets/menu-chatbot-icon.png'
 import menuCommentImage from '@/assets/menu-comment-icon.png'
 import menuCopyImage from '@/assets/menu-copy-icon.png'
-import menuStrokeImage from '@/assets/menu-stroke-icon.png'
 import menuStrokeDeleteImage from '@/assets/menu-stroke-delete-icon.png'
+import menuStrokeImage from '@/assets/menu-stroke-icon.png'
 
 import { MenuType } from './type'
 import { vOnClickOutside } from '@vueuse/components'
