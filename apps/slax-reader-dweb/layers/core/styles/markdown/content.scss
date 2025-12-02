@@ -36,4 +36,32 @@
   &::v-deep(h3 > a) {
     --style: text-inherit decoration-none;
   }
+
+  &::v-deep(pre) {
+    --style: p-4 max-w-screen bg-gray-200 rounded text-left whitespace-pre-wrap;
+    font-family: 'Courier New', Courier, monospace !important;
+
+    code {
+      --style: max-w-full block whitespace-pre;
+      font-family: 'Courier New', Courier, monospace !important;
+
+      * {
+        font-family: 'Courier New', Courier, monospace !important;
+      }
+
+      span p {
+        --style: inline;
+      }
+    }
+
+    &.language-text {
+      code {
+        --style: whitespace-pre-wrap;
+      }
+    }
+  }
+
+  &::v-deep(code) {
+    --style: text-left bg-gray-200;
+  }
 }
