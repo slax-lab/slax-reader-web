@@ -852,7 +852,6 @@ export class MarkManager extends Base {
 
     this.updateCurrentMarkItemInfo(infoItem)
 
-    // 如果有评论,调用 markCommentSelectHandler
     if (this.config.markCommentSelectHandler) {
       if (this._currentMarkItemInfo.value && this._currentMarkItemInfo.value.comments.length > 0) {
         this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])

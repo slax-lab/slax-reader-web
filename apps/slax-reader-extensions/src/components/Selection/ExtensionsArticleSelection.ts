@@ -91,7 +91,6 @@ export class ExtensionsArticleSelection extends BaseArticleSelection {
             this.manager.copyMarkedText({ source, event })
           } else if (type === ('comment' as MenuType)) {
             currentInfo.id = getUUID()
-            // 调用 menusCommentHandler
             this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source, currentInfo.approx))
           } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
             const quote: QuoteData = {
