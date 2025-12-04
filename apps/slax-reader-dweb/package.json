@@ -22,7 +22,7 @@
     "@nuxtjs/turnstile": "^1.1.0",
     "@slax-reader/selection": "workspace:*",
     "@stripe/stripe-js": "^7.9.0",
-    "@unhead/vue": "2.0.17",
+    "@unhead/vue": "2.0.19",
     "@vite-pwa/nuxt": "1.0.4",
     "better-sqlite3": "^12.5.0",
     "firebase": "^12.3.0",
