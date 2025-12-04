@@ -312,12 +312,16 @@ const loadSelection = async () => {
       markCommentSelectHandler: (comment: MarkCommentInfo) => {
         closePanel()
         isCommentShowing.value = true
-        comments.value?.navigateToComment(comment)
+        nextTick(() => {
+          comments.value?.navigateToComment(comment)
+        })
       },
       menusCommentHandler: (info: MarkItemInfo, data: QuoteData['data']) => {
         closePanel()
         isCommentShowing.value = true
-        comments.value?.showPostCommentView(info, data)
+        nextTick(() => {
+          comments.value?.showPostCommentView(info, data)
+        })
       }
     }
 
