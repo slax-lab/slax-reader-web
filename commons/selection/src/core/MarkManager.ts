@@ -40,6 +40,7 @@ export interface IMarkModal {
    */
   showMenus(options: {
     event: MouseEvent | TouchEvent
+    isStroked?: boolean
     callback?: (type: MenuType, event: MouseEvent) => void
     positionCallback?: (position: { x: number; y: number }) => void
     noActionCallback?: () => void
@@ -433,6 +434,43 @@ export class MarkManager extends Base {
   }
 
   /**
+   * 显示菜单
+   * @param 点击事件
+   */
+  showMenus(event: MouseEvent | PointerEvent) {
+    this.modal.showMenus({
+      event,
+      isStroked: this._currentMarkItemInfo.value ? this._currentMarkItemInfo.value.stroke.length > 0 : false,
+      callback: (type, menuEvent) => {
+        const currentInfo = this._currentMarkItemInfo.value
+        if (!currentInfo) return
+
+        if (type === MenuType.Stroke) {
+          this.strokeSelection({ info: currentInfo })
+        } else if (type === MenuType.Stroke_Delete) {
+          this.deleteStroke(currentInfo)
+        } else if (type === MenuType.Copy) {
+          this.copyMarkedText({ source: currentInfo.source, approx: currentInfo.approx, event: menuEvent })
+        } else if (type === MenuType.Comment) {
+          if (this.config.menusCommentHandler) {
+            this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source, currentInfo.approx))
+          } else {
+            this.showPanel()
+          }
+        } else if (type === MenuType.Chatbot && this.config.postQuoteDataHandler) {
+          const quote = { source: { id: currentInfo.id }, data: this.createQuote(currentInfo.source, currentInfo.approx) }
+          this.config.postQuoteDataHandler(quote)
+          this._findQuote(quote)
+        }
+      },
+      noActionCallback: () => {
+        this.updateCurrentMarkItemInfo(null)
+        this.clearSelectContent()
+      }
+    })
+  }
+
+  /**
    * 显示面板
    * @param options 显示选项
    */
@@ -777,8 +815,9 @@ export class MarkManager extends Base {
   /**
    * 处理标记点击事件
    * @param ele 被点击的元素
+   * @param event 点击事件
    */
-  private handleMarkClick(ele: HTMLElement) {
+  private handleMarkClick(ele: HTMLElement, event: PointerEvent) {
     const id = ele.dataset.uuid
     if (!id) return
 
@@ -811,8 +850,17 @@ export class MarkManager extends Base {
       }
     }
 
-    this._currentMarkItemInfo.value = infoItem
-    this.showPanel()
+    this.updateCurrentMarkItemInfo(infoItem)
+
+    if (this.config.markCommentSelectHandler) {
+      if (this._currentMarkItemInfo.value && this._currentMarkItemInfo.value.comments.length > 0) {
+        this.config.markCommentSelectHandler?.(this._currentMarkItemInfo.value.comments[0])
+      }
+
+      this.showMenus(event)
+    } else {
+      this.showPanel()
+    }
   }
 
   /**

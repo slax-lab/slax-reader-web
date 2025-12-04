@@ -39,7 +39,9 @@ export class ExtensionsArticleSelection extends BaseArticleSelection {
       const { list, approx } = this.manager.getElementInfo(range)
 
       if (!list || list.length === 0 || !approx) {
-        this.manager.updateCurrentMarkItemInfo(null)
+        if (e.target instanceof HTMLElement && e.target?.nodeName !== 'SLAX-MARK') {
+          this.manager.updateCurrentMarkItemInfo(null)
+        }
         return
       }
 
@@ -47,16 +49,18 @@ export class ExtensionsArticleSelection extends BaseArticleSelection {
       if (!source) return
 
       const markInfoItem = this.markItemInfos.value.find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
+      const currentMark = this.currentMarkItemInfo.value
       if (markInfoItem) {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
-        this.manager.showPanel()
-        return
+        if (currentMark?.comments && currentMark?.comments.length > 0) {
+          this.config.markCommentSelectHandler?.(currentMark?.comments[0])
+          return
+        }
+      } else {
+        if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
+        this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
+        this.manager.clearSelectContent()
       }
-
-      const currentMark = this.currentMarkItemInfo.value
-      if (currentMark?.id === '' && this.manager.checkMarkSourceIsSame(currentMark.source, source)) return
-      this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx })
-      this.manager.clearSelectContent()
 
       list.forEach((item: SelectTextInfo) => {
         const lastContent = this.selectContent.value[this.selectContent.value.length - 1]
@@ -87,7 +91,7 @@ export class ExtensionsArticleSelection extends BaseArticleSelection {
             this.manager.copyMarkedText({ source, event })
           } else if (type === ('comment' as MenuType)) {
             currentInfo.id = getUUID()
-            this.manager.showPanel({ fallbackYOffset: menusY })
+            this.config.menusCommentHandler?.(currentInfo, this.createQuote(currentInfo.source, currentInfo.approx))
           } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
             const quote: QuoteData = {
               source: {},

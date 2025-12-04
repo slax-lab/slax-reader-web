@@ -21,6 +21,7 @@
     }
   },
   "scripts": {
+    "postinstall": "tsup",
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
