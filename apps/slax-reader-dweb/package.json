@@ -37,7 +37,7 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "universal-cookie": "^8.0.1",
     "vue-router": "^4.5.1",
-    "workbox-cacheable-response": "^7.3.0",
+    "workbox-cacheable-response": "^7.4.0",
     "workbox-core": "^7.3.0",
     "workbox-expiration": "^7.3.0",
     "workbox-precaching": "^7.3.0",
