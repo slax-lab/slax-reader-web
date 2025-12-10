@@ -64,4 +64,11 @@
   &::v-deep(code) {
     --style: text-left bg-gray-200;
   }
+
+  &::v-deep(table) {
+    &,
+    * {
+      --style: border-(1px solid #ccc) p-10px text-(16px #4d4d4d) line-height-28px font-medium;
+    }
+  }
 }
