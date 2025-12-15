@@ -560,7 +560,7 @@ export class MarkManager extends Base {
    * @returns 近似文本信息
    */
   getApproxText(range: Range): HighlightRangeInfo | undefined {
-    if (!range) {
+    if (!range || range.collapsed || range.toString().trim().length === 0) {
       return undefined
     }
 

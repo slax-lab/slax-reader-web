@@ -8,10 +8,10 @@
     </div>
     <div v-for="(content, index) in message.contents" :key="index">
       <template v-if="content.type === 'text'">
-        <div class="text" v-if="!content.isHTML">
+        <div class="text" lang="en" v-if="!content.isHTML">
           {{ content.content }}
         </div>
-        <div class="text" v-else v-html="content.content"></div>
+        <div class="text" lang="en" v-else v-html="content.content"></div>
       </template>
       <template v-else-if="content.type === 'links'">
         <div class="group links">
@@ -194,7 +194,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   &.left {
-    --style: ml-0 mr-auto justify-start bg-transparent text-(#fff) mr-50px;
+    --style: ml-0 mr-auto justify-start bg-transparent text-(#fff) mr-0;
   }
 
   &.right {
@@ -220,7 +220,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .text {
-    --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line;
+    --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line hyphens-auto;
     text-autospace: normal;
 
     &:deep(& :not(code)) {
