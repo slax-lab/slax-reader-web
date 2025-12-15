@@ -60,7 +60,7 @@
       </template>
       <template v-else-if="content.type === 'related-question'">
         <div class="related-question">
-          <div class="related-question-title">{{ $t('component.chat_bubble_message.related_questions') }}</div>
+          <!-- <div class="related-question-title">{{ $t('component.chat_bubble_message.related_questions') }}</div> -->
           <div class="related-question-content">
             <div class="question" v-for="question in content.questions" :key="question.content" @click="questionClick(question)">
               <span class="text">{{ question.content }}</span>
