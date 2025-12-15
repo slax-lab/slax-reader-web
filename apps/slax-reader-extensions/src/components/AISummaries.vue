@@ -1,5 +1,5 @@
 <template>
-  <div class="ai-summaries">
+  <div class="ai-summaries" ref="aiSummaries">
     <div class="shrinkable-header" :class="{ expanded: !isShrink }">
       <div class="shrinkable-content" :class="{ expanded: !isShrink }" @click="() => isShrink && (isShrink = !isShrink)">
         <div class="left">
@@ -140,6 +140,7 @@ const props = defineProps({
 
 const emits = defineEmits(['navigatedText', 'dismiss'])
 const isShrink = ref(true)
+const aiSummaries = ref<HTMLDivElement>()
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
 const vResize = Resize
@@ -185,6 +186,9 @@ watch(
   value => {
     if (!value && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
+      nextTick(() => {
+        scrollToTop()
+      })
     }
   },
   {
@@ -212,6 +216,10 @@ watch(
     }
   }
 )
+
+const scrollToTop = () => {
+  aiSummaries.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 const checkAndLoadSummaries = async () => {
   currentSummaryIndex.value = 0
@@ -726,7 +734,7 @@ $copyButtonXOffset: 20px;
   }
 
   .summaries-container {
-    --style: items-center overflow-y-auto;
+    --style: min-h-screen items-center overflow-y-auto;
     --style: 'bg-#f5f5f3 dark:bg-transparent';
 
     .content {
