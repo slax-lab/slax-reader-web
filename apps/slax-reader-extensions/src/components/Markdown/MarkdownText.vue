@@ -1,6 +1,6 @@
 <template>
   <div class="markdown-text" ref="markdownTextContainer">
-    <div class="markdown-content" v-html="markdownHTMLText"></div>
+    <div class="markdown-content" lang="en" v-html="markdownHTMLText"></div>
   </div>
 </template>
 
@@ -73,7 +73,7 @@ const handleAnchors = () => {
 <style lang="scss" scoped>
 .markdown-text {
   .markdown-content {
-    --style: flex flex-col;
+    --style: flex flex-col hyphens-auto;
     &:deep(*) {
       --style: m-0;
       --style: 'text-#0f1419 dark:text-#ffffffe6';
