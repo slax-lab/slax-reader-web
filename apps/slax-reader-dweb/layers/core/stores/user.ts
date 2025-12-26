@@ -1,3 +1,5 @@
+import { isSlaxReaderApp } from '../utils/environment'
+
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserInfo } from '@commons/types/interface'
 import { useCookies } from '@vueuse/integrations/useCookies.mjs'
@@ -118,10 +120,6 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
     async changeLocalLocale(locale: string) {
       if (['en', 'zh'].indexOf(locale) === -1) {
         locale = 'en'
-      }
-
-      if (window && new URLSearchParams(window.location.search).get('lang')) {
-        return
       }
 
       const i18n = useNuxtApp().$i18n

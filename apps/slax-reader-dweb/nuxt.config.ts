@@ -114,10 +114,10 @@ export default defineNuxtConfig({
       ),
       ...['/privacy', '/terms'].reduce(
         (rules, route) => {
-          rules[route] = { ssr: true, prerender: true }
+          rules[route] = { ssr: false, prerender: false }
           return rules
         },
-        {} as Record<string, { ssr: true; prerender: true }>
+        {} as Record<string, { ssr: false; prerender: false }>
       ),
       '/b': { redirect: '/bookmarks' }
     },

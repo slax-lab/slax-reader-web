@@ -16,8 +16,6 @@ const userStore = useUserStore()
 const { locale, setLocale } = useI18n()
 const preferredLang = getPreferredLanguage()
 
-console.log(`add log ${preferredLang} is app: ${isSlaxReaderApp()}`)
-
 if (isSlaxReaderApp() && preferredLang && ['zh', 'en'].includes(preferredLang)) {
   setLocale(preferredLang)
 } else if (userStore.currentLocale !== locale.value) {
