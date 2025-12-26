@@ -181,13 +181,6 @@
     "bookmark_tags": {
       "placeholder": "输入新标签 (按 Enter 确认)"
     },
-    "snapshot_status_modal": {
-      "dont_remind_again": "以后不再提醒",
-      "failed_title": "快照生成失败",
-      "failed_content": "建议：点击标题打开原网页阅读，或使用浏览器插件重新收藏该文章",
-      "pending_title": "快照生成中，预计需要几分钟",
-      "pending_content": "你可以先点击标题阅读原网页"
-    },
     "cancel_collection_modal": {
       "removecollection": "从我订阅的书签集中移除",
       "subtitle": "你可以继续访问内容至 {date}。此后将不再收取费用",
@@ -200,10 +193,10 @@
       "generating_question": "生成问题中...",
       "hello": "你好，我是 Slax Reader AI 助手：",
       "now_accessing": "正在访问中...",
-      "search_complete": "搜索完成",
-      "search_failed": "搜索失败",
       "search_bookmark_complete": "资料库搜索完成",
       "search_bookmark_failed": "资料库搜索失败",
+      "search_complete": "搜索完成",
+      "search_failed": "搜索失败",
       "searching_token": "搜索中",
       "{alias}_placeholder": "请输入你的问题（{alias} + enter 可以换行）",
       "{tips}_accessing": "\"{tips}\" 访问中...",
@@ -344,10 +337,10 @@
       "title": "要移除订阅“{name}”吗？"
     },
     "search_header": {
+      "back": "返回",
       "empty": "没有找到相关内容",
       "placeholder": "输入你要查找的内容",
-      "semantic_relative": "语义相关 {value}%",
-      "back": "返回"
+      "semantic_relative": "语义相关 {value}%"
     },
     "share_bubble_tips": {
       "text": "把内容分享给好友"
@@ -362,6 +355,13 @@
       },
       "revoke_tips": "分享链接已撤销",
       "title": "分享"
+    },
+    "snapshot_status_modal": {
+      "dont_remind_again": "以后不再提醒",
+      "failed_content": "建议：点击标题打开原网页阅读，或使用浏览器插件重新收藏该文章",
+      "failed_title": "快照生成失败",
+      "pending_content": "你可以先点击标题阅读原网页",
+      "pending_title": "快照生成中，预计需要几分钟"
     },
     "stripe_pay_setting": {
       "country_select": {
@@ -410,6 +410,12 @@
       "personal_info": "个人中心"
     }
   },
+  "docs": {
+    "title": {
+      "privacy": "隐私政策",
+      "terms": "服务条款"
+    }
+  },
   "page": {
     "auth": {
       "authenticating": "认证中"
@@ -427,6 +433,7 @@
       "trash_bookmark_tips": "书签于 { date } 被放入废纸篓. 7天后将会被删除."
     },
     "bookmarks_index": {
+      "Trash": "回收站",
       "add_url": "添加",
       "archive": "归档",
       "collections": "合集",
@@ -440,25 +447,7 @@
       "starred": "星标",
       "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
-      "view_original": "查看原文",
-      "Trash": "回收站"
-    },
-    "quickStart": {
-      "title": "快速入门指南",
-      "subtitle": "看视频秒懂 👇 ",
-      "getLink": "立刻安装",
-      "step1": {
-        "title": "先安装个插件",
-        "subtitle": "在Chrome应用商店搜 Slax Reader  →"
-      },
-      "step2": {
-        "title": "随手存网页",
-        "subtitle": "看到感兴趣的文章，点下插件图标就能保存"
-      },
-      "step3": {
-        "title": "直接在网页上玩起来",
-        "subtitle": "你做的所有笔记都会自动保存（原网页和快照页自动同步），下次打开还在老地方~"
-      }
+      "view_original": "查看原文"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"
@@ -602,10 +591,27 @@
         }
       },
       "slogan": {
-        "title": "好用的AI稍后读助手",
+        "free_button": "Start Free",
         "subtitle": "收藏内容只是开始——你的批注、别人的见解、和AI的对话，在这里碰撞",
-        "free_button": "Start Free"
+        "title": "好用的AI稍后读助手"
       }
+    },
+    "quickStart": {
+      "getLink": "立刻安装",
+      "step1": {
+        "subtitle": "在Chrome应用商店搜 Slax Reader  →",
+        "title": "先安装个插件"
+      },
+      "step2": {
+        "subtitle": "看到感兴趣的文章，点下插件图标就能保存",
+        "title": "随手存网页"
+      },
+      "step3": {
+        "subtitle": "你做的所有笔记都会自动保存（原网页和快照页自动同步），下次打开还在老地方~",
+        "title": "直接在网页上玩起来"
+      },
+      "subtitle": "看视频秒懂 👇 ",
+      "title": "快速入门指南"
     },
     "share_detail": {
       "share_text": "{user} 分享于 {date}",
@@ -692,10 +698,10 @@
       "browser_finished": "访问完成",
       "generate_question": "问题生成中",
       "generate_question_finished": "生成完成",
-      "search_finished": "搜索完成",
       "search_bookmark": "搜索资料库",
+      "search_bookmark_failed": "资料库搜索失败",
       "search_bookmark_finished": "资料库搜索完成",
-      "search_bookmark_failed": "资料库搜索失败"
+      "search_finished": "搜索完成"
     }
   }
 }

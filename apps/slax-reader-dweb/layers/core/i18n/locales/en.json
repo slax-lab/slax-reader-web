@@ -181,13 +181,6 @@
     "bookmark_tags": {
       "placeholder": "Enter new tag (press Enter to confirm)"
     },
-    "snapshot_status_modal": {
-      "dont_remind_again": "Don't remind me again",
-      "failed_title": "Snapshot unavailable",
-      "failed_content": "Try clicking the article title to read the original page, or use our browser extension to re-save this article",
-      "pending_title": "Creating snapshot...",
-      "pending_content": "This usually takes a few minutes. You can read the original article while you wait"
-    },
     "cancel_collection_modal": {
       "removecollection": "Remove from my collections",
       "subtitle": "You'll have access until {date}. After that, you won't be charged",
@@ -200,10 +193,10 @@
       "generating_question": "Generating question...",
       "hello": "Hello, I am the Slax Reader AI assistant:",
       "now_accessing": "Accessing...",
-      "search_complete": "Search completed",
-      "search_failed": "Search failed",
       "search_bookmark_complete": "Knowledge base search completed",
       "search_bookmark_failed": "Knowledge base search failed",
+      "search_complete": "Search completed",
+      "search_failed": "Search failed",
       "searching_token": "searching",
       "{alias}_placeholder": "Enter your question ({alias} + enter to line break)",
       "{tips}_accessing": "\"{tips}\" Accessing...",
@@ -344,10 +337,10 @@
       "title": "Remove from collection {name} ?"
     },
     "search_header": {
+      "back": "Back",
       "empty": "No related content found",
       "placeholder": "Enter what you want to find",
-      "semantic_relative": "Semantic related {value}%",
-      "back": "Back"
+      "semantic_relative": "Semantic related {value}%"
     },
     "share_bubble_tips": {
       "text": "Share with friends"
@@ -362,6 +355,13 @@
       },
       "revoke_tips": "Shared link access been revoked",
       "title": "Share"
+    },
+    "snapshot_status_modal": {
+      "dont_remind_again": "Don't remind me again",
+      "failed_content": "Try clicking the article title to read the original page, or use our browser extension to re-save this article",
+      "failed_title": "Snapshot unavailable",
+      "pending_content": "This usually takes a few minutes. You can read the original article while you wait",
+      "pending_title": "Creating snapshot..."
     },
     "stripe_pay_setting": {
       "country_select": {
@@ -410,6 +410,12 @@
       "personal_info": "Setting"
     }
   },
+  "docs": {
+    "title": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    }
+  },
   "page": {
     "auth": {
       "authenticating": "Authenticating"
@@ -427,6 +433,7 @@
       "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days."
     },
     "bookmarks_index": {
+      "Trash": "Trash",
       "add_url": "Add",
       "archive": "Archive",
       "collections": "Collections",
@@ -440,25 +447,7 @@
       "starred": "Starred",
       "topics": "Tags",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
-      "view_original": "View original",
-      "Trash": "Trash"
-    },
-    "quickStart": {
-      "title": "Quick Start Guide",
-      "subtitle": "This is how it works  👇 ",
-      "getLink": "Get It Here",
-      "step1": {
-        "title": "Install the extension ",
-        "subtitle": "Add Slax Reader to your browser from the Chrome Web Store → "
-      },
-      "step2": {
-        "title": "Save any webpage",
-        "subtitle": "Visit any web page and click the extension icon to save it for later reading. Save once, access forever."
-      },
-      "step3": {
-        "title": "Engage with content directly on the original webpage",
-        "subtitle": "Your notes will stay there whenever you open the page again."
-      }
+      "view_original": "View original"
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"
@@ -602,10 +591,27 @@
         }
       },
       "slogan": {
-        "title": "Read Smarter Connect Deeper",
+        "free_button": "Start Free",
         "subtitle": "Your permanent library that saves, understands, and networks your content with others.",
-        "free_button": "Start Free"
+        "title": "Read Smarter Connect Deeper"
       }
+    },
+    "quickStart": {
+      "getLink": "Get It Here",
+      "step1": {
+        "subtitle": "Add Slax Reader to your browser from the Chrome Web Store → ",
+        "title": "Install the extension "
+      },
+      "step2": {
+        "subtitle": "Visit any web page and click the extension icon to save it for later reading. Save once, access forever.",
+        "title": "Save any webpage"
+      },
+      "step3": {
+        "subtitle": "Your notes will stay there whenever you open the page again.",
+        "title": "Engage with content directly on the original webpage"
+      },
+      "subtitle": "This is how it works  👇 ",
+      "title": "Quick Start Guide"
     },
     "share_detail": {
       "share_text": "{user} shared on {date}",
@@ -692,10 +698,10 @@
       "browser_finished": "Access complete",
       "generate_question": "Generating question",
       "generate_question_finished": "Finished",
-      "search_finished": "Search complete",
       "search_bookmark": "Searching knowledge base",
+      "search_bookmark_failed": "Knowledge base search failed",
       "search_bookmark_finished": "Knowledge base search complete",
-      "search_bookmark_failed": "Knowledge base search failed"
+      "search_finished": "Search complete"
     }
   }
 }
