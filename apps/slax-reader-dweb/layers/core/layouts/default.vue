@@ -12,9 +12,14 @@ import { useUserStore } from '#layers/core/stores/user'
 
 const cacheRoutes = ['bookmarks']
 const userStore = useUserStore()
-const { locale } = useI18n()
+const { locale, setLocale } = useI18n()
 
-if (userStore.currentLocale !== locale.value) {
+const urlParams = window ? new URLSearchParams(window.location.search) : null
+const langParam = urlParams ? (urlParams.get('lang') as 'zh' | 'en') : null
+
+if (langParam && ['zh', 'en'].includes(langParam)) {
+  setLocale(langParam)
+} else if (userStore.currentLocale !== locale.value) {
   userStore.changeLocalLocale(userStore.currentLocale)
 }
 

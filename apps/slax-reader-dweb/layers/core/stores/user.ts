@@ -120,6 +120,10 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
         locale = 'en'
       }
 
+      if (window && new URLSearchParams(window.location.search).get('lang')) {
+        return
+      }
+
       const i18n = useNuxtApp().$i18n
       this.locale = locale
       i18n.setLocale(locale as 'en' | 'zh')
@@ -141,7 +145,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
       })
     },
     async refreshUserToken() {
-      request
+      request()
         .post<{ token: string }>({
           url: RESTMethodPath.TOKEN_REFRESH
         })
