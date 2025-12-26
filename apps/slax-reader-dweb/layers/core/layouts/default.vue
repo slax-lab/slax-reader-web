@@ -7,18 +7,17 @@
 
 <script setup lang="ts">
 import { isClient } from '@commons/utils/is'
+import { getPreferredLanguage, isSlaxReaderApp } from '#layers/core/utils/environment'
 
 import { useUserStore } from '#layers/core/stores/user'
 
 const cacheRoutes = ['bookmarks']
 const userStore = useUserStore()
 const { locale, setLocale } = useI18n()
+const preferredLang = getPreferredLanguage()
 
-const urlParams = window ? new URLSearchParams(window.location.search) : null
-const langParam = urlParams ? (urlParams.get('lang') as 'zh' | 'en') : null
-
-if (langParam && ['zh', 'en'].includes(langParam)) {
-  setLocale(langParam)
+if (isSlaxReaderApp() && preferredLang && ['zh', 'en'].includes(preferredLang)) {
+  setLocale(preferredLang)
 } else if (userStore.currentLocale !== locale.value) {
   userStore.changeLocalLocale(userStore.currentLocale)
 }
