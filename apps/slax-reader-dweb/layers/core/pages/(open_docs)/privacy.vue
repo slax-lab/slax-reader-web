@@ -13,10 +13,9 @@ import type { Collections } from '@nuxt/content'
 
 const { locale, t } = useI18n()
 
-const title = t('docs.title.privacy')
-
-definePageMeta({
-  title
+// 使用 useHead 设置动态标题,而不是 definePageMeta
+useHead({
+  title: t('docs.title.privacy')
 })
 
 const { data: page } = await useAsyncData(
@@ -39,7 +38,7 @@ const { data: page } = await useAsyncData(
 </script>
 
 <style lang="scss" scoped>
-@use './../styles/markdown/content.scss' as markdownContent;
+@use './../../styles/markdown/content.scss' as markdownContent;
 
 .privacy {
   main {
