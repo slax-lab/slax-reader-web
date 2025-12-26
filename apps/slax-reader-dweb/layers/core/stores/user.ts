@@ -1,3 +1,5 @@
+import { isSlaxReaderApp } from '../utils/environment'
+
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserInfo } from '@commons/types/interface'
 import { useCookies } from '@vueuse/integrations/useCookies.mjs'
@@ -141,7 +143,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
       })
     },
     async refreshUserToken() {
-      request
+      request()
         .post<{ token: string }>({
           url: RESTMethodPath.TOKEN_REFRESH
         })

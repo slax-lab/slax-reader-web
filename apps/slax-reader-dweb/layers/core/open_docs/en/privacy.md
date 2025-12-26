@@ -12,9 +12,9 @@ Before using our products, services, or submitting any personal information to u
 
 ## The Information We Collect
 
-This notice applies to all information collected or submitted on the Instapaper website and the Instapaper applications and services for iPhone, iPad, Android, Kindle, and other devices and platforms, hereafter referred to as simply Instapaper.
+This notice applies to all information collected or submitted on the Slax Reader website and the Slax Reader applications and services for iPhone, iPad, Android, Kindle, and other devices and platforms, hereafter referred to as simply Slax Reader.
 
-Instapaper occasionally needs to collect information for convenience, practicality, or technical requirements. This information includes:
+Slax Reader occasionally needs to collect information for convenience, practicality, or technical requirements. This information includes:
 
 - Your chosen username, which may be your email address or name. A username is technically required so you can log in from multiple computers and devices. We encourage you to use your email address to make "forgot password" functionality possible.
 - The titles, metadata from pages which you save to Slax Reader from websites, our applications, third-party applications using the our API, and any other means.

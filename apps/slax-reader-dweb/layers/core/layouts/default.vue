@@ -7,14 +7,18 @@
 
 <script setup lang="ts">
 import { isClient } from '@commons/utils/is'
+import { getPreferredLanguage, isSlaxReaderApp } from '#layers/core/utils/environment'
 
 import { useUserStore } from '#layers/core/stores/user'
 
 const cacheRoutes = ['bookmarks']
 const userStore = useUserStore()
-const { locale } = useI18n()
+const { locale, setLocale } = useI18n()
+const preferredLang = getPreferredLanguage()
 
-if (userStore.currentLocale !== locale.value) {
+if (isSlaxReaderApp() && preferredLang && ['zh', 'en'].includes(preferredLang)) {
+  setLocale(preferredLang)
+} else if (userStore.currentLocale !== locale.value) {
   userStore.changeLocalLocale(userStore.currentLocale)
 }
 

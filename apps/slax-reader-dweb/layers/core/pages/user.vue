@@ -52,6 +52,8 @@ import OptionsBar from '#layers/core/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/components/Tips/AILanguageTips.vue'
 import UserImportSection from '#layers/core/components/UserImportSection.vue'
 
+import { getPreferredLanguage, isSlaxReaderApp } from '../utils/environment'
+
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserDetailInfo } from '@commons/types/interface'
 import { useUserStore } from '#layers/core/stores/user'
@@ -91,7 +93,10 @@ const aiLanguageOptions = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
-if (userStore.currentLocale !== locale.value) {
+// 检查当前url是否有lang参数
+const preferredLang = isSlaxReaderApp() ? getPreferredLanguage() : undefined
+
+if (!preferredLang && userStore.currentLocale !== locale.value) {
   userStore.changeLocale(locale.value)
 }
 
