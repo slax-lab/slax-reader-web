@@ -91,7 +91,10 @@ const aiLanguageOptions = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
-if (userStore.currentLocale !== locale.value) {
+// 检查当前url是否有lang参数
+const haveLangParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('lang')
+
+if (!haveLangParam && userStore.currentLocale !== locale.value) {
   userStore.changeLocale(locale.value)
 }
 
