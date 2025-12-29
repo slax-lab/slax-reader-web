@@ -56,7 +56,7 @@
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "@unocss/eslint-config": "^66.5.2",
-    "@unocss/eslint-plugin": "^66.5.2",
+    "@unocss/eslint-plugin": "^66.5.10",
     "@unocss/preset-mini": "^66.5.2",
     "@unocss/preset-rem-to-px": "^66.5.2",
     "@unocss/transformer-directives": "^66.5.2",
