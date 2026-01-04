@@ -347,11 +347,11 @@ const handleData = (text: string) => {
   anchors.forEach(anchor => {
     const key = `anchor_${anchor.anchorNum}`
 
-    if (!anchor.text || !findTextInWeb(anchor.text, false)) {
-      text = text.replaceAll(anchor.anchorText, ``)
-      uselessAnchors.push(anchor)
-      return
-    }
+    // if (!anchor.text || !findTextInWeb(anchor.text, false)) {
+    //   text = text.replaceAll(anchor.anchorText, ``)
+    //   uselessAnchors.push(anchor)
+    //   return
+    // }
 
     anchorRefs[key] = anchor.text
     text = text.replaceAll(anchor.anchorText, ` [${decodeURIComponent(anchor.anchorNum)}](${key})`)
@@ -378,31 +378,35 @@ const handleData = (text: string) => {
 
 const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
   const domElement = document.querySelector(props.contentSelector || 'body') || document.body
-  const elements = findMatchingElement(text, domElement)
-  if (elements.length === 0) {
+  let result = findMatchingElement(text, domElement)
+  if (!result) {
     text = text.replaceAll('-', ' ')
 
-    const simularElements = findMatchingElement(text, domElement)
-    elements.push(...simularElements)
+    const simularResult = findMatchingElement(text, domElement)
+    result = simularResult
 
-    if (elements.length === 0) {
+    if (!simularResult) {
       return false
     }
   }
 
+  const elementResult = [result]
+
   if (autoNavigate) {
     if (currentSearchAnchor.text === text) {
-      currentSearchAnchor.index = (currentSearchAnchor.index + 1) % elements.length
+      currentSearchAnchor.index = (currentSearchAnchor.index + 1) % elementResult.length
     } else {
       currentSearchAnchor.text = text
       currentSearchAnchor.index = 0
     }
 
-    if (elements.length < currentSearchAnchor.index) {
+    if (elementResult.length < currentSearchAnchor.index) {
       return false
     }
 
-    const element = elements[currentSearchAnchor.index]
+    const element = elementResult[currentSearchAnchor.index]?.element
+    const selectedRange = elementResult[currentSearchAnchor.index]?.range
+
     if (!(element instanceof HTMLElement)) {
       return false
     }
@@ -440,15 +444,32 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
     })
 
     if (!startNode || !endNode) {
+      if (selectedRange) {
+        const selection = window.getSelection()
+        selection?.removeAllRanges()
+        selection?.addRange(selectedRange)
+      }
+
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+      } else if (selectedRange?.startContainer instanceof HTMLElement) {
+        selectedRange.startContainer.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+      }
       return true
     }
 
-    const range = document.createRange()
-    startNode && range.setStart(startNode, 0)
-    endNode && range.setEnd(endNode, endNode.nodeValue?.length || 0)
-    const selection = window.getSelection()
-    selection?.removeAllRanges()
-    selection?.addRange(range)
+    if (!selectedRange) {
+      const range = document.createRange()
+      startNode && range.setStart(startNode, 0)
+      endNode && range.setEnd(endNode, endNode.nodeValue?.length || 0)
+      const selection = window.getSelection()
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    } else {
+      const selection = window.getSelection()
+      selection?.removeAllRanges()
+      selection?.addRange(selectedRange)
+    }
 
     const startIndex = nodes.indexOf(startNode)
     const endIndex = nodes.indexOf(endNode)
