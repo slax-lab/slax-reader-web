@@ -18,7 +18,9 @@ export default [
       '**/dist/**',
       'pnpm-lock.yaml',
       '.node-modules-inspector',
-      '**/public/**'
+      '**/public/**',
+      '.claude/',
+      '.github/'
     ]
   },
   {

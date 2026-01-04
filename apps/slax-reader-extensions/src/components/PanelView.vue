@@ -85,6 +85,7 @@ const VERSION = `v${process.env.VERSION}`
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const shortcutString = isMac ? '⌃ + ⇧ + Z' : 'Ctrl + Shift⇧ + Z'
 const isAutoToggle = ref(false)
+const isSidebarWidthSync = ref(true)
 
 watch(
   () => webPanelDraggble.value,
@@ -99,6 +100,12 @@ watch(
       tracking.touchTrack(value)
       tracking.wheelTrack(value)
     }
+
+    nextTick(() => {
+      setTimeout(() => {
+        updatePageWidthStyle()
+      }, 250)
+    })
   }
 )
 
@@ -145,6 +152,9 @@ const { isDragging } = useDraggable(draggble, {
     const left = position.x
 
     contentWidth.value = Math.min(Math.max(minContentWidth, windowWidth - left), windowWidth - 100)
+  },
+  onEnd: () => {
+    updatePageWidthStyle()
   }
 })
 
@@ -159,6 +169,39 @@ const loadLocalConfig = async () => {
   }
 
   isAutoToggle.value = config?.autoToggle ?? false
+  // isSidebarWidthSync.value = config?.sidebarWidthSync ?? false
+}
+
+const updatePageWidthStyle = () => {
+  if (!isSidebarWidthSync.value) {
+    return
+  }
+
+  const width = contentWidth.value
+  const styleId = 'slax-reader-sidebar-style'
+  let styleElement = document.getElementById(styleId) as HTMLStyleElement | null
+
+  if (props.showPanel) {
+    const cssContent = `
+        html {
+          width: calc(100% - ${width}px) !important;
+          position: relative !important;
+        }
+      `
+
+    if (styleElement) {
+      styleElement.textContent = cssContent
+    } else {
+      styleElement = document.createElement('style')
+      styleElement.id = styleId
+      styleElement.textContent = cssContent
+      document.head.appendChild(styleElement)
+    }
+  } else {
+    if (styleElement) {
+      document.head.removeChild(styleElement)
+    }
+  }
 }
 
 const usePanelDraggable = (draggableRef: Ref<HTMLElement | null>, isDraggledRef: Ref<boolean>, onPositionChange: (position: PanelPosition) => void) => {

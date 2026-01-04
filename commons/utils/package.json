@@ -32,6 +32,7 @@
   "dependencies": {
     "approx-string-match": "^2.0.0",
     "axios": "^1.7.9",
+    "dom-anchor-text-position": "^5.0.0",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
