@@ -2,7 +2,7 @@ import { RESTMethodPath } from '@commons/types/const'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { useUserStore } from '#layers/core/stores/user'
 
-const { set, remove } = useCookies()
+const { set, get, remove } = useCookies()
 
 const useAuth = {
   async requestAuth(options: { redirect: string; affCode: string }) {
@@ -47,6 +47,26 @@ const useAuth = {
     remove($config.COOKIE_TOKEN_NAME, { path: '/' })
     const userStore = useUserStore()
     userStore.clearUserInfo()
+
+    try {
+      checkAndRemoveOriginalCookies()
+    } catch (e) {}
+  }
+}
+
+const checkAndRemoveOriginalCookies = () => {
+  const $config = useNuxtApp().$config.public
+  const splits = $config.COOKIE_DOMAIN.split('.').filter(token => !!token)
+  if (splits.length <= 2) {
+    return
+  }
+
+  splits[0] = ''
+  const domain = splits.slice(1).join('.')
+  const oldCookies = get($config.COOKIE_TOKEN_NAME)
+  if (oldCookies) {
+    // remove original old cookie
+    remove($config.COOKIE_TOKEN_NAME, { path: '/', domain: `${domain}` })
   }
 }
 

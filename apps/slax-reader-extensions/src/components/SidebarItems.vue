@@ -1,58 +1,66 @@
 <template>
-  <div class="sidebar-items">
-    <div class="button-wrapper" v-for="panel in panelItems" :key="panel.type">
-      <button class="panel-button" @click="panelClick(panel)">
-        <div class="icon-wrapper">
-          <div class="icon">
-            <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-              <img class="normal" :src="panel.icon" alt="" />
-              <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-            </template>
-            <template v-else>
-              <img class="selected" :src="panel.selectedIcon" alt="" />
-            </template>
+  <Transition name="opacity">
+    <div class="sidebar-items" v-show="!dismissItems">
+      <div class="button-wrapper seperate-line" v-for="panel in panelItems" :key="panel.type">
+        <button class="panel-button" @click="panelClick(panel)">
+          <div class="icon-wrapper">
+            <div class="icon">
+              <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                <img class="normal" :src="panel.icon" alt="" />
+                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+              </template>
+              <template v-else>
+                <img class="selected" :src="panel.selectedIcon" alt="" />
+              </template>
+            </div>
           </div>
-        </div>
-        <span>{{ panel.title }}</span>
-      </button>
-    </div>
-    <div class="button-wrapper">
-      <div class="more-wrapper">
-        <div class="icon-wrapper">
-          <div class="more-options-container" ref="moreContainer" :class="{ focus: isMoreHovered }">
-            <Transition name="opacity">
-              <div class="icon" v-show="!isMoreHovered">
-                <i :class="{ star: isStar }"></i>
-                <i :class="{ archive: isArchive }"></i>
-                <i></i>
-              </div>
-            </Transition>
-            <Transition name="opacity">
-              <div class="more-options" v-show="isMoreHovered">
-                <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
-                  <div class="icon">
-                    <template v-if="panel.isLoading">
-                      <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
-                    </template>
-                    <template v-else>
-                      <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                        <img class="normal" :src="panel.icon" alt="" />
-                        <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+          <span>{{ panel.title }}</span>
+        </button>
+        <i class="seperate-line"></i>
+      </div>
+      <div class="button-wrapper">
+        <div class="more-wrapper">
+          <div class="icon-wrapper">
+            <div class="more-options-container" ref="moreContainer" :class="{ focus: isMoreHovered }">
+              <Transition name="opacity">
+                <div class="icon" v-show="!isMoreHovered">
+                  <i :class="{ star: isStar }"></i>
+                  <i :class="{ archive: isArchive }"></i>
+                  <i></i>
+                </div>
+              </Transition>
+              <Transition name="opacity">
+                <div class="more-options" v-show="isMoreHovered">
+                  <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
+                    <div class="icon">
+                      <template v-if="panel.isLoading">
+                        <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
                       </template>
                       <template v-else>
-                        <img class="selected" :src="panel.selectedIcon" alt="" />
+                        <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
+                          <img class="normal" :src="panel.icon" alt="" />
+                          <img class="highlighted" :src="panel.highlighedIcon" alt="" />
+                        </template>
+                        <template v-else>
+                          <img class="selected" :src="panel.selectedIcon" alt="" />
+                        </template>
                       </template>
-                    </template>
-                  </div>
-                  <span>{{ panel.title }}</span>
-                </button>
-              </div>
-            </Transition>
+                    </div>
+                    <span>{{ panel.title }}</span>
+                  </button>
+                </div>
+              </Transition>
+            </div>
           </div>
         </div>
       </div>
+      <div class="close-wrapper">
+        <button @click="dismissItems = true">
+          <img src="@/assets/button-tiny-close-white.png" alt="" />
+        </button>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
@@ -85,6 +93,7 @@ const props = defineProps({
 
 const emits = defineEmits(['panel-item-action'])
 
+const dismissItems = ref(false)
 const panelItems = ref<PanelItem[]>([
   {
     type: PanelItemType.AI,
@@ -182,17 +191,21 @@ const panelClick = async (panel: PanelItem) => {
 
 <style lang="scss" scoped>
 .sidebar-items {
-  --style: relative z-2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
+  --style: relative z-2 w-44px py-3px px-0px bg-#262626 rounded-(lt-8px lb-8px);
 
   .button-wrapper {
-    --style: relative size-44px;
+    --style: relative w-44px h-41px;
+
+    .seperate-line {
+      --style: absolute bottom-0 left-10px right-10px h-1px bg-#ffffff14;
+    }
 
     button.panel-button {
-      --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
+      --style: absolute top-0 right-0 max-w-44px h-41px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
         transition-max-width duration-250;
 
       .icon-wrapper {
-        --style: relative border-(1px solid #ffffff14) rounded-6px shrink-0;
+        --style: relative rounded-6px shrink-0;
 
         .icon {
           --style: relative size-36px;
@@ -234,12 +247,12 @@ const panelClick = async (panel: PanelItem) => {
     }
 
     .more-wrapper {
-      --style: absolute top-0 right-0 w-44px h-44px p-4px rounded-(lt-8px lb-8px) flex items-center flex-nowrap whitespace-nowrap;
+      --style: absolute top-0 right-0 w-44px h-41px p-4px rounded-(lt-8px lb-8px) flex items-center flex-nowrap whitespace-nowrap;
       .icon-wrapper {
         --style: shrink-0 size-38px relative;
 
         .more-options-container {
-          --style: absolute size-36px right-0 top-0 bg-#262626 border-(1px solid #ffffff14) rounded-6px transition-all duration-250;
+          --style: absolute size-36px right-0 top-0 bg-#262626 rounded-6px transition-all duration-250;
 
           &.focus {
             --style: -right-4px w-150px h-110px cursor-default border-(1px solid transparent);
@@ -315,6 +328,17 @@ const panelClick = async (panel: PanelItem) => {
             }
           }
         }
+      }
+    }
+  }
+
+  .close-wrapper {
+    --style: absolute bottom-full right-0;
+
+    button {
+      --style: size-16px bg-#2626264f rounded-lt-4px flex-center;
+      img {
+        --style: size-8px object-contain select-none;
       }
     }
   }

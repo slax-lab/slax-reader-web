@@ -540,7 +540,7 @@ const starBookmark = async (isStar: boolean) => {
         }
 
         .snapshot {
-          --style: 'mr-20px max-md:(hidden!)';
+          --style: 'mr-20px';
         }
 
         .edit {
