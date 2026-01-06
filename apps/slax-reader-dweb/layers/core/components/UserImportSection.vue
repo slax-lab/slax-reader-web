@@ -87,7 +87,7 @@ const importThirdPartyData = async (type: string) => {
   // 分批上传
   for (const [idx, metadata] of metadataList.entries()) {
     importText.value = `upload file ${idx + 1} of ${metadataList.length}...`
-    await request
+    await request()
       .uploadFile({
         url: RESTMethodPath.IMPORT_THIRD_PARTY_DATA,
         query: {

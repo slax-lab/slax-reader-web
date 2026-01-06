@@ -6,6 +6,7 @@ const unzipGetFile = async (file: File, matchRule: RegExp): Promise<File[] | und
 
   const files: File[] = []
   for (const [filename, zipEntry] of Object.entries(fileContent.files)) {
+    if (filename.startsWith('__MACOSX/') || filename.includes('/._')) continue
     if (!matchRule.test(filename)) continue
 
     const content = await zipEntry.async('arraybuffer')
