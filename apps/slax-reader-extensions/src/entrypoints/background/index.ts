@@ -31,11 +31,12 @@ export default defineBackground(() => {
 
   const cookieHost = process.env.COOKIE_DOMAIN as string
   browser.cookies.onChanged.addListener(changeInfo => {
-    if ((changeInfo.cookie.domain !== cookieHost && changeInfo.cookie.domain !== `.${cookieHost}`) || changeInfo.cookie.name !== process.env.COOKIE_TOKEN_NAME) {
+    const { domain, name } = changeInfo.cookie
+    const allowedDomains = [cookieHost, `.${cookieHost}`]
+
+    if (!allowedDomains.includes(domain) || name !== process.env.COOKIE_TOKEN_NAME) {
       return
     }
-
-    console.log('Cookie update:', changeInfo)
 
     if (changeInfo.removed && changeInfo.cause !== 'overwrite') {
       Promise.allSettled([storageService.clearUserData(), bookmarkService.clearBookmarkData(), bookmarkService.closeSocket()])
