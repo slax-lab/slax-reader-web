@@ -336,7 +336,8 @@ const panelClick = async (panel: PanelItem) => {
     --style: absolute bottom-full right-0;
 
     button {
-      --style: size-16px bg-#2626264f rounded-lt-4px flex-center;
+      --style: size-16px bg-#2626264f rounded-lt-4px flex-center transition-colors duration-250;
+      --style: 'hover:bg-#2626268f';
       img {
         --style: size-8px object-contain select-none;
       }
