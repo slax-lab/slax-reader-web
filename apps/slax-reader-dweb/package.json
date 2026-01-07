@@ -23,7 +23,7 @@
     "@slax-reader/selection": "workspace:*",
     "@stripe/stripe-js": "^7.9.0",
     "@unhead/vue": "2.0.17",
-    "@vite-pwa/nuxt": "1.0.4",
+    "@vite-pwa/nuxt": "1.1.0",
     "better-sqlite3": "^12.5.0",
     "firebase": "^12.3.0",
     "github-syntax-light": "^0.5.0",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^3.19.2",
     "@pinia/nuxt": "^0.11.2",
-    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-replace": "^6.0.3",
     "@slax-lab/liveproxy-sw": "1.0.3-dev.1",
     "@testing-library/vue": "^8.1.0",
     "@types/katex": "^0.16.7",
@@ -56,7 +56,7 @@
     "@vueuse/nuxt": "^13.9.0",
     "consola": "^3.4.2",
     "nitro-cloudflare-dev": "^0.2.2",
-    "vite-plugin-pwa": "^1.0.3",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^3.2.4",
     "wrangler": "^4.40.0"
   }
