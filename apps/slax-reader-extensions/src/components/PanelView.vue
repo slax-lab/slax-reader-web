@@ -152,6 +152,7 @@ const { isDragging } = useDraggable(draggble, {
     const left = position.x
 
     contentWidth.value = Math.min(Math.max(minContentWidth, windowWidth - left), windowWidth - 100)
+    updatePageWidthStyle()
   },
   onEnd: () => {
     updatePageWidthStyle()
