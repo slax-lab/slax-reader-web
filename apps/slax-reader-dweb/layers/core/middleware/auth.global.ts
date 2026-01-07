@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isToShare = to.fullPath.indexOf('/s') !== -1
   const isToGuide = to.fullPath.indexOf('/guide') !== -1
 
-  const homepagePaths = ['/', '/zh', '/en']
+  const homepagePaths = ['/', '/zh', '/en', '/download']
   const isToHomepage = homepagePaths.includes(to.fullPath)
   const isFromHomepage = homepagePaths.includes(from.fullPath)
 

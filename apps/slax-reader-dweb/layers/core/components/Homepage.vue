@@ -1,23 +1,7 @@
 <template>
   <div class="homepage">
     <!-- Header -->
-    <header>
-      <nav class="container">
-        <div class="logo">
-          <img src="@images/logo.png" alt="Slax Reader" />
-          <span>Slax Reader</span>
-        </div>
-        <div class="nav-links">
-          <a href="#features" class="link hover mr-16px">Features</a>
-          <a href="#how-it-works" class="link hover mr-16px">How it Works</a>
-          <a href="https://github.com/slax-lab" class="link btn-github">
-            <img src="@images/github-icon.png" alt="" />
-            <span>GitHub</span>
-          </a>
-          <span @click="freeBtn" class="link btn-free">Start Free</span>
-        </div>
-      </nav>
-    </header>
+    <AppHeader :show-home-links="true" />
 
     <!-- Hero Section -->
     <section class="hero">
@@ -152,7 +136,7 @@
               </tr>
               <tr>
                 <td>Auto Tagging</td>
-                <td><span class="check">Coming soon</span></td>
+                <td><span class="check">✅</span></td>
                 <td><span class="cross">⚠️ Manual tags only</span></td>
                 <td><span class="cross">⚠️ Manual tags only</span></td>
               </tr>
@@ -177,19 +161,13 @@
     </section>
 
     <!-- Footer -->
-    <footer>
-      <div class="container">
-        <p>&copy; 2025 Slax Reader. Built by readers, for readers.</p>
-        <div style="margin-top: 1rem">
-          <a href="https://slax.com/blog.html" target="_blank">Blog</a>
-          <a href="https://x.com/SlaxReader" target="_blank">Twitter</a>
-          <a href="https://t.me/slax_app" target="_blank">Help</a>
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 <script lang="ts" setup>
+import AppFooter from './AppFooter.vue'
+import AppHeader from './AppHeader.vue'
+
 import lampIcon from '@images/lamp-icon.png'
 import questionIcon from '@images/question-icon.png'
 import searchIcon from '@images/search-icon.png'
@@ -269,50 +247,6 @@ const freeBtn = async () => {
   --style: max-w-1200px mx-auto px-20px;
 }
 
-/* Header */
-header {
-  --style: sticky top-0 z-1000 h-68px flex items-center bg-#fff;
-  nav {
-    --style: flex justify-between items-center;
-    .logo {
-      --style: flex items-center gap-10px;
-      img {
-        width: 18px;
-      }
-      span {
-        --style: text-18px font-600 text-[#16B998];
-      }
-    }
-    .nav-links {
-      --style: 'flex items-center gap-16px max-md:(hidden)';
-      .link {
-        --style: 'text-16px font-400 text-[#333] transition-all duration-300';
-        text-decoration: none;
-        &.hover {
-          --style: 'hover:text-[#16B998]';
-        }
-      }
-      .btn-free {
-        --style: cusor-pointer flex items-center rounded-6px px-10px h-36px text-#fff;
-        background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
-        transition: all 0.3s ease;
-        &:hover {
-          background: linear-gradient(90deg, #1cb0b5 0%, #1cb0b5 100%);
-        }
-      }
-      .btn-github {
-        --style: flex gap-6px items-center h-36px px-12px rounded-6px text-[#333] font-500 text-15px;
-        border: 2px solid #333333;
-        &:hover {
-          background: #f8f9fa;
-        }
-        img {
-          width: 20px;
-        }
-      }
-    }
-  }
-}
 @keyframes float {
   0%,
   100% {
@@ -345,6 +279,10 @@ header {
           --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#ffff] text-20px font-600 max-md:(text-16px m-auto)';
           background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
           text-decoration: none;
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
           &:hover {
             background: #1cb0b5;
           }
@@ -514,23 +452,15 @@ header {
     --style: m-auto w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#1F1F1F] text-20px font-600 bg-white;
     text-decoration: none;
     transition: all 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     &:hover {
       opacity: 0.6;
     }
     img {
       width: 16px;
-    }
-  }
-}
-/* Footer */
-footer {
-  --style: bg-#1a1a1a text-#999 p-3rem text-center;
-  a {
-    --style: text-#f5f5f3 mx-1rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    &:hover {
-      --style: text-#16b998;
     }
   }
 }
