@@ -10,7 +10,7 @@ const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
 
-const Version = '1.10.3'
+const Version = '1.10.4'
 const envConfig = getExtensionsConfig()
 
 const convertToProcessEnv = (env: Record<string, unknown>) => {
