@@ -39,6 +39,10 @@ const useAuth = {
 
     const $config = useNuxtApp().$config.public
     set($config.COOKIE_TOKEN_NAME, resp.token, { path: '/', expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), domain: `${$config.COOKIE_DOMAIN}` })
+    try {
+      checkAnd1SetOriginalCookies(resp.token)
+    } catch (e) {}
+
     return resp.token
   },
   async clearAuth(): Promise<void> {
@@ -52,6 +56,18 @@ const useAuth = {
       checkAndRemoveOriginalCookies()
     } catch (e) {}
   }
+}
+
+const checkAnd1SetOriginalCookies = (token: string) => {
+  const $config = useNuxtApp().$config.public
+  const splits = $config.COOKIE_DOMAIN.split('.').filter(token => !!token)
+  if (splits.length <= 2) {
+    return
+  }
+
+  splits[0] = ''
+  const domain = splits.slice(1).join('.')
+  set($config.COOKIE_TOKEN_NAME, token, { path: '/', expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), domain: `${domain}` })
 }
 
 const checkAndRemoveOriginalCookies = () => {
