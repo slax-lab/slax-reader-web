@@ -177,40 +177,30 @@ useHead({
 
 /* Hero Section */
 .hero {
-  --style: py-100px bg-gradient-to-br from-[#f0fdf9] via-[#e6fff3] to-[#d1fae5];
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+  --style: py-100px bg-gradient-to-br from-#f0fdf9 via-#e6fff3 to-#d1fae5 text-center relative overflow-hidden;
 
   &::before {
-    content: '';
-    --style: absolute top-0 left-50% w-600px h-600px rounded-full;
-    background: radial-gradient(circle, rgba(22, 185, 152, 0.15) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
+    --style: content-empty absolute top-0 left-50% w-600px h-600px rounded-full -translate-1/2;
+    background: radial-gradient(circle, #16b99826 0%, transparent 70%);
     animation: pulse 3s ease-in-out infinite;
   }
 
   .container {
-    position: relative;
-    z-index: 1;
+    --style: relative z-1;
   }
 
   .hero-badge {
-    --style: inline-block px-16px py-6px mb-24px rounded-full text-14px font-600 text-[#16B998];
-    background: rgba(22, 185, 152, 0.1);
-    border: 1px solid rgba(22, 185, 152, 0.2);
+    --style: inline-block px-16px py-6px mb-24px rounded-full text-14px font-600 text-#16B998 border border-solid;
+    background: #16b9981a;
+    border-color: #16b99833;
   }
 
   h1 {
-    --style: text-56px font-800 text-[#1f1f1f] mb-20px line-height-72px;
-    background: linear-gradient(135deg, #1f1f1f 0%, #16b998 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    --style: text-56px font-800 text-#1f1f1f mb-20px line-height-72px bg-gradient-to-br from-#1f1f1f to-#16b998 bg-clip-text text-transparent;
   }
 
   p {
-    --style: text-20px text-[#666] font-400 max-w-600px mx-auto;
+    --style: text-20px text-#666 font-400 max-w-600px mx-auto;
   }
 }
 
@@ -229,35 +219,24 @@ useHead({
 /* Download Section */
 .download-section {
   --style: py-80px bg-#fff;
+
   .download-list {
     --style: flex flex-col gap-24px;
   }
 }
 
 .download-card {
-  --style: bg-gradient-to-br from-[#ffffff] to-[#fafafa] rounded-24px p-48px transition-all duration-300;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  position: relative;
-  overflow: hidden;
+  --style: 'bg-gradient-to-br from-#ffffff to-#fafafa rounded-24px p-48px border border-solid border-#0000000f relative overflow-hidden transition-all duration-300 shadow-[0_2px_8px_#0000000a,0_1px_2px_#00000005]';
 
   &::before {
-    content: '';
-    --style: absolute top-0 left-0 w-full h-2px;
-    background: linear-gradient(90deg, #16b998 0%, #1cb0b5 100%);
+    --style: content-empty absolute top-0 left-0 w-full h-2px bg-gradient-to-r from-#16b998 to-#1cb0b5;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.4s ease;
   }
 
   &:hover {
-    box-shadow:
-      0 8px 24px rgba(22, 185, 152, 0.12),
-      0 4px 8px rgba(0, 0, 0, 0.08);
-    border-color: rgba(22, 185, 152, 0.2);
-    transform: translateY(-2px);
+    --style: 'shadow-[0_8px_24px_#16b9981f,0_4px_8px_#00000014] border-#16b99833 -translate-y-2px';
 
     &::before {
       transform: scaleX(1);
@@ -278,33 +257,30 @@ useHead({
 
   .card-header {
     --style: flex items-center gap-20px mb-16px;
+
     .platform-icon {
-      --style: text-48px;
-      transition: transform 0.3s ease;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      --style: text-48px transition-transform duration-300;
+      filter: drop-shadow(0 2px 4px #0000001a);
     }
+
     h2 {
-      --style: text-32px font-800 text-[#1f1f1f] line-height-40px;
+      --style: text-32px font-800 text-#1f1f1f line-height-40px;
     }
   }
 
   .feature-list {
-    --style: mt-20px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    --style: mt-20px list-none p-0 m-0;
 
     li {
-      --style: text-16px text-[#666] line-height-28px mb-12px pl-24px;
-      position: relative;
+      --style: text-16px text-#666 line-height-28px mb-12px pl-24px relative;
 
       &::before {
         content: '✓';
-        --style: absolute left-0 text-[#16B998] font-600;
+        --style: absolute left-0 text-#16B998 font-600;
       }
 
       &:last-child {
-        margin-bottom: 0;
+        --style: mb-0;
       }
     }
   }
@@ -315,29 +291,13 @@ useHead({
 }
 
 .download-btn {
-  --style: flex items-center gap-12px px-24px py-14px rounded-12px font-600 text-16px transition-all duration-300;
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  min-width: 180px;
-  justify-content: center;
+  --style: 'flex items-center gap-12px px-24px py-14px rounded-12px font-600 text-16px no-underline relative overflow-hidden min-w-180px justify-center select-none transition-all duration-300';
   will-change: transform;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 
   &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    --style: content-empty absolute top-50% left-50% w-300px h-300px rounded-full opacity-0 -translate-1/2;
+    background: #ffffff4d;
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
     transition:
       transform 0.6s,
       opacity 0.6s;
@@ -345,25 +305,21 @@ useHead({
   }
 
   &:hover::before {
+    --style: opacity-100;
     transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
   }
 
   svg,
   div,
   span {
-    position: relative;
-    z-index: 1;
+    --style: relative z-1;
   }
 
   &.ios-btn {
-    --style: bg-[#000] text-#fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --style: 'bg-#000 text-#fff shadow-[0_4px_12px_#00000026]';
 
     &:hover {
-      --style: bg-[#1a1a1a];
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      --style: 'bg-#1a1a1a -translate-y-2px shadow-[0_8px_20px_#00000040]';
     }
 
     &:active {
@@ -372,13 +328,10 @@ useHead({
   }
 
   &.android-btn {
-    --style: bg-[#34A853] text-#fff;
-    box-shadow: 0 4px 12px rgba(52, 168, 83, 0.25);
+    --style: 'bg-#34A853 text-#fff shadow-[0_4px_12px_#34a85340]';
 
     &:hover {
-      --style: bg-[#2d9348];
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(52, 168, 83, 0.35);
+      --style: 'bg-#2d9348 -translate-y-2px shadow-[0_8px_20px_#34a85359]';
     }
 
     &:active {
@@ -387,13 +340,10 @@ useHead({
   }
 
   &.mac-btn {
-    --style: bg-[#000] text-#fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --style: 'bg-#000 text-#fff shadow-[0_4px_12px_#00000026]';
 
     &:hover {
-      --style: bg-[#1a1a1a];
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      --style: 'bg-#1a1a1a -translate-y-2px shadow-[0_8px_20px_#00000040]';
     }
 
     &:active {
@@ -402,33 +352,20 @@ useHead({
   }
 
   &.browser-btn {
-    --style: text-#fff;
+    --style: 'text-#fff shadow-[0_4px_12px_#4285f44d,0_0_0_1px_#ffffff1a_inset]';
     background: linear-gradient(135deg, #4285f4 0%, #34a853 33%, #fbbc05 66%, #ea4335 100%);
     background-size: 200% 200%;
-    box-shadow:
-      0 4px 12px rgba(66, 133, 244, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     position: relative;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 2px #00000066;
 
     &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      --style: content-empty absolute top-0 left-0 right-0 bottom-0 opacity-0 transition-opacity duration-300;
+      background: linear-gradient(135deg, transparent 0%, #ffffff1a 50%, transparent 100%);
     }
 
     &:hover {
+      --style: '-translate-y-2px shadow-[0_8px_24px_#4285f466,0_0_0_1px_#ffffff33_inset]';
       background-position: 100% 100%;
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 24px rgba(66, 133, 244, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
       animation: gradient-shift 3s ease infinite;
 
       &::after {

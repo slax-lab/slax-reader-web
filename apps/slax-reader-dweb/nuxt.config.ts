@@ -91,7 +91,7 @@ export default defineNuxtConfig({
       failOnError: true
     },
     routeRules: {
-      ...['/', '/bookmarks', '/user', '/login', '/guide', '/auth', '/download'].reduce(
+      ...['/', '/bookmarks', '/user', '/login', '/guide', '/auth'].reduce(
         (rules, route) => {
           rules[route] = { ssr: false, prerender: true }
           return rules
@@ -118,6 +118,13 @@ export default defineNuxtConfig({
           return rules
         },
         {} as Record<string, { ssr: false; prerender: false }>
+      ),
+      ...['/download'].reduce(
+        (rules, route) => {
+          rules[route] = { ssr: true, prerender: true }
+          return rules
+        },
+        {} as Record<string, { ssr: true; prerender: true }>
       ),
       '/b': { redirect: '/bookmarks' }
     },

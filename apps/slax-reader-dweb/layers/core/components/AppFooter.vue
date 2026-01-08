@@ -20,38 +20,35 @@
 <style lang="scss" scoped>
 footer {
   --style: bg-#1a1a1a text-#999 py-48px;
+}
 
-  .container {
-    --style: max-w-1200px mx-auto px-20px;
-  }
+.container {
+  --style: max-w-1200px mx-auto px-20px;
+}
 
-  .footer-content {
-    --style: flex flex-col items-center gap-20px text-center;
-  }
+.footer-content {
+  --style: flex flex-col items-center gap-20px text-center;
+}
 
-  .footer-links {
-    --style: flex items-center gap-16px;
+.footer-links {
+  --style: flex items-center gap-16px;
 
-    a {
-      --style: text-15px text-[#999];
-      text-decoration: none;
-      transition: color 0.3s ease;
+  a {
+    --style: text-15px text-#999 no-underline transition-colors duration-300;
 
-      &:hover {
-        --style: text-[#16b998];
-      }
-    }
-
-    .separator {
-      --style: text-[#666] text-12px;
+    &:hover {
+      --style: text-#16b998;
     }
   }
 
-  .footer-copyright {
-    p {
-      --style: text-14px text-[#666];
-      margin: 0;
-    }
+  .separator {
+    --style: text-#666 text-12px;
+  }
+}
+
+.footer-copyright {
+  p {
+    --style: text-14px text-#666 m-0;
   }
 }
 </style>

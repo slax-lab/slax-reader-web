@@ -37,27 +37,24 @@ const handleStartFree = async () => {
 
 <style lang="scss" scoped>
 .app-header {
-  --style: sticky top-0 z-1000 h-68px flex items-center bg-#fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --style: sticky top-0 z-1000 h-68px flex items-center bg-#fff shadow-sm;
 
   nav {
     --style: flex justify-between items-center;
 
     .logo {
-      --style: flex items-center gap-10px cursor-pointer;
-      text-decoration: none;
-      transition: opacity 0.3s ease;
+      --style: flex items-center gap-10px cursor-pointer no-underline transition-opacity duration-300;
 
       &:hover {
-        opacity: 0.8;
+        --style: opacity-80;
       }
 
       img {
-        width: 18px;
+        --style: w-18px;
       }
 
       span {
-        --style: text-18px font-600 text-[#16B998];
+        --style: text-18px font-600 text-#16B998;
       }
     }
 
@@ -65,42 +62,30 @@ const handleStartFree = async () => {
       --style: 'flex items-center gap-16px max-md:(hidden)';
 
       .link {
-        --style: 'text-16px font-400 text-[#333] transition-all duration-300';
-        text-decoration: none;
+        --style: 'text-16px font-400 text-#333 no-underline transition-all duration-300';
 
         &.hover {
-          --style: 'hover:text-[#16B998]';
+          --style: 'hover:text-#16B998';
         }
       }
 
       .btn-free {
-        --style: cursor-pointer flex items-center rounded-6px px-10px h-36px text-#fff;
-        background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
-        transition: all 0.3s ease;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
+        --style: 'cursor-pointer flex items-center rounded-6px px-10px h-36px text-#fff select-none transition-all duration-300 bg-gradient-to-r from-#25d4b0 to-#1cb0b5';
 
         &:hover {
-          background: linear-gradient(90deg, #1cb0b5 0%, #1cb0b5 100%);
+          --style: bg-#1cb0b5;
         }
       }
 
       .btn-github {
-        --style: flex gap-6px items-center h-36px px-12px rounded-6px text-[#333] font-500 text-15px;
-        border: 2px solid #333333;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
+        --style: flex gap-6px items-center h-36px px-12px rounded-6px text-#333 font-500 text-15px border-2 border-#333 select-none;
 
         &:hover {
-          background: #f8f9fa;
+          --style: bg-#f8f9fa;
         }
 
         img {
-          width: 20px;
+          --style: w-20px;
         }
       }
     }
