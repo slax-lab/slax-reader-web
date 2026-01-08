@@ -276,18 +276,34 @@ const freeBtn = async () => {
       }
       .hero-cta {
         .btn-free {
-          --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#ffff] text-20px font-600 max-md:(text-16px m-auto)';
-          background: linear-gradient(90deg, #25d4b0 0%, #1cb0b5 100%);
-          text-decoration: none;
-          user-select: none;
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          &:hover {
-            background: #1cb0b5;
+          --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-#fff text-20px font-600 max-md:(text-16px m-auto) relative overflow-hidden transition-all duration-300 no-underline select-none';
+          background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
+          background-size: 300% 300%;
+
+          &::before {
+            --style: 'content-empty absolute inset-0 opacity-0 transition-opacity duration-300';
+            background: linear-gradient(135deg, transparent 0%, #ffffff40 50%, transparent 100%);
           }
+
+          &:hover {
+            --style: '-translate-y-2px shadow-[0_8px_20px_#16b99840]';
+            animation: gradient-shift 2s ease infinite;
+
+            &::before {
+              --style: opacity-100;
+            }
+          }
+
+          &:active {
+            --style: translate-y-0;
+          }
+
           img {
-            width: 16px;
+            --style: w-16px relative z-1;
+          }
+
+          span {
+            --style: relative z-1;
           }
         }
       }
@@ -449,19 +465,45 @@ const freeBtn = async () => {
     }
   }
   .btn-free {
-    --style: m-auto w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-[#1F1F1F] text-20px font-600 bg-white;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    --style: 'm-auto w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-#1F1F1F text-20px font-600 bg-white relative overflow-hidden transition-all duration-300 no-underline select-none';
+
+    &::before {
+      --style: 'content-empty absolute top-50% left-50% w-0 h-0 rounded-full -translate-x-1/2 -translate-y-1/2';
+      background: #16b99820;
+      transition:
+        width 0.6s,
+        height 0.6s;
+    }
+
     &:hover {
-      opacity: 0.6;
+      --style: '-translate-y-2px shadow-[0_8px_24px_rgba(0,0,0,0.2)]';
+
+      &::before {
+        --style: w-300px h-300px;
+      }
     }
+
+    &:active {
+      --style: translate-y-0;
+    }
+
     img {
-      width: 16px;
+      --style: w-16px relative z-1;
     }
+
+    span {
+      --style: relative z-1;
+    }
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 </style>
