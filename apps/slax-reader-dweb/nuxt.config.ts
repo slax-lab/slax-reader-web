@@ -85,7 +85,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/privacy', '/terms', '/sitemap.xml', '/robots.txt'],
+      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/sitemap.xml', '/robots.txt'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -119,6 +119,13 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: false }>
       ),
+      ...['/download'].reduce(
+        (rules, route) => {
+          rules[route] = { ssr: true, prerender: true }
+          return rules
+        },
+        {} as Record<string, { ssr: true; prerender: true }>
+      ),
       '/b': { redirect: '/bookmarks' }
     },
     cloudflare: {
@@ -140,7 +147,7 @@ export default defineNuxtConfig({
     sitemap: [`/sitemap.xml`],
     groups: [
       {
-        allow: [`/zh`, '/en', '/s/*'],
+        allow: [`/zh`, '/en', '/download', '/s/*'],
         disallow: ['/bookmarks', '/user', '/login', '/guide', '/auth']
       }
     ],
@@ -159,7 +166,7 @@ export default defineNuxtConfig({
     sitemaps: {
       home: {
         urls: () => {
-          const date = new Date('2024-11-21')
+          const date = new Date('2026-01-07')
           return [
             {
               loc: '/',
@@ -171,6 +178,10 @@ export default defineNuxtConfig({
             },
             {
               loc: '/en',
+              lastmod: date
+            },
+            {
+              loc: '/download',
               lastmod: date
             }
           ]
@@ -256,7 +267,7 @@ export default defineNuxtConfig({
     injectRegister: false,
     includeManifestIcons: false,
     injectManifest: {
-      maximumFileSizeToCacheInBytes: 5000000,
+      maximumFileSizeToCacheInBytes: 10000000,
       globPatterns: ['**/*.{ico,png,jpg,jpeg,svg,gif,webp,woff}'],
       buildPlugins: {
         rollup: [

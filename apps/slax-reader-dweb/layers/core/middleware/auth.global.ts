@@ -17,14 +17,14 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isFromAuth = from.fullPath.indexOf('/auth') !== -1
   const isToAuth = to.fullPath.indexOf('/auth') !== -1
   const isToLogin = to.fullPath.indexOf('/login') !== -1
-  const isToShare = to.fullPath.indexOf('/s') !== -1
-  const isToGuide = to.fullPath.indexOf('/guide') !== -1
+  const authWhiteList = ['/privacy', '/terms', '/guide', '/s', '/download']
+  const isToAuthWhiteList = authWhiteList.some(path => to.fullPath.indexOf(path) !== -1)
 
   const homepagePaths = ['/', '/zh', '/en']
   const isToHomepage = homepagePaths.includes(to.fullPath)
   const isFromHomepage = homepagePaths.includes(from.fullPath)
 
-  const ignoreAuth = isToHomepage || isToShare || isToGuide
+  const ignoreAuth = isToHomepage || isToAuthWhiteList
   const needAuth = get ? !get(useNuxtApp().$config.public.COOKIE_TOKEN_NAME) : true
 
   if (needAuth) {
