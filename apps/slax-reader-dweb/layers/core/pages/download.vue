@@ -182,17 +182,11 @@ useHead({
   &::before {
     --style: content-empty absolute top-0 left-50% w-600px h-600px rounded-full -translate-1/2;
     background: radial-gradient(circle, #16b99826 0%, transparent 70%);
-    animation: pulse 3s ease-in-out infinite;
+    // animation: pulse 3s ease-in-out infinite;
   }
 
   .container {
     --style: relative z-1;
-  }
-
-  .hero-badge {
-    --style: inline-block px-16px py-6px mb-24px rounded-full text-14px font-600 text-#16B998 border border-solid;
-    background: #16b9981a;
-    border-color: #16b99833;
   }
 
   h1 {
@@ -236,7 +230,7 @@ useHead({
   }
 
   &:hover {
-    --style: 'shadow-[0_8px_24px_#16b9981f,0_4px_8px_#00000014] border-#16b99833 -translate-y-2px';
+    --style: 'shadow-[0_4px_8px_#00000014] border-#16b99833 -translate-y-2px';
 
     &::before {
       transform: scaleX(1);
@@ -306,7 +300,7 @@ useHead({
 
   &:hover::before {
     --style: opacity-100;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(3);
   }
 
   svg,
@@ -407,10 +401,6 @@ useHead({
 @media (max-width: 768px) {
   .hero {
     --style: py-60px;
-
-    .hero-badge {
-      --style: text-12px px-12px py-4px;
-    }
 
     h1 {
       --style: text-36px line-height-48px mb-16px;

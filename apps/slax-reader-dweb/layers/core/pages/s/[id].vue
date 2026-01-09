@@ -165,6 +165,24 @@ const defineSeo = () => {
   })
 }
 
+const loadMarks = async () => {
+  try {
+    const res = await request().get<MarkDetail>({
+      url: RESTMethodPath.SHARE_BOOKMARK_MARK_LIST,
+      query: {
+        share_code: shareCode
+      }
+    })
+
+    marks.value = res
+  } catch (error) {
+    marks.value = {
+      mark_list: [],
+      user_list: {}
+    }
+  }
+}
+
 const loadBookmarkDetail = async () => {
   if (!detail.value) {
     const data = await request().get<ShareBookmarkDetail>({
@@ -177,7 +195,7 @@ const loadBookmarkDetail = async () => {
     data && (detail.value = data)
   }
 
-  loadMarks()
+  await loadMarks()
 
   analyticsLog({
     event: 'view_bookmark_content',
@@ -299,24 +317,6 @@ if (isClient) {
     },
     { immediate: true }
   )
-}
-
-const loadMarks = async () => {
-  try {
-    const res = await request().get<MarkDetail>({
-      url: RESTMethodPath.SHARE_BOOKMARK_MARK_LIST,
-      query: {
-        share_code: shareCode
-      }
-    })
-
-    marks.value = res
-  } catch (error) {
-    marks.value = {
-      mark_list: [],
-      user_list: {}
-    }
-  }
 }
 
 const bookmarkUpdate = (updateDetail: ShareBookmarkDetail) => {
