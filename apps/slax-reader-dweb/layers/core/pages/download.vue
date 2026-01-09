@@ -182,7 +182,7 @@ useHead({
   &::before {
     --style: content-empty absolute top-0 left-50% w-600px h-600px rounded-full -translate-1/2;
     background: radial-gradient(circle, #16b99826 0%, transparent 70%);
-    // animation: pulse 3s ease-in-out infinite;
+    animation: pulse 3s ease-in-out infinite;
   }
 
   .container {
