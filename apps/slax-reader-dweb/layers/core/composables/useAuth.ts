@@ -19,18 +19,41 @@ const useAuth = {
         redirectUrl: `${$config.AUTH_BASE_URL}/auth`,
         target: redirect,
         affCode: affCode
+        // platform: 'google'
       })
     }
 
     location.href = url + '?' + new URLSearchParams(params)
   },
-  async grantAuth(code: string, redirectUri: string, affCode: string): Promise<string> {
+  async requestAppleAuth(options: { redirect: string; affCode: string }) {
+    const { redirect, affCode } = options
+    const $config = useNuxtApp().$config.public
+    const url = `https://appleid.apple.com/auth/authorize`
+    const params = {
+      client_id: $config.APPLE_OAUTH_CLIENT_ID as string,
+      redirect_uri: `${$config.AUTH_BASE_URL}/auth`,
+      response_type: 'code',
+      response_mode: 'query',
+      scope: 'name email',
+      state: JSON.stringify({
+        nonce: 'random',
+        redirectUrl: `${$config.AUTH_BASE_URL}/auth`,
+        target: redirect,
+        affCode: affCode,
+        platform: 'apple'
+      })
+    }
+
+    location.href = url + '?' + new URLSearchParams(params)
+  },
+  async grantAuth(code: string, redirectUri: string, affCode: string, platform: string = 'google'): Promise<string> {
     const resp = await request().post<{ token: string }>({
       url: RESTMethodPath.LOGIN,
       body: {
         code,
         aff_code: affCode,
         redirect_uri: redirectUri
+        // platform: platform
       }
     })
     if (!resp) {

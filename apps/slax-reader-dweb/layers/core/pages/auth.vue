@@ -21,6 +21,7 @@ type State = {
   redirectUrl: string
   target: string
   affCode: string
+  platform?: string
 }
 
 const route = useRoute()
@@ -40,7 +41,7 @@ if (import.meta.client) {
       return
     }
     const state = JSON.parse((route.query.state as string) || '{}') as State
-    await auth.grantAuth(code, state.redirectUrl, state.affCode)
+    await auth.grantAuth(code, state.redirectUrl, state.affCode, state.platform || 'google')
     state.target = state.target || '/bookmarks'
     loading.value = false
     await navigateTo(state.target, { external: true })

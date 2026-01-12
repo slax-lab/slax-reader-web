@@ -10,7 +10,10 @@
             <div class="subtitle">{{ $t('component.login_view.title') }}</div>
           </div>
           <NuxtTurnstile class="mt-24px" v-if="!!affcode" v-model="turnstileCallbackToken" :options="{ theme: 'light' }" />
-          <GoogleLoginButton v-if="showLoginBtn" ref="googleLoginBtn" :redirect="redirect" :affcode="affcode" />
+          <div v-if="showLoginBtn" class="login-buttons">
+            <GoogleLoginButton ref="googleLoginBtn" :redirect="redirect" :affcode="affcode" />
+            <AppleLoginButton ref="appleLoginBtn" :redirect="redirect" :affcode="affcode" />
+          </div>
         </div>
       </div>
     </div>
@@ -19,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+import AppleLoginButton from '#layers/core/components/AppleLoginButton.vue'
 import GoogleLoginButton from '#layers/core/components/GoogleLoginButton.vue'
 
 const route = useRoute()
@@ -64,9 +68,13 @@ useHead({
           --style: mt-48px text-(16px #333333) line-height-22px;
         }
 
+        .login-buttons {
+          --style: flex flex-col gap-10px mt-24px;
+        }
+
         // eslint-disable-next-line vue-scoped-css/no-unused-selector
         .google-login-button {
-          --style: mt-24px;
+          --style: mt-0;
         }
       }
     }
