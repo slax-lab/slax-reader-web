@@ -45,21 +45,28 @@ const useAuth = {
 
     location.href = url + '?' + new URLSearchParams(params)
   },
-  async grantAuth(code: string, redirectUri: string, affCode: string, platformType: string = 'google'): Promise<string> {
+  async grantAuth(code: string, redirectUri: string, affCode: string, platformType: 'google' | 'apple' = 'google'): Promise<string> {
+    const $config = useNuxtApp().$config.public
+    const clientIdRef = {
+      apple: `${$config.APPLE_OAUTH_CLIENT_ID}`,
+      google: `${$config.GOOGLE_OAUTH_CLIENT_ID}`
+    }
+
     const resp = await request().post<{ token: string }>({
       url: RESTMethodPath.LOGIN,
       body: {
         code,
         aff_code: affCode,
         redirect_uri: redirectUri,
-        type: platformType
+        type: platformType,
+        client_id: clientIdRef[platformType]
       }
     })
+
     if (!resp) {
       throw new Error('login failed')
     }
 
-    const $config = useNuxtApp().$config.public
     set($config.COOKIE_TOKEN_NAME, resp.token, { path: '/', expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), domain: `${$config.COOKIE_DOMAIN}` })
     return resp.token
   },

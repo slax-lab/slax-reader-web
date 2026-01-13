@@ -21,7 +21,7 @@ type State = {
   redirectUrl: string
   target: string
   affCode: string
-  platform?: string
+  platform?: 'apple' | 'google'
 }
 
 const route = useRoute()
