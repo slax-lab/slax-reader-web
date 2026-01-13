@@ -34,7 +34,6 @@ const useAuth = {
       redirect_uri: `${$config.AUTH_BASE_URL}/auth`,
       response_type: 'code',
       response_mode: 'query',
-      scope: 'name email',
       state: JSON.stringify({
         nonce: 'random',
         redirectUrl: `${$config.AUTH_BASE_URL}/auth`,
