@@ -45,14 +45,15 @@ const useAuth = {
 
     location.href = url + '?' + new URLSearchParams(params)
   },
-  async grantAuth(code: string, redirectUri: string, affCode: string, platform: string = 'google'): Promise<string> {
+  async grantAuth(code: string, redirectUri: string, affCode: string, type: string = 'google'): Promise<string> {
     const resp = await request().post<{ token: string }>({
       url: RESTMethodPath.LOGIN,
       body: {
         code,
         aff_code: affCode,
         redirect_uri: redirectUri,
-        platform: platform
+        type,
+        platform: 'web'
       }
     })
     if (!resp) {
