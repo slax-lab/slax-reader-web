@@ -21,6 +21,7 @@ export const extensionsEnvSchema = baseEnvSchema.extend({
 export const dwebEnvSchema = baseEnvSchema.extend({
   DWEB_API_BASE_URL: z.string().startsWith('http'),
   GOOGLE_OAUTH_CLIENT_ID: z.string(),
+  APPLE_OAUTH_CLIENT_ID: z.string(),
   TURNSTILE_SITE_KEY: z.string(),
   PUSH_API_PUBLIC_KEY: z.string().optional(),
   ...{
