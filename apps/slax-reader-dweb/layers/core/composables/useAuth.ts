@@ -18,8 +18,8 @@ const useAuth = {
         nonce: 'random',
         redirectUrl: `${$config.AUTH_BASE_URL}/auth`,
         target: redirect,
-        affCode: affCode
-        // platform: 'google'
+        affCode: affCode,
+        platform: 'google'
       })
     }
 
@@ -52,8 +52,8 @@ const useAuth = {
       body: {
         code,
         aff_code: affCode,
-        redirect_uri: redirectUri
-        // platform: platform
+        redirect_uri: redirectUri,
+        platform: platform
       }
     })
     if (!resp) {
