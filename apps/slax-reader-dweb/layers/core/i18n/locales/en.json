@@ -238,6 +238,7 @@
       "title": "Save Now, Read Bette"
     },
     "login_view": {
+      "apple_login": "Sign in with Apple",
       "google_login": "Google Login",
       "share_page_login_tips": "You are not logged in, please log in first",
       "title": "Sign up to start your reading journey"

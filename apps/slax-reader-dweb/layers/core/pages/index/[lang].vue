@@ -24,6 +24,14 @@ useHead({
     rel: 'alternate',
     hreflang,
     href: `${$config.PUBLIC_BASE_URL}/${lang}`
-  }))
+  })),
+  script: [
+    {
+      type: 'speculationrules',
+      innerHTML: JSON.stringify({
+        prerender: [{ source: 'document', eagerness: 'moderate' }]
+      })
+    }
+  ]
 })
 </script>
