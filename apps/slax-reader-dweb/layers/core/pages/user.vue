@@ -5,7 +5,7 @@
       <div class="header">
         <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
       </div>
-      <div class="detail">
+      <div class="detail" v-if="!loading">
         <div class="options-select">
           <div class="locale">
             <span class="title">{{ $t('page.user.language') }}</span>
@@ -42,6 +42,7 @@
           </div>
         </section>
       </div>
+      <UserPageSkeleton v-else />
     </div>
   </div>
 </template>
@@ -51,6 +52,7 @@ import NavigateStyleButton from '#layers/core/components/NavigateStyleButton.vue
 import OptionsBar from '#layers/core/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/components/Tips/AILanguageTips.vue'
 import UserImportSection from '#layers/core/components/UserImportSection.vue'
+import UserPageSkeleton from '#layers/core/components/UserPageSkeleton.vue'
 
 import { getPreferredLanguage, isSlaxReaderApp } from '../utils/environment'
 
@@ -114,7 +116,12 @@ const languageOptionIndex = computed(() => {
 })
 
 const aiLanguageOptionIndex = computed(() => {
-  return aiLanguageOptions.value.findIndex(option => option.value === userInfo.value?.ai_lang) || 0
+  const aiLang = userInfo.value?.ai_lang
+  if (!aiLang) return 0
+
+  const mainLang = getPreferredLanguage(aiLang)
+  const index = aiLanguageOptions.value.findIndex(option => option.value === mainLang)
+  return index !== -1 ? index : 0
 })
 
 const getUserDetailInfo = async () => {

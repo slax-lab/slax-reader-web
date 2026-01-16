@@ -34,6 +34,8 @@ const props = defineProps({
 
 const emits = defineEmits(['close', 'dismiss'])
 
+const config = useRuntimeConfig()
+const version = config.public.appVersion
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const feedback = ref('')
@@ -60,6 +62,8 @@ const reportFeedbackContent = async () => {
   const req = {
     type: props.reportType,
     content: feedback.value,
+    source: 'web',
+    version,
     ...props.params
   }
 
