@@ -5,44 +5,46 @@
       <div class="header">
         <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
       </div>
-      <div class="detail" v-if="!loading">
-        <div class="options-select">
-          <div class="locale">
-            <span class="title">{{ $t('page.user.language') }}</span>
-            <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
+      <Transition name="opacity" mode="out-in">
+        <div class="detail" v-if="!loading" key="content">
+          <div class="options-select">
+            <div class="locale">
+              <span class="title">{{ $t('page.user.language') }}</span>
+              <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
+            </div>
+            <div class="ai-locale" v-if="userInfo">
+              <AILanguageTips />
+              <span class="title">{{ $t('page.user.ai_response_language') }}</span>
+              <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
+            </div>
           </div>
-          <div class="ai-locale" v-if="userInfo">
-            <AILanguageTips />
-            <span class="title">{{ $t('page.user.ai_response_language') }}</span>
-            <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
-          </div>
-        </div>
-        <section>
-          <div class="title">{{ $t('page.user.personal_info') }}</div>
-          <div class="info" v-if="!loading">
-            <div class="personal">
-              <div class="introduction">
-                <img :src="userInfo?.avatar || avatarUrl" />
-                <div class="text">
-                  <span class="username">{{ userInfo?.name }}</span>
-                  <span class="email">{{ userInfo?.email }}</span>
+          <section>
+            <div class="title">{{ $t('page.user.personal_info') }}</div>
+            <div class="info">
+              <div class="personal">
+                <div class="introduction">
+                  <img :src="userInfo?.avatar || avatarUrl" />
+                  <div class="text">
+                    <span class="username">{{ userInfo?.name }}</span>
+                    <span class="email">{{ userInfo?.email }}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-        <UserRelatedInfoSection v-if="userInfo" :user-info="userInfo" @update="getUserDetailInfo" />
-        <UserImportSection />
-        <section>
-          <div class="title">{{ $t('page.user.help_and_support') }}</div>
-          <div class="info">
-            <div class="support">
-              <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
+          </section>
+          <UserRelatedInfoSection v-if="userInfo" :user-info="userInfo" @update="getUserDetailInfo" />
+          <UserImportSection />
+          <section>
+            <div class="title">{{ $t('page.user.help_and_support') }}</div>
+            <div class="info">
+              <div class="support">
+                <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
+              </div>
             </div>
-          </div>
-        </section>
-      </div>
-      <UserPageSkeleton v-else />
+          </section>
+        </div>
+        <UserPageSkeleton v-else key="skeleton" />
+      </Transition>
     </div>
   </div>
 </template>
