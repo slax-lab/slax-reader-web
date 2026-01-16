@@ -1,8 +1,7 @@
 <template>
   <div class="user-operate-icon" ref="userOperateIcon">
     <div class="user-icon">
-      <img v-if="!userStore.userInfo" src="@images/user-default-avatar.png" alt="" />
-      <img v-else :src="userStore.userInfo.picture" alt="" />
+      <img :src="userStore.userInfo?.picture || avatarUrl" alt="" />
     </div>
     <Transition name="operates">
       <div class="user-operates-container" v-show="isHovered">
@@ -29,6 +28,8 @@ const isHovered = useElementHover(userOperateIcon)
 
 const userStore = useUserStore()
 const auth = useAuth()
+
+const avatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).href
 
 const infoClick = () => {
   navigateTo('/user')

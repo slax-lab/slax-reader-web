@@ -35,6 +35,7 @@ const props = defineProps({
 
 const emits = defineEmits(['close', 'dismiss'])
 
+const version = `${process.env.VERSION}`
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const feedback = ref('')
@@ -61,6 +62,8 @@ const reportFeedbackContent = async () => {
   const req = {
     type: props.reportType,
     content: feedback.value,
+    source: 'chrome-extension',
+    version: version,
     ...props.params
   }
 

@@ -378,6 +378,8 @@ const onLoadMore = async () => {
   }
 
   const type = filterStatus.value
+  const topicId = type === 'topics' ? filterTopicId.value : 0
+
   if (filterStatus.value === 'highlights') {
     const data = await loadData(queryHighlights)
     type === filterStatus.value && highlights.value.push(...(data || []))
@@ -386,7 +388,7 @@ const onLoadMore = async () => {
     type === filterStatus.value && notifications.value.push(...(data || []))
   } else {
     const data = await loadData(queryBookmarks)
-    type === filterStatus.value && bookmarks.value.push(...(data || []))
+    type === filterStatus.value && (type !== 'topics' || topicId === filterTopicId.value) && bookmarks.value.push(...(data || []))
   }
 }
 
