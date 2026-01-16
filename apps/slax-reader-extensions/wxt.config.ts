@@ -2,6 +2,7 @@ import autoMigrateIcons from './plugins/auto-migrate-icons.plugin'
 import toUtf8 from './plugins/vite-plugin-to-utf8'
 
 import { getEnv, getExtensionsConfig } from '../../configs/env'
+import pkg from './package.json'
 import path from 'path'
 import { defineConfig } from 'wxt'
 
@@ -10,7 +11,7 @@ const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
 
-const Version = '1.10.4'
+const Version = pkg.version || ''
 const envConfig = getExtensionsConfig()
 
 const convertToProcessEnv = (env: Record<string, unknown>) => {

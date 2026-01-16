@@ -1,4 +1,3 @@
-import pkg from './../../package.json'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -41,11 +40,6 @@ export default defineNuxtConfig({
         global: true
       }
     ]
-  },
-  runtimeConfig: {
-    public: {
-      appVersion: pkg.version
-    }
   },
   css: [join(currentDir, './styles/global.scss')],
   modules: ['@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n', '@vueuse/nuxt', '@unocss/nuxt', '@nuxt/content'],

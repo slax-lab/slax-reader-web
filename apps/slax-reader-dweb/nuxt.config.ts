@@ -1,4 +1,5 @@
 import { getDWebConfig, getEnv } from '../../configs/env'
+import pkg from './package.json'
 import replace from '@rollup/plugin-replace'
 import fs from 'fs'
 import path from 'path'
@@ -39,7 +40,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      ...envConfig
+      ...envConfig,
+      appVersion: pkg.version
     }
   },
 
