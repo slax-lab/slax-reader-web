@@ -3,17 +3,25 @@
     <Transition name="modal" @after-leave="onAfterLeave">
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
-          <span>{{ t('component.feedback.title') }}</span>
+          <span v-if="title || href">{{ t('component.feedback.title') }}</span>
+          <span v-else>{{ t('component.feedback.name') }}</span>
           <button class="close" @click="closeModal">
             <img src="@images/button-dialog-close.png" />
           </button>
         </div>
         <div class="content">
-          <div class="title" v-if="props.title">{{ props.title }}</div>
+          <div class="title" v-if="title">{{ title }}</div>
+          <div class="link" v-if="href">
+            <span>{{ href }}</span>
+          </div>
           <textarea v-model="feedback" :placeholder="t('component.feedback.placeholder')"></textarea>
         </div>
         <div class="bottom">
-          <button :class="{ disabled: feedback.length === 0 }" @click="submitFeedback">{{ t('common.operate.submit') }}</button>
+          <div class="follow-up" v-show="email">
+            <button :class="{ selected }" @click="selected = !selected"></button>
+            <span>{{ t('component.feedback.follow-up', { email }) }}</span>
+          </div>
+          <button class="submit" :class="{ disabled: feedback.length === 0 }" @click="submitFeedback">{{ t('common.operate.submit') }}</button>
         </div>
       </div>
     </Transition>
@@ -26,6 +34,8 @@ import { RESTMethodPath } from '@commons/types/const'
 const props = defineProps({
   reportType: String,
   title: String,
+  href: { type: String, required: false },
+  email: { type: String, required: false },
   params: {
     type: Object as PropType<Record<string, string | number>>,
     required: false
@@ -39,6 +49,7 @@ const version = config.public.appVersion
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const feedback = ref('')
+const selected = ref(false)
 
 isLocked.value = true
 
@@ -82,8 +93,8 @@ const onAfterLeave = () => {
   emits('dismiss')
 }
 
-const t = (text: string) => {
-  return useNuxtApp().$i18n.t(text)
+const t = (text: string, params: Record<string, unknown> = {}) => {
+  return useNuxtApp().$i18n.t(text, params)
 }
 </script>
 
@@ -123,7 +134,15 @@ button {
       --style: w-full text-(14px ellipsis #333333) line-height-21px font-medium overflow-hidden line-clamp-2 break-all;
     }
 
-    .title + textarea {
+    .link {
+      --style: w-full text-(#5490c2 15px) line-height-21px;
+    }
+
+    .title + .link {
+      --style: mt-8px;
+    }
+
+    * + textarea {
       --style: mt-20px;
     }
 
@@ -138,9 +157,35 @@ button {
   }
 
   .bottom {
-    --style: mt-20px flex justify-end items-center;
-    button {
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+    --style: mt-20px flex justify-between items-center gap-20px;
+
+    .follow-up {
+      --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap;
+
+      button {
+        --style: shrink-0 border-(1px solid #3333331a) bg-#fcfcfc w-12px h-12px rounded-3px transition-transform duration-250;
+
+        &.selected {
+          --style: 'bg-center bg-[length:7px_6px] border-1';
+          background-image: url('@images/tiny-tick-outline-icon.png');
+        }
+
+        &:hover {
+          --style: scale-105;
+        }
+
+        &:active {
+          --style: scale-110;
+        }
+      }
+
+      span {
+        --style: ml-5px text-(#333 14px) line-height-22px overflow-hidden text-ellipsis;
+      }
+    }
+
+    .submit {
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
 
       &.disabled {
         --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';

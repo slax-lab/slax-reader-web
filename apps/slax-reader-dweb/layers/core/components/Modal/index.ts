@@ -9,12 +9,14 @@ import { modalBootloader } from '#layers/core/utils/modal'
 
 import { BookmarkParseStatus } from '@commons/types/interface'
 
-export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number> }) => {
+export const showFeedbackModal = (options: { title: string; reportType: string; href?: string; email: string; params?: Record<string, string | number> }) => {
   const app = modalBootloader({
     ele: Feedback,
     props: {
       reportType: options.reportType,
       title: options.title,
+      href: options.href,
+      email: options.email,
       params: options.params ?? {},
       onDismiss: () => {
         app.unmount()

@@ -229,6 +229,8 @@
       "title": "Edit tag"
     },
     "feedback": {
+      "follow-up": "Allow follow-up at {email}",
+      "name": "Feedback",
       "placeholder": "Please describe the problem you are experiencing...",
       "title": "Your feedback will help us improve"
     },
