@@ -43,6 +43,11 @@
               <span>{{ $t('page.bookmarks_index.add_url') }}</span>
             </button>
           </div>
+          <div class="feedback">
+            <button @click="feedbackClick">
+              <img src="@images/button-feedback-icon.png" alt="" />
+            </button>
+          </div>
         </div>
       </template>
       <template v-slot:content-header>
@@ -140,6 +145,7 @@ import type { ChannelMessageData } from '#layers/core/utils/channel'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
 import { useInfiniteScroll } from '@vueuse/core'
+import { showFeedbackModal } from '#layers/core/components/Modal'
 import Toast from '#layers/core/components/Toast'
 import useNotification from '#layers/core/composables/useNotification'
 import { useUserStore } from '#layers/core/stores/user'
@@ -545,6 +551,18 @@ const addUrlSuccess = () => {
   reloadList()
 }
 
+const feedbackClick = () => {
+  const email = useUserStore().userInfo?.email
+  showFeedbackModal({
+    reportType: 'parse_error',
+    title: '',
+    email: email || '',
+    params: {
+      entry_point: 'inbox'
+    }
+  })
+}
+
 const showNotificationList = () => {
   inboxClick('notifications')
 }
@@ -580,7 +598,7 @@ const notificationBack = () => {
   }
 
   .tools-sidebar {
-    --style: absolute bottom-120px w-full flex flex-col justify-end;
+    --style: absolute bottom-80px w-full flex flex-col justify-end;
     .add-url {
       --style: 'mt-24px bg-#fcfcfc border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
       button {
@@ -591,6 +609,18 @@ const notificationBack = () => {
 
         span {
           --style: mt-4px text-(10px #999999) line-height-14px;
+        }
+      }
+    }
+
+    .feedback {
+      --style: mt-35px w-68px flex-center;
+      button {
+        --style: 'rounded-full bg-#FCFCFC w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-#f5f5f3) active:(scale-110) transition-all duration-250';
+        box-shadow: 0px 15px 30px 0px #00000014;
+
+        img {
+          --style: w-18px h-17px object-contain;
         }
       }
     }

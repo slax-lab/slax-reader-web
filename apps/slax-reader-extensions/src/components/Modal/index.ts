@@ -37,13 +37,22 @@ export const showShareConfigModal = (options: { bookmarkId: number; title: strin
   })
 }
 
-export const showFeedbackModal = (options: { title: string; reportType: string; params?: Record<string, string | number>; container: HTMLDivElement }) => {
+export const showFeedbackModal = (options: {
+  title: string
+  reportType: string
+  params?: Record<string, string | number>
+  email?: string
+  href?: string
+  container: HTMLDivElement
+}) => {
   const app = modalBootloader({
     ele: Feedback,
     container: options.container,
     props: {
       reportType: options.reportType,
       title: options.title,
+      href: options.href,
+      email: options.email || '',
       params: options.params ?? {},
       onDismiss: () => {
         app.unmount()

@@ -87,6 +87,8 @@
       "copy_content": "复制内容"
     },
     "feedback": {
+      "follow_up": "允许通过 $1 跟进",
+      "name": "反馈",
       "placeholder": "请描述你遇到的问题......",
       "title": "你的反馈将帮助我们变得更好"
     },
@@ -96,11 +98,11 @@
     },
     "panel": {
       "auto_toggle": {
-        "on": "ON",
-        "off": "OFF",
-        "tips": "边栏自动收起",
+        "disabled_tips": "手动关闭: 'X' 或 $1",
         "enabled_tips": "点击外部自动关闭",
-        "disabled_tips": "手动关闭: 'X' 或 $1"
+        "off": "OFF",
+        "on": "ON",
+        "tips": "边栏自动收起"
       },
       "close_tips": "展开/收缩快捷键"
     },

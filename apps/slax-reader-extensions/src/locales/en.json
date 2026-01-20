@@ -87,6 +87,8 @@
       "copy_content": "Copy content"
     },
     "feedback": {
+      "follow_up": "Allow follow-up at $1",
+      "name": "Feedback",
       "placeholder": "Please describe the problem you are experiencing...",
       "title": "Your feedback will help us improve"
     },
@@ -96,11 +98,11 @@
     },
     "panel": {
       "auto_toggle": {
-        "on": "ON",
-        "off": "OFF",
-        "tips": "Auto-hide sidebar",
+        "disabled_tips": "Manual close: 'X' or $1",
         "enabled_tips": "Auto-close on outside click",
-        "disabled_tips": "Manual close: 'X' or $1"
+        "off": "OFF",
+        "on": "ON",
+        "tips": "Auto-hide sidebar"
       },
       "close_tips": "Keyboard shortcuts"
     },

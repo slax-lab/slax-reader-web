@@ -78,20 +78,31 @@ export const logAnalyzed = (options: BookmarkTypeOptions, userId: number) => {
 }
 
 export const showFeedbackView = (options: BookmarkTypeOptions, type: string) => {
+  const href = `${window.location.origin}${window.location.pathname}`
+  const email = useUserStore().userInfo?.email
+
   if (options.type === BookmarkType.Normal) {
     showFeedbackModal({
       reportType: type,
       title: options.title,
+      href,
+      email: email || '',
       params: {
-        bookmark_id: options.bmId
+        bookmark_id: options.bmId,
+        entry_point: 'bookmark_detail',
+        target_url: href
       }
     })
   } else if (options.type === BookmarkType.Share) {
     showFeedbackModal({
       reportType: type,
       title: options.title,
+      href,
+      email: email || '',
       params: {
-        share_code: options.shareCode
+        share_code: options.shareCode,
+        entry_point: 'share',
+        target_url: href
       }
     })
   }

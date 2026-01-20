@@ -474,13 +474,19 @@ const panelClick = async (panel: PanelItem) => {
     }
 
     case PanelItemType.Feedback: {
+      const href = `${window.location.origin}${window.location.pathname}`
+
       modalContainer.value &&
         showFeedbackModal({
           reportType: 'parse_error',
           title: bookmarkBriefInfo.value?.alias_title || bookmarkBriefInfo.value?.title || '',
           params: {
-            bookmark_id: bookmarkId.value
+            bookmark_id: bookmarkId.value,
+            entry_point: 'original_website',
+            target_url: href
           },
+          href,
+          email: userInfo.value?.email || '',
           container: modalContainer.value
         })
       break
