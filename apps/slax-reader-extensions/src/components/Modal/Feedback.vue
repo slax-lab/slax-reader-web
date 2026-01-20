@@ -1,20 +1,33 @@
 <template>
-  <div class="feedback-modal" :class="{ appear }" @click="closeModal">
+  <div class="feedback-modal" :class="{ appear }" @click="() => !isLoading && closeModal()">
     <Transition name="modal" @after-leave="onAfterLeave">
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
-          <span>{{ $t('component.feedback.title') }}</span>
+          <span v-if="title || href">{{ $t('component.feedback.title') }}</span>
+          <span v-else>{{ $t('component.feedback.name') }}</span>
           <button class="close" @click="closeModal">
             <img src="@/assets/button-dialog-close.png" />
           </button>
         </div>
         <div class="content">
-          <div class="title" v-if="props.title">{{ props.title }}</div>
+          <div class="title" v-if="title">{{ title }}</div>
+          <div class="link" v-if="href">
+            <span>{{ href }}</span>
+          </div>
           <textarea v-model="feedback" :placeholder="$t('component.feedback.placeholder')"></textarea>
         </div>
         <div class="bottom">
-          <button :class="{ disabled: feedback.length === 0 }" @click="submitFeedback">{{ $t('common.operate.submit') }}</button>
+          <div class="follow-up" v-show="email" @click="allowFollowUp = !allowFollowUp">
+            <button :class="{ selected: allowFollowUp }"></button>
+            <span>{{ $t('component.feedback.follow_up', [email || '']) }}</span>
+          </div>
+          <button class="submit" :class="{ disabled: feedback.length === 0 }" @click="submitFeedback">{{ $t('common.operate.submit') }}</button>
         </div>
+        <Transition name="opacity">
+          <div class="loading" v-show="isLoading">
+            <div class="i-svg-spinners:180-ring-with-bg text-5xl text-emerald"></div>
+          </div>
+        </Transition>
       </div>
     </Transition>
   </div>
@@ -23,10 +36,13 @@
 <script lang="ts" setup>
 import { RESTMethodPath } from '@commons/types/const'
 import { useScrollLock } from '@vueuse/core'
+import { UAParser } from 'ua-parser-js'
 
 const props = defineProps({
   reportType: String,
   title: String,
+  href: { type: String, required: false },
+  email: { type: String, required: false },
   params: {
     type: Object as PropType<Record<string, string | number>>,
     required: false
@@ -35,10 +51,14 @@ const props = defineProps({
 
 const emits = defineEmits(['close', 'dismiss'])
 
+const isLoading = ref(false)
+const parser = new UAParser()
+const result = parser.getResult()
 const version = `${process.env.VERSION}`
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const feedback = ref('')
+const allowFollowUp = ref(false)
 
 isLocked.value = true
 
@@ -59,12 +79,25 @@ const submitFeedback = () => {
   reportFeedbackContent()
 }
 const reportFeedbackContent = async () => {
+  if (isLoading.value) {
+    return
+  }
+
+  isLoading.value = true
+  let environment = ''
+  try {
+    environment = `${(import.meta.env.BROWSER + '-extension').toUpperCase()} | ${result.browser.name} ${result.browser.version} | ${result.os.name} ${result.os.version} | ${result.device.model}`
+  } catch (error) {}
+
   const req = {
+    ...props.params,
     type: props.reportType,
     content: feedback.value,
-    source: 'chrome-extension',
-    version: version,
-    ...props.params
+    platform: 'extension',
+    environment,
+    version,
+    allow_follow_up: allowFollowUp.value,
+    target_url: props.href || ''
   }
 
   request
@@ -75,6 +108,9 @@ const reportFeedbackContent = async () => {
     .then(res => {
       feedback.value = ''
       closeModal()
+    })
+    .finally(() => {
+      isLoading.value = false
     })
 }
 const onAfterLeave = () => {
@@ -96,11 +132,10 @@ button {
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10;
-  position: relative;
+  --style: relative bg-#f5f5f3 rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
 
   .header {
-    --style: flex justify-between items-center;
+    --style: relative z-1 flex justify-between items-center;
     span {
       --style: text-(13px #999999) line-height-18px;
     }
@@ -119,7 +154,15 @@ button {
       --style: w-full text-(14px ellipsis #333333) line-height-21px font-medium overflow-hidden line-clamp-2 break-all;
     }
 
-    .title + textarea {
+    .link {
+      --style: w-full text-(#5490c2 15px) line-height-21px;
+    }
+
+    .title + .link {
+      --style: mt-8px;
+    }
+
+    * + textarea {
       --style: mt-20px;
     }
 
@@ -134,9 +177,35 @@ button {
   }
 
   .bottom {
-    --style: mt-20px flex justify-end items-center;
-    button {
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+    --style: mt-20px flex justify-between items-center gap-20px;
+
+    .follow-up {
+      --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer;
+
+      button {
+        --style: shrink-0 border-(1px solid #3333331a) bg-#fcfcfc w-12px h-12px rounded-3px transition-transform duration-250;
+
+        &.selected {
+          --style: 'bg-center bg-[length:7px_6px] border-1';
+          background-image: url('@/assets/tiny-tick-outline-icon.png');
+        }
+
+        &:hover {
+          --style: scale-105;
+        }
+
+        &:active {
+          --style: scale-110;
+        }
+      }
+
+      span {
+        --style: ml-5px text-(#333 14px) line-height-22px overflow-hidden text-ellipsis;
+      }
+    }
+
+    .submit {
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
 
       &.disabled {
         --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';
@@ -150,6 +219,10 @@ button {
         --style: scale-105;
       }
     }
+  }
+
+  .loading {
+    --style: absolute inset-0 bg-#ffffff40 flex-center;
   }
 }
 

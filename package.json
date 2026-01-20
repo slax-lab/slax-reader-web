@@ -46,6 +46,7 @@
     "markmap-lib": "^0.18.12",
     "markmap-view": "^0.18.12",
     "mermaid-it-markdown": "^1.0.10",
+    "ua-parser-js": "^2.0.8",
     "unocss": "^66.5.2",
     "vue": "^3.5.22"
   },
@@ -53,6 +54,7 @@
     "@types/inquirer": "^9.0.9",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-link-attributes": "^3.0.5",
+    "@types/ua-parser-js": "^0.7.39",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "@unocss/eslint-config": "^66.5.2",

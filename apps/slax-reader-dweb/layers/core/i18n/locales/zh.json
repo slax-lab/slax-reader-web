@@ -229,7 +229,7 @@
       "title": "修改标签"
     },
     "feedback": {
-      "follow-up": "允许通过 {email} 跟进",
+      "follow_up": "允许通过 {email} 跟进",
       "name": "反馈",
       "placeholder": "请描述你遇到的问题......",
       "title": "你的反馈将帮助我们变得更好"

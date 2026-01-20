@@ -88,7 +88,9 @@ export const showFeedbackView = (options: BookmarkTypeOptions, type: string) => 
       href,
       email: email || '',
       params: {
-        bookmark_id: options.bmId
+        bookmark_id: options.bmId,
+        entry_point: 'bookmark_detail',
+        target_url: href
       }
     })
   } else if (options.type === BookmarkType.Share) {
@@ -98,7 +100,9 @@ export const showFeedbackView = (options: BookmarkTypeOptions, type: string) => 
       href,
       email: email || '',
       params: {
-        share_code: options.shareCode
+        share_code: options.shareCode,
+        entry_point: 'share',
+        target_url: href
       }
     })
   }

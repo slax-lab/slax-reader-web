@@ -77,6 +77,9 @@ importers:
       mermaid-it-markdown:
         specifier: ^1.0.10
         version: 1.0.10(mermaid@10.9.3)(typescript@5.9.2)
+      ua-parser-js:
+        specifier: ^2.0.8
+        version: 2.0.8
       unocss:
         specifier: ^66.5.2
         version: 66.5.2(@unocss/webpack@66.5.2(webpack@5.98.0))(postcss@8.5.6)(vite@7.2.4(@types/node@20.19.25)(jiti@2.6.1)(sass@1.93.2)(stylus@0.57.0)(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
@@ -93,6 +96,9 @@ importers:
       '@types/markdown-it-link-attributes':
         specifier: ^3.0.5
         version: 3.0.5
+      '@types/ua-parser-js':
+        specifier: ^0.7.39
+        version: 0.7.39
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.44.1
         version: 8.44.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.2))(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.2)
@@ -3942,6 +3948,9 @@ packages:
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
+  '@types/ua-parser-js@0.7.39':
+    resolution: {integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==}
+
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
 
@@ -5632,6 +5641,9 @@ packages:
   detab@3.0.2:
     resolution: {integrity: sha512-7Bp16Bk8sk0Y6gdXiCtnpGbghn8atnTJdd/82aWvS5ESnlcNvgUc10U2NYS0PAiDSGjWiI8qs/Cv1b2uSGdQ8w==}
 
+  detect-europe-js@0.1.2:
+    resolution: {integrity: sha512-lgdERlL3u0aUdHocoouzT10d9I89VVhk0qNRmll7mXdGfJT1/wqZ2ZLA4oJAjeACPY5fT1wsbq2AT+GkuInsow==}
+
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
@@ -6875,6 +6887,9 @@ packages:
 
   is-ssh@1.4.1:
     resolution: {integrity: sha512-JNeu1wQsHjyHgn9NcWTaXq6zWSR6hqE0++zhfZlkFBbScNkyvxCdeV8sRkSBaeLKxmbpR21brail63ACNxJ0Tg==}
+
+  is-standalone-pwa@0.1.1:
+    resolution: {integrity: sha512-9Cbovsa52vNQCjdXOzeQq5CnCbAcRk05aU62K20WO372NrTv0NxibLFCK6lQ4/iZEFdEA3p3t2VNOn8AJ53F5g==}
 
   is-stream@2.0.1:
     resolution: {integrity: sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==}
@@ -9471,8 +9486,15 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  ua-is-frozen@0.1.2:
+    resolution: {integrity: sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw==}
+
   ua-parser-js@1.0.40:
     resolution: {integrity: sha512-z6PJ8Lml+v3ichVojCiB8toQJBuwR42ySM4ezjXIqXK3M0HczmKQ3LF4rhU55PfD99KEEXQG6yb7iOMyvYuHew==}
+    hasBin: true
+
+  ua-parser-js@2.0.8:
+    resolution: {integrity: sha512-BdnBM5waFormdrOFBU+cA90R689V0tWUWlIG2i30UXxElHjuCu5+dOV2Etw3547jcQ/yaLtPm9wrqIuOY2bSJg==}
     hasBin: true
 
   uc.micro@1.0.6:
@@ -14133,6 +14155,8 @@ snapshots:
 
   '@types/trusted-types@2.0.7': {}
 
+  '@types/ua-parser-js@0.7.39': {}
+
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
@@ -16215,6 +16239,8 @@ snapshots:
 
   detab@3.0.2: {}
 
+  detect-europe-js@0.1.2: {}
+
   detect-libc@1.0.3: {}
 
   detect-libc@2.0.3: {}
@@ -17724,6 +17750,8 @@ snapshots:
   is-ssh@1.4.1:
     dependencies:
       protocols: 2.0.2
+
+  is-standalone-pwa@0.1.1: {}
 
   is-stream@2.0.1: {}
 
@@ -21237,7 +21265,15 @@ snapshots:
 
   typescript@5.9.3: {}
 
+  ua-is-frozen@0.1.2: {}
+
   ua-parser-js@1.0.40: {}
+
+  ua-parser-js@2.0.8:
+    dependencies:
+      detect-europe-js: 0.1.2
+      is-standalone-pwa: 0.1.1
+      ua-is-frozen: 0.1.2
 
   uc.micro@1.0.6: {}
 
