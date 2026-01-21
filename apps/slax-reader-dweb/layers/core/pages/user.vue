@@ -61,6 +61,7 @@ import { getPreferredLanguage, isSlaxReaderApp } from '../utils/environment'
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserDetailInfo } from '@commons/types/interface'
 import { useUserStore } from '#layers/core/stores/user'
+import Toast, { ToastType } from '#layers/core/components/Toast'
 
 const { t, locale } = useI18n()
 const userStore = useUserStore()
@@ -103,6 +104,30 @@ const preferredLang = isSlaxReaderApp() ? getPreferredLanguage() : undefined
 if (!preferredLang && userStore.currentLocale !== locale.value) {
   userStore.changeLocale(locale.value)
 }
+
+const alertParams = (() => {
+  const route = useRoute()
+  const errorAlert = route.query.error_alert
+
+  if (errorAlert) {
+    const query = { ...route.query }
+    delete query.error_alert
+
+    navigateTo({
+      path: route.path,
+      query
+    }, {
+      replace: true
+    })
+
+    Toast.showToast({
+      text: String(errorAlert),
+      type: ToastType.Error
+    })
+  }
+
+  return errorAlert
+})() 
 
 useHead({
   title: `${t('component.user_operate_icon.personal_info')} - Slax Reader`
