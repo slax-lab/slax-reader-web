@@ -699,6 +699,7 @@
   "util": {
     "chatbot": {
       "browser_finished": "Access complete",
+      "error_not_subscription": "Please Unlock this feature with a subscription",
       "generate_question": "Generating question",
       "generate_question_finished": "Finished",
       "search_bookmark": "Searching knowledge base",

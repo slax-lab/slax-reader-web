@@ -7,6 +7,13 @@
         </div>
       </div>
     </template>
+    <template v-if="tips.tipsType === 'error'">
+      <div class="error-tips">
+        <div class="error-text">
+          <span>{{ tips.data }}</span>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -23,6 +30,8 @@ defineProps({
 
 <style lang="scss" scoped>
 .tips-message {
+  --style: w-full;
+
   .generate-question {
     --style: pb-8px;
 
@@ -33,6 +42,17 @@ defineProps({
         --style: content-empty absolute left-0 top-1/2 -translate-y-1/2 w-4px h-4px bg-#a8b1cd rounded-full;
       }
 
+      span {
+        --style: text-(13px #999) line-height-22px font-500;
+      }
+    }
+  }
+
+  .error-tips {
+    --style: pb-8px;
+
+    .error-text {
+      --style: w-full relative flex-center;
       span {
         --style: text-(13px #999) line-height-22px font-500;
       }

@@ -246,6 +246,15 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
         updateTipsSearchStatus(false)
       } else if (name === 'searchBookmark') {
         updateTipsSearchBookmarkStatus(false)
+      } else if (name === 'error') {
+        messageList.value = messageList.value.concat([
+          {
+            id: `tips_error_${data[type].tips}`,
+            type: 'tips',
+            tipsType: 'error',
+            data: data[type].tips
+          }
+        ])
       }
     }
   }

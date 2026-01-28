@@ -699,6 +699,7 @@
   "util": {
     "chatbot": {
       "browser_finished": "访问完成",
+      "error_not_subscription": "请订阅以解锁此功能",
       "generate_question": "问题生成中",
       "generate_question_finished": "生成完成",
       "search_bookmark": "搜索资料库",

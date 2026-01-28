@@ -44,7 +44,7 @@ export type ChatResponseFunctionData =
     }
 
 export interface ChatResponseStatusUpdateData {
-  name: 'generateQuestion' | 'search' | 'browser' | 'searchBookmark'
+  name: 'generateQuestion' | 'search' | 'browser' | 'searchBookmark' | 'error'
   tips: string
   status: 'processing' | 'finished' | 'failed'
 }
@@ -100,6 +100,18 @@ export class ChatBot {
               } catch (e) {
                 console.error(e)
               }
+            } else if (line.length > 0) {
+              try {
+                const data = JSON.parse(line) as { data: string; message: string; code: number }
+                const errorRefs: Record<string, string> = {
+                  NOT_SUBSCRIPTION: t('util.chatbot.error_not_subscription')
+                }
+
+                const error = new Error(errorRefs[data.data] || data.message, { cause: { data: data.data, message: data.message, code: data.code } })
+                this.handleData(error)
+              } catch (e) {
+                console.error(e)
+              }
             }
           }
 
@@ -132,7 +144,20 @@ export class ChatBot {
     return this._isChatting
   }
 
-  private handleData(data: ChatCompletionChunk) {
+  private handleData(data: ChatCompletionChunk | Error) {
+    if (data instanceof Error) {
+      if (!this.responseCallback) {
+        return
+      }
+
+      this.responseCallback({
+        type: ChatResponseType.STATUS_UPDATE,
+        data: { [ChatResponseType.STATUS_UPDATE]: { name: 'error', tips: data.message, status: 'failed' } }
+      })
+
+      return
+    }
+
     if (data.choices.length === 0) {
       return
     }
