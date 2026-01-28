@@ -246,6 +246,15 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
         updateTipsSearchStatus(false)
       } else if (name === 'searchBookmark') {
         updateTipsSearchBookmarkStatus(false)
+      } else if (name === 'error') {
+        messageList.value = messageList.value.concat([
+          {
+            id: `tips_error_${data[type].tips}`,
+            type: 'tips',
+            tipsType: 'error',
+            data: data[type].tips
+          }
+        ])
       }
     }
   }
@@ -536,6 +545,10 @@ const pushBuffer = (content: BubbleMessageContent) => {
   if (content.type === 'links' || content.type === 'tips' || content.type === 'bookmarks') {
     contents.push(content)
     bufferMarkdownContent.value = ''
+
+    if (content.type === 'tips' && ['error'].includes(content.tipsType)) {
+      bufferToMessage()
+    }
   } else if (content.type === 'related-question') {
     if (bufferMessage.value && bufferMessage.value.contents && bufferMessage.value.contents.length > 0 && bufferMessage.value.contents[0].type !== 'related-question') {
       bufferToMessage()
