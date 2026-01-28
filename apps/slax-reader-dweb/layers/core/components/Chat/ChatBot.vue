@@ -545,10 +545,6 @@ const pushBuffer = (content: BubbleMessageContent) => {
   if (content.type === 'links' || content.type === 'tips' || content.type === 'bookmarks') {
     contents.push(content)
     bufferMarkdownContent.value = ''
-
-    if (content.type === 'tips' && ['error'].includes(content.tipsType)) {
-      bufferToMessage()
-    }
   } else if (content.type === 'related-question') {
     if (bufferMessage.value && bufferMessage.value.contents && bufferMessage.value.contents.length > 0 && bufferMessage.value.contents[0].type !== 'related-question') {
       bufferToMessage()

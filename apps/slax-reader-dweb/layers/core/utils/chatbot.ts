@@ -110,9 +110,7 @@ export class ChatBot {
                 const error = new Error(errorRefs[data.data] || data.message, { cause: { data: data.data, message: data.message, code: data.code } })
                 this.handleData(error)
               } catch (e) {
-                if (e instanceof Error) {
-                  this.handleData(e)
-                }
+                console.error(e)
               }
             }
           }
@@ -152,7 +150,11 @@ export class ChatBot {
         return
       }
 
-      this.responseCallback({ type: ChatResponseType.STATUS_UPDATE, data: { [ChatResponseType.STATUS_UPDATE]: { name: 'error', tips: data.message, status: 'failed' } } })
+      this.responseCallback({
+        type: ChatResponseType.STATUS_UPDATE,
+        data: { [ChatResponseType.STATUS_UPDATE]: { name: 'error', tips: data.message, status: 'failed' } }
+      })
+
       return
     }
 
