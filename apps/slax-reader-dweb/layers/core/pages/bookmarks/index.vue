@@ -27,26 +27,28 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:sidebar-right>
-        <div class="tips-sidebar" v-if="(isCurrentInboxTab && !isDataEmpty) || !isCurrentInboxTab">
-          <InstallExtensionTips />
-        </div>
-        <div class="tools-sidebar">
-          <div class="add-url">
-            <button
-              @click="
-                () => {
-                  !isShowTopModal && (isShowTopModal = true)
-                }
-              "
-            >
-              <img src="@images/button-add-fill-circle-icon.png" alt="" />
-              <span>{{ $t('page.bookmarks_index.add_url') }}</span>
-            </button>
+        <div class="sidebar-wrapper">
+          <div class="tips-sidebar">
+            <InstallExtensionTips v-if="(isCurrentInboxTab && !isDataEmpty) || !isCurrentInboxTab" />
           </div>
-          <div class="feedback">
-            <button @click="feedbackClick">
-              <img src="@images/button-feedback-icon.png" alt="" />
-            </button>
+          <div class="tools-sidebar">
+            <div class="add-url">
+              <button
+                @click="
+                  () => {
+                    !isShowTopModal && (isShowTopModal = true)
+                  }
+                "
+              >
+                <img src="@images/button-add-fill-circle-icon.png" alt="" />
+                <span>{{ $t('page.bookmarks_index.add_url') }}</span>
+              </button>
+            </div>
+            <div class="feedback">
+              <button @click="feedbackClick">
+                <img src="@images/button-feedback-icon.png" alt="" />
+              </button>
+            </div>
           </div>
         </div>
       </template>
@@ -593,34 +595,42 @@ const notificationBack = () => {
     }
   }
 
-  .tips-sidebar {
-    --style: mt-24px;
-  }
+  .sidebar-wrapper {
+    --style: h-full w-full flex flex-col justify-between items-center;
 
-  .tools-sidebar {
-    --style: absolute bottom-80px w-full flex flex-col justify-end;
-    .add-url {
-      --style: 'mt-24px bg-#fcfcfc border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
-      button {
-        --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-#f5f5f3) transition-all duration-250 active:(scale-105)';
-        img {
-          --style: object-fit w-24px h-24px;
-        }
-
-        span {
-          --style: mt-4px text-(10px #999999) line-height-14px;
-        }
-      }
+    & > * {
+      --style: w-full;
     }
 
-    .feedback {
-      --style: mt-35px w-68px flex-center;
-      button {
-        --style: 'rounded-full bg-#FCFCFC w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-#f5f5f3) active:(scale-110) transition-all duration-250';
-        box-shadow: 0px 15px 30px 0px #00000014;
+    .tips-sidebar {
+      --style: mt-24px;
+    }
 
-        img {
-          --style: w-18px h-17px object-contain;
+    .tools-sidebar {
+      --style: mb-80px w-full flex flex-col justify-end;
+      .add-url {
+        --style: 'mt-24px bg-#fcfcfc border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
+        button {
+          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-#f5f5f3) transition-all duration-250 active:(scale-105)';
+          img {
+            --style: object-fit w-24px h-24px;
+          }
+
+          span {
+            --style: mt-4px text-(10px #999999) line-height-14px;
+          }
+        }
+      }
+
+      .feedback {
+        --style: mt-35px w-68px flex-center;
+        button {
+          --style: 'rounded-full bg-#FCFCFC w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-#f5f5f3) active:(scale-110) transition-all duration-250';
+          box-shadow: 0px 15px 30px 0px #00000014;
+
+          img {
+            --style: w-18px h-17px object-contain;
+          }
         }
       }
     }
