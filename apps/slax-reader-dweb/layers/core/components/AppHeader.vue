@@ -7,19 +7,14 @@
       </a>
 
       <div class="nav-links">
-        <a v-if="showHomeLinks" href="/#features" class="link hover mr-16px">Features</a>
-        <a v-if="showHomeLinks" href="/#how-it-works" class="link hover mr-16px">How it Works</a>
-        <a v-if="!showHomeLinks" href="/" class="link hover mr-16px">Home</a>
-        <a v-for="(link, index) in extraLinks" :key="index" :href="link.href" :target="link.external ? '_blank' : undefined" class="link hover mr-16px">
+        <a v-for="(link, index) in navLinks" :key="index" :href="link.href" :target="link.external ? '_blank' : undefined" class="link hover mr-16px">
           {{ link.name }}
         </a>
-        <a href="/download" class="link hover mr-16px">Download</a>
-        <a href="https://reader-blog.slax.com" target="_blank" class="link hover mr-16px">Blog</a>
-        <a href="https://github.com/slax-lab" target="_blank" class="link btn-github">
+        <a :href="auxiliaryLinks.github.href" target="_blank" class="link btn-github">
           <img src="@images/github-icon.png" alt="" />
-          <span>GitHub</span>
+          <span>{{ auxiliaryLinks.github.name }}</span>
         </a>
-        <span @click="handleStartFree" class="link btn-free">Start Free</span>
+        <span @click="handleStartFree" class="link btn-free">{{ auxiliaryLinks.startFree.name }}</span>
       </div>
 
       <button class="hamburger-btn" @click="showMobileSidebar = true" aria-label="打开菜单">
@@ -43,28 +38,16 @@
         </div>
 
         <div class="mobile-nav-links">
-          <a v-if="showHomeLinks" href="/#features" class="mobile-link" @click="showMobileSidebar = false">Features</a>
-          <a v-if="showHomeLinks" href="/#how-it-works" class="mobile-link" @click="showMobileSidebar = false">How it Works</a>
-          <a v-if="!showHomeLinks" href="/" class="mobile-link" @click="showMobileSidebar = false">Home</a>
-          <a
-            v-for="(link, index) in extraLinks"
-            :key="index"
-            :href="link.href"
-            :target="link.external ? '_blank' : undefined"
-            class="mobile-link"
-            @click="showMobileSidebar = false"
-          >
+          <a v-for="(link, index) in navLinks" :key="index" :href="link.href" :target="link.external ? '_blank' : undefined" class="mobile-link" @click="showMobileSidebar = false">
             {{ link.name }}
           </a>
-          <a href="/download" class="mobile-link" @click="showMobileSidebar = false">Download</a>
-          <a href="https://reader-blog.slax.com" target="_blank" class="mobile-link" @click="showMobileSidebar = false">Blog</a>
-          <span @click="handleStartFree" class="mobile-link btn-free">Start Free</span>
+          <span @click="handleStartFree" class="mobile-link btn-free">{{ auxiliaryLinks.startFree.name }}</span>
         </div>
 
         <div class="mobile-sidebar-footer">
-          <a href="https://github.com/slax-lab" target="_blank" class="mobile-link btn-github" @click="showMobileSidebar = false">
+          <a :href="auxiliaryLinks.github.href" target="_blank" class="mobile-link btn-github" @click="showMobileSidebar = false">
             <img src="@images/github-icon.png" alt="" />
-            <span>GitHub</span>
+            <span>{{ auxiliaryLinks.github.name }}</span>
           </a>
         </div>
       </div>
@@ -73,27 +56,30 @@
 </template>
 
 <script lang="ts" setup>
-interface NavLink {
-  name: string
-  href: string
-  external?: boolean
-}
+import type { NavLink } from '../composables/useAppHeader'
 
 interface Props {
   showHomeLinks?: boolean
   extraLinks?: NavLink[]
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   showHomeLinks: true,
   extraLinks: () => []
+})
+
+const { navLinks, auxiliaryLinks } = useAppHeader({
+  showHomeLinks: props.showHomeLinks,
+  extraLinks: props.extraLinks
 })
 
 const showMobileSidebar = ref(false)
 
 const handleStartFree = async () => {
   showMobileSidebar.value = false
-  await navigateTo('/bookmarks?from=homepage')
+  if (auxiliaryLinks.startFree.action) {
+    await auxiliaryLinks.startFree.action()
+  }
 }
 </script>
 
