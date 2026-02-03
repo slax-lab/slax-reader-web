@@ -114,6 +114,15 @@
 import AppFooter from '../components/AppFooter.vue'
 import AppHeader from '../components/AppHeader.vue'
 
+// ContactPage Schema.org 配置
+useSchemaOrg([
+  defineWebPage({
+    '@type': 'ContactPage',
+    name: 'Slax Reader Contact Us',
+    description: 'Contact the Slax Reader team for support, feedback, and community discussions.'
+  })
+])
+
 // SEO 配置
 useHead({
   title: 'Contact Us | Slax Reader: Connect with our AI Deep Reading Team',
@@ -145,32 +154,6 @@ useHead({
     {
       name: 'twitter:card',
       content: 'summary_large_image'
-    }
-  ],
-  script: [
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'ContactPage',
-        name: 'Slax Reader Contact Us',
-        description: 'Contact the Slax Reader team for support, feedback, and community discussions.',
-        url: 'https://r.slax.com/contact',
-        mainEntity: {
-          '@type': 'Organization',
-          name: 'Slax Reader',
-          url: 'https://r.slax.com/en',
-          logo: 'https://r.slax.com/logo.png',
-          sameAs: ['https://x.com/SlaxReader', 'https://t.me/slax_app', 'https://github.com/slax-lab/slax-reader'],
-          contactPoint: [
-            {
-              '@type': 'ContactPoint',
-              email: 'support@slax.com',
-              contactType: 'customer support'
-            }
-          ]
-        }
-      })
     }
   ]
 })

@@ -98,7 +98,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/sitemap.xml', '/robots.txt'],
+      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/contact', '/sitemap.xml', '/robots.txt'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -132,7 +132,7 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: false }>
       ),
-      ...['/download'].reduce(
+      ...['/download', '/contact'].reduce(
         (rules, route) => {
           rules[route] = { ssr: true, prerender: true }
           return rules
@@ -160,7 +160,7 @@ export default defineNuxtConfig({
     sitemap: [`/sitemap.xml`],
     groups: [
       {
-        allow: [`/zh`, '/en', '/download', '/s/*'],
+        allow: [`/zh`, '/en', '/download', '/contact', '/s/*'],
         disallow: ['/bookmarks', '/user', '/login', '/guide', '/auth']
       }
     ],
@@ -196,6 +196,10 @@ export default defineNuxtConfig({
             {
               loc: '/download',
               lastmod: date
+            },
+            {
+              loc: '/contact',
+              lastmod: new Date('2026-02-03')
             }
           ]
         }
