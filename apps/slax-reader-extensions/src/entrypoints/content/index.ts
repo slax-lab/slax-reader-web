@@ -35,6 +35,8 @@ export default defineContentScript({
         }
       `,
       onMount: container => {
+        container.style.position = 'fixed'
+        container.style.visibility = 'visible'
         const app = createApp(CollectPopup, {
           browser
         })
