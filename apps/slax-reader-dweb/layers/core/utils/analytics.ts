@@ -3,9 +3,17 @@ import { isClient } from '@commons/utils/is'
 import { type Analytics, getAnalytics, logEvent } from 'firebase/analytics'
 import { initializeApp } from 'firebase/app'
 
-let analytics: Analytics | null = null
-
 export const analyticsLog = (params: { event: string; value?: Record<string, string | number> }) => {
+  if (!isClient) {
+    return
+  }
+
+  const { gtag } = useGtag()
+  gtag('event', params.event, params.value)
+}
+
+let analytics: Analytics | null = null
+export const firebaseAnalyticsLog = (params: { event: string; value?: Record<string, string | number> }) => {
   if (!isClient) {
     return
   }
@@ -28,5 +36,5 @@ export const analyticsLog = (params: { event: string; value?: Record<string, str
     analytics = getAnalytics(app)
   }
 
-  logEvent(analytics, params.event)
+  logEvent(analytics, params.event, params.value)
 }

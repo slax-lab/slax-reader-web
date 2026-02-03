@@ -5,6 +5,7 @@ import SidePanel from '@/components/SidePanel.vue'
 
 import '@/styles/reset.scss'
 import 'uno.css'
+import { analytics } from '#analytics'
 
 const extensionInvalidate = () => {
   // console.error('extension invalidated')
@@ -66,6 +67,10 @@ export default defineContentScript({
       }
     `,
       onMount: container => {
+        try {
+          analytics.autoTrack(container)
+        } catch (e) {}
+
         const app = createApp(SidePanel, {
           browser
         })

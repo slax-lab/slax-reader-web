@@ -14,12 +14,13 @@ console.log('Current env is:', env)
 const Version = pkg.version || ''
 const envConfig = getExtensionsConfig()
 
-const convertToProcessEnv = (env: Record<string, unknown>) => {
+const convertToProcessEnv = (envConfig: Record<string, unknown>) => {
   const result: Record<string, string> = {}
-  for (const key in env) {
-    result[`process.env.${key}`] = JSON.stringify(env[key] || '')
+  for (const key in envConfig) {
+    result[`process.env.${key}`] = JSON.stringify(envConfig[key] || '')
   }
 
+  result['process.env.SLAX_ENV'] = JSON.stringify(env)
   result['process.env.VERSION'] = JSON.stringify(Version)
 
   return result
