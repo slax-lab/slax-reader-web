@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 const env = getEnv()
 const isDev = env === 'development'
 const isPreview = env === 'preview'
+const isProduction = env === 'production'
 console.log('Current env is:', env)
 
 const envConfig = getDWebConfig()
@@ -33,7 +34,17 @@ export default defineNuxtConfig({
 
   srcDir: 'src/',
 
-  modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxtjs/turnstile',
+    'nuxt-og-image',
+    'nuxt-schema-org',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap',
+    'nuxt-site-config',
+    '@vite-pwa/nuxt',
+    '@nuxt/test-utils/module',
+    'nuxt-gtag'
+  ],
   future: {
     compatibilityVersion: 3
   },
@@ -293,6 +304,13 @@ export default defineNuxtConfig({
       const swSource = path.resolve(__dirname, 'node_modules/@slax-lab/liveproxy-sw/dist/liveproxy-sw.js')
       const swDest = path.resolve(__dirname, 'src/public/liveproxy-sw.js')
       fs.copyFileSync(swSource, swDest)
+    }
+  },
+  gtag: {
+    enabled: !isDev,
+    id: `${envConfig.GTAG_MEASUREMENT_ID || ''}`,
+    config: {
+      debug_mode: !isProduction
     }
   },
   compatibilityDate: '2024-09-19'

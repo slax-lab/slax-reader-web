@@ -31,6 +31,7 @@
     "jszip": "^3.10.1",
     "katex": "^0.16.22",
     "nuxt": "3.19.3",
+    "nuxt-gtag": "4.1.0",
     "nuxt-og-image": "^5.1.11",
     "nuxt-schema-org": "^5.0.9",
     "nuxt-site-config": "^3.2.9",
