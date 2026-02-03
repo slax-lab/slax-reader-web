@@ -111,8 +111,8 @@
                 <td><span class="cross">Paid service</span></td>
               </tr>
               <tr>
-                <td>AI-Powered Summaries</td>
-                <td><span class="cross">✅</span></td>
+                <td>AI Outline</td>
+                <td><span class="cross">Paid service</span></td>
                 <td><span class="cross">✅</span></td>
                 <td><span class="cross">Paid service</span></td>
               </tr>
@@ -135,8 +135,8 @@
                 <td><span class="cross">⚠️ Shared highlights only, no discussions</span></td>
               </tr>
               <tr>
-                <td>Auto Tagging</td>
-                <td><span class="check">✅</span></td>
+                <td>AI Auto Tagging</td>
+                <td><span class="cross">Paid service</span></td>
                 <td><span class="cross">⚠️ Manual tags only</span></td>
                 <td><span class="cross">⚠️ Manual tags only</span></td>
               </tr>

@@ -179,7 +179,7 @@ export default defineNuxtConfig({
     sitemaps: {
       home: {
         urls: () => {
-          const date = new Date('2026-01-07')
+          const date = new Date('2026-02-03')
           return [
             {
               loc: '/',
@@ -199,7 +199,7 @@ export default defineNuxtConfig({
             },
             {
               loc: '/contact',
-              lastmod: new Date('2026-02-03')
+              lastmod: date
             }
           ]
         }
