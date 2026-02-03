@@ -6,11 +6,11 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
-        <h1>Read Smarter, <span class="highlight">Not Hoarding.</span></h1>
-        <p class="subtitle">Save Forever, Not Just Later. Your intelligent library for deep understanding and permanent knowledge.</p>
+        <h1>Read Smarter, <span class="highlight">Not Just Later.</span></h1>
+        <p class="subtitle">Save Forever, Learn faster. Your intelligent library for high efficiency and deep undersatanding.</p>
         <div class="promo-badge">
           <span class="emoji">🎉</span>
-          <span class="text">Join today and get 1 Month of Pro Free</span>
+          <span class="text">Join today and get 1 Month of Pro Free.</span>
         </div>
       </div>
     </section>
@@ -29,7 +29,7 @@
                 <span class="amount">$0</span>
                 <span class="period">/ Month</span>
               </div>
-              <p class="plan-description">Founding Member Perks: Unlimited bookmarks & backup forever — join now before limits apply!</p>
+              <p class="plan-description">Unlimited bookmarks & Permanent backup — join now before limits apply!</p>
               <button class="btn-plan btn-free-plan">Start Free</button>
             </div>
             <div class="header-cell plan-cell pro-plan">
@@ -39,8 +39,11 @@
                 <span class="period">/ Month</span>
                 <span class="original-price">($9.99)</span>
               </div>
-              <p class="plan-description">Unleash your reading superpowers with integrated AI analysis and unlimited knowledge retention.</p>
-              <button class="btn-plan btn-pro-plan">Try 1 Month Free</button>
+              <p class="plan-description">Unleash your reading superpowers with AI analysis.</p>
+              <button class="btn-plan btn-pro-plan">
+                <span>Try 1 Month FREE</span>
+                <span class="btn-subtitle">No auto-renewal</span>
+              </button>
             </div>
           </div>
 
@@ -166,58 +169,63 @@ const features: Feature[] = [
     pro: true
   },
   {
-    name: 'Highlights & private notes',
+    name: 'Unlimited highlights and notes.',
     free: true,
     pro: true
   },
   {
-    name: 'Full-text search',
-    free: 'Basic',
-    pro: 'Advanced Semantic'
-  },
-  {
-    name: 'Mobile & Browser Sync',
+    name: 'Full-text search for all articles in your Slax Reader collection.',
     free: true,
     pro: true
   },
   {
-    name: 'Social sharing',
+    name: 'Sync your articles across web, iOS, and Android',
     free: true,
     pro: true
   },
   {
-    name: 'Open source foundation',
+    name: 'Share articles highlights and join discussions with friends.',
     free: true,
     pro: true
   },
   {
-    name: 'Manual tags',
+    name: 'Open source on GitHub. Fully transparent. You own your data.',
     free: true,
     pro: true
   },
   {
-    name: 'Auto-tagging & Folders',
+    name: 'Create tags to easily organize your articles manually',
+    free: true,
+    pro: true
+  },
+  {
+    name: 'Smart auto-tagging for effortless organization. AI categorizes for you.',
     free: false,
     pro: true,
     badge: '[✨AI]'
   },
   {
-    name: 'Custom Article Summaries',
+    name: 'Instant Summaries: Get the gist in 3 seconds',
     free: false,
     pro: true,
     badge: '[✨AI]'
   },
   {
-    name: 'Automatic Article Outlines',
+    name: 'Interactive Outlines: Grasp any 10,000-word essay in 30 seconds.',
     free: false,
     pro: true,
     badge: '[✨AI]'
   },
   {
-    name: 'Personal Knowledge Chatbot',
+    name: 'Chatbot: Deep dive into any topic by directly chatting with your articles.',
     free: false,
     pro: true,
     badge: '[✨AI]'
+  },
+  {
+    name: "Welcome to support Slax Reader's sustainable operation",
+    free: '😊',
+    pro: true
   }
 ]
 
@@ -246,22 +254,19 @@ const steps: Step[] = [
 
 const faqs: FAQ[] = [
   {
+    question: 'Can I use Slax Reader for free?',
+    answer:
+      'Yes! Our Slax Free plan is completely free. As part of our Founding Member Perks, early users enjoy unlimited bookmarks, permanent snapshots (anti-404), and manual tagging at no cost. Join now and lock in these benefits before future limits apply!'
+  },
+  {
     question: 'Will Slax Reader really save me hours of reading every week?',
     answer:
-      'Yes! Our AI summarization and semantic search allow you to extract the most important information from an article in seconds. Instead of reading every word of every bookmark, you can "chat" with your library to find exactly what you need. Learn more about our philosophy in <a class="faq-link" href="https://reader-blog.slax.com" target="_blank">this blog post</a>.'
+      'That\'s exactly what it\'s built for. By using AI to distill long-form content into structured, interactive insights, Slax Reader fundamentally changes the way you consume information. <a class="faq-link" href="https://reader-blog.slax.com/posts/a-smarter-more-efficient-ai-powered-way-to-save-and-read-forever/" target="_blank">Full Visual Tour →</a>'
   },
   {
-    question: 'What does "No auto-renewal" mean?',
+    question: 'Have any more questions?',
     answer:
-      "We believe in transparency. When your Pro month ends, we won't charge your card automatically. You'll simply be asked if you'd like to continue for another month. No \"forgotten subscription\" traps here."
-  },
-  {
-    question: 'Can I cancel my subscription?',
-    answer: "Yes, you can cancel at any time from your account settings. You'll continue to have access to your Pro features until the end of your current billing period."
-  },
-  {
-    question: 'Is there a student discount?',
-    answer: 'We offer special educational pricing for students and researchers. Please contact our support team with your .edu email address to learn more.'
+      'We\'d love to hear from you! You can reach us directly on <a class="faq-link" href="https://t.me/slax_app" target="_blank">Telegram</a> or <a class="faq-link" href="https://x.com/SlaxReader" target="_blank">X (Twitter)</a>.'
   }
 ]
 </script>
@@ -317,24 +322,24 @@ const faqs: FAQ[] = [
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 
   .table-header {
-    --style: grid grid-cols-[34%_33%_33%] border-b-2 border-#f0f0f0;
+    --style: 'grid grid-cols-[34%_33%_33%] border-b-2 border-#f0f0f0 max-md:(grid-cols-1 border-b-0)';
 
     .header-cell {
-      --style: p-40px;
+      --style: 'p-48px max-md:(p-32px)';
 
       &.title-cell {
-        --style: flex items-end pb-40px;
+        --style: 'flex items-end pb-48px max-md:(hidden)';
 
         h2 {
-          --style: text-40px font-bold text-[#1f1f1f] m-0;
+          --style: 'text-48px font-bold text-[#1f1f1f] m-0 max-md:(text-36px)';
         }
       }
 
       &.plan-cell {
-        --style: text-center flex flex-col items-center border-l-2 border-#f0f0f0;
+        --style: 'text-center flex flex-col items-center border-l-2 border-#f0f0f0 max-md:(border-l-0 border-b-2 border-#f0f0f0)';
 
         h3 {
-          --style: text-20px font-bold mb-16px text-[#1f1f1f];
+          --style: 'text-24px font-bold mb-20px text-[#1f1f1f] max-md:(text-28px)';
 
           &.pro-title {
             --style: text-#16B998;
@@ -342,27 +347,27 @@ const faqs: FAQ[] = [
         }
 
         .price {
-          --style: flex items-baseline justify-center gap-6px mb-24px;
+          --style: 'flex items-baseline justify-center gap-8px mb-28px max-md:(mb-24px)';
 
           .amount {
-            --style: text-40px font-bold text-[#1f1f1f];
+            --style: 'text-48px font-bold text-[#1f1f1f] max-md:(text-52px)';
           }
 
           .period {
-            --style: text-14px text-#666 font-400;
+            --style: 'text-16px text-#666 font-400 max-md:(text-18px)';
           }
 
           .original-price {
-            --style: text-12px text-#999 line-through;
+            --style: 'text-14px text-#999 line-through max-md:(text-16px)';
           }
         }
 
         .plan-description {
-          --style: text-12px text-#666 line-height-20px mb-32px max-w-200px;
+          --style: 'text-15px text-#666 line-height-24px mb-36px max-w-280px max-md:(text-16px line-height-26px max-w-full mb-32px)';
         }
 
         .btn-plan {
-          --style: w-full max-w-180px h-48px rounded-12px font-bold text-16px border-none cursor-pointer transition-all duration-300;
+          --style: 'w-full max-w-200px h-52px rounded-12px font-bold text-17px border-none cursor-pointer transition-all duration-300 max-md:(max-w-full h-56px text-18px)';
 
           &.btn-free-plan {
             --style: bg-#f8f9fa text-[#333];
@@ -373,8 +378,12 @@ const faqs: FAQ[] = [
           }
 
           &.btn-pro-plan {
-            --style: text-#fff;
+            --style: 'text-#fff flex flex-col items-center justify-center gap-3px h-64px max-md:(h-68px)';
             background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
+
+            .btn-subtitle {
+              --style: 'text-13px font-400 opacity-90 max-md:(text-14px)';
+            }
 
             &:hover {
               --style: '-translate-y-1px shadow-[0_8px_16px_#16b99840]';
@@ -385,12 +394,19 @@ const faqs: FAQ[] = [
         &.pro-plan {
           background: rgba(22, 185, 152, 0.03);
           border-left: 2px solid #16b998;
+
+          @media (max-width: 768px) {
+            border-left: 0;
+            border-bottom: 2px solid #16b998;
+          }
         }
       }
     }
   }
 
   .table-body {
+    --style: 'max-md:(hidden)';
+
     .feature-row {
       --style: grid grid-cols-[34%_33%_33%] border-b-1 border-#f5f6f7;
 
@@ -399,28 +415,28 @@ const faqs: FAQ[] = [
       }
 
       .feature-name {
-        --style: p-24px text-14px font-500 text-[#333] flex items-center gap-8px;
+        --style: p-28px text-16px font-500 text-[#333] flex items-center gap-10px;
 
         .ai-badge {
-          --style: text-10px font-bold px-8px py-4px rounded-4px whitespace-nowrap;
+          --style: text-11px font-bold px-10px py-5px rounded-6px whitespace-nowrap;
           background: rgba(22, 185, 152, 0.15);
           color: #16b998;
         }
       }
 
       .feature-value {
-        --style: p-24px text-center flex items-center justify-center border-l-1 border-#f5f6f7;
+        --style: p-28px text-center flex items-center justify-center border-l-1 border-#f5f6f7;
 
         .check-icon {
-          --style: text-20px font-bold text-#16B998;
+          --style: text-24px font-bold text-#16B998;
         }
 
         .cross-icon {
-          --style: text-20px text-#ccc;
+          --style: text-24px text-#ccc;
         }
 
         .text-value {
-          --style: text-14px text-#666;
+          --style: text-16px text-#666;
 
           &.pro-text {
             --style: font-bold text-#16B998;
