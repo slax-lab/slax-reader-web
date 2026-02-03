@@ -67,15 +67,14 @@ export default defineContentScript({
       }
     `,
       onMount: container => {
-        const app = createApp(SidePanel, {
-          browser
-        })
-        app.mount(container)
-
         try {
           analytics.autoTrack(container)
         } catch (e) {}
 
+        const app = createApp(SidePanel, {
+          browser
+        })
+        app.mount(container)
         return app
       },
       onRemove: app => {
