@@ -27,7 +27,6 @@ export function useAppHeader(options?: { showHomeLinks?: boolean; extraLinks?: N
       : [{ name: 'Home', href: '/' }]),
 
     // 主要导航
-    { name: 'Pricing', href: '/pricing' },
     { name: 'Download', href: '/download' },
     { name: 'Blog', href: 'https://reader-blog.slax.com', external: true }
   ]
@@ -35,7 +34,7 @@ export function useAppHeader(options?: { showHomeLinks?: boolean; extraLinks?: N
   // 合并额外的自定义链接
   const navLinks = [...defaultNavLinks, ...extraLinks]
 
-  // 辅助导航（GitHub、Start Free按钮）单独配置
+  // 辅助导航，单独配置
   const auxiliaryLinks = {
     github: {
       name: 'GitHub',
