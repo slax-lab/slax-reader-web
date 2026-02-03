@@ -10,6 +10,7 @@
         <a v-if="showHomeLinks" href="/#features" class="link hover mr-16px">Features</a>
         <a v-if="showHomeLinks" href="/#how-it-works" class="link hover mr-16px">How it Works</a>
         <a v-if="!showHomeLinks" href="/" class="link hover mr-16px">Home</a>
+        <a href="/pricing" class="link hover mr-16px">Pricing</a>
         <a href="/download" class="link hover mr-16px">Download</a>
         <a href="https://reader-blog.slax.com" target="_blank" class="link hover mr-16px">Blog</a>
         <a href="https://github.com/slax-lab" target="_blank" class="link btn-github">
@@ -43,6 +44,7 @@
           <a v-if="showHomeLinks" href="/#features" class="mobile-link" @click="showMobileSidebar = false">Features</a>
           <a v-if="showHomeLinks" href="/#how-it-works" class="mobile-link" @click="showMobileSidebar = false">How it Works</a>
           <a v-if="!showHomeLinks" href="/" class="mobile-link" @click="showMobileSidebar = false">Home</a>
+          <a href="/pricing" class="mobile-link" @click="showMobileSidebar = false">Pricing</a>
           <a href="/download" class="mobile-link" @click="showMobileSidebar = false">Download</a>
           <a href="https://reader-blog.slax.com" target="_blank" class="mobile-link" @click="showMobileSidebar = false">Blog</a>
           <span @click="handleStartFree" class="mobile-link btn-free">Start Free</span>
