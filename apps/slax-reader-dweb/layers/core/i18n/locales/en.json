@@ -1,7 +1,9 @@
 {
   "common": {
     "app": {
-      "name": "Slax Reader",
+      "name": "Slax Reader: Read Smarter, Save Forever. Your AI read-it-later app for deep insights.",
+      "short_name": "Slax Reader",
+      "description": "Slax Reader is the open-source read-later app for deep thinkers. Archive the web permanently, read smarter with AI instant summaries, interactive outline and deep-dive chat.",
       "pro": "Slax Reader Pro",
       "pro_token": "Pro",
       "trail_pro": "Slax Reader Trail Pro"

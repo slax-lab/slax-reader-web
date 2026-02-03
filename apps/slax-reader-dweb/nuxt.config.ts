@@ -170,7 +170,7 @@ export default defineNuxtConfig({
     enabled: true,
     indexable: !isDev,
     url: envConfig.PUBLIC_BASE_URL,
-    name: 'Slax Reader'
+    name: 'Slax Reader: Read Smarter, Save Forever'
   },
   sitemap: {
     enabled: true,
@@ -229,9 +229,10 @@ export default defineNuxtConfig({
     mode: !isDev ? 'production' : 'development',
     manifest: {
       id: 'com.app.slax_reader',
-      name: 'Slax Reader',
-      short_name: 'slax-reader',
-      description: 'Simple reading, relax thinking',
+      name: 'Slax Reader: Read Smarter, Save Forever',
+      short_name: 'Slax Reader',
+      description:
+        'Slax Reader is the open-source read-later app for deep thinkers. Archive the web permanently, read smarter with AI instant summaries, interactive outline and deep-dive chat.',
       theme_color: '#F5F5F3',
       start_url: '/bookmarks',
       display_override: ['fullscreen', 'minimal-ui'],

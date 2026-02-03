@@ -187,7 +187,29 @@ interface Step {
 }
 
 useHead({
-  titleTemplate: t('common.app.name')
+  title: t('common.app.name'),
+  meta: [
+    {
+      name: 'description',
+      content: t('common.app.description')
+    },
+    {
+      property: 'og:title',
+      content: t('common.app.name')
+    },
+    {
+      property: 'og:description',
+      content: t('common.app.description')
+    },
+    {
+      name: 'twitter:title',
+      content: t('common.app.name')
+    },
+    {
+      name: 'twitter:description',
+      content: t('common.app.description')
+    }
+  ]
 })
 
 const features: Feature[] = [

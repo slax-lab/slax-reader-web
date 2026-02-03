@@ -1,7 +1,9 @@
 {
   "common": {
     "app": {
-      "name": "Slax Reader",
+      "name": "Slax Reader：更聪慧地阅读，永久保存。你的 AI 稍后读应用，获得深度洞察。",
+      "short_name": "Slax Reader",
+      "description": "Slax Reader 是为深度思考者打造的开源稍后读应用。永久归档网页，借助 AI 即时摘要、交互式大纲和深度对话，更聪慧地阅读。",
       "pro": "Slax Reader Pro",
       "pro_token": "Pro",
       "trail_pro": "Slax Reader Trail Pro"
