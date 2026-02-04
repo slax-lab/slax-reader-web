@@ -13,7 +13,7 @@
           <span class="separator">•</span>
           <a href="/privacy">Privacy</a>
           <span class="separator">•</span>
-          <a href="/contact">Contact</a>
+          <a href="/contact">Contact Us</a>
         </div>
         <div class="footer-copyright">
           <p>&copy; 2026 Slax Reader. All rights reserved.</p>
