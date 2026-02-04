@@ -12,6 +12,8 @@
           <a href="/terms">Terms of Service</a>
           <span class="separator">•</span>
           <a href="/privacy">Privacy</a>
+          <span class="separator">•</span>
+          <a href="/contact">Contact</a>
         </div>
         <div class="footer-copyright">
           <p>&copy; 2026 Slax Reader. All rights reserved.</p>
