@@ -180,8 +180,7 @@ const handleStartReading = async () => {
 
 /* Contact Hero Section */
 .contact-hero {
-  --style: py-80px relative overflow-hidden;
-  background: linear-gradient(to bottom right, #f8fffc 0%, #e6fff3 100%);
+  --style: py-80px relative overflow-hidden bg-gradient-to-br from-#f8fffc to-#e6fff3;
 
   .contact-content {
     --style: max-w-900px mx-auto;
@@ -209,13 +208,11 @@ const handleStartReading = async () => {
         --style: 'flex items-start gap-20px bg-white p-28px rounded-16px no-underline transition-all duration-300 shadow-sm';
 
         &:hover {
-          --style: 'shadow-[0_8px_24px_rgba(0,0,0,0.1)] -translate-y-2px';
+          --style: 'shadow-[0_8px_24px_#0000001a] -translate-y-2px';
         }
 
         .contact-icon {
-          --style: text-40px flex items-center justify-center w-64px h-64px rounded-12px flex-shrink-0;
-          background: linear-gradient(135deg, #f0fff9 0%, #e6fff3 100%);
-          color: #16b998;
+          --style: text-40px flex items-center justify-center w-64px h-64px rounded-12px flex-shrink-0 bg-gradient-to-br from-#f0fff9 to-#e6fff3 color-#16b998;
         }
 
         .contact-info {
@@ -233,15 +230,10 @@ const handleStartReading = async () => {
     }
 
     .contact-footer-note {
-      --style: text-center p-56px rounded-20px mt-48px relative;
-      background: linear-gradient(135deg, #f8fffc 0%, #fff9f0 100%);
-      border: 2px solid #e6f7f0;
-      box-shadow: 0 8px 24px rgba(22, 185, 152, 0.08);
+      --style: text-center p-56px rounded-20px mt-48px relative bg-gradient-to-br from-#f8fffc to-#fff9f0 border-2 border-#e6f7f0 shadow-[0_8px_24px_#16b99814];
 
       .quote-mark {
-        --style: absolute text-80px font-serif opacity-20;
-        color: #16b998;
-        line-height: 1;
+        --style: absolute text-80px font-serif opacity-20 select-none color-#16b998;
         font-family: Georgia, serif;
 
         &.top {
@@ -249,42 +241,30 @@ const handleStartReading = async () => {
         }
 
         &.bottom {
-          --style: bottom-8px right-24px;
-          transform: rotate(180deg);
+          --style: bottom-8px right-24px rotate-180;
         }
       }
 
       .main-message {
-        --style: text-18px line-height-36px mb-0 max-w-700px mx-auto relative z-1;
-        font-weight: 400;
-        color: #444;
-        font-style: italic;
+        --style: text-18px line-height-36px mb-0 max-w-700px mx-auto relative z-1 font-400 color-#444 italic;
       }
 
       .signature {
-        --style: text-19px mb-0 mt-40px line-height-34px relative z-1;
-        font-weight: 400;
-        color: #555;
-        font-style: italic;
+        --style: text-19px mb-0 mt-40px line-height-34px relative z-1 font-400 color-#555 italic;
 
         strong {
-          --style: color-#16b998 font-700;
-          font-style: normal;
+          --style: color-#16b998 font-700 not-italic;
         }
       }
 
       &::before {
         content: '';
-        --style: absolute top-0 left-1/2 w-60px h-3px rounded-full;
-        transform: translateX(-50%);
-        background: linear-gradient(90deg, transparent, #16b998, transparent);
+        --style: absolute top-0 left-1/2 w-60px h-3px rounded-full -translate-x-1/2 bg-gradient-to-r from-transparent via-#16b998 to-transparent;
       }
 
       &::after {
         content: '✨';
-        --style: absolute bottom-12px left-1/2 text-20px;
-        transform: translateX(-50%);
-        opacity: 0.6;
+        --style: absolute bottom-12px left-1/2 text-20px -translate-x-1/2 opacity-60;
       }
     }
   }
@@ -309,7 +289,7 @@ const handleStartReading = async () => {
       --style: 'flex flex-col items-center bg-[#f8f9fa] p-32px rounded-16px no-underline transition-all duration-300 text-center min-h-200px select-none';
 
       &:hover {
-        --style: 'bg-[#e6fff3] -translate-y-2px shadow-[0_8px_20px_rgba(22,185,152,0.15)]';
+        --style: 'bg-[#e6fff3] -translate-y-2px shadow-[0_8px_20px_#16b99826]';
 
         .link-icon {
           --style: scale-110;
@@ -430,8 +410,7 @@ const handleStartReading = async () => {
 
     .links-grid {
       .link-card {
-        --style: p-24px;
-        min-height: 180px;
+        --style: p-24px min-h-180px;
 
         .link-icon {
           --style: text-40px mb-16px;
