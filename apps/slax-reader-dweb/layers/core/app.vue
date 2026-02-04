@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-// 全局 Organization Schema 配置
 useSchemaOrg([
   defineOrganization({
     name: 'Slax Reader',

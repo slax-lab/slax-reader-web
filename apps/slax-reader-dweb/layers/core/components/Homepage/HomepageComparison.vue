@@ -19,19 +19,19 @@
             <tr>
               <td>Unlimited Free Bookmarks (for early users)</td>
               <td><span class="check">✅</span></td>
-              <td><span class="cross">✅</span></td>
+              <td><span class="check">✅</span></td>
               <td><span class="cross">Paid service</span></td>
             </tr>
             <tr>
               <td>Permanent Content Backup</td>
-              <td><span class="cross">✅</span></td>
+              <td><span class="check">✅</span></td>
               <td><span class="cross">Paid service</span></td>
               <td><span class="cross">Paid service</span></td>
             </tr>
             <tr>
               <td>AI Outline</td>
               <td><span class="cross">Paid service</span></td>
-              <td><span class="cross">✅</span></td>
+              <td><span class="check">✅</span></td>
               <td><span class="cross">Paid service</span></td>
             </tr>
             <tr>
@@ -42,13 +42,13 @@
             </tr>
             <tr>
               <td>Highlight & Comment on Original Pages & Snapshots, <br />Two-Way Synced</td>
-              <td><span class="cross">✅</span></td>
+              <td><span class="check">✅</span></td>
               <td><span class="cross">❌</span></td>
               <td><span class="cross">Paid service</span></td>
             </tr>
             <tr>
               <td>Join Reader Discussions</td>
-              <td><span class="cross">✅</span></td>
+              <td><span class="check">✅</span></td>
               <td><span class="cross">❌</span></td>
               <td><span class="cross">⚠️ Shared highlights only, no discussions</span></td>
             </tr>
