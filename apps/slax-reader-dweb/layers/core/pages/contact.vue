@@ -13,7 +13,7 @@
               Slax Reader is built by a small, dedicated team of deep readers. We want to help you enjoy a better read-it-later journey by using AI to take over the tedious parts
               of information overload—summarizing to filter value, outlining to deconstruct long-form content, and chatting to deepen understanding.
             </p>
-            <p class="highlight-text">Whether you've found a bug, have a feature request, or just want to chat about the future of digital reading—we're listening.</p>
+            <p class="highlight-text">Whether you've found a bug, have a feature request, or just want to chat about the future of digital reading — we're listening.</p>
           </div>
 
           <!-- Contact Methods -->
