@@ -104,6 +104,7 @@
         </div>
       </div>
     </section>
+    <HomepageCallToAction @get-started="handleStartReading" />
 
     <!-- Footer -->
     <AppFooter />
@@ -113,6 +114,7 @@
 <script lang="ts" setup>
 import AppFooter from '../components/AppFooter.vue'
 import AppHeader from '../components/AppHeader.vue'
+import HomepageCallToAction from '../components/Homepage/HomepageCallToAction.vue'
 
 // ContactPage Schema.org 配置
 useSchemaOrg([
@@ -157,6 +159,10 @@ useHead({
     }
   ]
 })
+
+const handleStartReading = async () => {
+  await navigateTo('/bookmarks?from=homepage')
+}
 </script>
 
 <style lang="scss" scoped>
