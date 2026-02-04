@@ -98,7 +98,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/sitemap.xml', '/robots.txt'],
+      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/contact', '/sitemap.xml', '/robots.txt'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -132,7 +132,7 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: false }>
       ),
-      ...['/download'].reduce(
+      ...['/download', '/contact'].reduce(
         (rules, route) => {
           rules[route] = { ssr: true, prerender: true }
           return rules
@@ -160,7 +160,7 @@ export default defineNuxtConfig({
     sitemap: [`/sitemap.xml`],
     groups: [
       {
-        allow: [`/zh`, '/en', '/download', '/s/*'],
+        allow: [`/zh`, '/en', '/download', '/contact', '/s/*'],
         disallow: ['/bookmarks', '/user', '/login', '/guide', '/auth']
       }
     ],
@@ -170,7 +170,7 @@ export default defineNuxtConfig({
     enabled: true,
     indexable: !isDev,
     url: envConfig.PUBLIC_BASE_URL,
-    name: 'Slax Reader'
+    name: 'Slax Reader: Read Smarter, Save Forever'
   },
   sitemap: {
     enabled: true,
@@ -179,7 +179,7 @@ export default defineNuxtConfig({
     sitemaps: {
       home: {
         urls: () => {
-          const date = new Date('2026-01-07')
+          const date = new Date('2026-02-03')
           return [
             {
               loc: '/',
@@ -195,6 +195,10 @@ export default defineNuxtConfig({
             },
             {
               loc: '/download',
+              lastmod: date
+            },
+            {
+              loc: '/contact',
               lastmod: date
             }
           ]
@@ -229,9 +233,10 @@ export default defineNuxtConfig({
     mode: !isDev ? 'production' : 'development',
     manifest: {
       id: 'com.app.slax_reader',
-      name: 'Slax Reader',
-      short_name: 'slax-reader',
-      description: 'Simple reading, relax thinking',
+      name: 'Slax Reader: Read Smarter, Save Forever',
+      short_name: 'Slax Reader',
+      description:
+        'Slax Reader is the open-source read-later app for deep thinkers. Archive the web permanently, read smarter with AI instant summaries, interactive outline and deep-dive chat.',
       theme_color: '#F5F5F3',
       start_url: '/bookmarks',
       display_override: ['fullscreen', 'minimal-ui'],

@@ -8,6 +8,12 @@
           <a href="https://x.com/SlaxReader" target="_blank">Twitter</a>
           <span class="separator">•</span>
           <a href="https://t.me/slax_app" target="_blank">Telegram</a>
+          <span class="separator">•</span>
+          <a href="/terms">Terms of Service</a>
+          <span class="separator">•</span>
+          <a href="/privacy">Privacy</a>
+          <span class="separator">•</span>
+          <a href="/contact">Contact Us</a>
         </div>
         <div class="footer-copyright">
           <p>&copy; 2026 Slax Reader. All rights reserved.</p>
