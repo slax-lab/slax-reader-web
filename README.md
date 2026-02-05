@@ -16,7 +16,7 @@
 </div>
 </br>
 
-Slax Reader Web service includes [browser-based services](./apps/slax-reader-extensions/README.md) and [extension services](./apps/slax-reader-extensions/README.md) and needs to work in conjunction with the [Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client). This document provides deployment and development tutorials. For direct use of Slax Reader, please visit [Slax Reader](https://r.slax.com) or [Slax Reader Bot](https://t.me/slax_reader_bot).
+Slax Reader Web service includes [browser-based web app](./apps/slax-reader-dweb/README.md) and [browser extension services](./apps/slax-reader-extensions/README.md) and needs to work in conjunction with the [Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client). This document provides deployment and development tutorials. For direct use of Slax Reader, please visit [Slax Reader](https://r.slax.com) or [Slax Reader Bot](https://t.me/slax_reader_bot).
 
 <div align="center">
 
@@ -42,6 +42,35 @@ Slax Reader Web service includes [browser-based services](./apps/slax-reader-ext
 
 - iOS/Android/Desktop apps (under active development).
 
+# 💻 Development
+
+## Requirements
+
+- **Node.js**: >= 20
+- **Package Manager**: pnpm >= 9
+
+## Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Development
+pnpm run dev                    # Interactive mode - choose which app to run
+pnpm run dev:dweb               # Run web app only
+pnpm run dev:extensions         # Run browser extension only
+
+# Build
+pnpm run build:dweb             # Build web app
+pnpm run build:extensions       # Build browser extension
+pnpm run build:extensions:zip   # Build and create zip for extension
+
+# Code Quality
+pnpm run lint                   # Check code style
+```
+
+For detailed development guide, see [Development Documentation](./public/DEVELOPMENT-DOCUMENT-EN.md).
+
 # 🚀 Self-Deploy
 
 Quickly deploy your own version! This project supports multiple deployment methods. Check out our [Deploy Document](./public/DEPLOY-EN.md) for complete step-by-step instructions.
@@ -55,8 +84,6 @@ Quickly deploy your own version! This project supports multiple deployment metho
 - [x] Supports importing bookmarks from Omnivore
 - [x] Supports WebSocket / Browser Push for notifications
 - [x] Server-side rendering and web app usage
-
-### TODO List
 
 # 🤝 How to Contribute
 
