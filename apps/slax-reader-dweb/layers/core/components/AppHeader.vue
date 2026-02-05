@@ -107,7 +107,7 @@ const handleStartFree = async () => {
     }
 
     .nav-links {
-      --style: 'flex items-center gap-16px max-md:(hidden)';
+      --style: 'flex items-center gap-16px max-lg:(hidden)';
 
       .link {
         --style: 'text-16px font-400 text-#333 no-underline transition-all duration-300';
@@ -190,7 +190,7 @@ const handleStartFree = async () => {
     }
 
     .hamburger-btn {
-      --style: 'hidden max-md:(flex relative w-24px h-18px bg-transparent border-none cursor-pointer p-0)';
+      --style: 'hidden max-lg:(flex relative w-24px h-18px bg-transparent border-none cursor-pointer p-0)';
 
       span {
         --style: absolute left-0 w-full h-1px bg-#333 transition-all duration-300;
@@ -216,11 +216,11 @@ const handleStartFree = async () => {
 }
 
 .sidebar-mask {
-  --style: 'fixed inset-0 z-1001 bg-black bg-opacity-50 md:(hidden)';
+  --style: 'fixed inset-0 z-1001 bg-black bg-opacity-50 lg:(hidden)';
 }
 
 .mobile-sidebar {
-  --style: 'fixed top-0 right-0 w-280px h-screen bg-#fff z-1002 shadow-lg md:(hidden)';
+  --style: 'fixed top-0 right-0 w-280px h-screen bg-#fff z-1002 shadow-lg lg:(hidden)';
 
   .mobile-sidebar-header {
     --style: flex items-center justify-end h-68px px-20px border-b border-#f0f0f0;

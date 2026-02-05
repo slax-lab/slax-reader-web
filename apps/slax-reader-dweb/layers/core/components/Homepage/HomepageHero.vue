@@ -96,6 +96,7 @@ const emit = defineEmits<{
             --style: 'content-empty absolute inset-0 opacity-0';
             background: linear-gradient(135deg, transparent 0%, #ffffff50 50%, transparent 100%);
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
           }
 
           &::after {
@@ -103,7 +104,7 @@ const emit = defineEmits<{
             background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
             background-size: 200% 200%;
             animation: gradient-shift 3s ease-in-out infinite;
-            z-index: 0;
+            z-index: -1;
           }
 
           &:hover {
