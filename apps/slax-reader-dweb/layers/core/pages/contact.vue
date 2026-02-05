@@ -205,14 +205,31 @@ const handleStartReading = async () => {
       --style: 'grid grid-cols-2 gap-24px mb-60px max-md:(grid-cols-1) select-none';
 
       .contact-item {
-        --style: 'flex items-start gap-20px bg-white p-28px rounded-16px no-underline transition-all duration-300 shadow-sm';
+        --style: 'flex items-start gap-20px bg-white p-28px rounded-16px no-underline shadow-sm';
+        will-change: transform, box-shadow;
+        transition:
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
         &:hover {
-          --style: 'shadow-[0_8px_24px_#0000001a] -translate-y-2px';
+          --style: 'shadow-[0_12px_32px_#0000001f]';
+          transform: translateY(-4px) scale(1.01);
+        }
+
+        &:active {
+          transform: translateY(-1px) scale(0.99);
+          transition:
+            transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .contact-icon {
           --style: text-40px flex items-center justify-center w-64px h-64px rounded-12px flex-shrink-0 bg-gradient-to-br from-#f0fff9 to-#e6fff3 color-#16b998;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        &:hover .contact-icon {
+          transform: scale(1.1) rotate(5deg);
         }
 
         .contact-info {
@@ -286,22 +303,37 @@ const handleStartReading = async () => {
     --style: 'grid grid-cols-3 gap-28px max-w-1000px mx-auto max-md:(grid-cols-1)';
 
     .link-card {
-      --style: 'flex flex-col items-center bg-[#f8f9fa] p-32px rounded-16px no-underline transition-all duration-300 text-center min-h-200px select-none';
+      --style: 'flex flex-col items-center bg-[#f8f9fa] p-32px rounded-16px no-underline text-center min-h-200px select-none';
+      will-change: transform, background-color, box-shadow;
+      transition:
+        transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &:hover {
-        --style: 'bg-[#e6fff3] -translate-y-2px shadow-[0_8px_20px_#16b99826]';
+        --style: 'bg-[#e6fff3] shadow-[0_12px_28px_#16b99830]';
+        transform: translateY(-4px) scale(1.02);
 
         .link-icon {
-          --style: scale-110;
+          transform: scale(1.15) rotate(-5deg);
         }
 
         .link-arrow {
-          --style: translate-x-4px;
+          transform: translateX(6px);
         }
       }
 
+      &:active {
+        transform: translateY(-1px) scale(0.99);
+        transition:
+          transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+          background-color 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
       .link-icon {
-        --style: text-48px transition-transform duration-300 mb-20px;
+        --style: text-48px mb-20px;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
       .link-text {
@@ -312,7 +344,8 @@ const handleStartReading = async () => {
         }
 
         .link-arrow {
-          --style: text-24px text-#16b998 font-600 transition-transform duration-300;
+          --style: text-24px text-#16b998 font-600;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
       }
     }
