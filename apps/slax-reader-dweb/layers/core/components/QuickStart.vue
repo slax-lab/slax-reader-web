@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd'
+const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_quick_start'
 const installClick = () => {
   window.open(pluginUrl)
 }
