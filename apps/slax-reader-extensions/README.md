@@ -47,8 +47,8 @@ SlaxReader 利用现代前端技术和浏览器扩展 API，帮助用户更高�
 
 ### 环境要求
 
-- Node.js (推荐 v16+)
-- PNPM 包管理器
+- **Node.js**: >= 20
+- **包管理器**: pnpm >= 9
 
 ### 安装依赖
 
@@ -61,7 +61,25 @@ pnpm install
 启动带有热重载的开发服务器:
 
 ```bash
+# Chrome/Edge 浏览器
 pnpm run dev
+
+# Firefox 浏览器
+pnpm run dev:firefox
+```
+
+### 类型检查
+
+```bash
+# TypeScript 类型检查（不输出文件）
+pnpm run compile
+```
+
+### 代码质量
+
+```bash
+# 自动修复代码风格问题
+pnpm run lint:fix
 ```
 
 ### 构建
@@ -69,13 +87,21 @@ pnpm run dev
 标准构建:
 
 ```bash
+# Chrome/Edge 浏览器
 pnpm run build
+
+# Firefox 浏览器
+pnpm run build:firefox
 ```
 
 生成压缩包用于分发:
 
 ```bash
+# Chrome/Edge 浏览器
 pnpm run zip
+
+# Firefox 浏览器
+pnpm run zip:firefox
 ```
 
 ## 安装与使用

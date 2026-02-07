@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isFromAuth = from.fullPath.indexOf('/auth') !== -1
   const isToAuth = to.fullPath.indexOf('/auth') !== -1
   const isToLogin = to.fullPath.indexOf('/login') !== -1
-  const authWhiteList = ['/privacy', '/terms', '/guide', '/s', '/download']
+  const authWhiteList = ['/privacy', '/terms', '/guide', '/s', '/download', '/contact']
   const isToAuthWhiteList = authWhiteList.some(path => to.fullPath.indexOf(path) !== -1)
 
   const homepagePaths = ['/', '/zh', '/en']

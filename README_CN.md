@@ -16,7 +16,7 @@
 </div>
 </br>
 
-Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/README.md)及[插件端服务](./apps/slax-reader-extensions/README.md)，需要与项目[Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client) 配合使用。本文为部署、开发教程，如需直接使用 Slax Reader，请移步 [Slax Reader](https://r.slax.com) 或 [Slax Reader Bot](https://t.me/slax_reader_bot)。
+Slax Reader Web 服务包含[网页端应用](./apps/slax-reader-dweb/README.md)及[浏览器扩展服务](./apps/slax-reader-extensions/README.md)，需要与项目[Slax Reader API](https://github.com/slax-lab/slax-reader-api) / [Slax Reader APP](https://github.com/slax-lab/slax-reader-client) 配合使用。本文为部署、开发教程，如需直接使用 Slax Reader，请移步 [Slax Reader](https://r.slax.com) 或 [Slax Reader Bot](https://t.me/slax_reader_bot)。
 
 <div align="center">
 
@@ -42,6 +42,35 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 
 - iOS/Android/Desktop 应用（正在开发中）。
 
+# 💻 开发指南
+
+## 环境要求
+
+- **Node.js**: >= 20
+- **包管理器**: pnpm >= 9
+
+## 快速开始
+
+```bash
+# 安装依赖
+pnpm install
+
+# 开发模式
+pnpm run dev                    # 交互模式 - 选择要运行的应用
+pnpm run dev:dweb               # 仅运行网页应用
+pnpm run dev:extensions         # 仅运行浏览器扩展
+
+# 构建
+pnpm run build:dweb             # 构建网页应用
+pnpm run build:extensions       # 构建浏览器扩展
+pnpm run build:extensions:zip   # 构建并打包扩展为 zip
+
+# 代码质量
+pnpm run lint                   # 检查代码风格
+```
+
+详细开发指南请查看 [开发文档](./public/DEVELOPMENT-DOCUMENT-CN.md)。
+
 # 🚀 Self-Deploy
 
 快速部署您自己的版本！本项目支持多种部署方式。查看我们的 [部署文档](./public/DEPLOY-CN.md) 获取完整的步骤说明。
@@ -55,8 +84,6 @@ Slax Reader Web 服务包含[网页端服务](./apps/slax-reader-extensions/READ
 - [x] 支持从omnivore导入收藏
 - [x] 支持 Websocket / Browser Push 进行消息推送
 - [x] 支持服务端渲染及 Web app 使用
-
-### TODO List
 
 # 🤝 How to Contribution
 

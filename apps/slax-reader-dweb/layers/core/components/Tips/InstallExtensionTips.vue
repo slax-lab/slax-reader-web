@@ -43,7 +43,7 @@ const closeClick = () => {
 }
 
 const installClick = () => {
-  window.open('https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd')
+  window.open('https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_inbox')
 }
 
 const shakeTextarea = () => {

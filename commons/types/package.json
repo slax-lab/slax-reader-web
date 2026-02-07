@@ -5,6 +5,7 @@
   "main": "./src",
   "exports": {
     ".": "./src",
+    "./analytics": "./src/analytics.ts",
     "./const": "./src/const.ts",
     "./error": "./src/error.ts",
     "./interface": "./src/interface.ts",

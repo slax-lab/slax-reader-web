@@ -84,18 +84,32 @@ const emit = defineEmits<{
       }
       .hero-cta {
         .btn-free {
-          --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-#fff text-20px font-600 max-md:(text-16px m-auto) relative overflow-hidden transition-all duration-300 no-underline select-none';
+          --style: 'cursor-pointer w-fit flex gap-12px items-center h-60px px-32px rounded-10px justify-center text-#fff text-20px font-600 max-md:(text-16px m-auto) relative overflow-hidden no-underline select-none';
           background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
-          background-size: 300% 300%;
+          background-size: 200% 200%;
+          will-change: transform, box-shadow;
+          transition:
+            transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
           &::before {
-            --style: 'content-empty absolute inset-0 opacity-0 transition-opacity duration-300';
-            background: linear-gradient(135deg, transparent 0%, #ffffff40 50%, transparent 100%);
+            --style: 'content-empty absolute inset-0 opacity-0';
+            background: linear-gradient(135deg, transparent 0%, #ffffff50 50%, transparent 100%);
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+          }
+
+          &::after {
+            --style: 'content-empty absolute inset-0';
+            background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease-in-out infinite;
+            z-index: -1;
           }
 
           &:hover {
-            --style: '-translate-y-2px shadow-[0_8px_20px_#16b99840]';
-            animation: gradient-shift 2s ease infinite;
+            --style: '-translate-y-3px shadow-[0_12px_28px_#16b99850]';
+            transform: translateY(-3px) scale(1.02);
 
             &::before {
               --style: opacity-100;
@@ -103,15 +117,24 @@ const emit = defineEmits<{
           }
 
           &:active {
-            --style: translate-y-0;
+            --style: 'translate-y-1px shadow-[0_4px_12px_#16b99840]';
+            transform: translateY(1px) scale(0.98);
+            transition:
+              transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
           img {
             --style: w-16px relative z-1;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
           }
 
           span {
             --style: relative z-1;
+          }
+
+          &:hover img {
+            transform: translateX(3px);
           }
         }
       }
@@ -150,12 +173,14 @@ const emit = defineEmits<{
 }
 
 @keyframes gradient-shift {
-  0%,
-  100% {
+  0% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>

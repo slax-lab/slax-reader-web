@@ -50,7 +50,7 @@ Slax Reader DWeb 是一个基于现代 Web 技术的阅读应用，提供强大�
 
 ### 核心框架与工具
 
-- Nuxt.js (Vue 3 框架)
+- Nuxt.js 3 (Vue 3 框架)
 - Vite.js (构建工具)
 - Pinia (状态管理)
 - VueUse (实用工具集)
@@ -62,7 +62,26 @@ Slax Reader DWeb 是一个基于现代 Web 技术的阅读应用，提供强大�
 - Markdown-it (Markdown 解析)
 - Markmap (思维导图)
 
+### 第三方集成
+
+- Firebase (身份验证和实时数据)
+- Stripe (支付处理)
+- Cloudflare Turnstile (人机验证)
+- Google Analytics (nuxt-gtag)
+- Schema.org 结构化数据 (nuxt-schema-org)
+
+### SEO 和元数据
+
+- nuxt-og-image (Open Graph 图片生成)
+- @nuxtjs/sitemap (网站地图)
+- @nuxtjs/robots (robots.txt 管理)
+
 ## 开发指南
+
+### 环境要求
+
+- **Node.js**: >= 20
+- **包管理器**: pnpm >= 9
 
 ### 环境设置
 
@@ -76,8 +95,20 @@ pnpm run dev
 # 构建生产版本
 pnpm run build
 
+# 生成静态站点（SSG）
+pnpm run generate
+
 # 本地预览生产版本
 pnpm run preview
+
+# SSR 开发模式（Cloudflare Pages）
+pnpm run ssr:dev
+
+# 代码质量检查
+pnpm run lint:fix              # 自动修复代码风格问题
+
+# 测试
+pnpm run test                  # 运行单元测试
 ```
 
 ## 国际化 (i18n) 指南 ‼️

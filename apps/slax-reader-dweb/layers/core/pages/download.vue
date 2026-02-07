@@ -104,7 +104,7 @@
               </div>
               <div class="download-buttons">
                 <a
-                  href="https://chromewebstore.google.com/detail/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=homepage"
+                  href="https://chromewebstore.google.com/detail/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_homepage"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="download-btn browser-btn"
