@@ -213,16 +213,6 @@ const loadBookmarkDetail = async () => {
   }
 
   await loadMarks()
-
-  analyticsLog({
-    event: 'view_bookmark_content',
-    value: {
-      user: user.value?.userId || 0,
-      share_code: shareCode,
-      source: 'share',
-      title: detail.value?.title || ''
-    }
-  })
 }
 
 const fetchServerData = async () => {

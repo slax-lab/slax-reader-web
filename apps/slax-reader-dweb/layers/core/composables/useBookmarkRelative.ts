@@ -29,54 +29,6 @@ export const isInlineBookmarkDetail = (detail: WebBookmarkArticleDetail): detail
 
 export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 
-export const logChat = (options: BookmarkTypeOptions, userId: number) => {
-  if (options.type === BookmarkType.Normal) {
-    const { bmId, title } = options
-    analyticsLog({
-      event: 'click_ai_chat',
-      value: {
-        user: userId || 0,
-        bookmark_id: bmId,
-        source: 'bookmark',
-        title: title
-      }
-    })
-  } else if (options.type === BookmarkType.Share) {
-    const { shareCode, title } = options
-    analyticsLog({
-      event: 'click_ai_chat',
-      value: {
-        user: userId || 0,
-        share_code: shareCode,
-        source: 'bookmark',
-        title: title
-      }
-    })
-  }
-}
-
-export const logAnalyzed = (options: BookmarkTypeOptions, userId: number) => {
-  if (options.type === BookmarkType.Normal) {
-    const { bmId } = options
-    analyticsLog({
-      event: 'click_ai_summary',
-      value: {
-        user: userId || 0,
-        bookmark_id: bmId
-      }
-    })
-  } else if (options.type === BookmarkType.Share) {
-    const { shareCode } = options
-    analyticsLog({
-      event: 'click_ai_summary',
-      value: {
-        user: userId || 0,
-        share_code: shareCode
-      }
-    })
-  }
-}
-
 export const showFeedbackView = (options: BookmarkTypeOptions, type: string) => {
   const href = `${window.location.origin}${window.location.pathname}`
   const email = useUserStore().userInfo?.email

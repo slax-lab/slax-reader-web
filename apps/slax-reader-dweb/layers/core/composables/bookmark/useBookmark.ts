@@ -49,11 +49,6 @@ export const useBookmark = (options: BookmarkOptions) => {
 
     botExpanded.value = false
     summariesExpanded.value = !summariesExpanded.value
-
-    const options = typeOptions()
-    if (summariesExpanded.value) {
-      logAnalyzed(options, userStore.user?.userId || 0)
-    }
   }
 
   const showChatbot = () => {
@@ -63,11 +58,6 @@ export const useBookmark = (options: BookmarkOptions) => {
 
     summariesExpanded.value = false
     botExpanded.value = !botExpanded.value
-
-    const options = typeOptions()
-    if (botExpanded.value) {
-      logChat(options, userStore.user?.userId || 0)
-    }
   }
 
   const chatBotQuote = (data: QuoteData) => {

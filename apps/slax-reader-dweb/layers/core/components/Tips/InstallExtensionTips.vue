@@ -44,6 +44,11 @@ const closeClick = () => {
 
 const installClick = () => {
   window.open('https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_inbox')
+
+  analyticsLog({
+    event: 'bookmark_list_download',
+    client: 'browser_extension'
+  })
 }
 
 const shakeTextarea = () => {
