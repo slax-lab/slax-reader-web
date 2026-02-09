@@ -75,17 +75,6 @@ const { navLinks, auxiliaryLinks } = useAppHeader({
 
 const showMobileSidebar = ref(false)
 
-onMounted(() => {
-  addLog()
-})
-
-const handleStartFree = async () => {
-  showMobileSidebar.value = false
-  if (auxiliaryLinks.startFree.action) {
-    await auxiliaryLinks.startFree.action()
-  }
-}
-
 const addLog = () => {
   const refs: Record<string, 'homepage' | 'pricing' | 'download' | 'blog' | 'contact'> = {
     '/download': 'download',
@@ -98,6 +87,17 @@ const addLog = () => {
     event: 'homepage_view',
     section: refs[window.location.pathname] || 'homepage'
   })
+}
+
+onMounted(() => {
+  addLog()
+})
+
+const handleStartFree = async () => {
+  showMobileSidebar.value = false
+  if (auxiliaryLinks.startFree.action) {
+    await auxiliaryLinks.startFree.action()
+  }
 }
 </script>
 

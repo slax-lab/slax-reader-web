@@ -295,9 +295,19 @@ const showQuoteImage = computed(() => {
   return quoteInfo.value && quoteInfo.value.data.length > 0 && !!quoteInfo.value.data.find(item => item.type === 'image')
 })
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    analyticsLog({
+      event: 'bookmark_chat_interact',
+      sub_action: subAction,
+      entry_point: 'sidebar-entry'
+    })
+  }
+}
+
 watch(
   () => props.isAppeared,
-  value => {
+  (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
 
@@ -308,7 +318,7 @@ watch(
       addLog('open')
     } else if (value) {
       addLog('expand')
-    } else {
+    } else if (value !== !!oldValue) {
       addLog('collapse')
     }
 
@@ -741,16 +751,6 @@ const addQuoteData = (data: QuoteData) => {
 
 const closeQuote = () => {
   quoteInfo.value = null
-}
-
-const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
-  if (props.bookmarkId) {
-    analyticsLog({
-      event: 'bookmark_chat_interact',
-      sub_action: subAction,
-      entry_point: 'sidebar-entry'
-    })
-  }
 }
 
 defineExpose({

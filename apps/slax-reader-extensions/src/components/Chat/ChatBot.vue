@@ -325,9 +325,19 @@ const quoteData = computed(() => {
   }
 })
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_chat_interact',
+      sub_action: subAction,
+      entry_point: 'popup-menu'
+    })
+  }
+}
+
 watch(
   () => props.isAppeared,
-  value => {
+  (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
 
@@ -338,7 +348,8 @@ watch(
       addLog('open')
     } else if (value) {
       addLog('expand')
-    } else {
+    } else if (value !== !!oldValue) {
+      debugger
       addLog('collapse')
     }
 
@@ -793,16 +804,6 @@ const focusTextarea = () => {
 
 const closeQuote = () => {
   quoteInfo.value = null
-}
-
-const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
-  if (props.bookmarkId) {
-    trackEvent({
-      event: 'bookmark_chat_interact',
-      sub_action: subAction,
-      entry_point: 'popup-menu'
-    })
-  }
 }
 
 defineExpose({

@@ -234,6 +234,24 @@ const isCurrentInboxTab = computed(() => {
   return filterStatus.value === 'inbox' || !Boolean(filterStatus.value)
 })
 
+const addLog = () => {
+  const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'highlights' | 'archive' | 'trash' | 'notifications'> = {
+    inbox: 'inbox',
+    starred: 'starred',
+    topics: 'topics',
+    highlights: 'highlights',
+    archive: 'archive',
+    trashed: 'trash',
+    notifications: 'notifications'
+  }
+
+  const section = sectionMap[filterStatus.value] || 'inbox'
+  analyticsLog({
+    event: 'bookmark_list_view',
+    section
+  })
+}
+
 watch(
   () => route.query.filter,
   (newValue, oldValue) => {
@@ -573,24 +591,6 @@ const showNotificationList = () => {
 
 const notificationBack = () => {
   useRouter().go(-1)
-}
-
-const addLog = () => {
-  const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'highlights' | 'archive' | 'trash' | 'notifications'> = {
-    inbox: 'inbox',
-    starred: 'starred',
-    topics: 'topics',
-    highlights: 'highlights',
-    archive: 'archive',
-    trashed: 'trash',
-    notifications: 'notifications'
-  }
-
-  const section = sectionMap[filterStatus.value] || 'inbox'
-  analyticsLog({
-    event: 'bookmark_list_view',
-    section
-  })
 }
 </script>
 

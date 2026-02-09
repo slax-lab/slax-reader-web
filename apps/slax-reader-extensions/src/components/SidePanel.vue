@@ -175,6 +175,14 @@ const needHidden = computed(() => {
   return isSlaxWebsite(currentUrl.value) || bookmarkId.value === 0
 })
 
+const addLog = () => {
+  trackEvent({
+    event: 'bookmark_view',
+    id: `${bookmarkId.value}`,
+    mode: 'original'
+  })
+}
+
 watch(
   () => bookmarkId.value,
   value => {
@@ -583,14 +591,6 @@ const addBookmark = async () => {
   } finally {
     isLoading.value = false
   }
-}
-
-const addLog = () => {
-  trackEvent({
-    event: 'bookmark_view',
-    id: `${bookmarkId.value}`,
-    mode: 'original'
-  })
 }
 </script>
 

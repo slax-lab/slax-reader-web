@@ -589,24 +589,6 @@ const closeModal = () => {
   emits('dismiss')
 }
 
-watch(
-  () => props.isAppeared,
-  value => {
-    if (value && !loading.value && !done.value && markdownText.value.length === 0) {
-      checkAndLoadSummaries()
-      addLog('open')
-    } else if (value) {
-      addLog('expand')
-    } else {
-      addLog('collapse')
-    }
-  },
-  {
-    flush: 'sync',
-    immediate: true
-  }
-)
-
 const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
   if (props.bookmarkId) {
     analyticsLog({
@@ -616,6 +598,24 @@ const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
     })
   }
 }
+
+watch(
+  () => props.isAppeared,
+  (value, oldValue) => {
+    if (value && !loading.value && !done.value && markdownText.value.length === 0) {
+      checkAndLoadSummaries()
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else if (value !== !!oldValue) {
+      addLog('collapse')
+    }
+  },
+  {
+    flush: 'sync',
+    immediate: true
+  }
+)
 </script>
 
 <style lang="scss" scoped>

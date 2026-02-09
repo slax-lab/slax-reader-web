@@ -171,6 +171,16 @@ const currentSearchAnchor = {
   index: -1
 }
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_outline_interact',
+      bookmark_id: props.bookmarkId,
+      sub_action: subAction
+    })
+  }
+}
+
 watch(
   () => rawMarkdownText.value,
   value => {
@@ -200,10 +210,10 @@ watch(
 
 watch(
   () => props.isAppeared,
-  value => {
+  (value, oldValue) => {
     if (value) {
       !isShrink.value && addLog('expand')
-    } else {
+    } else if (value !== !!oldValue) {
       addLog('collapse')
     }
   }
@@ -626,16 +636,6 @@ const cloneBodyDocument = () => {
   const bodyContent = document.body.cloneNode(true)
   newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
   return newDocument
-}
-
-const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
-  if (props.bookmarkId) {
-    trackEvent({
-      event: 'bookmark_outline_interact',
-      bookmark_id: props.bookmarkId,
-      sub_action: subAction
-    })
-  }
 }
 </script>
 
