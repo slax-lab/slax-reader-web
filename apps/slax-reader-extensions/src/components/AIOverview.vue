@@ -95,10 +95,14 @@ const markdownedOverview = computed(() => {
 watch(
   () => props.isAppeared,
   value => {
-    if (value) {
-      if (overviewContent.value.length === 0 && !isDone.value && !isLoading.value) {
-        loadOverview()
-      }
+    if (value && overviewContent.value.length === 0 && !isDone.value && !isLoading.value) {
+      loadOverview()
+
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else {
+      addLog('collapse')
     }
   }
 )
@@ -332,6 +336,15 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
   }
 
   loadingEle.style.top = `${size.height}px`
+}
+
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (bookmarkId.value) {
+    trackEvent({
+      event: 'bookmark_overview_interact',
+      sub_action: subAction
+    })
+  }
 }
 </script>
 

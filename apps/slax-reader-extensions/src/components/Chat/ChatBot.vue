@@ -335,6 +335,11 @@ watch(
       // bot.chat({
       //   type: ChatParamsType.QUESTIONS
       // })
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else {
+      addLog('collapse')
     }
 
     if (value) {
@@ -788,6 +793,16 @@ const focusTextarea = () => {
 
 const closeQuote = () => {
   quoteInfo.value = null
+}
+
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_chat_interact',
+      sub_action: subAction,
+      entry_point: 'popup-menu'
+    })
+  }
 }
 
 defineExpose({

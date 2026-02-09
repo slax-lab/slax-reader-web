@@ -77,7 +77,7 @@ export interface SubscriptionCancelErrorEvent {
 
 /**
  * 打开书签详情页
- * 上报渠道：APP, Web
+ * 上报渠道：APP, Web, Extension
  */
 export interface BookmarkViewEvent {
   event: 'bookmark_view'
@@ -169,7 +169,6 @@ export interface BookmarkChatInteractEvent {
  */
 export interface BookmarkOverviewInteractEvent {
   event: 'bookmark_overview_interact'
-  bookmark_id: number
   sub_action: 'open' | 'close' | 'expand' | 'collapse'
 }
 
@@ -199,7 +198,7 @@ export interface BookmarkDeleteEvent {
  */
 export interface FeedbackSubmitStartEvent {
   event: 'feedback_submit_start'
-  scope: 'bookmark' | 'app'
+  scope: 'bookmark' | 'app' | 'extension'
 }
 
 /**
@@ -296,8 +295,6 @@ export interface BookmarkListItemInteractEvent {
  */
 export interface BookmarkListSearchEvent {
   event: 'bookmark_list_search'
-  keyword: string
-  result_count?: number
 }
 
 // ==================== 官网相关埋点 ====================
@@ -411,6 +408,7 @@ export type ExtensionAnalyticsEvent =
   | BookmarkOverviewInteractEvent
   | BookmarkOutlineInteractEvent
   | FeedbackSubmitStartEvent
+  | BookmarkViewEvent
 
 /**
  * APP 端埋点事件类型

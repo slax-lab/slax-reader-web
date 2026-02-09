@@ -187,6 +187,8 @@ watch(
     loadBriefDetail().then(() => {
       bookmarkBriefInfo.value && loadSelection()
     })
+
+    addLog()
   }
 )
 
@@ -436,6 +438,12 @@ const panelClick = async (panel: PanelItem) => {
         bookmarkBriefInfo.value.archived = status
       }
 
+      trackEvent({
+        event: 'bookmark_archive',
+        is_archived: archieve,
+        source: 'bookmark'
+      })
+
       panel.isLoading = false
 
       panel.finishHandler && panel.finishHandler()
@@ -465,6 +473,12 @@ const panelClick = async (panel: PanelItem) => {
       if (bookmarkBriefInfo.value) {
         bookmarkBriefInfo.value.starred = status
       }
+
+      trackEvent({
+        event: 'bookmark_star',
+        is_starred: starred,
+        source: 'bookmark'
+      })
 
       panel.isLoading = false
 
@@ -569,6 +583,14 @@ const addBookmark = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+const addLog = () => {
+  trackEvent({
+    event: 'bookmark_view',
+    id: `${bookmarkId.value}`,
+    mode: 'original'
+  })
 }
 </script>
 

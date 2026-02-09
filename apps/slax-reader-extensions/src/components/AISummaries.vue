@@ -189,10 +189,23 @@ watch(
       nextTick(() => {
         scrollToTop()
       })
+
+      addLog('open')
     }
   },
   {
     flush: 'sync'
+  }
+)
+
+watch(
+  () => props.isAppeared,
+  value => {
+    if (value) {
+      !isShrink.value && addLog('expand')
+    } else {
+      addLog('collapse')
+    }
   }
 )
 
@@ -613,6 +626,16 @@ const cloneBodyDocument = () => {
   const bodyContent = document.body.cloneNode(true)
   newDocument.body.parentNode?.replaceChild(bodyContent, newDocument.body)
   return newDocument
+}
+
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_outline_interact',
+      bookmark_id: props.bookmarkId,
+      sub_action: subAction
+    })
+  }
 }
 </script>
 
