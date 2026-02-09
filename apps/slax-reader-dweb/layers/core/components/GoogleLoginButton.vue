@@ -25,6 +25,11 @@ const props = defineProps({
 const auth = useAuth()
 
 const loginClick = async () => {
+  analyticsLog({
+    event: 'user_login_start',
+    method: 'google'
+  })
+
   await login({
     redirect: props.redirect,
     affcode: props.affcode

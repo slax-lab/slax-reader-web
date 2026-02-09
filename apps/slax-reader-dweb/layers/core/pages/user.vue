@@ -136,6 +136,12 @@ useHead({
   title: `${t('component.user_operate_icon.personal_info')} - Slax Reader`
 })
 onMounted(async () => {
+  try {
+    analyticsLog({
+      event: 'setting_view'
+    })
+  } catch (e) {}
+
   start()
   await getUserDetailInfo()
   finish()

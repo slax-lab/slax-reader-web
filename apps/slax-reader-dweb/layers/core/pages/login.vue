@@ -46,6 +46,12 @@ const { t } = useI18n()
 useHead({
   titleTemplate: `${t('common.operate.login')} - ${t('common.app.name')}`
 })
+
+onMounted(() => {
+  analyticsLog({
+    event: 'user_view_login'
+  })
+})
 </script>
 
 <style lang="scss" scoped>

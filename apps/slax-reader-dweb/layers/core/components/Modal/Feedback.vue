@@ -83,6 +83,11 @@ const reportFeedbackContent = async () => {
     return
   }
 
+  analyticsLog({
+    event: 'feedback_submit_start',
+    scope: 'bookmark'
+  })
+
   isLoading.value = true
   let environment = ''
   try {

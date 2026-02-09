@@ -1,40 +1,73 @@
 import { isClient } from '@commons/utils/is'
 
+import type { WebAnalyticsEvent } from '@commons/types/analytics'
 import { type Analytics, getAnalytics, logEvent } from 'firebase/analytics'
 import { initializeApp } from 'firebase/app'
 
-export const analyticsLog = (params: { event: string; value?: Record<string, string | number> }) => {
+/**
+ * Web端埋点上报函数（Google Analytics）
+ */
+export const analyticsLog = (params: WebAnalyticsEvent) => {
   if (!isClient) {
     return
   }
 
-  const { gtag } = useGtag()
-  gtag('event', params.event, params.value)
+  try {
+    const config = useRuntimeConfig()
+    const { gtag } = useGtag()
+
+    const { event, ...restParams } = params
+    const enrichedParams = {
+      ...restParams,
+      platform: 'web',
+      version: config.public.appVersion || 'unknown'
+    }
+
+    gtag('event', event, enrichedParams)
+  } catch (error) {
+    console.error('[Analytics] Track error:', error, params)
+  }
 }
 
 let analytics: Analytics | null = null
-export const firebaseAnalyticsLog = (params: { event: string; value?: Record<string, string | number> }) => {
+
+/**
+ * Web端埋点上报函数（Firebase Analytics）
+ */
+export const firebaseAnalyticsLog = (params: WebAnalyticsEvent) => {
   if (!isClient) {
     return
   }
 
-  if (!analytics) {
-    const $config = useNuxtApp().$config.public
-    const initialConfig = {
-      apiKey: `${$config.FIREBASE_API_KEY || ''}`,
-      authDomain: `${$config.FIREBASE_AUTH_DOMAIN || ''}`,
-      databaseURL: `${$config.FIREBASE_DATABASE_URL || ''}`,
-      projectId: `${$config.FIREBASE_PROJECT_ID || ''}`,
-      storageBucket: `${$config.FIREBASE_STORAGE_BUCKET || ''}`,
-      messagingSenderId: `${$config.FIREBASE_MESSAGING_SENDER_ID || ''}`,
-      appId: `${$config.FIREBASE_APP_ID || ''}`,
-      measurementId: `${$config.FIREBASE_MEASUREMENT_ID || ''}`
+  try {
+    if (!analytics) {
+      const $config = useNuxtApp().$config.public
+      const initialConfig = {
+        apiKey: `${$config.FIREBASE_API_KEY || ''}`,
+        authDomain: `${$config.FIREBASE_AUTH_DOMAIN || ''}`,
+        databaseURL: `${$config.FIREBASE_DATABASE_URL || ''}`,
+        projectId: `${$config.FIREBASE_PROJECT_ID || ''}`,
+        storageBucket: `${$config.FIREBASE_STORAGE_BUCKET || ''}`,
+        messagingSenderId: `${$config.FIREBASE_MESSAGING_SENDER_ID || ''}`,
+        appId: `${$config.FIREBASE_APP_ID || ''}`,
+        measurementId: `${$config.FIREBASE_MEASUREMENT_ID || ''}`
+      }
+
+      const app = initializeApp(initialConfig)
+      analytics = getAnalytics(app)
     }
 
-    const app = initializeApp(initialConfig)
+    const config = useRuntimeConfig()
 
-    analytics = getAnalytics(app)
+    const { event, ...restParams } = params
+    const enrichedParams = {
+      ...restParams,
+      platform: 'web',
+      version: config.public.appVersion || 'unknown'
+    }
+
+    logEvent(analytics, event, enrichedParams)
+  } catch (error) {
+    console.error('[Analytics] Firebase track error:', error, params)
   }
-
-  logEvent(analytics, params.event, params.value)
 }

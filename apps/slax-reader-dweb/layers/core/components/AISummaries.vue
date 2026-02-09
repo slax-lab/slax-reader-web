@@ -594,6 +594,11 @@ watch(
   value => {
     if (value && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else {
+      addLog('collapse')
     }
   },
   {
@@ -601,6 +606,16 @@ watch(
     immediate: true
   }
 )
+
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    analyticsLog({
+      event: 'bookmark_outline_interact',
+      bookmark_id: props.bookmarkId,
+      sub_action: subAction
+    })
+  }
+}
 </script>
 
 <style lang="scss" scoped>

@@ -8,11 +8,6 @@
 
 // ==================== 基础类型定义 ====================
 
-/**
- * 用户ID类型（未登录时可为 undefined）
- */
-export type UserId = number | undefined
-
 // ==================== 订阅相关埋点 ====================
 
 /**
@@ -21,7 +16,6 @@ export type UserId = number | undefined
  */
 export interface SubscriptionViewEvent {
   event: 'subscription_view'
-  user_id: number
   presentation: 'dialog' | 'screen'
 }
 
@@ -30,7 +24,6 @@ export interface SubscriptionViewEvent {
  */
 export interface SubscriptionCheckoutStartEvent {
   event: 'subscription_checkout_start'
-  user_id: number
   plan_id: string
   subscription_type?: 'initial' | 'auto_renewal' | 'resubscribe'
   offer_type: 'trial_cardless' | 'trial_authorized' | 'standard'
@@ -43,7 +36,6 @@ export interface SubscriptionCheckoutStartEvent {
  */
 export interface SubscriptionCheckoutCompleteEvent {
   event: 'subscription_checkout_complete'
-  user_id: number
   subscription_type: 'initial_subscription' | 'auto_renewal' | 'resubscription'
   offer_type: 'trial_cardless' | 'trial_authorized' | 'standard'
   gateway: 'stripe' | 'apple_iap' | 'google_iap'
@@ -54,7 +46,6 @@ export interface SubscriptionCheckoutCompleteEvent {
  */
 export interface SubscriptionCheckoutErrorEvent {
   event: 'subscription_checkout_error'
-  user_id: number
   reason: string
   error_code: string
 }
@@ -64,7 +55,6 @@ export interface SubscriptionCheckoutErrorEvent {
  */
 export interface SubscriptionCancelStartEvent {
   event: 'subscription_cancel_start'
-  user_id: number
 }
 
 /**
@@ -72,7 +62,6 @@ export interface SubscriptionCancelStartEvent {
  */
 export interface SubscriptionCancelCompleteEvent {
   event: 'subscription_cancel_complete'
-  user_id: number
 }
 
 /**
@@ -80,7 +69,6 @@ export interface SubscriptionCancelCompleteEvent {
  */
 export interface SubscriptionCancelErrorEvent {
   event: 'subscription_cancel_error'
-  user_id: number
   reason: string
   error_code: string
 }
@@ -93,8 +81,7 @@ export interface SubscriptionCancelErrorEvent {
  */
 export interface BookmarkViewEvent {
   event: 'bookmark_view'
-  user_id: number
-  id: number // 伪ID，用于统计阅读篇数分布
+  id: string // 伪ID，用于统计阅读篇数分布
   mode: 'original' | 'snapshot'
 }
 
@@ -103,7 +90,6 @@ export interface BookmarkViewEvent {
  */
 export interface BookmarkAddStartEvent {
   event: 'bookmark_add_start'
-  user_id: number
   channel: 'telegram' | 'browser_extension' | 'app' | 'web'
   method: 'manual_paste' | 'browser_extension' | 'share_extension'
 }
@@ -114,7 +100,6 @@ export interface BookmarkAddStartEvent {
  */
 export interface BookmarkAddStepEvent {
   event: 'bookmark_add_step'
-  user_id: number
   step_name: 'snapshot_scrapping' | 'snapshot_parsing' | 'embedding'
   domain: string
   status: 'success' | 'failed'
@@ -126,7 +111,6 @@ export interface BookmarkAddStepEvent {
  */
 export interface BookmarkAddCompleteEvent {
   event: 'bookmark_add_complete'
-  user_id: number
   domain: string
   bm_uuid: string
 }
@@ -136,7 +120,6 @@ export interface BookmarkAddCompleteEvent {
  */
 export interface BookmarkAddErrorEvent {
   event: 'bookmark_add_error'
-  user_id: number
   domain: string
   bm_uuid: string
 }
@@ -147,9 +130,8 @@ export interface BookmarkAddErrorEvent {
  */
 export interface BookmarkArchiveEvent {
   event: 'bookmark_archive'
-  user_id: number
-  bookmark_id: number
   is_archived: boolean
+  source: 'bookmark' | 'inbox'
 }
 
 /**
@@ -158,8 +140,6 @@ export interface BookmarkArchiveEvent {
  */
 export interface BookmarkStarEvent {
   event: 'bookmark_star'
-  user_id: number
-  bookmark_id: number
   is_starred: boolean
   source: 'bookmark' | 'inbox'
 }
@@ -169,7 +149,6 @@ export interface BookmarkStarEvent {
  */
 export interface BookmarkTagUpdateEvent {
   event: 'bookmark_tag_update'
-  user_id: number
   bookmark_id: number
   sub_action: 'add' | 'remove'
 }
@@ -180,8 +159,6 @@ export interface BookmarkTagUpdateEvent {
  */
 export interface BookmarkChatInteractEvent {
   event: 'bookmark_chat_interact'
-  user_id: number
-  bookmark_id: number
   sub_action: 'open' | 'close' | 'expand' | 'collapse'
   entry_point: 'popup-menu' | 'sidebar-entry'
 }
@@ -192,7 +169,6 @@ export interface BookmarkChatInteractEvent {
  */
 export interface BookmarkOverviewInteractEvent {
   event: 'bookmark_overview_interact'
-  user_id: number
   bookmark_id: number
   sub_action: 'open' | 'close' | 'expand' | 'collapse'
 }
@@ -203,7 +179,6 @@ export interface BookmarkOverviewInteractEvent {
  */
 export interface BookmarkOutlineInteractEvent {
   event: 'bookmark_outline_interact'
-  user_id: number
   bookmark_id: number
   sub_action: 'open' | 'close' | 'expand' | 'collapse'
 }
@@ -214,8 +189,6 @@ export interface BookmarkOutlineInteractEvent {
  */
 export interface BookmarkDeleteEvent {
   event: 'bookmark_delete'
-  user_id: number
-  bookmark_id: number
 }
 
 // ==================== 反馈相关埋点 ====================
@@ -226,7 +199,6 @@ export interface BookmarkDeleteEvent {
  */
 export interface FeedbackSubmitStartEvent {
   event: 'feedback_submit_start'
-  user_id: number
   scope: 'bookmark' | 'app'
 }
 
@@ -236,7 +208,6 @@ export interface FeedbackSubmitStartEvent {
  */
 export interface FeedbackSubmitCompleteEvent {
   event: 'feedback_submit_complete'
-  user_id: number
   scope: 'bookmark' | 'app'
 }
 
@@ -248,7 +219,6 @@ export interface FeedbackSubmitCompleteEvent {
  */
 export interface UserViewLoginEvent {
   event: 'user_view_login'
-  referrer?: string
 }
 
 /**
@@ -257,7 +227,6 @@ export interface UserViewLoginEvent {
  */
 export interface UserLoginStartEvent {
   event: 'user_login_start'
-  user_id?: number
   method: 'google' | 'apple'
 }
 
@@ -267,7 +236,6 @@ export interface UserLoginStartEvent {
  */
 export interface UserLoginCompleteEvent {
   event: 'user_login_complete'
-  user_id: number
   is_new_user: boolean
   referral_code?: string
 }
@@ -277,7 +245,6 @@ export interface UserLoginCompleteEvent {
  */
 export interface UserLoginErrorEvent {
   event: 'user_login_error'
-  user_id?: number
   reason: string
   error_code: string
 }
@@ -290,7 +257,6 @@ export interface UserLoginErrorEvent {
  */
 export interface SettingViewEvent {
   event: 'setting_view'
-  user_id: number
 }
 
 // ==================== 书签列表相关埋点 ====================
@@ -301,7 +267,6 @@ export interface SettingViewEvent {
  */
 export interface BookmarkListViewEvent {
   event: 'bookmark_list_view'
-  user_id: number
   section: 'inbox' | 'starred' | 'topics' | 'collections' | 'highlights' | 'archive' | 'trash' | 'notifications'
 }
 
@@ -311,7 +276,6 @@ export interface BookmarkListViewEvent {
  */
 export interface BookmarkListDownloadEvent {
   event: 'bookmark_list_download'
-  user_id: number
   client: 'browser_extension'
 }
 
@@ -321,7 +285,6 @@ export interface BookmarkListDownloadEvent {
  */
 export interface BookmarkListItemInteractEvent {
   event: 'bookmark_list_item_interact'
-  user_id: number
   bookmark_id: number
   element: 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash'
   section: 'inbox' | 'starred' | 'topics' | 'collections' | 'highlights' | 'archive' | 'trash' | 'notifications'
@@ -333,7 +296,6 @@ export interface BookmarkListItemInteractEvent {
  */
 export interface BookmarkListSearchEvent {
   event: 'bookmark_list_search'
-  user_id: number
   keyword: string
   result_count?: number
 }
@@ -346,9 +308,7 @@ export interface BookmarkListSearchEvent {
  */
 export interface HomepageViewEvent {
   event: 'homepage_view'
-  user_id?: number
   section: 'homepage' | 'pricing' | 'download' | 'blog' | 'contact'
-  referrer?: string
 }
 
 /**
@@ -357,7 +317,6 @@ export interface HomepageViewEvent {
  */
 export interface HomepageDownloadEvent {
   event: 'homepage_download'
-  user_id?: number
   client: 'ios' | 'android' | 'mac' | 'browser_extension'
 }
 
@@ -367,7 +326,6 @@ export interface HomepageDownloadEvent {
  */
 export interface HomepageClaimFreeTrialEvent {
   event: 'homepage_claim_free_trial'
-  user_id?: number
   source: 'official' | 'koc'
   referral_code?: string
 }
