@@ -300,7 +300,7 @@ const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
     analyticsLog({
       event: 'bookmark_chat_interact',
       sub_action: subAction,
-      entry_point: 'sidebar-entry'
+      entry_point: 'sidebar_entry'
     })
   }
 }
