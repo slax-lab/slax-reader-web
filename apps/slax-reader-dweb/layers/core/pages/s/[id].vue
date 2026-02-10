@@ -106,6 +106,7 @@ const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
 
+const config = useNuxtApp().$config.public
 const detailLayout = ref<InstanceType<typeof DetailLayout>>()
 const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
 const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
@@ -140,9 +141,16 @@ const defineSeo = () => {
   const wordText = extractHTMLTextContent(detail.value?.content || '')
   const title = `${detail.value?.title} - ${t('common.app.name')}`
   const description = wordText.length < 60 ? wordText : wordText.slice(0, 60)
+  const sourceUrl = detail.value?.target_url ?? `${config.SHARE_BASE_URL}/s/${shareCode}`
 
   useHead({
-    titleTemplate: `${detail.value?.title} - ${t('common.app.name')}`
+    titleTemplate: `${detail.value?.title} - ${t('common.app.name')}`,
+    link: [
+      {
+        rel: 'canonical',
+        href: sourceUrl
+      }
+    ]
   })
 
   useSeoMeta({
@@ -156,13 +164,22 @@ const defineSeo = () => {
     twitterDescription: description
   })
 
-  defineArticle({
-    headline: title,
-    description,
-    image: detail.value?.user_info.avatar,
-    datePublished: detail.value?.share_info.created_at,
-    '@type': ['Article']
-  })
+  useSchemaOrg([
+    defineWebPage({
+      name: title,
+      description: description,
+      datePublished: detail.value?.share_info.created_at
+    }),
+
+    defineArticle({
+      '@id': '#article',
+      headline: title,
+      description: description,
+      image: detail.value?.user_info.avatar,
+      datePublished: detail.value?.share_info.created_at,
+      isBasedOn: sourceUrl
+    })
+  ])
 }
 
 const loadMarks = async () => {
@@ -196,16 +213,6 @@ const loadBookmarkDetail = async () => {
   }
 
   await loadMarks()
-
-  analyticsLog({
-    event: 'view_bookmark_content',
-    value: {
-      user: user.value?.userId || 0,
-      share_code: shareCode,
-      source: 'share',
-      title: detail.value?.title || ''
-    }
-  })
 }
 
 const fetchServerData = async () => {

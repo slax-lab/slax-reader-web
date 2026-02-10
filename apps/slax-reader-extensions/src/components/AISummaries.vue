@@ -171,6 +171,16 @@ const currentSearchAnchor = {
   index: -1
 }
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_outline_interact',
+      bookmark_id: props.bookmarkId,
+      sub_action: subAction
+    })
+  }
+}
+
 watch(
   () => rawMarkdownText.value,
   value => {
@@ -189,10 +199,23 @@ watch(
       nextTick(() => {
         scrollToTop()
       })
+
+      addLog('open')
     }
   },
   {
     flush: 'sync'
+  }
+)
+
+watch(
+  () => props.isAppeared,
+  (value, oldValue) => {
+    if (value) {
+      !isShrink.value && addLog('expand')
+    } else if (value !== !!oldValue) {
+      addLog('collapse')
+    }
   }
 )
 

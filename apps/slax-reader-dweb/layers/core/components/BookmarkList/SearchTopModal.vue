@@ -47,6 +47,14 @@ const topModalClick = async () => {
   nextTick(() => {
     searchText.value = ''
   })
+
+  try {
+    analyticsLog({
+      event: 'bookmark_list_search'
+    })
+  } catch (error) {
+    console.error('Analytics log error:', error)
+  }
 }
 
 const closeModal = () => {

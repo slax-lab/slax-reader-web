@@ -75,6 +75,24 @@ const { navLinks, auxiliaryLinks } = useAppHeader({
 
 const showMobileSidebar = ref(false)
 
+const addLog = () => {
+  const refs: Record<string, 'homepage' | 'pricing' | 'download' | 'blog' | 'contact'> = {
+    '/download': 'download',
+    '/pricing': 'pricing',
+    '/contact': 'contact',
+    '/blog': 'blog'
+  }
+
+  analyticsLog({
+    event: 'homepage_view',
+    section: refs[window.location.pathname] || 'homepage'
+  })
+}
+
+onMounted(() => {
+  addLog()
+})
+
 const handleStartFree = async () => {
   showMobileSidebar.value = false
   if (auxiliaryLinks.startFree.action) {
@@ -107,7 +125,7 @@ const handleStartFree = async () => {
     }
 
     .nav-links {
-      --style: 'flex items-center gap-16px max-md:(hidden)';
+      --style: 'flex items-center gap-16px max-lg:(hidden)';
 
       .link {
         --style: 'text-16px font-400 text-#333 no-underline transition-all duration-300';
@@ -118,18 +136,32 @@ const handleStartFree = async () => {
       }
 
       .btn-free {
-        --style: 'cursor-pointer flex items-center rounded-6px px-10px h-36px text-#fff select-none transition-all duration-300 relative overflow-hidden';
+        --style: 'cursor-pointer flex items-center rounded-6px px-10px h-36px text-#fff select-none relative overflow-hidden';
         background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
-        background-size: 300% 300%;
+        background-size: 200% 200%;
+        will-change: transform, box-shadow;
+        transition:
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
         &::before {
-          --style: 'content-empty absolute inset-0 opacity-0 transition-opacity duration-300';
-          background: linear-gradient(135deg, transparent 0%, #ffffff40 50%, transparent 100%);
+          --style: 'content-empty absolute inset-0 opacity-0';
+          background: linear-gradient(135deg, transparent 0%, #ffffff50 50%, transparent 100%);
+          transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1;
+        }
+
+        &::after {
+          --style: 'content-empty absolute inset-0';
+          background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
+          background-size: 200% 200%;
+          animation: gradient-shift 3s ease-in-out infinite;
+          z-index: -1;
         }
 
         &:hover {
-          --style: '-translate-y-1px shadow-[0_4px_12px_#16b99840]';
-          animation: gradient-shift 2s ease infinite;
+          --style: 'shadow-[0_6px_16px_#16b99850]';
+          transform: translateY(-2px) scale(1.03);
 
           &::before {
             --style: opacity-100;
@@ -137,25 +169,46 @@ const handleStartFree = async () => {
         }
 
         &:active {
-          --style: translate-y-0;
+          --style: 'shadow-[0_2px_8px_#16b99840]';
+          transform: translateY(0px) scale(0.98);
+          transition:
+            transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
 
       .btn-github {
         --style: flex gap-6px items-center h-36px px-12px rounded-6px text-#333 font-500 text-15px border-2 border-#333 select-none;
+        will-change: transform, background-color;
+        transition:
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
           --style: bg-#f8f9fa;
+          transform: translateY(-2px) scale(1.03);
+        }
+
+        &:active {
+          transform: translateY(0px) scale(0.98);
+          transition:
+            transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+            background-color 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         img {
           --style: w-20px;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        &:hover img {
+          transform: scale(1.1) rotate(-5deg);
         }
       }
     }
 
     .hamburger-btn {
-      --style: 'hidden max-md:(flex relative w-24px h-18px bg-transparent border-none cursor-pointer p-0)';
+      --style: 'hidden max-lg:(flex relative w-24px h-18px bg-transparent border-none cursor-pointer p-0)';
 
       span {
         --style: absolute left-0 w-full h-1px bg-#333 transition-all duration-300;
@@ -181,11 +234,11 @@ const handleStartFree = async () => {
 }
 
 .sidebar-mask {
-  --style: 'fixed inset-0 z-1001 bg-black bg-opacity-50 md:(hidden)';
+  --style: 'fixed inset-0 z-1001 bg-black bg-opacity-50 lg:(hidden)';
 }
 
 .mobile-sidebar {
-  --style: 'fixed top-0 right-0 w-280px h-screen bg-#fff z-1002 shadow-lg md:(hidden)';
+  --style: 'fixed top-0 right-0 w-280px h-screen bg-#fff z-1002 shadow-lg lg:(hidden)';
 
   .mobile-sidebar-header {
     --style: flex items-center justify-end h-68px px-20px border-b border-#f0f0f0;
@@ -210,18 +263,32 @@ const handleStartFree = async () => {
       }
 
       &.btn-free {
-        --style: 'cursor-pointer flex items-center justify-center rounded-6px h-44px text-#fff select-none transition-all duration-300 relative overflow-hidden';
+        --style: 'cursor-pointer flex items-center justify-center rounded-6px h-44px text-#fff select-none relative overflow-hidden';
         background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
-        background-size: 300% 300%;
+        background-size: 200% 200%;
+        will-change: transform, box-shadow;
+        transition:
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
         &::before {
-          --style: 'content-empty absolute inset-0 opacity-0 transition-opacity duration-300';
-          background: linear-gradient(135deg, transparent 0%, #ffffff40 50%, transparent 100%);
+          --style: 'content-empty absolute inset-0 opacity-0';
+          background: linear-gradient(135deg, transparent 0%, #ffffff50 50%, transparent 100%);
+          transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1;
+        }
+
+        &::after {
+          --style: 'content-empty absolute inset-0';
+          background: linear-gradient(135deg, #25d4b0 0%, #1cb0b5 50%, #16b998 100%);
+          background-size: 200% 200%;
+          animation: gradient-shift 3s ease-in-out infinite;
+          z-index: -1;
         }
 
         &:hover {
-          --style: '-translate-y-1px shadow-[0_4px_12px_#16b99840]';
-          animation: gradient-shift 2s ease infinite;
+          --style: 'shadow-[0_6px_16px_#16b99850]';
+          transform: translateY(-2px) scale(1.02);
 
           &::before {
             --style: opacity-100;
@@ -229,7 +296,11 @@ const handleStartFree = async () => {
         }
 
         &:active {
-          --style: translate-y-0;
+          --style: 'shadow-[0_2px_8px_#16b99840]';
+          transform: translateY(0px) scale(0.98);
+          transition:
+            transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
     }
@@ -239,14 +310,31 @@ const handleStartFree = async () => {
     --style: absolute bottom-0 left-0 right-0 p-20px border-t border-#f0f0f0;
 
     .btn-github {
-      --style: 'flex gap-6px items-center justify-center h-44px px-16px rounded-6px text-#333 font-500 text-15px border-2 border-#333 select-none no-underline transition-all duration-300';
+      --style: 'flex gap-6px items-center justify-center h-44px px-16px rounded-6px text-#333 font-500 text-15px border-2 border-#333 select-none no-underline';
+      will-change: transform, background-color;
+      transition:
+        transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
         --style: bg-#f8f9fa;
+        transform: translateY(-2px) scale(1.02);
+      }
+
+      &:active {
+        transform: translateY(0px) scale(0.98);
+        transition:
+          transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+          background-color 0.1s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       img {
         --style: w-20px;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      &:hover img {
+        transform: scale(1.1) rotate(-5deg);
       }
     }
   }
@@ -273,12 +361,14 @@ const handleStartFree = async () => {
 }
 
 @keyframes gradient-shift {
-  0%,
-  100% {
+  0% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

@@ -195,16 +195,6 @@ const loadBookmark = async () => {
     return navigateTo(detail.value.target_url, { replace: true, external: true })
   }
 
-  analyticsLog({
-    event: 'view_bookmark_content',
-    value: {
-      user: user.value?.userId || 0,
-      bookmark_id: bmId,
-      source: 'bookmark',
-      title: detail.value?.title || ''
-    }
-  })
-
   useHead({
     titleTemplate: `${detail.value?.alias_title || detail.value?.title || t('page.bookmarks_detail.no_title')} - ${t('common.app.name')}`
   })
@@ -280,6 +270,12 @@ const trashBookmark = async (trash: boolean) => {
 
   postChannelMessage('trashed', { id: bmId, trashed: trash })
 
+  if (trash) {
+    analyticsLog({
+      event: 'bookmark_delete'
+    })
+  }
+
   if (!trash) {
     await loadBookmark()
   } else {
@@ -318,6 +314,12 @@ const archiveBookmark = async (isCancel: boolean) => {
     if (detail.value) {
       detail.value.archived = status
     }
+
+    analyticsLog({
+      event: 'bookmark_archive',
+      is_archived: !isCancel,
+      source: 'bookmark'
+    })
 
     postChannelMessage('archive', { id: bmId, cancel: isCancel })
 

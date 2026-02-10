@@ -325,9 +325,19 @@ const quoteData = computed(() => {
   }
 })
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    trackEvent({
+      event: 'bookmark_chat_interact',
+      sub_action: subAction,
+      entry_point: 'popup_menu'
+    })
+  }
+}
+
 watch(
   () => props.isAppeared,
-  value => {
+  (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
 
@@ -335,6 +345,12 @@ watch(
       // bot.chat({
       //   type: ChatParamsType.QUESTIONS
       // })
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else if (value !== !!oldValue) {
+      debugger
+      addLog('collapse')
     }
 
     if (value) {

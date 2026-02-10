@@ -83,6 +83,11 @@ const reportFeedbackContent = async () => {
     return
   }
 
+  trackEvent({
+    event: 'feedback_submit_start',
+    scope: 'extension'
+  })
+
   isLoading.value = true
   let environment = ''
   try {

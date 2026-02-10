@@ -125,6 +125,7 @@ const props = defineProps({
 
 const { index, bookmark } = toRefs(props)
 const emits = defineEmits(['delete', 'archiveUpdate', 'aliasTitleUpdate', 'bookmarkUpdate'])
+const route = useRoute()
 const isDeleting = ref(false)
 const isStroking = ref(false)
 const isRetrying = ref(false)
@@ -140,6 +141,28 @@ const deleteButton = ref<HTMLButtonElement>()
 const isDeleteHovered = useElementHover(deleteButton)
 const revertButton = ref<HTMLButtonElement>()
 const isRevertHovered = useElementHover(revertButton)
+
+const getCurrentSection = (): 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications' => {
+  const filter = String(route.query.filter || 'inbox')
+  const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications'> = {
+    inbox: 'inbox',
+    starred: 'starred',
+    topics: 'topics',
+    archive: 'archive',
+    trashed: 'trash',
+    notifications: 'notifications'
+  }
+  return sectionMap[filter] || 'inbox'
+}
+
+const trackListItemInteract = (element: 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash') => {
+  analyticsLog({
+    event: 'bookmark_list_item_interact',
+    bookmark_id: bookmark.value.id,
+    element,
+    section: getCurrentSection()
+  })
+}
 
 const isTrashed = computed(() => {
   return !!props.bookmark.trashed_at
@@ -184,6 +207,8 @@ const clickTitle = () => {
     return
   }
 
+  trackListItemInteract('title')
+
   if (props.isSubscribe) {
     pwaOpen({
       url: `/c/${props.collectionCode}/${bookmark.value.id}`,
@@ -213,6 +238,8 @@ const clickHref = () => {
     return
   }
 
+  trackListItemInteract('orginal')
+
   window.open(urlString.value, '_blank')
 }
 
@@ -220,6 +247,8 @@ const clickCache = () => {
   if (isRequesting.value) {
     return
   }
+
+  trackListItemInteract('snapshot')
 
   if (bookmark.value.status !== BookmarkParseStatus.SUCCESS) {
     const reminderKey = `snapshot_reminder_disabled_${bookmark.value.status}`
@@ -269,6 +298,8 @@ const clickEdit = () => {
     return
   }
 
+  trackListItemInteract('edit_title')
+
   isEditingTitle.value = !isEditingTitle.value
 
   if (isEditingTitle.value) {
@@ -289,6 +320,8 @@ const archiveBookmark = async (archive: boolean) => {
     return
   }
 
+  trackListItemInteract('archive')
+
   isArchiving.value = true
   try {
     await request().post<{ bookmark_id: number; status: string }>({
@@ -305,6 +338,12 @@ const archiveBookmark = async (archive: boolean) => {
     })
 
     emits('archiveUpdate', bookmark.value.id, archive)
+
+    analyticsLog({
+      event: 'bookmark_archive',
+      is_archived: archive,
+      source: 'inbox'
+    })
   } catch (e) {
     console.log(e)
     Toast.showToast({
@@ -349,6 +388,11 @@ const clickDelete = async (event: MouseEvent) => {
     return
   }
 
+  trackListItemInteract('trash')
+  analyticsLog({
+    event: 'bookmark_delete'
+  })
+
   if (isEditingTitle.value) {
     isEditingTitle.value = false
   }
@@ -368,6 +412,8 @@ const clickRevert = async () => {
   if (isRequesting.value) {
     return
   }
+
+  trackListItemInteract('trash')
 
   const id = bookmark.value.id
   request().post<EmptyBookmarkResp>({
@@ -441,6 +487,8 @@ const updateBookmarkTitle = () => {
 }
 
 const starBookmark = async (isStar: boolean) => {
+  trackListItemInteract('star')
+
   const status = !isStar ? 'unstar' : 'star'
   try {
     await request().post<{ bookmark_id: number; status: string }>({
@@ -454,6 +502,12 @@ const starBookmark = async (isStar: boolean) => {
     emits('bookmarkUpdate', bookmark.value.id, {
       ...bookmark.value,
       starred: status
+    })
+
+    analyticsLog({
+      event: 'bookmark_star',
+      is_starred: isStar,
+      source: 'inbox'
     })
 
     Toast.showToast({

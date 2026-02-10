@@ -295,15 +295,31 @@ const showQuoteImage = computed(() => {
   return quoteInfo.value && quoteInfo.value.data.length > 0 && !!quoteInfo.value.data.find(item => item.type === 'image')
 })
 
+const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
+  if (props.bookmarkId) {
+    analyticsLog({
+      event: 'bookmark_chat_interact',
+      sub_action: subAction,
+      entry_point: 'sidebar_entry'
+    })
+  }
+}
+
 watch(
   () => props.isAppeared,
-  value => {
+  (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
 
       bot.chat({
         type: ChatParamsType.QUESTIONS
       })
+
+      addLog('open')
+    } else if (value) {
+      addLog('expand')
+    } else if (value !== !!oldValue) {
+      addLog('collapse')
     }
 
     if (value) {
