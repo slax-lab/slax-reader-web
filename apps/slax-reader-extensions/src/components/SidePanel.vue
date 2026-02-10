@@ -176,11 +176,11 @@ const needHidden = computed(() => {
 })
 
 const addLog = () => {
-  trackEvent({
-    event: 'bookmark_view',
-    id: `${bookmarkId.value}`,
-    mode: 'original'
-  })
+  // trackEvent({
+  //   event: 'bookmark_view',
+  //   id: `${bookmarkId.value}`,
+  //   mode: 'original'
+  // })
 }
 
 watch(
