@@ -8,71 +8,6 @@
 
 // ==================== 基础类型定义 ====================
 
-// ==================== 订阅相关埋点 ====================
-
-/**
- * 访问订阅页面
- * 上报渠道：APP, Web
- */
-export interface SubscriptionViewEvent {
-  event: 'subscription_view'
-  presentation: 'dialog' | 'screen'
-}
-
-/**
- * 开始结账流程
- */
-export interface SubscriptionCheckoutStartEvent {
-  event: 'subscription_checkout_start'
-  plan_id: string
-  subscription_type?: 'initial' | 'auto_renewal' | 'resubscribe'
-  offer_type: 'trial_cardless' | 'trial_authorized' | 'standard'
-  gateway: 'stripe' | 'apple_iap' | 'google_iap'
-}
-
-/**
- * 订阅完成
- * 上报渠道：Backend
- */
-export interface SubscriptionCheckoutCompleteEvent {
-  event: 'subscription_checkout_complete'
-  subscription_type: 'initial_subscription' | 'auto_renewal' | 'resubscription'
-  offer_type: 'trial_cardless' | 'trial_authorized' | 'standard'
-  gateway: 'stripe' | 'apple_iap' | 'google_iap'
-}
-
-/**
- * 结账错误
- */
-export interface SubscriptionCheckoutErrorEvent {
-  event: 'subscription_checkout_error'
-  reason: string
-  error_code: string
-}
-
-/**
- * 开始取消订阅
- */
-export interface SubscriptionCancelStartEvent {
-  event: 'subscription_cancel_start'
-}
-
-/**
- * 取消订阅完成
- */
-export interface SubscriptionCancelCompleteEvent {
-  event: 'subscription_cancel_complete'
-}
-
-/**
- * 取消订阅错误
- */
-export interface SubscriptionCancelErrorEvent {
-  event: 'subscription_cancel_error'
-  reason: string
-  error_code: string
-}
-
 // ==================== 书签相关埋点 ====================
 
 /**
@@ -83,45 +18,6 @@ export interface BookmarkViewEvent {
   event: 'bookmark_view'
   id: string // 伪ID，用于统计阅读篇数分布
   mode: 'original' | 'snapshot'
-}
-
-/**
- * 开始添加书签
- */
-export interface BookmarkAddStartEvent {
-  event: 'bookmark_add_start'
-  channel: 'telegram' | 'browser_extension' | 'app' | 'web'
-  method: 'manual_paste' | 'browser_extension' | 'share_extension'
-}
-
-/**
- * 添加书签中间步骤
- * 上报渠道：Backend
- */
-export interface BookmarkAddStepEvent {
-  event: 'bookmark_add_step'
-  step_name: 'snapshot_scrapping' | 'snapshot_parsing' | 'embedding'
-  domain: string
-  status: 'success' | 'failed'
-  bm_uuid: string
-}
-
-/**
- * 添加书签完成
- */
-export interface BookmarkAddCompleteEvent {
-  event: 'bookmark_add_complete'
-  domain: string
-  bm_uuid: string
-}
-
-/**
- * 添加书签错误
- */
-export interface BookmarkAddErrorEvent {
-  event: 'bookmark_add_error'
-  domain: string
-  bm_uuid: string
 }
 
 /**
@@ -145,22 +41,13 @@ export interface BookmarkStarEvent {
 }
 
 /**
- * 设置标签
- */
-export interface BookmarkTagUpdateEvent {
-  event: 'bookmark_tag_update'
-  bookmark_id: number
-  sub_action: 'add' | 'remove'
-}
-
-/**
  * AI 对话交互
  * 上报渠道：Extension, Web
  */
 export interface BookmarkChatInteractEvent {
   event: 'bookmark_chat_interact'
   sub_action: 'open' | 'close' | 'expand' | 'collapse'
-  entry_point: 'popup-menu' | 'sidebar-entry'
+  entry_point: 'popup_menu' | 'sidebar_entry'
 }
 
 /**
@@ -198,15 +85,6 @@ export interface BookmarkDeleteEvent {
  */
 export interface FeedbackSubmitStartEvent {
   event: 'feedback_submit_start'
-  scope: 'bookmark' | 'app' | 'extension'
-}
-
-/**
- * 提交反馈完成
- * 上报渠道：Backend
- */
-export interface FeedbackSubmitCompleteEvent {
-  event: 'feedback_submit_complete'
   scope: 'bookmark' | 'app'
 }
 
@@ -227,25 +105,6 @@ export interface UserViewLoginEvent {
 export interface UserLoginStartEvent {
   event: 'user_login_start'
   method: 'google' | 'apple'
-}
-
-/**
- * 登录完成
- * 上报渠道：Backend
- */
-export interface UserLoginCompleteEvent {
-  event: 'user_login_complete'
-  is_new_user: boolean
-  referral_code?: string
-}
-
-/**
- * 登录失败
- */
-export interface UserLoginErrorEvent {
-  event: 'user_login_error'
-  reason: string
-  error_code: string
 }
 
 // ==================== 设置相关埋点 ====================
@@ -333,35 +192,19 @@ export interface HomepageClaimFreeTrialEvent {
  * 所有埋点事件的联合类型
  */
 export type AnalyticsEvent =
-  // 订阅相关
-  | SubscriptionViewEvent
-  | SubscriptionCheckoutStartEvent
-  | SubscriptionCheckoutCompleteEvent
-  | SubscriptionCheckoutErrorEvent
-  | SubscriptionCancelStartEvent
-  | SubscriptionCancelCompleteEvent
-  | SubscriptionCancelErrorEvent
   // 书签相关
   | BookmarkViewEvent
-  | BookmarkAddStartEvent
-  | BookmarkAddStepEvent
-  | BookmarkAddCompleteEvent
-  | BookmarkAddErrorEvent
   | BookmarkArchiveEvent
   | BookmarkStarEvent
-  | BookmarkTagUpdateEvent
   | BookmarkChatInteractEvent
   | BookmarkOverviewInteractEvent
   | BookmarkOutlineInteractEvent
   | BookmarkDeleteEvent
   // 反馈相关
   | FeedbackSubmitStartEvent
-  | FeedbackSubmitCompleteEvent
   // 用户相关
   | UserViewLoginEvent
   | UserLoginStartEvent
-  | UserLoginCompleteEvent
-  | UserLoginErrorEvent
   // 设置相关
   | SettingViewEvent
   // 书签列表相关
@@ -378,7 +221,6 @@ export type AnalyticsEvent =
  * Web 端埋点事件类型
  */
 export type WebAnalyticsEvent =
-  | SubscriptionViewEvent
   | BookmarkViewEvent
   | BookmarkArchiveEvent
   | BookmarkStarEvent
@@ -409,27 +251,6 @@ export type ExtensionAnalyticsEvent =
   | BookmarkOutlineInteractEvent
   | FeedbackSubmitStartEvent
   | BookmarkViewEvent
-
-/**
- * APP 端埋点事件类型
- */
-export type AppAnalyticsEvent =
-  | SubscriptionViewEvent
-  | BookmarkViewEvent
-  | BookmarkArchiveEvent
-  | BookmarkStarEvent
-  | BookmarkOverviewInteractEvent
-  | BookmarkOutlineInteractEvent
-  | BookmarkDeleteEvent
-  | FeedbackSubmitStartEvent
-  | UserLoginStartEvent
-  | SettingViewEvent
-  | BookmarkListViewEvent
-
-/**
- * Backend 端埋点事件类型
- */
-export type BackendAnalyticsEvent = SubscriptionCheckoutCompleteEvent | BookmarkAddStepEvent | FeedbackSubmitCompleteEvent | UserLoginCompleteEvent
 
 // ==================== 工具类型 ====================
 
