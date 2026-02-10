@@ -133,19 +133,7 @@ export const useBookmark = (options: BookmarkOptions) => {
 
     try {
       const options = typeOptions()
-      if (options.type === BookmarkType.Share) {
-        analyticsLog({
-          event: 'bookmark_view',
-          id: options.shareCode,
-          mode: 'snapshot'
-        })
-      } else if (options.type === BookmarkType.Normal) {
-        analyticsLog({
-          event: 'bookmark_view',
-          id: `${options.bmId}`,
-          mode: 'snapshot'
-        })
-      }
+      useLogBookmark(options)
     } catch (error) {
       console.error('Error in initial bookmark tasks:', error)
     }

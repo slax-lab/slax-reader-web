@@ -135,3 +135,19 @@ export const useWebBookmarkArticleRelative = (detail: Ref<WebBookmarkArticleDeta
     bookmarkUserId
   }
 }
+
+export const useLogBookmark = (options: BookmarkTypeOptions) => {
+  if (options.type === BookmarkType.Share) {
+    analyticsLog({
+      event: 'bookmark_view',
+      id: options.shareCode,
+      mode: 'snapshot'
+    })
+  } else if (options.type === BookmarkType.Normal) {
+    analyticsLog({
+      event: 'bookmark_view',
+      id: `${options.bmId}`,
+      mode: 'snapshot'
+    })
+  }
+}
