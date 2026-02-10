@@ -14,7 +14,6 @@ export const trackEvent = (params: ExtensionAnalyticsEvent): void => {
       version: process.env.VERSION || 'unknown'
     }
 
-    // 目前先输出到控制台用于调试
     console.log('[Extension Analytics]', event, enrichedParams)
     analytics.track(event, enrichedParams as Record<string, string>)
   } catch (error) {

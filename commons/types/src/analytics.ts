@@ -12,7 +12,7 @@
 
 /**
  * 打开书签详情页
- * 上报渠道：APP, Web, Extension
+ * 上报渠道：Web, Extension
  */
 export interface BookmarkViewEvent {
   event: 'bookmark_view'
@@ -22,7 +22,7 @@ export interface BookmarkViewEvent {
 
 /**
  * 归档/取消归档书签
- * 上报渠道：APP, Web, Extension
+ * 上报渠道：Web, Extension
  */
 export interface BookmarkArchiveEvent {
   event: 'bookmark_archive'
@@ -32,7 +32,7 @@ export interface BookmarkArchiveEvent {
 
 /**
  * 加星/取消加星书签
- * 上报渠道：APP, Web, Extension
+ * 上报渠道：Web, Extension
  */
 export interface BookmarkStarEvent {
   event: 'bookmark_star'
@@ -52,7 +52,7 @@ export interface BookmarkChatInteractEvent {
 
 /**
  * Overview交互
- * 上报渠道：APP, Web, Extension
+ * 上报渠道：Web, Extension
  */
 export interface BookmarkOverviewInteractEvent {
   event: 'bookmark_overview_interact'
@@ -61,7 +61,7 @@ export interface BookmarkOverviewInteractEvent {
 
 /**
  * Outline交互
- * 上报渠道：APP, Web, Extension
+ * 上报渠道：Web, Extension
  */
 export interface BookmarkOutlineInteractEvent {
   event: 'bookmark_outline_interact'
@@ -71,7 +71,7 @@ export interface BookmarkOutlineInteractEvent {
 
 /**
  * 删除书签（移动到回收站）
- * 上报渠道：Web, APP
+ * 上报渠道：Web
  */
 export interface BookmarkDeleteEvent {
   event: 'bookmark_delete'
@@ -81,7 +81,7 @@ export interface BookmarkDeleteEvent {
 
 /**
  * 开始提交反馈
- * 上报渠道：APP, Extension, Web
+ * 上报渠道：Extension, Web
  */
 export interface FeedbackSubmitStartEvent {
   event: 'feedback_submit_start'
@@ -100,7 +100,7 @@ export interface UserViewLoginEvent {
 
 /**
  * 点击登录按钮
- * 上报渠道：Web, APP
+ * 上报渠道：Web
  */
 export interface UserLoginStartEvent {
   event: 'user_login_start'
@@ -111,7 +111,7 @@ export interface UserLoginStartEvent {
 
 /**
  * 打开设置页面
- * 上报渠道：APP, Web
+ * 上报渠道：Web
  */
 export interface SettingViewEvent {
   event: 'setting_view'
@@ -121,7 +121,7 @@ export interface SettingViewEvent {
 
 /**
  * 打开书签列表页
- * 上报渠道：APP, Web
+ * 上报渠道：Web
  */
 export interface BookmarkListViewEvent {
   event: 'bookmark_list_view'
