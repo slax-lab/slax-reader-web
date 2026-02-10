@@ -330,7 +330,7 @@ const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
     trackEvent({
       event: 'bookmark_chat_interact',
       sub_action: subAction,
-      entry_point: 'popup-menu'
+      entry_point: 'popup_menu'
     })
   }
 }
