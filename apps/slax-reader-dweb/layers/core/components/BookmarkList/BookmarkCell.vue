@@ -142,7 +142,6 @@ const isDeleteHovered = useElementHover(deleteButton)
 const revertButton = ref<HTMLButtonElement>()
 const isRevertHovered = useElementHover(revertButton)
 
-// 埋点辅助函数：获取当前section
 const getCurrentSection = (): 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications' => {
   const filter = String(route.query.filter || 'inbox')
   const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications'> = {
@@ -156,7 +155,6 @@ const getCurrentSection = (): 'inbox' | 'starred' | 'topics' | 'archive' | 'tras
   return sectionMap[filter] || 'inbox'
 }
 
-// 埋点辅助函数：上报列表项交互
 const trackListItemInteract = (element: 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash') => {
   analyticsLog({
     event: 'bookmark_list_item_interact',
