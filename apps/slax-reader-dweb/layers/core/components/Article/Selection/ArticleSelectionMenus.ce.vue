@@ -125,7 +125,7 @@ onUnmounted(() => {})
   --style: ' bg-#fff dark:bg-#262626';
 
   .menu {
-    --style: 'px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
+    --style: 'px-10px py-4px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
 
     &:hover {
       --style: 'bg-#f5f5f3 dark:bg-#333333FF';

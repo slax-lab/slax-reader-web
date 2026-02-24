@@ -160,6 +160,7 @@ button {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
       --style: w-full text-(14px ellipsis #333333) line-height-21px font-medium overflow-hidden line-clamp-2 break-all;
+      --style: "font-['PingFangSC']";
     }
 
     .link {
