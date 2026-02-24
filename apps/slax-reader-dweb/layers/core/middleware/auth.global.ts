@@ -38,7 +38,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         }
 
         if (!isFromHomepage) {
-          queryParams.redirect = encodeURIComponent(location?.href)
+          queryParams.redirect = encodeURIComponent(to.fullPath ? `${location.origin}${to.fullPath}` : location?.href)
         }
 
         const queryStr = Object.keys(queryParams)

@@ -212,10 +212,17 @@ export default defineNuxtConfig({
   schemaOrg: {
     enabled: true,
     identity: {
-      url: `${envConfig.SHARE_BASE_URL || ''}`,
+      type: 'Organization',
       name: 'Slax Reader',
-      logo: '/images/logo.png',
-      sameAs: ['https://slax.com/', 'https://note.slax.com/', 'https://r.slax.com/', 'https://x.com/wulujia']
+      logo: `${envConfig.PUBLIC_BASE_URL || ''}/logo.png`,
+      url: `${envConfig.PUBLIC_BASE_URL || ''}/en`,
+      sameAs: ['https://x.com/SlaxReader', 'https://t.me/slax_app', 'https://github.com/slax-lab/slax-reader', 'https://x.com/wulujia'],
+      contactPoint: [
+        {
+          email: 'support@slax.com',
+          contactType: 'customer support'
+        }
+      ]
     }
   },
   ogImage: {
