@@ -85,7 +85,7 @@ const reportFeedbackContent = async () => {
 
   trackEvent({
     event: 'feedback_submit_start',
-    scope: 'extension'
+    scope: 'bookmark'
   })
 
   isLoading.value = true

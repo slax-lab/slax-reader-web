@@ -188,8 +188,8 @@ const handleHTML = async () => {
     return
   }
 
-  const [imgs, svgs, uls, anchors, videos, iframes, wechatVideos, details] = await Promise.allSettled(
-    ['img', 'svg', 'ul', 'a', 'video', 'iframe', 'mp-common-videosnap', 'details'].map(tag => {
+  const [imgs, svgs, uls, anchors, videos, iframes, wechatVideos, details, spans] = await Promise.allSettled(
+    ['img', 'svg', 'ul', 'a', 'video', 'iframe', 'mp-common-videosnap', 'details', 'span'].map(tag => {
       return Array.from(articleDetailDom.querySelectorAll(tag)) || []
     })
   )
@@ -204,7 +204,8 @@ const handleHTML = async () => {
     videos.status === 'fulfilled' && !retentionVideo && handleHTMLVideos(videos.value as HTMLVideoElement[]),
     iframes.status === 'fulfilled' && handleHTMLIFrames(iframes.value as HTMLIFrameElement[]),
     wechatVideos.status === 'fulfilled' && handleHTMLWechatVideos(wechatVideos.value as HTMLElement[]),
-    details.status === 'fulfilled' && handleHTMLDetails(details.value as HTMLDetailsElement[])
+    details.status === 'fulfilled' && handleHTMLDetails(details.value as HTMLDetailsElement[]),
+    spans.status === 'fulfilled' && handleHTMLSpans(spans.value as HTMLSpanElement[])
   ])
 
   const handlers: Promise<void>[] = []
@@ -406,6 +407,14 @@ const handleHTMLDetails = (details: HTMLDetailsElement[]) => {
     const summary = detail.querySelector('summary')
     if (summary) {
       detail.open = true
+    }
+  })
+}
+
+const handleHTMLSpans = (spans: HTMLSpanElement[]) => {
+  spans.forEach(span => {
+    if (span.textContent.replace(/\u00a0/g, '').trim().length === 0) {
+      span.style.display = 'none'
     }
   })
 }
