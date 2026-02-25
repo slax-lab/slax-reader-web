@@ -349,7 +349,6 @@ watch(
     } else if (value) {
       addLog('expand')
     } else if (value !== !!oldValue) {
-      debugger
       addLog('collapse')
     }
 
