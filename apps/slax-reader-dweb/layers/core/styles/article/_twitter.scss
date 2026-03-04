@@ -49,6 +49,47 @@
     --style: '!mt-32px whitespace-pre-line';
   }
 
+  .quote-tweet-container {
+    --style: mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px;
+    --style: 'hover:bg-#f5f8fa transition-colors duration-250';
+
+    .quote-tweet {
+      --style: '!mt-0';
+
+      .quote-header {
+        --style: flex items-center;
+
+        img {
+          --style: w-32px h-32px rounded-full;
+        }
+
+        .quote-title {
+          --style: 'font-bold !text-(14px #333)';
+        }
+
+        img + .quote-title {
+          --style: '!ml-10px';
+        }
+      }
+
+      .quote-description {
+        --style: mt-10px text-(14px #555);
+      }
+
+      .quote-media {
+        --style: w-full;
+
+        img {
+          --style: max-w-full rounded-8px mt-10px;
+        }
+      }
+
+      .quote-link {
+        --style: absolute inset-0 opacity-0;
+      }
+    }
+  }
+
   .tweet-media {
     --style: mt-28px;
     img {
