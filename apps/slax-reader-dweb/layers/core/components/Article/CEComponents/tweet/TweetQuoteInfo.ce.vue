@@ -9,7 +9,7 @@
       <div class="quote-media">
         <img :src="mediaImageUrl" alt="Quote Tweet Image" />
       </div>
-      <a :href="url" target="_blank" class="quote-link">查看原文</a>
+      <a :href="url" target="_blank" class="quote-link"></a>
     </div>
   </div>
 </template>
