@@ -130,7 +130,7 @@ props.browser.runtime.onMessage.addListener(
         showPopup.value = true
       }
       case MessageTypeAction.OpenWelcome:
-        browser.tabs.create({
+        props.browser.tabs.create({
           url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
         })
 
