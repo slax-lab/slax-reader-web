@@ -257,6 +257,13 @@ export class ChatBot {
                 sessionId
               })
 
+            choice.status === 'finished_failed' &&
+              this.responseCallback({
+                type: ChatResponseType.STATUS_UPDATE,
+                data: { [ChatResponseType.STATUS_UPDATE]: { name: 'search', tips: $t('util.chatbot.search_finished'), status: 'finished' } },
+                sessionId
+              })
+
             choice.status === 'finished_successfully' &&
               this.responseCallback({
                 type: ChatResponseType.FUNCTION,

@@ -19,8 +19,26 @@
 
   @font-face {
     font-family: 'PingFang SC';
-    src: url('/fonts/pingfang-sc-regular.woff') format('woff');
+    src:
+      url('/fonts/PingFang SC Regular.woff2') format('woff2'),
+      url('/fonts/pingfang-sc-regular.woff') format('woff');
     font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'PingFang SC';
+    src: url('/fonts/PingFang SC Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'PingFang SC';
+    src: url('/fonts/PingFang SC Bold.woff2') format('woff2');
+    font-weight: 600;
     font-style: normal;
     font-display: swap;
   }

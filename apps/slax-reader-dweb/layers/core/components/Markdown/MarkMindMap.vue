@@ -202,6 +202,7 @@ const initSVG = () => {
     updateGraphHeight()
     nextTick(() => {
       document.querySelector('.mark-mind-map')?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
+      addExpandIcons()
     })
   }
 }
@@ -251,6 +252,7 @@ const update = async () => {
 
   handleAnchors()
   await fitMap()
+  addExpandIcons()
 }
 
 const toolbarClick = async (icon: ToolbarIcon) => {
@@ -329,6 +331,54 @@ const scaleDown = () => {
 
 const fitMap = async () => {
   await markmind.value!.fit()
+}
+
+const addExpandIcons = () => {
+  const nodes = svg.value?.querySelectorAll('.markmap-node')
+
+  nodes?.forEach(node => {
+    const circle = node.querySelector('circle')
+    if (!circle) return
+
+    let iconGroup = node.querySelector('.expand-icon')
+    if (!iconGroup) {
+      iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+      iconGroup.classList.add('expand-icon')
+      iconGroup.setAttribute('pointer-events', 'none')
+      node.appendChild(iconGroup)
+    } else {
+      iconGroup.innerHTML = ''
+    }
+
+    const cx = parseFloat(circle.getAttribute('cx') || '0')
+    const cy = parseFloat(circle.getAttribute('cy') || '0')
+
+    const strokeColor = circle.getAttribute('stroke') || 'currentColor'
+    const isFolded = node.classList.contains('markmap-fold')
+    const iconSize = 2.5
+
+    const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    hLine.setAttribute('x1', (cx - iconSize).toString())
+    hLine.setAttribute('y1', cy.toString())
+    hLine.setAttribute('x2', (cx + iconSize).toString())
+    hLine.setAttribute('y2', cy.toString())
+    hLine.setAttribute('stroke', isFolded ? '#fff' : strokeColor)
+    hLine.setAttribute('stroke-width', '1.2')
+    hLine.setAttribute('stroke-linecap', 'round')
+    iconGroup.appendChild(hLine)
+
+    if (isFolded) {
+      const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      vLine.setAttribute('x1', cx.toString())
+      vLine.setAttribute('y1', (cy - iconSize).toString())
+      vLine.setAttribute('x2', cx.toString())
+      vLine.setAttribute('y2', (cy + iconSize).toString())
+      vLine.setAttribute('stroke', '#fff')
+      vLine.setAttribute('stroke-width', '1.2')
+      vLine.setAttribute('stroke-linecap', 'round')
+      iconGroup.appendChild(vLine)
+    }
+  })
 }
 
 defineExpose({

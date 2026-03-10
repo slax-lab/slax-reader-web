@@ -1,6 +1,6 @@
 {
   "name": "@apps/slax-reader-extensions",
-  "version": "1.11.5",
+  "version": "1.12.1",
   "description": "",
   "main": "index.js",
   "type": "module",

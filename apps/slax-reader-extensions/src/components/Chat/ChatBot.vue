@@ -340,11 +340,6 @@ watch(
   (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
-
-      // 调整逻辑为进入Chat后默认不生成问题了
-      // bot.chat({
-      //   type: ChatParamsType.QUESTIONS
-      // })
       addLog('open')
     } else if (value) {
       addLog('expand')
@@ -631,6 +626,13 @@ const pushBuffer = (content: BubbleMessageContent) => {
         lastContent.rawContent = bufferMarkdownContent.value
       }
     }
+  }
+
+  // 有结果的内容后去除搜索相关提示
+  const isSearchOrBrowserTips = (item: BubbleMessageContent): boolean => item.type === 'tips' && (item.tipsType === 'search' || item.tipsType === 'browser')
+  const shouldKeepContent = (item: BubbleMessageContent): boolean => item.type !== 'tips' || !isSearchOrBrowserTips(item)
+  if (content.type !== 'tips' || !isSearchOrBrowserTips(content)) {
+    bufferMessage.value.contents = bufferMessage.value.contents?.filter(shouldKeepContent)
   }
 
   scrollToBottom()

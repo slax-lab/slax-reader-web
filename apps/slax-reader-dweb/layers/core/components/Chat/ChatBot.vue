@@ -46,12 +46,14 @@
         <button v-else class="bg-[url('@images/button-circle-close-dark.png')]" @click="closeQuote"></button>
       </div>
       <div class="input-container">
-        <div class="textarea-wrapper">
+        <div class="textarea-wrapper" :class="{ focus: isFocus }">
           <textarea
             ref="textarea"
             v-model="inputText"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
             :placeholder="textareaPlaceholder"
+            @focus="isFocus = true"
+            @blur="isFocus = false"
             @compositionstart="compositionstart"
             @compositionend="compositionend"
             @input="handleInput"
@@ -97,6 +99,9 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['dismiss', 'findQuote'])
+
+const isFocus = ref(false)
+
 const botParams: ChatBotParams = (() => {
   if (props.bookmarkId) {
     return { bookmarkId: props.bookmarkId }
@@ -310,11 +315,6 @@ watch(
   (value, oldValue) => {
     if (value && !isInited.value && !quoteInfo.value) {
       isInited.value = true
-
-      bot.chat({
-        type: ChatParamsType.QUESTIONS
-      })
-
       addLog('open')
     } else if (value) {
       addLog('expand')
@@ -323,9 +323,9 @@ watch(
     }
 
     if (value) {
-      setTimeout(() => {
-        textarea.value?.focus()
-      }, 500)
+      nextTick(() => {
+        focusTextarea()
+      })
     }
   },
   {
@@ -612,6 +612,13 @@ const pushBuffer = (content: BubbleMessageContent) => {
     }
   }
 
+  // 有结果的内容后去除搜索相关提示
+  const isSearchOrBrowserTips = (item: BubbleMessageContent): boolean => item.type === 'tips' && (item.tipsType === 'search' || item.tipsType === 'browser')
+  const shouldKeepContent = (item: BubbleMessageContent): boolean => item.type !== 'tips' || !isSearchOrBrowserTips(item)
+  if (content.type !== 'tips' || !isSearchOrBrowserTips(content)) {
+    bufferMessage.value.contents = bufferMessage.value.contents?.filter(shouldKeepContent)
+  }
+
   scrollToBottom()
 }
 
@@ -747,6 +754,20 @@ const getParsedText = (markdownText: string) => {
 
 const addQuoteData = (data: QuoteData) => {
   quoteInfo.value = data
+  nextTick(() => {
+    scrollToBottom(true)
+  })
+}
+
+const focusTextarea = () => {
+  nextTick(() => {
+    if (textarea.value) {
+      textarea.value.blur()
+      setTimeout(() => {
+        textarea.value?.focus()
+      }, 50)
+    }
+  })
 }
 
 const closeQuote = () => {
@@ -755,7 +776,8 @@ const closeQuote = () => {
 
 defineExpose({
   botSize,
-  addQuoteData
+  addQuoteData,
+  focusTextarea
 })
 </script>
 
@@ -882,8 +904,12 @@ defineExpose({
       --style: 'dark:bg-#262626FF';
 
       .textarea-wrapper {
-        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex;
+        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250;
         --style: 'border-#ecf0f5 dark:(border-#1f1f1fff bg-#1f1f1fff)';
+
+        &.focus {
+          --style: border-(1px solid #16b99899);
+        }
 
         textarea {
           --style: w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent;
