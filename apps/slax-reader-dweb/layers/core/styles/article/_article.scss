@@ -16,7 +16,7 @@
   p,
   :not(li) > ul,
   :not(li) > ol {
-    --style: '!mt-24px';
+    --style: '!mt-24px whitespace-pre-line';
   }
 
   /* 引用类 */
