@@ -1,3 +1,5 @@
+@use 'content-mixin' as *;
+
 @mixin twitter {
   .tweet {
     --style: border-b-(1px solid #e1e8ed) pb-24px;
@@ -47,6 +49,8 @@
 
   .tweet-content {
     --style: '!mt-32px whitespace-pre-line';
+
+    @include content-styles;
   }
 
   .quote-tweet-container {
