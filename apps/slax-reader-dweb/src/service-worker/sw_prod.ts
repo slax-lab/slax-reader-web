@@ -20,7 +20,7 @@ const requestCacheEnable = false
 const strategies: [(url: URL, request: Request) => boolean, Strategy][] = requestCacheEnable
   ? [
       [
-        (url, request) => request.destination === 'image' || /\.(?:png|jpg|jpeg|svg|gif|webp|woff|json)$/.test(url.pathname),
+        (url, request) => request.destination === 'image' || /\.(?:png|jpg|jpeg|svg|gif|webp|woff|woff2|json)$/.test(url.pathname),
         new CacheFirst({
           cacheName: 'images-cache',
           plugins: [

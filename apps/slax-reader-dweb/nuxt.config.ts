@@ -293,7 +293,7 @@ export default defineNuxtConfig({
     includeManifestIcons: false,
     injectManifest: {
       maximumFileSizeToCacheInBytes: 10000000,
-      globPatterns: ['**/*.{ico,png,jpg,jpeg,svg,gif,webp,woff}'],
+      globPatterns: ['**/*.{ico,png,jpg,jpeg,svg,gif,webp,woff,woff2}'],
       buildPlugins: {
         rollup: [
           replace({
