@@ -89,6 +89,7 @@ import { copyText } from '@commons/utils/string'
 import Toast, { ToastType } from './Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { SummaryItemModel } from '@commons/types/interface'
+import { check } from 'zod'
 
 interface Anchor {
   index: number
@@ -423,18 +424,34 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
       }
     })
 
+    const checkElementIsHigherThanWindow = (ele: HTMLElement) => {
+      const rect = ele.getBoundingClientRect()
+      return rect.top < 0 || rect.bottom > contentWindow.innerHeight
+    }
+
     if (!startNode || !endNode) {
       if (selectedRange) {
-        const selection = window.getSelection()
+        const selection = contentWindow.getSelection()
         selection?.removeAllRanges()
         selection?.addRange(selectedRange)
       }
 
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
-      } else if (selectedRange?.startContainer instanceof HTMLElement) {
-        selectedRange.startContainer.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+      if (selectedRange && checkElementIsHigherThanWindow(element)) {
+        const rect = selectedRange.getBoundingClientRect()
+        const targetY = rect.top + contentWindow.scrollY - contentWindow.innerHeight / 2
+
+        contentWindow.scrollTo({
+          top: targetY,
+          behavior: 'smooth'
+        })
+      } else {
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+        } else if (selectedRange?.startContainer instanceof HTMLElement) {
+          selectedRange.startContainer.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+        }
       }
+
       return true
     }
 
@@ -446,7 +463,7 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
       selection?.removeAllRanges()
       selection?.addRange(range)
     } else {
-      const selection = window.getSelection()
+      const selection = contentWindow.getSelection()
       selection?.removeAllRanges()
       selection?.addRange(selectedRange)
     }
@@ -468,7 +485,18 @@ const findTextInWeb = (text: string, autoNavigate: boolean = true) => {
       }
     }
 
-    scrollToElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+    if (!checkElementIsHigherThanWindow(scrollToElement)) {
+      scrollToElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+    } else if (selectedRange) {
+      const rect = selectedRange.getBoundingClientRect()
+      const targetY = rect.top + contentWindow.scrollY - contentWindow.innerHeight / 2
+
+      contentWindow.scrollTo({
+        top: targetY,
+        behavior: 'smooth'
+      })
+    }
+
     emits('navigatedText', text)
   }
 
