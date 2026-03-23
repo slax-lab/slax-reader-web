@@ -5,16 +5,13 @@ import { type Analytics, getAnalytics, logEvent } from 'firebase/analytics'
 import { initializeApp } from 'firebase/app'
 
 /**
- * Web端埋点上报函数（Google Analytics）
+ * Web端埋点上报函数（通过 GTM dataLayer 推送事件）
+ * 使用 @nuxt/scripts 的 proxy 模式：SSR 安全、自动排队、mock 兼容
  */
 export const analyticsLog = (params: WebAnalyticsEvent) => {
-  if (!isClient) {
-    return
-  }
-
   try {
     const config = useRuntimeConfig()
-    const { gtag } = useGtag()
+    const { proxy } = useScriptGoogleTagManager()
 
     const { event, ...restParams } = params
     const enrichedParams = {
@@ -23,7 +20,10 @@ export const analyticsLog = (params: WebAnalyticsEvent) => {
       version: config.public.appVersion || 'unknown'
     }
 
-    gtag('event', event, enrichedParams)
+    proxy.dataLayer.push({
+      event,
+      ...enrichedParams
+    })
   } catch (error) {
     console.error('[Analytics] Track error:', error, params)
   }
