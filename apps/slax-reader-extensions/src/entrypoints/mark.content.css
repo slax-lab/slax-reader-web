@@ -9,7 +9,7 @@ slax-mark {
 :root {
   --slax-mark-border-color: #ccb69aff;
   --slax-mark-border-color-alpha: #ccb69aee;
-  --slax-mark-highlight-bg: #fcf4e8;
+  --slax-mark-highlight-bg: #ffd99933;
 }
 
 /* @media (prefers-color-scheme: dark) {
