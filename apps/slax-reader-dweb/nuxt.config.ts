@@ -43,7 +43,7 @@ export default defineNuxtConfig({
     'nuxt-site-config',
     '@vite-pwa/nuxt',
     '@nuxt/test-utils/module',
-    'nuxt-gtag'
+    '@nuxt/scripts'
   ],
   future: {
     compatibilityVersion: 3
@@ -318,11 +318,13 @@ export default defineNuxtConfig({
       fs.copyFileSync(swSource, swDest)
     }
   },
-  gtag: {
-    enabled: !isDev,
-    id: `${envConfig.GTAG_MEASUREMENT_ID || ''}`,
-    config: {
-      debug_mode: !isProduction
+  scripts: {
+    registry: {
+      googleTagManager: isDev
+        ? 'mock'
+        : {
+            id: `${envConfig.GTM_CONTAINER_ID || ''}`
+          }
     }
   },
   compatibilityDate: '2024-09-19'
