@@ -5,8 +5,7 @@ import { type Analytics, getAnalytics, logEvent } from 'firebase/analytics'
 import { initializeApp } from 'firebase/app'
 
 /**
- * Web端埋点上报函数（通过 GTM dataLayer 推送事件）
- * 使用 @nuxt/scripts 的 proxy 模式：SSR 安全、自动排队、mock 兼容
+ * Web端埋点上报函数（GTM dataLayer）
  */
 export const analyticsLog = (params: WebAnalyticsEvent) => {
   try {

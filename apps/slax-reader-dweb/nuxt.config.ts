@@ -320,9 +320,7 @@ export default defineNuxtConfig({
   },
   scripts: {
     registry: {
-      // 开发环境使用 mock 模式（不加载真实脚本，但 dataLayer API 可用）
-      // 非开发环境正常加载 GTM
-      googleTagManager: false
+      googleTagManager: isDev
         ? 'mock'
         : {
             id: `${envConfig.GTM_CONTAINER_ID || ''}`
