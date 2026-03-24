@@ -35,5 +35,5 @@ export const dwebEnvSchema = baseEnvSchema.extend({
     FIREBASE_APP_ID: z.string().optional(),
     FIREBASE_MEASUREMENT_ID: z.string().optional()
   },
-  GTAG_MEASUREMENT_ID: z.string().optional()
+  GTM_CONTAINER_ID: z.string().optional()
 })
