@@ -347,7 +347,7 @@ const transferSaveClick = () => {
       }
     })
     .then(res => {
-      !!res?.bmId && (isShowTransferButton.value = false)
+      isShowTransferButton.value = false
       Toast.showToast({
         text: t('common.tips.transfer_save_success'),
         type: ToastType.Success
