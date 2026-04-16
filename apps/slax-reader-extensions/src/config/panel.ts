@@ -15,6 +15,12 @@ import commentsSelectedImage from '~/assets/panel-item-comments-selected.png'
 import commentsSubImage from '~/assets/panel-item-comments-sub.png'
 import feedbackImage from '~/assets/panel-item-feedback.png'
 import feedbackHighlightedImage from '~/assets/panel-item-feedback-highlighted.png'
+import feedbackSubImage from '~/assets/panel-item-feedback-sub.png'
+import feedbackSubHighlightedImage from '~/assets/panel-item-feedback-sub-highlighted.png'
+import outlineImage from '~/assets/panel-item-outline.png'
+import outlineHighlightedImage from '~/assets/panel-item-outline-highlighted.png'
+import outlineSelectedImage from '~/assets/panel-item-outline-selected.png'
+import outlineSubImage from '~/assets/panel-item-outline-sub.png'
 import shareImage from '~/assets/panel-item-share.png'
 import shareHighlightedImage from '~/assets/panel-item-share-highlighted.png'
 import starImage from '~/assets/panel-item-star.png'
@@ -23,6 +29,7 @@ import starSelectedImage from '~/assets/panel-item-star-selected.png'
 
 export enum PanelItemType {
   'AI' = 'ai',
+  'Outline' = 'outline',
   'Chat' = 'chat',
   'Share' = 'share',
   'Comments' = 'comments',
@@ -49,49 +56,64 @@ interface ImageInfo {
   sub: string
   highlighted: string
   selected: string
+  subHighlighted: string
 }
 
-export const Images: Record<'ai' | 'chatbot' | 'comments' | 'star' | 'archieve' | 'share' | 'feedback', ImageInfo> = {
+export const Images: Record<'ai' | 'outline' | 'chatbot' | 'comments' | 'star' | 'archieve' | 'share' | 'feedback', ImageInfo> = {
   ai: {
     main: aiImage,
     sub: aiSubImage,
     highlighted: aiHighlightedImage,
-    selected: aiSelectedImage
+    selected: aiSelectedImage,
+    subHighlighted: aiHighlightedImage
+  },
+  outline: {
+    main: outlineImage,
+    sub: outlineSubImage,
+    highlighted: outlineHighlightedImage,
+    selected: outlineSelectedImage,
+    subHighlighted: outlineHighlightedImage
   },
   chatbot: {
     main: chatbotImage,
     sub: chatbotSubImage,
     highlighted: chatbotHighlightedImage,
-    selected: chatbotSelectedImage
+    selected: chatbotSelectedImage,
+    subHighlighted: chatbotHighlightedImage
   },
   comments: {
     main: commentsImage,
     sub: commentsSubImage,
     highlighted: commentsHighlightedImage,
-    selected: commentsSelectedImage
+    selected: commentsSelectedImage,
+    subHighlighted: commentsHighlightedImage
   },
   star: {
     main: starImage,
     sub: starImage,
     highlighted: starHighlightedImage,
-    selected: starSelectedImage
+    selected: starSelectedImage,
+    subHighlighted: starHighlightedImage
   },
   archieve: {
     main: archieveImage,
     sub: archieveImage,
     highlighted: archieveHighlightedImage,
-    selected: archieveSelectedImage
+    selected: archieveSelectedImage,
+    subHighlighted: archieveHighlightedImage
   },
   share: {
     main: shareImage,
     sub: shareImage,
     highlighted: shareHighlightedImage,
-    selected: shareImage
+    selected: shareImage,
+    subHighlighted: shareHighlightedImage
   },
   feedback: {
     main: feedbackImage,
-    sub: feedbackImage,
+    sub: feedbackSubImage,
     highlighted: feedbackHighlightedImage,
-    selected: feedbackHighlightedImage
+    selected: feedbackHighlightedImage,
+    subHighlighted: feedbackSubHighlightedImage
   }
 }

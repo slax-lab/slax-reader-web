@@ -1,60 +1,133 @@
 <template>
   <Transition name="opacity">
     <div class="sidebar-items" v-show="!dismissItems">
-      <div class="button-wrapper seperate-line" v-for="panel in panelItems" :key="panel.type">
-        <button class="panel-button" @click="panelClick(panel)">
-          <div class="icon-wrapper">
-            <div class="icon">
-              <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                <img class="normal" :src="panel.icon" alt="" />
-                <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-              </template>
-              <template v-else>
-                <img class="selected" :src="panel.selectedIcon" alt="" />
-              </template>
-            </div>
+      <!-- 收起状态：strip 工具条 -->
+      <div class="strip" :class="{ hidden: isPanelVisible }">
+        <!-- Outline -->
+        <div class="strip-item" @click="onStripItemClick(PanelItemType.Outline)">
+          <div class="strip-icon">
+            <img :src="Images.outline.main" alt="" />
+            <img class="hovered" :src="Images.outline.highlighted" alt="" />
           </div>
-          <span>{{ panel.title }}</span>
-        </button>
-        <i class="seperate-line"></i>
-      </div>
-      <div class="button-wrapper">
-        <div class="more-wrapper">
-          <div class="icon-wrapper">
-            <div class="more-options-container" ref="moreContainer" :class="{ focus: isMoreHovered }">
-              <Transition name="opacity">
-                <div class="icon" v-show="!isMoreHovered">
-                  <i :class="{ star: isStar }"></i>
-                  <i :class="{ archive: isArchive }"></i>
-                  <i></i>
-                </div>
-              </Transition>
-              <Transition name="opacity">
-                <div class="more-options" v-show="isMoreHovered">
-                  <button class="subpanel-button" v-for="panel in morePanelItem" :key="panel.type" @click="panelClick(panel)">
-                    <div class="icon">
-                      <template v-if="panel.isLoading">
-                        <div class="i-svg-spinners:90-ring w-16px color-#FFFFFF99"></div>
-                      </template>
-                      <template v-else>
-                        <template v-if="!(panel.isSelected && panel.isSelected()) || !panel.selectedIcon">
-                          <img class="normal" :src="panel.icon" alt="" />
-                          <img class="highlighted" :src="panel.highlighedIcon" alt="" />
-                        </template>
-                        <template v-else>
-                          <img class="selected" :src="panel.selectedIcon" alt="" />
-                        </template>
-                      </template>
-                    </div>
-                    <span>{{ panel.title }}</span>
-                  </button>
-                </div>
-              </Transition>
-            </div>
+          <div class="popup"><span>Outline</span></div>
+        </div>
+
+        <div class="strip-sep" />
+
+        <!-- Star -->
+        <div class="strip-item" @click="onStripItemClick(PanelItemType.Star)">
+          <div class="strip-icon">
+            <template v-if="!isStar">
+              <img :src="Images.star.main" alt="" />
+              <img class="hovered" :src="Images.star.highlighted" alt="" />
+            </template>
+            <template v-else>
+              <img :src="Images.star.selected" alt="" />
+              <img class="hovered" :src="Images.star.selected" alt="" />
+            </template>
+          </div>
+          <div class="popup">
+            <span>{{ isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star') }}</span>
+          </div>
+        </div>
+
+        <div class="strip-sep" />
+
+        <!-- Archive -->
+        <div class="strip-item" @click="onStripItemClick(PanelItemType.Archieve)">
+          <div class="strip-icon">
+            <template v-if="!isArchive">
+              <img :src="Images.archieve.main" alt="" />
+              <img class="hovered" :src="Images.archieve.highlighted" alt="" />
+            </template>
+            <template v-else>
+              <img :src="Images.archieve.selected" alt="" />
+              <img class="hovered" :src="Images.archieve.selected" alt="" />
+            </template>
+          </div>
+          <div class="popup">
+            <span>{{ isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve') }}</span>
+          </div>
+        </div>
+
+        <div class="strip-sep" />
+
+        <!-- 展开面板 (更多) -->
+        <div class="strip-item" @click.stop="openMorePanel()">
+          <div class="strip-icon more-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 36L12 24L24 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M36 36L24 24L36 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="popup">
+            <span>{{ $t('component.sidebar.more') }}</span>
           </div>
         </div>
       </div>
-      <div class="close-wrapper">
+
+      <!-- 展开状态：更多面板 -->
+      <div class="more-panel" :class="{ visible: isPanelVisible }" v-on-click-outside="closePanelOutside">
+        <!-- 面板头部 -->
+        <div class="panel-header">
+          <div class="brand">
+            <div class="brand-logo">
+              <img src="@/assets/tiny-app-logo-gray.png" alt="" />
+            </div>
+            <span>Slax Reader</span>
+          </div>
+          <button class="collapse-btn" @click="closeMorePanel" :title="$t('component.sidebar.more')">
+            <img src="@/assets/tiny-arrow-right-icon.png" alt="" />
+          </button>
+        </div>
+
+        <!-- 面板按钮网格 -->
+        <div class="panel-grid">
+          <!-- 第一行：Outline / Star / Archive / Share -->
+          <div class="panel-btn" :class="{ active: activePanelItem === 'outline' }" @click="onPanelBtnClick(PanelItemType.Outline, 'outline')">
+            <div class="icon-badge">
+              <img :src="Images.outline.main" alt="" />
+              <img class="diamond" src="@/assets/tiny-diamond-icon.png" alt="" />
+            </div>
+            <span>Outline</span>
+          </div>
+          <div class="panel-btn" :class="{ active: isStar }" @click="onPanelBtnClick(PanelItemType.Star, 'star')">
+            <img :src="isStar ? Images.star.selected : Images.star.main" alt="" />
+            <span>{{ isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star') }}</span>
+          </div>
+          <div class="panel-btn" :class="{ active: isArchive }" @click="onPanelBtnClick(PanelItemType.Archieve, 'archive')">
+            <img :src="isArchive ? Images.archieve.selected : Images.archieve.main" alt="" />
+            <span>{{ isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve') }}</span>
+          </div>
+          <div class="panel-btn" :class="{ active: activePanelItem === 'share' }" @click="onPanelBtnClick(PanelItemType.Share, 'share')">
+            <img :src="Images.share.main" alt="" />
+            <span>{{ $t('component.sidebar.share') }}</span>
+          </div>
+
+          <!-- 分隔线 -->
+          <div class="panel-divider" />
+
+          <!-- 第二行：Chat / Comment / Feedback -->
+          <div class="panel-btn" :class="{ active: activePanelItem === 'chat' }" @click="onPanelBtnClick(PanelItemType.Chat, 'chat')">
+            <div class="icon-badge">
+              <img :src="Images.chatbot.main" alt="" />
+              <img class="diamond" src="@/assets/tiny-diamond-icon.png" alt="" />
+            </div>
+            <span>{{ $t('component.sidebar.chat') }}</span>
+          </div>
+          <div class="panel-btn" :class="{ active: activePanelItem === 'comment' }" @click="onPanelBtnClick(PanelItemType.Comments, 'comment')">
+            <img :src="Images.comments.main" alt="" />
+            <span>{{ $t('component.sidebar.comments') }}</span>
+          </div>
+          <div class="panel-btn" :class="{ active: activePanelItem === 'feedback' }" @click="onPanelBtnClick(PanelItemType.Feedback, 'feedback')">
+            <img :src="Images.feedback.main" alt="" />
+            <span>{{ $t('component.sidebar.feedback') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 关闭按钮 -->
+      <div class="close-wrapper" v-show="!isPanelVisible">
         <button @click="dismissItems = true">
           <img src="@/assets/button-tiny-close-white.png" alt="" />
         </button>
@@ -66,7 +139,7 @@
 <script lang="ts" setup>
 import { Images, type PanelItem, PanelItemType } from '@/config/panel'
 
-import { useElementHover } from '@vueuse/core'
+import { vOnClickOutside } from '@vueuse/components'
 
 const props = defineProps({
   isSummaryShowing: {
@@ -94,95 +167,140 @@ const props = defineProps({
 const emits = defineEmits(['panel-item-action'])
 
 const dismissItems = ref(false)
-const panelItems = ref<PanelItem[]>([
-  {
-    type: PanelItemType.AI,
-    icon: Images.ai.main,
-    highlighedIcon: Images.ai.highlighted,
-    selectedIcon: Images.ai.selected,
-    title: $t('component.sidebar.ai'),
-    hovered: false,
-    isSelected: () => props.isSummaryShowing
-  },
-  {
-    type: PanelItemType.Chat,
-    icon: Images.chatbot.main,
-    highlighedIcon: Images.chatbot.highlighted,
-    selectedIcon: Images.chatbot.selected,
-    title: $t('component.sidebar.chat'),
-    hovered: false,
-    isSelected: () => props.isChatbotShowing
-  },
-  {
-    type: PanelItemType.Comments,
-    icon: Images.comments.main,
-    highlighedIcon: Images.comments.highlighted,
-    selectedIcon: Images.comments.selected,
-    title: $t('component.sidebar.comments'),
-    hovered: false,
-    isSelected: () => props.isCommentShowing
+const isPanelVisible = ref(false)
+const activePanelItem = ref<string | null>(null)
+
+/** 构建 PanelItem 对象并触发事件 */
+const buildPanelItem = (type: PanelItemType): PanelItem => {
+  switch (type) {
+    case PanelItemType.AI:
+      return {
+        type: PanelItemType.AI,
+        icon: Images.ai.main,
+        highlighedIcon: Images.ai.highlighted,
+        selectedIcon: Images.ai.selected,
+        title: $t('component.sidebar.ai'),
+        hovered: false,
+        isSelected: () => props.isSummaryShowing
+      }
+    case PanelItemType.Outline:
+      return {
+        type: PanelItemType.Outline,
+        icon: Images.outline.main,
+        highlighedIcon: Images.outline.highlighted,
+        selectedIcon: Images.outline.selected,
+        title: 'Outline',
+        hovered: false,
+        isSelected: () => props.isSummaryShowing
+      }
+    case PanelItemType.Chat:
+      return {
+        type: PanelItemType.Chat,
+        icon: Images.chatbot.main,
+        highlighedIcon: Images.chatbot.highlighted,
+        selectedIcon: Images.chatbot.selected,
+        title: $t('component.sidebar.chat'),
+        hovered: false,
+        isSelected: () => props.isChatbotShowing
+      }
+    case PanelItemType.Comments:
+      return {
+        type: PanelItemType.Comments,
+        icon: Images.comments.main,
+        highlighedIcon: Images.comments.highlighted,
+        selectedIcon: Images.comments.selected,
+        title: $t('component.sidebar.comments'),
+        hovered: false,
+        isSelected: () => props.isCommentShowing
+      }
+    case PanelItemType.Star:
+      return {
+        type: PanelItemType.Star,
+        icon: Images.star.main,
+        highlighedIcon: Images.star.highlighted,
+        selectedIcon: Images.star.selected,
+        title: props.isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star'),
+        hovered: false,
+        isSelected: () => props.isStar
+      }
+    case PanelItemType.Archieve:
+      return {
+        type: PanelItemType.Archieve,
+        icon: Images.archieve.main,
+        highlighedIcon: Images.archieve.highlighted,
+        selectedIcon: Images.archieve.selected,
+        title: props.isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve'),
+        hovered: false,
+        isSelected: () => props.isArchive
+      }
+    case PanelItemType.Share:
+      return {
+        type: PanelItemType.Share,
+        icon: Images.share.main,
+        highlighedIcon: Images.share.highlighted,
+        title: $t('component.sidebar.share'),
+        hovered: false
+      }
+    case PanelItemType.Feedback:
+      return {
+        type: PanelItemType.Feedback,
+        icon: Images.feedback.main,
+        highlighedIcon: Images.feedback.highlighted,
+        title: $t('component.sidebar.feedback'),
+        hovered: false
+      }
   }
-])
+}
 
-const morePanelItem = ref<PanelItem[]>([
-  {
-    type: PanelItemType.Star,
-    icon: Images.star.main,
-    highlighedIcon: Images.star.highlighted,
-    selectedIcon: Images.star.selected,
-    title: computed(() => {
-      return props.isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star')
-    }),
-    hovered: false,
-    isSelected: () => props.isStar
-  },
-  {
-    type: PanelItemType.Archieve,
-    icon: Images.archieve.main,
-    highlighedIcon: Images.archieve.highlighted,
-    selectedIcon: Images.archieve.selected,
-    title: computed(() => {
-      return props.isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve')
-    }),
-    hovered: false,
-    isSelected: () => props.isArchive
-  },
-  {
-    type: PanelItemType.Share,
-    icon: Images.share.main,
-    highlighedIcon: Images.share.highlighted,
-    title: $t('component.sidebar.share'),
-    hovered: false
+/** strip 按钮点击：Outline / Star / Archive */
+const onStripItemClick = (type: PanelItemType) => {
+  const panel = buildPanelItem(type)
+
+  if (type === PanelItemType.Outline) {
+    // Outline 点击时打开面板并高亮
+    isPanelVisible.value = true
+    activePanelItem.value = 'outline'
   }
-])
 
-const moreShow = ref(false)
-const moreContainer = ref<HTMLElement>()
-const isMoreHovered = useElementHover(moreContainer)
-
-const outsideClick = () => {
-  moreShow.value = false
-  clearHandler()
+  emits('panel-item-action', panel)
 }
 
-const dotsClick = (e: Event) => {
-  e.stopPropagation()
-
-  moreShow.value = !moreShow.value
-  !moreShow.value && clearHandler()
+/** 展开更多面板 */
+const openMorePanel = () => {
+  isPanelVisible.value = true
+  activePanelItem.value = null
 }
 
-const clearHandler = () => {
-  morePanelItem.value.forEach(panel => {
-    panel.finishHandler = undefined
-  })
+/** 关闭更多面板 */
+const closeMorePanel = () => {
+  isPanelVisible.value = false
+  activePanelItem.value = null
 }
 
-const panelClick = async (panel: PanelItem) => {
-  if ([PanelItemType.Star, PanelItemType.Archieve].includes(panel.type)) {
-    panel.finishHandler = () => {
-      moreShow.value = false
-    }
+/** 点击面板外部关闭 */
+const closePanelOutside = () => {
+  if (isPanelVisible.value) {
+    closeMorePanel()
+  }
+}
+
+/** 面板内按钮点击 */
+const onPanelBtnClick = (type: PanelItemType, name: string) => {
+  const panel = buildPanelItem(type)
+
+  // 设置激活状态（Star 和 Archive 通过 props 状态体现，无需额外激活）
+  if (![PanelItemType.Star, PanelItemType.Archieve].includes(type)) {
+    activePanelItem.value = name
+  }
+
+  // 对于需要打开侧边面板的功能（Outline / AI / Chat / Comments），点击后关闭更多面板
+  if ([PanelItemType.Outline, PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].includes(type)) {
+    isPanelVisible.value = false
+  }
+
+  // 对于 Share / Feedback，点击后也关闭面板
+  if ([PanelItemType.Share, PanelItemType.Feedback].includes(type)) {
+    isPanelVisible.value = false
   }
 
   emits('panel-item-action', panel)
@@ -191,147 +309,207 @@ const panelClick = async (panel: PanelItem) => {
 
 <style lang="scss" scoped>
 .sidebar-items {
-  --style: relative z-2 w-44px py-3px px-0px bg-#262626 rounded-(lt-8px lb-8px);
+  --style: relative z-2 cursor-default;
 
-  .button-wrapper {
-    --style: relative w-44px h-41px;
+  /* ═══════ STRIP 收起状态工具条 ═══════ */
+  .strip {
+    --style: bg-#1c1c1e rounded-(lt-14px lb-14px) py-8px px-5px flex flex-col gap-2px transition-all duration-250 ease;
 
-    .seperate-line {
-      --style: absolute bottom-0 left-10px right-10px h-1px bg-#ffffff14;
+    &.hidden {
+      --style: opacity-0 pointer-events-none;
+      transform: translateX(100%);
     }
 
-    button.panel-button {
-      --style: absolute top-0 right-0 max-w-44px h-41px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
-        transition-max-width duration-250;
+    .strip-item {
+      --style: relative size-44px flex items-center justify-center rounded-10px cursor-pointer;
 
-      .icon-wrapper {
-        --style: relative rounded-6px shrink-0;
+      .strip-icon {
+        --style: relative size-22px shrink-0 z-1 select-none;
 
-        .icon {
-          --style: relative size-36px;
-          img {
-            --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-          }
+        img {
+          --style: absolute inset-0 size-full object-contain select-none transition-opacity duration-180;
 
-          .normal {
+          &:first-child {
             --style: opacity-100;
           }
 
-          .highlighted {
+          &.hovered {
             --style: opacity-0;
+          }
+        }
+
+        &.more-icon {
+          svg {
+            --style: size-full;
+            color: #888;
+            transition: color 0.18s;
           }
         }
       }
 
       &:hover {
-        --style: '!max-w-160px';
-
-        .icon {
-          .normal {
+        .strip-icon {
+          img:first-child {
             --style: opacity-0;
           }
 
-          .highlighted {
+          img.hovered {
             --style: opacity-100;
           }
 
-          i {
-            --style: opacity-100;
+          &.more-icon svg {
+            color: #fff;
           }
         }
       }
 
-      span {
-        --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
+      /* hover 时从右侧弹出的文字标签 */
+      .popup {
+        --style: absolute h-full flex items-center whitespace-nowrap pointer-events-none;
+        right: 100%;
+        padding: 0 12px 0 14px;
+        background: #1c1c1e;
+        border-radius: 10px 0 0 10px;
+        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.45);
+        transform: translateX(100%);
+        opacity: 0;
+        transition:
+          transform 0.2s ease,
+          opacity 0.15s ease;
+
+        span {
+          --style: text-(13.5px #fff) font-500;
+        }
+      }
+
+      &:hover .popup {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+        transition:
+          transform 0.42s cubic-bezier(0.34, 1.12, 0.64, 1),
+          opacity 0.2s ease 0.05s;
       }
     }
 
-    .more-wrapper {
-      --style: absolute top-0 right-0 w-44px h-41px p-4px rounded-(lt-8px lb-8px) flex items-center flex-nowrap whitespace-nowrap;
-      .icon-wrapper {
-        --style: shrink-0 size-38px relative;
+    .strip-sep {
+      --style: self-center h-1px;
+      width: 24px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
 
-        .more-options-container {
-          --style: absolute size-36px right-0 top-0 bg-#262626 rounded-6px transition-all duration-250;
+  /* ═══════ MORE PANEL 展开面板 ═══════ */
+  .more-panel {
+    --style: absolute right-0 top-1/2 bg-#1c1c1e rounded-18px px-16px py-13px z-10 pointer-events-none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(100%);
+    box-shadow: -6px 6px 28px rgba(0, 0, 0, 0.45);
+    transition:
+      opacity 0.25s ease,
+      transform 0.38s cubic-bezier(0.34, 1.08, 0.64, 1);
 
-          &.focus {
-            --style: -right-4px w-150px h-110px cursor-default border-(1px solid transparent);
+    &.visible {
+      --style: pointer-events-auto;
+      opacity: 1;
+      transform: translateY(-50%) translateX(-14px);
+    }
+
+    .panel-header {
+      --style: flex items-center justify-between mb-13px;
+
+      .brand {
+        --style: flex items-center gap-8px;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 14.5px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+
+        .brand-logo {
+          --style: size-26px rounded-7px flex items-center justify-center shrink-0 overflow-hidden;
+
+          img {
+            --style: size-18px object-contain;
+          }
+        }
+      }
+
+      .collapse-btn {
+        --style: size-30px rounded-8px flex items-center justify-center shrink-0 cursor-pointer;
+        border: 1px solid #333;
+        background: transparent;
+        transition:
+          border-color 0.18s,
+          background 0.18s;
+
+        img {
+          --style: size-16px object-contain select-none;
+        }
+
+        &:hover {
+          border-color: #555;
+          background: #2c2c2e;
+        }
+      }
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 7px;
+
+      .panel-divider {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: #2a2a2c;
+        margin: 4px 0;
+      }
+
+      .panel-btn {
+        --style: flex flex-col items-center justify-center gap-6px cursor-pointer select-none w-full;
+        padding: 8px 0 7px;
+        border-radius: 12px;
+        color: #888;
+        font-size: 11.5px;
+        font-weight: 500;
+        transition:
+          background 0.18s,
+          color 0.18s;
+
+        img {
+          --style: size-23px object-contain;
+        }
+
+        .icon-badge {
+          --style: relative;
+
+          img {
+            --style: size-23px object-contain;
           }
 
-          .icon {
-            --style: absolute top-0 right-0 size-36px;
-
-            i {
-              --style: absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 size-3.5px bg-#fcfcfc opacity-60 transition-all duration-250;
-
-              &:nth-child(1) {
-                --style: top-1/3;
-              }
-
-              &:nth-child(2) {
-                --style: top-1/2;
-              }
-
-              &:nth-child(3) {
-                --style: top-2/3;
-              }
-
-              &.star {
-                --style: bg-#ffc787 opacity-100;
-              }
-
-              &.archive {
-                --style: bg-#16b998 opacity-100;
-              }
-            }
+          .diamond {
+            --style: absolute pointer-events-none;
+            width: 8px;
+            height: 7px;
+            top: -5px;
+            right: -5px;
           }
+        }
 
-          .more-options {
-            --style: flex flex-col py-7px px-8px opacity-100;
+        &:hover {
+          background: #2c2c2e;
+          color: #ddd;
+        }
 
-            button.subpanel-button {
-              --style: flex items-center h-32px px-16px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
-              --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
-
-              .icon {
-                --style: relative size-16px;
-                img {
-                  --style: absolute size-full left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
-                }
-
-                .normal {
-                  --style: opacity-100;
-                }
-
-                .highlighted {
-                  --style: opacity-0;
-                }
-              }
-
-              &:hover {
-                --style: '!max-w-160px';
-
-                .icon {
-                  .normal {
-                    --style: opacity-0;
-                  }
-
-                  .highlighted {
-                    --style: opacity-100;
-                  }
-                }
-              }
-
-              span {
-                --style: ml-8px text-13px line-height-18px transition-all duration-250;
-              }
-            }
-          }
+        &.active {
+          background: #2c2c2e;
+          color: #fff;
         }
       }
     }
   }
 
+  /* ═══════ 关闭按钮 ═══════ */
   .close-wrapper {
     --style: absolute bottom-full right-0;
 

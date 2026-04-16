@@ -139,7 +139,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['navigatedText', 'dismiss'])
-const isShrink = ref(true)
+const isShrink = ref(false)
 const aiSummaries = ref<HTMLDivElement>()
 const textContainer = ref<HTMLDivElement>()
 const loadingBottom = ref<HTMLDivElement>()
@@ -196,9 +196,9 @@ watch(
   value => {
     if (!value && !loading.value && !done.value && markdownText.value.length === 0) {
       checkAndLoadSummaries()
-      nextTick(() => {
-        scrollToTop()
-      })
+      // nextTick(() => {
+      //   scrollToTop()
+      // })
 
       addLog('open')
     }
@@ -212,7 +212,18 @@ watch(
   () => props.isAppeared,
   (value, oldValue) => {
     if (value) {
-      !isShrink.value && addLog('expand')
+      if (!isShrink.value) {
+        addLog('expand')
+
+        if (!loading.value && !done.value && markdownText.value.length === 0) {
+          checkAndLoadSummaries()
+          // nextTick(() => {
+          //   scrollToTop()
+          // })
+
+          addLog('open')
+        }
+      }
     } else if (value !== !!oldValue) {
       addLog('collapse')
     }
