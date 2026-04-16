@@ -116,11 +116,11 @@ const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const isCollected = ref(false)
 const subPanelItems = ref<PanelItem[]>([
   {
-    type: PanelItemType.AI,
-    icon: Images.ai.sub,
-    highlighedIcon: Images.ai.highlighted,
-    selectedIcon: Images.ai.selected,
-    title: $t('component.sidebar.ai'),
+    type: PanelItemType.Outline,
+    icon: Images.outline.sub,
+    highlighedIcon: Images.outline.highlighted,
+    selectedIcon: Images.outline.selected,
+    title: $t('component.sidebar.outline'),
     hovered: false,
     isSelected: () => isSummaryShowing.value
   },
@@ -393,11 +393,12 @@ const panelClick = async (panel: PanelItem) => {
     return
   }
 
-  if ([PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
+  if ([PanelItemType.AI, PanelItemType.Outline, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
     closePanel()
   }
 
   switch (type) {
+    case PanelItemType.Outline:
     case PanelItemType.AI: {
       isSummaryShowing.value = !isSummaryShowing.value
       break
