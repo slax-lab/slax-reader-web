@@ -1,9 +1,8 @@
 <template>
   <Transition name="opacity">
     <div class="sidebar-items" v-show="!dismissItems">
-      <!-- 收起状态：strip 工具条 -->
+      <!-- strip 工具条 -->
       <div class="strip" :class="{ hidden: isPanelVisible }">
-        <!-- Outline -->
         <div class="strip-item" @click="onStripItemClick(PanelItemType.Outline)">
           <div class="strip-icon">
             <img :src="Images.outline.main" alt="" />
@@ -14,7 +13,6 @@
 
         <div class="strip-sep" />
 
-        <!-- Star -->
         <div class="strip-item" @click="onStripItemClick(PanelItemType.Star)">
           <div class="strip-icon">
             <template v-if="!isStar">
@@ -33,7 +31,6 @@
 
         <div class="strip-sep" />
 
-        <!-- Archive -->
         <div class="strip-item" @click="onStripItemClick(PanelItemType.Archieve)">
           <div class="strip-icon">
             <template v-if="!isArchive">
@@ -52,7 +49,6 @@
 
         <div class="strip-sep" />
 
-        <!-- 展开面板 (更多) -->
         <div class="strip-item" @click.stop="openMorePanel()">
           <div class="strip-icon more-icon">
             <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,9 +62,8 @@
         </div>
       </div>
 
-      <!-- 展开状态：更多面板 -->
+      <!-- 更多面板 -->
       <div class="more-panel" :class="{ visible: isPanelVisible }" v-on-click-outside="closePanelOutside">
-        <!-- 面板头部 -->
         <div class="panel-header">
           <div class="brand">
             <div class="brand-logo">
@@ -81,52 +76,47 @@
           </button>
         </div>
 
-        <!-- 面板按钮网格 -->
         <div class="panel-grid">
-          <!-- 第一行：Outline / Star / Archive / Share -->
-          <div class="panel-btn" :class="{ active: activePanelItem === 'outline' }" @click="onPanelBtnClick(PanelItemType.Outline, 'outline')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Outline, 'outline')">
             <div class="icon-badge">
               <img :src="Images.outline.main" alt="" />
               <img class="diamond" src="@/assets/tiny-diamond-icon.png" alt="" />
             </div>
             <span>Outline</span>
           </div>
-          <div class="panel-btn" :class="{ active: isStar }" @click="onPanelBtnClick(PanelItemType.Star, 'star')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Star, 'star')">
             <img :src="isStar ? Images.star.selected : Images.star.main" alt="" />
             <span>{{ isStar ? $t('component.sidebar.starred') : $t('component.sidebar.star') }}</span>
           </div>
-          <div class="panel-btn" :class="{ active: isArchive }" @click="onPanelBtnClick(PanelItemType.Archieve, 'archive')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Archieve, 'archive')">
             <img :src="isArchive ? Images.archieve.selected : Images.archieve.main" alt="" />
             <span>{{ isArchive ? $t('component.sidebar.archieved') : $t('component.sidebar.archieve') }}</span>
           </div>
-          <div class="panel-btn" :class="{ active: activePanelItem === 'share' }" @click="onPanelBtnClick(PanelItemType.Share, 'share')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Share, 'share')">
             <img :src="Images.share.main" alt="" />
             <span>{{ $t('component.sidebar.share') }}</span>
           </div>
 
-          <!-- 分隔线 -->
           <div class="panel-divider" />
 
-          <!-- 第二行：Chat / Comment / Feedback -->
-          <div class="panel-btn" :class="{ active: activePanelItem === 'chat' }" @click="onPanelBtnClick(PanelItemType.Chat, 'chat')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Chat, 'chat')">
             <div class="icon-badge">
               <img :src="Images.chatbot.main" alt="" />
               <img class="diamond" src="@/assets/tiny-diamond-icon.png" alt="" />
             </div>
             <span>{{ $t('component.sidebar.chat') }}</span>
           </div>
-          <div class="panel-btn" :class="{ active: activePanelItem === 'comment' }" @click="onPanelBtnClick(PanelItemType.Comments, 'comment')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Comments, 'comment')">
             <img :src="Images.comments.main" alt="" />
             <span>{{ $t('component.sidebar.comments') }}</span>
           </div>
-          <div class="panel-btn" :class="{ active: activePanelItem === 'feedback' }" @click="onPanelBtnClick(PanelItemType.Feedback, 'feedback')">
+          <div class="panel-btn" @click="onPanelBtnClick(PanelItemType.Feedback, 'feedback')">
             <img :src="Images.feedback.main" alt="" />
             <span>{{ $t('component.sidebar.feedback') }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 关闭按钮 -->
       <div class="close-wrapper" v-show="!isPanelVisible">
         <button @click="dismissItems = true">
           <img src="@/assets/button-tiny-close-white.png" alt="" />
@@ -316,8 +306,7 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
     --style: bg-#1c1c1e rounded-(lt-14px lb-14px) py-8px px-5px flex flex-col gap-2px transition-all duration-250 ease;
 
     &.hidden {
-      --style: opacity-0 pointer-events-none;
-      transform: translateX(100%);
+      --style: opacity-0 pointer-events-none translate-x-full;
     }
 
     .strip-item {
@@ -340,9 +329,7 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
 
         &.more-icon {
           svg {
-            --style: size-full;
-            color: #888;
-            transition: color 0.18s;
+            --style: size-full color-#888 transition-colors duration-180;
           }
         }
       }
@@ -358,21 +345,15 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
           }
 
           &.more-icon svg {
-            color: #fff;
+            --style: color-#fff;
           }
         }
       }
 
       /* hover 时从右侧弹出的文字标签 */
       .popup {
-        --style: absolute h-full flex items-center whitespace-nowrap pointer-events-none;
-        right: 100%;
-        padding: 0 12px 0 14px;
-        background: #1c1c1e;
-        border-radius: 10px 0 0 10px;
-        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.45);
-        transform: translateX(100%);
-        opacity: 0;
+        --style: absolute right-full h-full flex items-center whitespace-nowrap pointer-events-none bg-#1c1c1e rounded-l-10px shadow-[-4px_0_16px_#00000073] pt-0 pr-12px pb-0
+          pl-14px opacity-0 translate-x-full;
         transition:
           transform 0.2s ease,
           opacity 0.15s ease;
@@ -383,9 +364,7 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
       }
 
       &:hover .popup {
-        transform: translateX(0);
-        opacity: 1;
-        pointer-events: auto;
+        --style: opacity-100 pointer-events-auto translate-x-0;
         transition:
           transform 0.42s cubic-bezier(0.34, 1.12, 0.64, 1),
           opacity 0.2s ease 0.05s;
@@ -393,25 +372,20 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
     }
 
     .strip-sep {
-      --style: self-center h-1px;
-      width: 24px;
-      background: rgba(255, 255, 255, 0.08);
+      --style: self-center h-1px w-24px bg-#ffffff14;
     }
   }
 
   /* ═══════ MORE PANEL 展开面板 ═══════ */
   .more-panel {
-    --style: absolute right-0 top-1/2 bg-#1c1c1e rounded-18px px-16px py-13px z-10 pointer-events-none;
-    opacity: 0;
+    --style: absolute right-0 top-1/2 bg-#1c1c1e rounded-18px px-16px py-13px z-10 pointer-events-none opacity-0 shadow-[-6px_6px_28px_#00000073];
     transform: translateY(-50%) translateX(100%);
-    box-shadow: -6px 6px 28px rgba(0, 0, 0, 0.45);
     transition:
       opacity 0.25s ease,
       transform 0.38s cubic-bezier(0.34, 1.08, 0.64, 1);
 
     &.visible {
-      --style: pointer-events-auto;
-      opacity: 1;
+      --style: pointer-events-auto opacity-100;
       transform: translateY(-50%) translateX(-14px);
     }
 
@@ -419,11 +393,7 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
       --style: flex items-center justify-between mb-13px;
 
       .brand {
-        --style: flex items-center gap-8px;
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 14.5px;
-        font-weight: 500;
-        letter-spacing: 0.01em;
+        --style: flex items-center gap-8px text-(14.5px #ffffff66) font-500 tracking-[0.01em];
 
         .brand-logo {
           --style: size-26px rounded-7px flex items-center justify-center shrink-0 overflow-hidden;
@@ -435,46 +405,29 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
       }
 
       .collapse-btn {
-        --style: size-30px rounded-8px flex items-center justify-center shrink-0 cursor-pointer;
-        border: 1px solid #333;
-        background: transparent;
-        transition:
-          border-color 0.18s,
-          background 0.18s;
+        --style: size-30px rounded-8px flex items-center justify-center shrink-0 cursor-pointer border-(1px solid #333) bg-transparent transition-all duration-180;
 
         img {
           --style: size-16px object-contain select-none;
         }
 
         &:hover {
-          border-color: #555;
-          background: #2c2c2e;
+          --style: border-#555 bg-#2c2c2e;
         }
       }
     }
 
     .panel-grid {
-      display: grid;
+      --style: grid gap-7px;
       grid-template-columns: repeat(4, 60px);
-      gap: 7px;
 
       .panel-divider {
-        grid-column: 1 / -1;
-        height: 1px;
-        background: #2a2a2c;
-        margin: 4px 0;
+        --style: col-span-full h-1px bg-#2a2a2c my-4px;
       }
 
       .panel-btn {
-        --style: flex flex-col items-center justify-center gap-6px cursor-pointer select-none w-full;
-        padding: 8px 0 7px;
-        border-radius: 12px;
-        color: #888;
-        font-size: 11.5px;
-        font-weight: 500;
-        transition:
-          background 0.18s,
-          color 0.18s;
+        --style: flex flex-col items-center justify-center gap-6px cursor-pointer select-none w-full pt-8px px-0 pb-7px rounded-12px text-(11.5px #888) font-500 transition-all
+          duration-180;
 
         img {
           --style: size-23px object-contain;
@@ -488,22 +441,16 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
           }
 
           .diamond {
-            --style: absolute pointer-events-none;
-            width: 8px;
-            height: 7px;
-            top: -5px;
-            right: -5px;
+            --style: absolute pointer-events-none w-8px h-7px -top-5px -right-5px;
           }
         }
 
         &:hover {
-          background: #2c2c2e;
-          color: #ddd;
+          --style: bg-#2c2c2e text-#ddd;
         }
 
         &.active {
-          background: #2c2c2e;
-          color: #fff;
+          --style: bg-#2c2c2e text-#fff;
         }
       }
     }
