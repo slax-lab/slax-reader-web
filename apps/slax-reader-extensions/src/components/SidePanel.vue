@@ -433,18 +433,24 @@ const panelClick = async (panel: PanelItem) => {
 
       const archieve = !(bookmarkBriefInfo.value?.archived === 'archive')
       const status = archieve ? 'archive' : 'inbox'
-      panel.isLoading = true
-
-      await request.post<{ bookmark_id: number; status: string }>({
-        url: RESTMethodPath.BOOKMARK_ARCHIVE,
-        body: {
-          bookmark_id: bookmarkId.value,
-          status
-        }
-      })
+      // panel.isLoading = true
 
       if (bookmarkBriefInfo.value) {
         bookmarkBriefInfo.value.archived = status
+      }
+
+      try {
+        await request.post<{ bookmark_id: number; status: string }>({
+          url: RESTMethodPath.BOOKMARK_ARCHIVE,
+          body: {
+            bookmark_id: bookmarkId.value,
+            status
+          }
+        })
+      } catch (err) {
+        if (bookmarkBriefInfo.value) {
+          bookmarkBriefInfo.value.archived = archieve ? 'inbox' : 'archive'
+        }
       }
 
       trackEvent({
@@ -453,7 +459,7 @@ const panelClick = async (panel: PanelItem) => {
         source: 'bookmark'
       })
 
-      panel.isLoading = false
+      // panel.isLoading = false
 
       panel.finishHandler && panel.finishHandler()
       panel.finishHandler = undefined
@@ -469,18 +475,24 @@ const panelClick = async (panel: PanelItem) => {
 
       const starred = !(bookmarkBriefInfo.value?.starred === 'star')
       const status = starred ? 'star' : 'unstar'
-      panel.isLoading = true
-
-      await request.post<{ bookmark_id: number; status: string }>({
-        url: RESTMethodPath.BOOKMARK_STAR,
-        body: {
-          bookmark_id: bookmarkId.value,
-          status
-        }
-      })
+      // panel.isLoading = true
 
       if (bookmarkBriefInfo.value) {
         bookmarkBriefInfo.value.starred = status
+      }
+
+      try {
+        await request.post<{ bookmark_id: number; status: string }>({
+          url: RESTMethodPath.BOOKMARK_STAR,
+          body: {
+            bookmark_id: bookmarkId.value,
+            status
+          }
+        })
+      } catch (err) {
+        if (bookmarkBriefInfo.value) {
+          bookmarkBriefInfo.value.starred = starred ? 'unstar' : 'star'
+        }
       }
 
       trackEvent({
@@ -489,7 +501,7 @@ const panelClick = async (panel: PanelItem) => {
         source: 'bookmark'
       })
 
-      panel.isLoading = false
+      // panel.isLoading = false
 
       panel.finishHandler && panel.finishHandler()
       panel.finishHandler = undefined

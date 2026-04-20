@@ -25,7 +25,7 @@
   },
   "component": {
     "ai_summaries": {
-      "analyzed_title": "Article Outline",
+      "analyzed_title": "Outline",
       "click_to_expand": "Click any circle to explore more details",
       "click_to_interpret": "Click the button to interpret this article",
       "copy_content_success": "Content copied successfully",
