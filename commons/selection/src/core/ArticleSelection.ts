@@ -77,10 +77,10 @@ export class ArticleSelection extends Base {
   /**
    * 删除评论
    * @param id 标记ID
-   * @param markId 评论ID
+   * @param markUid 评论UID
    */
-  async deleteComment(id: string, markId: number) {
-    await this.manager.deleteComment(id, markId)
+  async deleteComment(id: string, markUid: string) {
+    await this.manager.deleteComment(id, markUid)
   }
 
   /**

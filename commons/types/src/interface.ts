@@ -19,12 +19,15 @@ export type UserList = {
 
 export interface MarkInfo {
   id: number
+  uid: string
   user_id: number
   type: MarkType
   source: MarkPathItem[]
   approx_source?: MarkPathApprox
   parent_id: number
+  parent_uid: string
   root_id: number
+  root_uid: string
   comment: string
   created_at: Date
   is_deleted: boolean

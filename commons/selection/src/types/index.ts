@@ -34,7 +34,7 @@ export interface MarkItemInfo {
   /** 标记路径源 */
   source: MarkPathItem[]
   /** 划线信息列表 */
-  stroke: { mark_id?: number; userId: number }[]
+  stroke: { mark_uid?: string; userId: number }[]
   /** 评论信息列表 */
   comments: MarkCommentInfo[]
   /** 近似匹配信息（用于兼容旧版本划线） */
@@ -45,8 +45,8 @@ export interface MarkItemInfo {
  * 标记评论信息
  */
 export type MarkCommentInfo = {
-  /** 评论ID */
-  markId: number
+  /** 评论UID */
+  markUid: string
   /** 评论内容 */
   comment: string
   /** 用户ID */
@@ -61,11 +61,11 @@ export type MarkCommentInfo = {
   reply?: {
     username: string
     userId: number
-    id: number
+    uid: string
     avatar: string
   }
-  /** 根评论ID */
-  rootId?: number
+  /** 根评论UID */
+  rootUid?: string
   /** 创建时间 */
   createdAt: Date
   /** 子评论列表 */
@@ -137,7 +137,7 @@ export interface StrokeSelectionMeta {
   /** 评论内容 */
   comment?: string
   /** 回复目标ID */
-  replyToId?: number
+  replyToUid?: string
 }
 
 /**

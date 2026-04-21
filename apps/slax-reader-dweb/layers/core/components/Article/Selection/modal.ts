@@ -226,8 +226,8 @@ export class MarkModal extends Base implements IMarkModal {
   showPanel = (options: {
     info: MarkItemInfo
     fallbackYOffset: number
-    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
-    commentDeleteCallback?: (id: string, markId: number) => void
+    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToUid?: string; event?: MouseEvent }) => void
+    commentDeleteCallback?: (id: string, markUid: string) => void
     dismissCallback?: () => void
   }) => {
     checkStyleElement()
@@ -340,8 +340,8 @@ export class MarkModal extends Base implements IMarkModal {
       actionCallback && actionCallback(type, meta)
     }
 
-    const onCommentDelete = (params: { id: string; markId: number }) => {
-      commentDeleteCallback && commentDeleteCallback(params.id, params.markId)
+    const onCommentDelete = (params: { id: string; markUid: string }) => {
+      commentDeleteCallback && commentDeleteCallback(params.id, params.markUid)
     }
 
     const onWindowResize = () => {
@@ -361,7 +361,7 @@ export class MarkModal extends Base implements IMarkModal {
     })
 
     panelElement.addEventListener('commentDelete', (e: Event) => {
-      const customEvent = e as CustomEvent<[{ id: string; markId: number }]>
+      const customEvent = e as CustomEvent<[{ id: string; markUid: string }]>
       onCommentDelete(customEvent.detail[0])
     })
 

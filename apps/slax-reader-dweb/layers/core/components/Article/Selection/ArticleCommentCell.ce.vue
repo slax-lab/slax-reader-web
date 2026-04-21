@@ -7,13 +7,13 @@
           <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
         </div>
         <div class="right">
-          <div class="i-svg-spinners:180-ring-with-bg size-16px text-18px text-#999" v-if="comment.markId === 0 || comment.loading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg size-16px text-18px text-#999" v-if="!comment.markUid || comment.loading"></div>
         </div>
       </div>
       <div class="comment-content">{{ comment.isDeleted ? t('component.article_selection.comment_deleted') : comment.comment }}</div>
       <div class="comment-footer">
         <span class="date">{{ showCreateTime(comment) }}</span>
-        <div class="operates" v-if="comment.markId !== 0 && !comment.loading">
+        <div class="operates" v-if="comment.markUid && !comment.loading">
           <template v-if="!comment.operateLoading">
             <button
               class="reply bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
@@ -39,12 +39,12 @@
             <span class="comment-content-text">{{ childComment.comment }}</span>
             <div
               class="i-svg-spinners:180-ring-with-bg ml-5px inline-block h-14px w-14px translate-y-2px text-14px text-#999 line-height-22px"
-              v-if="childComment.markId === 0 || childComment.loading"
+              v-if="!childComment.markUid || childComment.loading"
             ></div>
           </div>
           <div class="comment-footer">
             <span class="date">{{ showCreateTime(comment) }}</span>
-            <div class="operates" v-if="childComment.markId !== 0 && !childComment.loading">
+            <div class="operates" v-if="childComment.markUid && !childComment.loading">
               <template v-if="!childComment.operateLoading">
                 <button
                   class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/child:!opacity-100"
@@ -141,7 +141,7 @@ const commentDeleteClick = (comment: MarkCommentInfo) => {
 
 const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   emits('replyComment', {
-    replyToId: comment.markId,
+    replyToUid: comment.markUid,
     comment: replyComment
   })
 

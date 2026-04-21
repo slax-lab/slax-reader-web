@@ -212,8 +212,8 @@ const handleInput = () => {
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
 }
 
-const replyComment = (options: { replyToId: number; comment: string }) => {
-  const { replyToId, comment } = options
+const replyComment = (options: { replyToUid: string; comment: string }) => {
+  const { replyToUid, comment } = options
 }
 
 const commentDelete = (comment: MarkCommentInfo) => {}

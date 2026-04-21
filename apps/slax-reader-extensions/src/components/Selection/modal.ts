@@ -142,8 +142,8 @@ export class MarkModal extends Base implements IMarkModal {
   showPanel(options: {
     info: MarkItemInfo
     fallbackYOffset: number
-    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
-    commentDeleteCallback?: (id: string, markId: number) => void
+    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToUid?: string; event?: MouseEvent }) => void
+    commentDeleteCallback?: (id: string, markUid: string) => void
     dismissCallback?: () => void
   }) {
     const { info, actionCallback, commentDeleteCallback, dismissCallback } = options
@@ -209,8 +209,8 @@ export class MarkModal extends Base implements IMarkModal {
       onAction: (type: MenuType, meta: { comment: string; info: MarkItemInfo; event: MouseEvent }) => {
         actionCallback && actionCallback(type, meta)
       },
-      onCommentDelete: (params: { id: string; markId: number }) => {
-        commentDeleteCallback && commentDeleteCallback(params.id, params.markId)
+      onCommentDelete: (params: { id: string; markUid: string }) => {
+        commentDeleteCallback && commentDeleteCallback(params.id, params.markUid)
       },
       onLocationUpdate: (params: { x: number; y: number }) => {
         const { x, y } = params
