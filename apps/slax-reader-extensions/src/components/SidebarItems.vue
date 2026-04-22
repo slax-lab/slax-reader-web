@@ -448,10 +448,6 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
         &:hover {
           --style: bg-#2c2c2e text-#ddd;
         }
-
-        &.active {
-          --style: bg-#2c2c2e text-#fff;
-        }
       }
     }
   }

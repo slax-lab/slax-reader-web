@@ -12,13 +12,13 @@ export enum MenuType {
 export interface MarkItemInfo {
   id: string
   source: MarkPathItem[]
-  stroke: { mark_id?: number; userId: number }[]
+  stroke: { mark_uid?: string; userId: number }[]
   comments: MarkCommentInfo[]
   approx?: MarkPathApprox // 网页端需要兼容旧划线版本
 }
 
 export type MarkCommentInfo = {
-  markId: number
+  markUid: string
   comment: string
   userId: number
   username: string
@@ -27,10 +27,10 @@ export type MarkCommentInfo = {
   reply?: {
     username: string
     userId: number
-    id: number
+    uid: string
     avatar: string
   }
-  rootId?: number
+  rootUid?: string
   createdAt: Date
   children: MarkCommentInfo[]
 } & {
@@ -55,7 +55,7 @@ export interface SelectionConfig {
 export interface StrokeSelectionMeta {
   info: MarkItemInfo
   comment?: string
-  replyToId?: number
+  replyToUid?: string
 }
 
 export interface DrawMarkBaseInfo {

@@ -146,16 +146,16 @@ onUnmounted(() => {
 })
 
 const jumpToHighLight = () => {
-  const highlightId = parseInt(route.query.highlight as string)
-  if (!highlightId || isNaN(highlightId)) return
+  const highlightUid = route.query.highlight as string
+  if (!highlightUid) return
 
   const marks = detail.value.marks || props.marks || []
-  let mark = marks.mark_list?.find(item => item.id === highlightId)
+  let mark = marks.mark_list?.find(item => item.uid === highlightUid)
   if (!mark) return
 
   if (mark.type === MarkType.REPLY) {
-    const rootId = mark.root_id
-    mark = marks.mark_list?.find(item => item.id === rootId)
+    const rootUid = mark.root_uid
+    mark = marks.mark_list?.find(item => item.uid === rootUid)
     if (!mark) return
   }
 

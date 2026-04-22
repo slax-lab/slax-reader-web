@@ -53,8 +53,8 @@ export interface IMarkModal {
   showPanel(options: {
     info: MarkItemInfo
     fallbackYOffset: number
-    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToId?: number; event?: MouseEvent }) => void
-    commentDeleteCallback?: (id: string, markId: number) => void
+    actionCallback?: (type: MenuType, meta: { comment: string; info: MarkItemInfo; replyToUid?: string; event?: MouseEvent }) => void
+    commentDeleteCallback?: (id: string, markUid: string) => void
     dismissCallback?: () => void
   }): void
 
@@ -175,7 +175,7 @@ export class MarkManager extends Base {
    * @returns 标记信息ID
    */
   async strokeSelection(meta: StrokeSelectionMeta) {
-    const { info, comment, replyToId } = meta
+    const { info, comment, replyToUid } = meta
 
     const approx = info.approx
     const markItems = info.source
@@ -188,19 +188,19 @@ export class MarkManager extends Base {
     // }
 
     const infoItem = info
-    const replyToComment = replyToId && replyToId !== 0 ? this.findCommentById(replyToId, infoItem) : null
+    const replyToComment = replyToUid ? this.findCommentByUid(replyToUid, infoItem) : null
     const commentItem: MarkCommentInfo | null = comment
       ? {
-          markId: 0,
+          markUid: '',
           comment,
           userId: userInfo?.userId || 0,
           username: userInfo?.name || '',
           avatar: userInfo?.picture || '',
           isDeleted: false,
-          rootId: 0,
-          reply: replyToId
+          rootUid: '',
+          reply: replyToUid
             ? {
-                id: replyToId,
+                uid: replyToUid,
                 username: replyToComment?.username || '',
                 userId: replyToComment?.userId || 0,
                 avatar: replyToComment?.avatar || ''
@@ -218,20 +218,20 @@ export class MarkManager extends Base {
     if (!isUpdate) this._markItemInfos.value.push(infoItem)
 
     if (commentItem) {
-      if (replyToId) {
-        const rootComment = infoItem.comments.find(item => item.markId === replyToId || item.children.some(child => child.markId === replyToId))
+      if (replyToUid) {
+        const rootComment = infoItem.comments.find(item => item.markUid === replyToUid || item.children.some(child => child.markUid === replyToUid))
         if (rootComment) rootComment.children.push(commentItem)
       } else {
         infoItem.comments.push(commentItem)
       }
     } else {
-      infoItem.stroke.push({ mark_id: 0, userId: userInfo?.userId || 0 })
+      infoItem.stroke.push({ mark_uid: '', userId: userInfo?.userId || 0 })
     }
 
-    const markType = commentItem ? (replyToId ? this.getMarkType('reply') : this.getMarkType('comment')) : this.getMarkType('line')
+    const markType = commentItem ? (replyToUid ? this.getMarkType('reply') : this.getMarkType('comment')) : this.getMarkType('line')
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
-    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToId)
+    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToUid)
     if (!res) {
       this.toastService.showToast({
         text: commentItem ? this.i18nService.t('component.article_selection.comment_failed') : this.i18nService.t('component.article_selection.stroke_failed'),
@@ -239,8 +239,8 @@ export class MarkManager extends Base {
       })
 
       if (commentItem) {
-        if (replyToId) {
-          const rootComment = infoItem.comments.find(item => item.markId === replyToId || item.children.some(child => child.markId === replyToId))
+        if (replyToUid) {
+          const rootComment = infoItem.comments.find(item => item.markUid === replyToUid || item.children.some(child => child.markUid === replyToUid))
           if (rootComment) {
             const index = rootComment.children.findIndex(item => objectDeepEqual(item, commentItem))
             if (index !== -1) rootComment.children.splice(index, 1)
@@ -250,7 +250,7 @@ export class MarkManager extends Base {
           if (index !== -1) infoItem.comments.splice(index, 1)
         }
       } else {
-        infoItem.stroke = infoItem.stroke.filter(item => item.mark_id !== 0)
+        infoItem.stroke = infoItem.stroke.filter(item => item.mark_uid !== '')
       }
       await this.renderer.drawMark(infoItem, 'update')
       return
@@ -258,11 +258,11 @@ export class MarkManager extends Base {
 
     if (commentItem) {
       commentItem.loading = false
-      commentItem.markId = res.mark_id
-      commentItem.rootId = res.root_id
+      commentItem.markUid = res.mark_uid
+      commentItem.rootUid = res.root_uid
       infoItem.comments = [...infoItem.comments]
     } else {
-      infoItem.stroke = [...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_id), { mark_id: res.mark_id, userId: userInfo?.userId || 0 }]
+      infoItem.stroke = [...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_uid), { mark_uid: res.mark_uid, userId: userInfo?.userId || 0 }]
     }
     await this.renderer.drawMark(infoItem, 'update')
     return infoItem.id
@@ -276,13 +276,13 @@ export class MarkManager extends Base {
     const userId = this.userProvider.getUserId()
     if (!userId) return
 
-    const markId = info.stroke.find(item => item.userId === userId)?.mark_id
-    if (!markId) return
+    const markUid = info.stroke.find(item => item.userId === userId)?.mark_uid
+    if (!markUid) return
 
     const bookmarkId = await this.bookmarkProvider.getBookmarkId()
     await this.httpClient.post({
       url: RESTMethodPath.DELETE_MARK,
-      body: { bm_id: bookmarkId, mark_id: markId }
+      body: { bm_id: bookmarkId, mark_uid: markUid }
     })
 
     info.stroke = info.stroke.filter(item => item.userId !== userId)
@@ -297,15 +297,15 @@ export class MarkManager extends Base {
   /**
    * 删除评论
    * @param id 标记信息ID
-   * @param markId 评论ID
+   * @param markUid 评论UID
    */
-  async deleteComment(id: string, markId: number) {
+  async deleteComment(id: string, markUid: string) {
     const markInfoItem = id === this._currentMarkItemInfo.value?.id ? this._currentMarkItemInfo.value : this._markItemInfos.value.find(item => item.id === id)
     if (!markInfoItem || !markInfoItem.comments) return
 
     const removeMarkOrComment = async () => {
       for (const [idx, comment] of markInfoItem.comments.entries()) {
-        if (comment.markId === markId) {
+        if (comment.markUid === markUid) {
           const keepMarks = !!comment.children.find(item => !item.isDeleted)
           if (keepMarks) {
             markInfoItem.comments[idx].isDeleted = true
@@ -317,7 +317,7 @@ export class MarkManager extends Base {
         }
 
         for (const child of comment.children) {
-          if (child.markId === markId) {
+          if (child.markUid === markUid) {
             child.isDeleted = true
             break
           }
@@ -336,7 +336,7 @@ export class MarkManager extends Base {
       const bookmarkId = await this.bookmarkProvider.getBookmarkId()
       await this.httpClient.post({
         url: RESTMethodPath.DELETE_MARK,
-        body: { bm_id: bookmarkId, mark_id: markId }
+        body: { bm_id: bookmarkId, mark_uid: markUid }
       })
 
       await removeMarkOrComment()
@@ -492,7 +492,7 @@ export class MarkManager extends Base {
           this._findQuote(quote)
         }
       },
-      commentDeleteCallback: (id, markId) => this.deleteComment(id, markId),
+      commentDeleteCallback: (id, markUid) => this.deleteComment(id, markUid),
       dismissCallback: () => {
         if (this._currentMarkItemInfo.value === currentMarkItemInfo) {
           this.updateCurrentMarkItemInfo(null)
@@ -654,16 +654,16 @@ export class MarkManager extends Base {
    * @param type 标记类型
    * @param approx 近似匹配信息
    * @param comment 评论内容
-   * @param replyToId 回复目标ID
+   * @param replyToUid 回复目标UID
    * @returns 保存结果
    */
-  private async saveMarkSelectContent(value: MarkPathItem[], type: BackendMarkType, approx?: MarkPathApprox, comment?: string, replyToId?: number) {
+  private async saveMarkSelectContent(value: MarkPathItem[], type: BackendMarkType, approx?: MarkPathApprox, comment?: string, replyToUid?: string) {
     try {
       const bookmarkId = await this.bookmarkProvider.getBookmarkId()
       const shareCode = this.bookmarkProvider.getShareCode?.()
       const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
 
-      const res = await this.httpClient.post<{ mark_id: number; root_id: number }>({
+      const res = await this.httpClient.post<{ mark_uid: string; root_uid: string }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
           share_code: shareCode,
@@ -671,7 +671,7 @@ export class MarkManager extends Base {
           comment,
           type,
           source: value,
-          parent_id: replyToId,
+          parent_uid: replyToUid,
           select_content: this._selectContent.value,
           approx_source: approx,
           collection_code: collectionInfo?.code,
@@ -700,12 +700,12 @@ export class MarkManager extends Base {
    * @param userMap 用户映射表
    * @returns 评论映射表
    */
-  private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<number, MarkCommentInfo> {
-    const commentMap = new Map<number, MarkCommentInfo>()
+  private buildCommentMap(markList: MarkInfo[], userMap: Map<number, MarkUserInfo>): Map<string, MarkCommentInfo> {
+    const commentMap = new Map<string, MarkCommentInfo>()
     for (const mark of markList) {
       if ([BackendMarkType.COMMENT, BackendMarkType.REPLY, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = {
-          markId: mark.id,
+          markUid: mark.uid,
           comment: mark.comment,
           userId: mark.user_id,
           username: userMap.get(mark.user_id)?.username || '',
@@ -713,13 +713,13 @@ export class MarkManager extends Base {
           isDeleted: mark.is_deleted,
           children: [],
           createdAt: new Date(mark.created_at),
-          rootId: mark.root_id,
+          rootUid: mark.root_uid,
           showInput: false,
           loading: false,
           operateLoading: false
         }
 
-        commentMap.set(mark.id, comment)
+        commentMap.set(mark.uid, comment)
       }
     }
     return commentMap
@@ -730,20 +730,20 @@ export class MarkManager extends Base {
    * @param markList 标记列表
    * @param commentMap 评论映射表
    */
-  private buildCommentRelationships(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>) {
+  private buildCommentRelationships(markList: MarkInfo[], commentMap: Map<string, MarkCommentInfo>) {
     for (const mark of markList) {
       if (mark.type !== BackendMarkType.REPLY) continue
-      if (!commentMap.has(mark.id) || !commentMap.has(mark.parent_id) || !commentMap.has(mark.root_id)) continue
+      if (!commentMap.has(mark.uid) || !commentMap.has(mark.parent_uid) || !commentMap.has(mark.root_uid)) continue
 
-      const comment = commentMap.get(mark.id)!
-      const parentComment = commentMap.get(mark.parent_id)!
+      const comment = commentMap.get(mark.uid)!
+      const parentComment = commentMap.get(mark.parent_uid)!
       comment.reply = {
-        id: parentComment.markId,
+        uid: parentComment.markUid,
         username: parentComment.username,
         userId: parentComment.userId,
         avatar: parentComment.avatar
       }
-      const rootComment = commentMap.get(comment.rootId!)
+      const rootComment = commentMap.get(comment.rootUid!)
       if (rootComment) rootComment.children.push(comment)
     }
   }
@@ -754,7 +754,7 @@ export class MarkManager extends Base {
    * @param commentMap 评论映射表
    * @returns 标记信息列表
    */
-  private generateMarkItemInfos(markList: MarkInfo[], commentMap: Map<number, MarkCommentInfo>): MarkItemInfo[] {
+  private generateMarkItemInfos(markList: MarkInfo[], commentMap: Map<string, MarkCommentInfo>): MarkItemInfo[] {
     const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
     const infoItems: MarkItemInfo[] = []
     for (const mark of markList) {
@@ -782,9 +782,10 @@ export class MarkManager extends Base {
       }
 
       if ([BackendMarkType.LINE, BackendMarkType.ORIGIN_LINE].includes(mark.type)) {
-        markInfoItem.stroke.push({ mark_id: mark.id, userId })
+        if (!mark.comment && mark.is_deleted) continue
+        markInfoItem.stroke.push({ mark_uid: mark.uid, userId })
       } else if ([BackendMarkType.COMMENT, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
-        const comment = commentMap.get(mark.id)
+        const comment = commentMap.get(mark.uid)
         if (!comment || (comment.isDeleted && comment.children.length === 0)) {
           continue
         }
@@ -802,11 +803,11 @@ export class MarkManager extends Base {
    * @param infoItem 标记信息
    * @returns 评论信息或null
    */
-  private findCommentById(targetId: number, infoItem: MarkItemInfo): MarkCommentInfo | null {
+  private findCommentByUid(targetUid: string, infoItem: MarkItemInfo): MarkCommentInfo | null {
     for (const item of infoItem.comments) {
-      if (item.markId === targetId) return item
+      if (item.markUid === targetUid) return item
       for (const child of item.children) {
-        if (child.markId === targetId) return child
+        if (child.markUid === targetUid) return child
       }
     }
     return null

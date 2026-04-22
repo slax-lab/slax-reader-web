@@ -91,7 +91,7 @@ const compositionAppear = ref(false)
 const textarea = ref<HTMLTextAreaElement>()
 const commentsWrapper = ref<HTMLDivElement>()
 const commentCells = ref<InstanceType<typeof ArticleCommentCell>[]>([])
-const commentIdRefs = ref<Record<number, string>>({})
+const commentIdRefs = ref<Record<string, string>>({})
 const inputText = ref('')
 const postCommentInfo = ref<{ info: MarkItemInfo; data: QuoteData['data'] } | null>(null)
 const isFocus = ref(false)
@@ -124,7 +124,7 @@ const markComments = computed(() => {
       }
 
       return info.comments.map(comment => {
-        commentIdRefs.value[comment.markId] = info.id
+        commentIdRefs.value[comment.markUid] = info.id
         return ref(convertComment(comment, noMarkRefs[info.id]))
       })
     })
@@ -157,7 +157,7 @@ const showPostCommentView = (info: MarkItemInfo, data: QuoteData['data']) => {
 
 const navigateToComment = (comment: MarkCommentInfo) => {
   nextTick(() => {
-    const index = markComments.value.findIndex(item => item.value.markId === comment.markId)
+    const index = markComments.value.findIndex(item => item.value.markUid === comment.markUid)
     if (index !== -1) {
       if (index < commentCells.value.length) {
         commentCells.value[index].highlightCell()
@@ -205,15 +205,15 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-const postComment = (info: MarkItemInfo, options: { replyToId: number; comment: string }) => {
+const postComment = (info: MarkItemInfo, options: { replyToUid: string; comment: string }) => {
   props.selection.strokeSelection({
     info,
     ...options
   })
 }
 
-const replyComment = (commentInfo: MarkCommentInfo, options: { replyToId: number; comment: string }) => {
-  const infoId = commentIdRefs.value[commentInfo.markId]
+const replyComment = (commentInfo: MarkCommentInfo, options: { replyToUid: string; comment: string }) => {
+  const infoId = commentIdRefs.value[commentInfo.markUid]
   const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
   if (!info) {
     return
@@ -226,17 +226,17 @@ const replyComment = (commentInfo: MarkCommentInfo, options: { replyToId: number
 }
 
 const commentDelete = (comment: MarkCommentInfo) => {
-  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
+  const infoId = commentIdRefs.value[comment.reply ? (comment.rootUid ?? comment.markUid) : comment.markUid]
   const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
   if (!info) {
     return
   }
 
-  props.selection.deleteComment(info.id, comment.markId)
+  props.selection.deleteComment(info.id, comment.markUid)
 }
 
 const navigateToMark = (comment: MarkCommentInfo) => {
-  const infoId = commentIdRefs.value[comment.reply ? (comment.rootId ?? comment.markId) : comment.markId]
+  const infoId = commentIdRefs.value[comment.reply ? (comment.rootUid ?? comment.markUid) : comment.markUid]
   const info = props.selection.markItemInfos.value.find(item => item.id === infoId)
   if (!info) {
     return
@@ -282,12 +282,12 @@ const sendMessage = () => {
     return
   }
 
-  const cacheCommentIds = markComments.value.map(item => item.value.markId)
+  const cacheCommentIds = markComments.value.map(item => item.value.markUid)
 
-  postComment(postCommentInfo.value.info, { comment: inputText.value, replyToId: 0 })
+  postComment(postCommentInfo.value.info, { comment: inputText.value, replyToUid: '' })
 
   nextTick(() => {
-    const newCommentIds = markComments.value.map(item => item.value.markId)
+    const newCommentIds = markComments.value.map(item => item.value.markUid)
     if (newCommentIds.length > cacheCommentIds.length) {
       const index = newCommentIds.findIndex(id => !cacheCommentIds.includes(id))
       navigateToComment(markComments.value[index].value)

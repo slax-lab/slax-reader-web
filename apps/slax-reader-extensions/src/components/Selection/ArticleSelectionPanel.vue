@@ -263,12 +263,12 @@ watch(
   }
 )
 
-const replyComment = (options: { replyToId: number; comment: string }) => {
-  const { replyToId, comment } = options
+const replyComment = (options: { replyToUid: string; comment: string }) => {
+  const { replyToUid, comment } = options
   emits('action', MenuType.Comment, {
     info: props.info,
     comment: comment.trim(),
-    replyToId
+    replyToUid
   })
 }
 
@@ -372,7 +372,7 @@ const handleClick = (type: MenuType, event: MouseEvent) => {
 const commentDelete = (comment: MarkCommentInfo) => {
   emits('commentDelete', {
     id: props.info.id,
-    markId: comment.markId
+    markUid: comment.markUid
   })
 }
 
