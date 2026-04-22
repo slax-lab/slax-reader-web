@@ -45,7 +45,7 @@ export interface MarkItemInfo {
  * 标记评论信息
  */
 export type MarkCommentInfo = {
-  /** 评论UID */
+  /** 评论UUID */
   markUid: string
   /** 评论内容 */
   comment: string
@@ -64,7 +64,7 @@ export type MarkCommentInfo = {
     uid: string
     avatar: string
   }
-  /** 根评论UID */
+  /** 根评论UUID */
   rootUid?: string
   /** 创建时间 */
   createdAt: Date

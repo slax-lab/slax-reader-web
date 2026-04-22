@@ -150,12 +150,12 @@ const jumpToHighLight = () => {
   if (!highlightUid) return
 
   const marks = detail.value.marks || props.marks || []
-  let mark = marks.mark_list?.find(item => item.uid === highlightUid)
+  let mark = marks.mark_list?.find(item => item.uuid === highlightUid)
   if (!mark) return
 
   if (mark.type === MarkType.REPLY) {
     const rootUid = mark.root_uid
-    mark = marks.mark_list?.find(item => item.uid === rootUid)
+    mark = marks.mark_list?.find(item => item.uuid === rootUid)
     if (!mark) return
   }
 
