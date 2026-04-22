@@ -782,6 +782,7 @@ export class MarkManager extends Base {
       }
 
       if ([BackendMarkType.LINE, BackendMarkType.ORIGIN_LINE].includes(mark.type)) {
+        if (!mark.comment && mark.is_deleted) continue
         markInfoItem.stroke.push({ mark_uid: mark.uid, userId })
       } else if ([BackendMarkType.COMMENT, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.uid)
