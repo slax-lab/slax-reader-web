@@ -705,7 +705,7 @@ export class MarkManager extends Base {
     for (const mark of markList) {
       if ([BackendMarkType.COMMENT, BackendMarkType.REPLY, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = {
-          markUid: mark.uid,
+          markUid: mark.uuid,
           comment: mark.comment,
           userId: mark.user_id,
           username: userMap.get(mark.user_id)?.username || '',
@@ -719,7 +719,7 @@ export class MarkManager extends Base {
           operateLoading: false
         }
 
-        commentMap.set(mark.uid, comment)
+        commentMap.set(mark.uuid, comment)
       }
     }
     return commentMap
@@ -733,9 +733,9 @@ export class MarkManager extends Base {
   private buildCommentRelationships(markList: MarkInfo[], commentMap: Map<string, MarkCommentInfo>) {
     for (const mark of markList) {
       if (mark.type !== BackendMarkType.REPLY) continue
-      if (!commentMap.has(mark.uid) || !commentMap.has(mark.parent_uid) || !commentMap.has(mark.root_uid)) continue
+      if (!commentMap.has(mark.uuid) || !commentMap.has(mark.parent_uid) || !commentMap.has(mark.root_uid)) continue
 
-      const comment = commentMap.get(mark.uid)!
+      const comment = commentMap.get(mark.uuid)!
       const parentComment = commentMap.get(mark.parent_uid)!
       comment.reply = {
         uid: parentComment.markUid,
@@ -783,9 +783,9 @@ export class MarkManager extends Base {
 
       if ([BackendMarkType.LINE, BackendMarkType.ORIGIN_LINE].includes(mark.type)) {
         if (!mark.comment && mark.is_deleted) continue
-        markInfoItem.stroke.push({ mark_uid: mark.uid, userId })
+        markInfoItem.stroke.push({ mark_uid: mark.uuid, userId })
       } else if ([BackendMarkType.COMMENT, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
-        const comment = commentMap.get(mark.uid)
+        const comment = commentMap.get(mark.uuid)
         if (!comment || (comment.isDeleted && comment.children.length === 0)) {
           continue
         }

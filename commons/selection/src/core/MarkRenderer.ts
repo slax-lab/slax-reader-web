@@ -1,4 +1,4 @@
-import { getTextNodesInRange, removeOuterTag } from '@commons/utils/dom'
+import { fixCssSelector, getTextNodesInRange, removeOuterTag } from '@commons/utils/dom'
 import { HighlightRange } from '@commons/utils/range'
 import type { MarkPathItem } from '@commons/types/interface'
 
@@ -191,8 +191,9 @@ export class MarkRenderer extends Base {
   transferNodeInfos(markItem: MarkPathItem) {
     const infos: ({ start: number; end: number; node: Node; type: 'text' } | { type: 'image'; ele: Element })[] = []
 
+    const path = fixCssSelector(markItem.path)
     if (markItem.type === 'text') {
-      const baseElement = this.config.monitorDom?.querySelector(markItem.path) as HTMLElement
+      const baseElement = this.config.monitorDom?.querySelector(path) as HTMLElement
       if (!baseElement) {
         return infos
       }
@@ -219,10 +220,10 @@ export class MarkRenderer extends Base {
         }
       }
     } else if (markItem.type === 'image') {
-      let element = this.config.monitorDom?.querySelector(markItem.path) as HTMLImageElement
+      let element = this.config.monitorDom?.querySelector(path) as HTMLImageElement
       if (!element || !element.src) {
         // 尝试在slax-mark标签内查找
-        const paths = markItem.path.split('>')
+        const paths = path.split('>')
         const tailIdx = paths.length - 1
         const newPath = [...paths.slice(0, tailIdx), ' slax-mark ', paths[tailIdx]]
         element = this.config.monitorDom?.querySelector(newPath.join('>')) as HTMLImageElement

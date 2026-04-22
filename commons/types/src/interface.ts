@@ -19,7 +19,7 @@ export type UserList = {
 
 export interface MarkInfo {
   id: number
-  uid: string
+  uuid: string
   user_id: number
   type: MarkType
   source: MarkPathItem[]

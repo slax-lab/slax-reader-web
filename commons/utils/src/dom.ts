@@ -3,6 +3,17 @@ const isValidId = (id: string) => {
   return regex.test(id)
 }
 
+// 将以数字开头的非法 ID/Class 选择器降级为属性选择器，避免 querySelector 抛出 SyntaxError
+export const fixCssSelector = (selector: string): string => {
+  const regex = /(\[[^\]]+\])|#(\d[-\w]*)|\.((\d[-\w]*))/g
+  return selector.replace(regex, (match, attrNode, idMatch, _fullClassMatch, classMatch) => {
+    if (attrNode) return match
+    if (idMatch) return `[id="${idMatch}"]`
+    if (classMatch) return `[class~="${classMatch}"]`
+    return match
+  })
+}
+
 export const getElementFullSelector = (element: HTMLElement, ignoreEles?: string[], baseParentEle?: Element) => {
   if (!element.ownerDocument.defaultView) {
     return ''
