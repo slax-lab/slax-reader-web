@@ -417,7 +417,7 @@ export class BookmarkService {
     }
 
     try {
-      const tabs = await chrome.tabs.query({})
+      const tabs = await browser.tabs.query({})
       for (const tab of tabs) {
         if (!tab.id || !tab.url || (!tab.url.startsWith('http://') && !tab.url.startsWith('https://')) || tab.status !== 'complete') {
           continue
