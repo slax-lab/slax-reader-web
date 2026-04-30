@@ -57,18 +57,28 @@
       <PanelOperate :is-star="bookmarkBriefInfo?.starred === 'star'" :is-archive="bookmarkBriefInfo?.archived === 'archive'" @action="panelClick" />
     </template>
   </PanelView>
-  <div class="web-panel" v-if="!needHidden">
-    <SidebarTips>
-      <SidebarItems
-        :is-summary-showing="isSummaryShowing"
-        :is-chatbot-showing="isChatbotShowing"
-        :is-comment-showing="isCommentShowing"
-        :is-star="bookmarkBriefInfo?.starred === 'star'"
-        :is-archive="bookmarkBriefInfo?.archived === 'archive'"
-        @panel-item-action="panelClick"
-      />
-    </SidebarTips>
-  </div>
+  <template v-if="!needHidden">
+    <div class="edge-zone" @mouseenter="expandWebPanel" @mouseleave="scheduleCollapse" />
+    <div
+      class="edge-handle"
+      :class="{ hint: isHandleHinting }"
+      :style="{ opacity: isHandleVisible ? 1 : 0, pointerEvents: isHandleVisible ? 'auto' : 'none' }"
+      @mouseenter="expandWebPanel"
+      @mouseleave="scheduleCollapse"
+    />
+    <div class="web-panel" :class="{ expanded: isWebPanelExpanded }" @mouseenter="cancelCollapse" @mouseleave="scheduleCollapse">
+      <SidebarTips>
+        <SidebarItems
+          :is-summary-showing="isSummaryShowing"
+          :is-chatbot-showing="isChatbotShowing"
+          :is-comment-showing="isCommentShowing"
+          :is-star="bookmarkBriefInfo?.starred === 'star'"
+          :is-archive="bookmarkBriefInfo?.archived === 'archive'"
+          @panel-item-action="panelClick"
+        />
+      </SidebarTips>
+    </div>
+  </template>
   <div class="slax-menus" ref="menus" v-if="!needHidden"></div>
   <div class="slax-custom-container" ref="modalContainer"></div>
 </template>
@@ -160,6 +170,48 @@ const lastOpenItem = ref<PanelItemType>()
 const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
 const isCommentShowing = ref(false)
+
+const COLLAPSE_DELAY = 600
+const isWebPanelExpanded = ref(true)
+const isHandleVisible = ref(false)
+const isHandleHinting = ref(false)
+let collapseTimer: ReturnType<typeof setTimeout> | null = null
+let hintResetTimer: ReturnType<typeof setTimeout> | null = null
+
+const expandWebPanel = () => {
+  if (collapseTimer) {
+    clearTimeout(collapseTimer)
+    collapseTimer = null
+  }
+  isWebPanelExpanded.value = true
+  isHandleVisible.value = false
+}
+
+const collapseWebPanel = () => {
+  isWebPanelExpanded.value = false
+  isHandleVisible.value = true
+  isHandleHinting.value = false
+  if (hintResetTimer) clearTimeout(hintResetTimer)
+  requestAnimationFrame(() => {
+    isHandleHinting.value = true
+    hintResetTimer = setTimeout(() => {
+      isHandleHinting.value = false
+    }, 2500)
+  })
+}
+
+const scheduleCollapse = () => {
+  if (showPanel.value) return
+  if (collapseTimer) clearTimeout(collapseTimer)
+  collapseTimer = setTimeout(collapseWebPanel, COLLAPSE_DELAY)
+}
+
+const cancelCollapse = () => {
+  if (collapseTimer) {
+    clearTimeout(collapseTimer)
+    collapseTimer = null
+  }
+}
 
 const isLoading = ref(false)
 
@@ -397,6 +449,8 @@ const panelClick = async (panel: PanelItem) => {
     closePanel()
   }
 
+  expandWebPanel()
+
   switch (type) {
     case PanelItemType.Outline:
     case PanelItemType.AI: {
@@ -547,6 +601,7 @@ const closePanel = () => {
   isSummaryShowing.value = false
   isChatbotShowing.value = false
   isCommentShowing.value = false
+  scheduleCollapse()
 }
 
 const getRequestParams = () => {
@@ -667,6 +722,54 @@ const addBookmark = async () => {
 }
 
 .web-panel {
-  --style: z-1 fixed cursor-move left-full top-1/2 -translate-x-full -translate-y-1/2;
+  --style: z-1 fixed cursor-move left-full top-1/2;
+  transform: translate(0, -50%);
+  transition: transform 0.35s cubic-bezier(0.34, 1.08, 0.64, 1);
+
+  &.expanded {
+    transform: translate(-100%, -50%);
+  }
+}
+
+.edge-zone {
+  --style: fixed z-99999 top-0 right-0 h-screen;
+  width: 30px;
+}
+
+.edge-handle {
+  --style: fixed z-99999 top-1/2 right-0 cursor-pointer;
+  width: 12px;
+  height: 96px;
+  border-radius: 6px 0 0 6px;
+  background: rgba(80, 80, 90, 0.5);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-50%);
+  transition:
+    background 0.25s,
+    box-shadow 0.25s,
+    opacity 0.25s;
+
+  &:hover {
+    background: rgba(60, 60, 70, 0.65);
+    box-shadow: -2px 0 14px rgba(0, 0, 0, 0.15);
+  }
+
+  &.hint {
+    animation: edge-handle-hint 2s ease 0.15s 1;
+  }
+}
+
+@keyframes edge-handle-hint {
+  0%,
+  70% {
+    background: rgba(80, 80, 90, 0.5);
+  }
+  35% {
+    background: rgba(80, 80, 100, 0.85);
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    background: rgba(80, 80, 90, 0.5);
+  }
 }
 </style>
