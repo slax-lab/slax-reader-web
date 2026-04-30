@@ -722,44 +722,29 @@ const addBookmark = async () => {
 }
 
 .web-panel {
-  --style: z-1 fixed cursor-move left-full top-1/2;
-  transform: translate(0, -50%);
-  opacity: 0;
+  --style: z-1 fixed cursor-move left-full top-1/2 translate-x-0 -translate-y-1/2 opacity-0;
   transition:
     transform 0.35s cubic-bezier(0.34, 1.08, 0.64, 1),
     opacity 0.25s ease;
 
   &.expanded {
-    transform: translate(-100%, -50%);
-    opacity: 1;
+    --style: -translate-x-full -translate-y-1/2 opacity-100;
   }
 }
 
 .edge-zone {
-  --style: fixed z-99999 top-0 right-0 h-screen;
-  width: 30px;
+  --style: fixed z-99999 top-0 right-0 h-screen w-30px;
 }
 
 .edge-handle {
-  --style: fixed z-99999 top-1/2 right-0 cursor-pointer flex items-center justify-center;
-  width: 12px;
-  height: 96px;
-  border-radius: 6px 0 0 6px;
-  background: rgba(80, 80, 90, 0.5);
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-50%);
+  --style: fixed z-99999 top-1/2 right-0 cursor-pointer flex items-center justify-center w-12px h-96px -translate-y-1/2 rounded-l-6px bg-#50505a80 shadow-[-2px_0_8px_#00000014];
   transition:
     background 0.25s,
     box-shadow 0.25s,
     opacity 0.25s;
 
   &::after {
-    content: '';
-    width: 6px;
-    height: 9px;
-    color: white;
-    opacity: 0.55;
-    background: currentColor;
+    --style: content-empty w-6px h-9px text-white opacity-55 bg-current;
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
     mask-size: contain;
     mask-repeat: no-repeat;
@@ -772,11 +757,10 @@ const addBookmark = async () => {
   }
 
   &:hover {
-    background: rgba(60, 60, 70, 0.65);
-    box-shadow: -2px 0 14px rgba(0, 0, 0, 0.15);
+    --style: bg-#3c3c46a6 shadow-[-2px_0_14px_#00000026];
 
     &::after {
-      opacity: 0.9;
+      --style: opacity-90;
     }
   }
 
