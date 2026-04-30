@@ -154,7 +154,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['panel-item-action'])
+const emits = defineEmits(['panel-item-action', 'more-panel-open', 'more-panel-close'])
 
 const dismissItems = ref(false)
 const isPanelVisible = ref(false)
@@ -259,12 +259,14 @@ const onStripItemClick = (type: PanelItemType) => {
 const openMorePanel = () => {
   isPanelVisible.value = true
   activePanelItem.value = null
+  emits('more-panel-open')
 }
 
 /** 关闭更多面板 */
 const closeMorePanel = () => {
   isPanelVisible.value = false
   activePanelItem.value = null
+  emits('more-panel-close')
 }
 
 /** 点击面板外部关闭 */

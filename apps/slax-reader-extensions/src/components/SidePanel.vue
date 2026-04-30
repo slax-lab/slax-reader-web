@@ -75,6 +75,8 @@
           :is-star="bookmarkBriefInfo?.starred === 'star'"
           :is-archive="bookmarkBriefInfo?.archived === 'archive'"
           @panel-item-action="panelClick"
+          @more-panel-open="onMorePanelOpen"
+          @more-panel-close="onMorePanelClose"
         />
       </SidebarTips>
     </div>
@@ -171,10 +173,11 @@ const isSummaryShowing = ref(false)
 const isChatbotShowing = ref(false)
 const isCommentShowing = ref(false)
 
-const COLLAPSE_DELAY = 600
+const COLLAPSE_DELAY = 2000
 const isWebPanelExpanded = ref(false)
 const isHandleVisible = ref(true)
 const isHandleHinting = ref(false)
+const isMorePanelOpen = ref(false)
 let collapseTimer: ReturnType<typeof setTimeout> | null = null
 let hintResetTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -201,9 +204,21 @@ const collapseWebPanel = () => {
 }
 
 const scheduleCollapse = () => {
-  if (showPanel.value) return
+  if (showPanel.value || isMorePanelOpen.value) return
   if (collapseTimer) clearTimeout(collapseTimer)
   collapseTimer = setTimeout(collapseWebPanel, COLLAPSE_DELAY)
+}
+
+const onMorePanelOpen = () => {
+  isMorePanelOpen.value = true
+  cancelCollapse()
+}
+
+const onMorePanelClose = () => {
+  isMorePanelOpen.value = false
+
+  expandWebPanel()
+  scheduleCollapse()
 }
 
 const cancelCollapse = () => {
