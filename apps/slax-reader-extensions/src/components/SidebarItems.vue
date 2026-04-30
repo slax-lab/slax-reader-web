@@ -118,7 +118,7 @@
       </div>
 
       <div class="close-wrapper" v-show="!isPanelVisible">
-        <button @click="dismissItems = true">
+        <button @click="onDismiss">
           <img src="@/assets/button-tiny-close-white.png" alt="" />
         </button>
       </div>
@@ -154,7 +154,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['panel-item-action', 'more-panel-open', 'more-panel-close'])
+const emits = defineEmits(['panel-item-action', 'more-panel-open', 'more-panel-close', 'dismiss'])
 
 const dismissItems = ref(false)
 const isPanelVisible = ref(false)
@@ -276,6 +276,11 @@ const closePanelOutside = () => {
   }
 }
 
+const onDismiss = () => {
+  dismissItems.value = true
+  emits('dismiss')
+}
+
 /** 面板内按钮点击 */
 const onPanelBtnClick = (type: PanelItemType, name: string) => {
   const panel = buildPanelItem(type)
@@ -285,15 +290,7 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
     activePanelItem.value = name
   }
 
-  // 对于需要打开侧边面板的功能（Outline / AI / Chat / Comments），点击后关闭更多面板
-  if ([PanelItemType.Outline, PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].includes(type)) {
-    isPanelVisible.value = false
-  }
-
-  // 对于 Share / Feedback，点击后也关闭面板
-  if ([PanelItemType.Share, PanelItemType.Feedback].includes(type)) {
-    isPanelVisible.value = false
-  }
+  closeMorePanel()
 
   emits('panel-item-action', panel)
 }

@@ -58,8 +58,9 @@
     </template>
   </PanelView>
   <template v-if="!needHidden">
-    <div class="edge-zone" @mouseenter="expandWebPanel" @mouseleave="scheduleCollapse" />
+    <div v-if="!isDismissed" class="edge-zone" @mouseenter="expandWebPanel" @mouseleave="scheduleCollapse" />
     <div
+      v-if="!isDismissed"
       class="edge-handle"
       :class="{ hint: isHandleHinting }"
       :style="{ opacity: isHandleVisible ? 1 : 0, pointerEvents: isHandleVisible ? 'auto' : 'none' }"
@@ -77,6 +78,7 @@
           @panel-item-action="panelClick"
           @more-panel-open="onMorePanelOpen"
           @more-panel-close="onMorePanelClose"
+          @dismiss="onSidebarDismiss"
         />
       </SidebarTips>
     </div>
@@ -219,6 +221,14 @@ const onMorePanelClose = () => {
 
   expandWebPanel()
   scheduleCollapse()
+}
+
+const isDismissed = ref(false)
+
+const onSidebarDismiss = () => {
+  isDismissed.value = true
+  if (collapseTimer) clearTimeout(collapseTimer)
+  if (hintResetTimer) clearTimeout(hintResetTimer)
 }
 
 const cancelCollapse = () => {
@@ -462,9 +472,8 @@ const panelClick = async (panel: PanelItem) => {
 
   if ([PanelItemType.AI, PanelItemType.Outline, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
     closePanel()
+    expandWebPanel()
   }
-
-  expandWebPanel()
 
   switch (type) {
     case PanelItemType.Outline:

@@ -3,7 +3,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-links">
-          <a href="https://reader-blog.slax.com" target="_blank">Blog</a>
+          <a href="https://slax.com/blog" target="_blank">Blog</a>
           <span class="separator">•</span>
           <a href="https://x.com/SlaxReader" target="_blank">Twitter</a>
           <span class="separator">•</span>
