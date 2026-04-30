@@ -118,12 +118,7 @@
       </div>
 
       <div class="close-wrapper" v-show="!isPanelVisible">
-        <button
-          @click="
-            dismissItems = true
-            emits('dismiss')
-          "
-        >
+        <button @click="onDismiss">
           <img src="@/assets/button-tiny-close-white.png" alt="" />
         </button>
       </div>
@@ -279,6 +274,11 @@ const closePanelOutside = () => {
   if (isPanelVisible.value) {
     closeMorePanel()
   }
+}
+
+const onDismiss = () => {
+  dismissItems.value = true
+  emits('dismiss')
 }
 
 /** 面板内按钮点击 */
