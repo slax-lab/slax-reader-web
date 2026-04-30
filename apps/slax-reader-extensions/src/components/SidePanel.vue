@@ -724,10 +724,14 @@ const addBookmark = async () => {
 .web-panel {
   --style: z-1 fixed cursor-move left-full top-1/2;
   transform: translate(0, -50%);
-  transition: transform 0.35s cubic-bezier(0.34, 1.08, 0.64, 1);
+  opacity: 0;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.08, 0.64, 1),
+    opacity 0.25s ease;
 
   &.expanded {
     transform: translate(-100%, -50%);
+    opacity: 1;
   }
 }
 
