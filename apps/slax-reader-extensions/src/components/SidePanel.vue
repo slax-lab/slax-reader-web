@@ -733,11 +733,11 @@ const addBookmark = async () => {
 }
 
 .edge-zone {
-  --style: fixed z-99999 top-0 right-0 h-screen w-30px;
+  --style: fixed z-1 top-0 right-0 h-screen w-30px;
 }
 
 .edge-handle {
-  --style: fixed z-99999 top-1/2 right-0 cursor-pointer flex items-center justify-center w-12px h-96px -translate-y-1/2 rounded-l-6px bg-#50505a80 shadow-[-2px_0_8px_#00000014];
+  --style: fixed z-1 top-1/2 right-0 cursor-pointer flex items-center justify-center w-12px h-96px -translate-y-1/2 rounded-l-6px bg-#50505a80 shadow-[-2px_0_8px_#00000014];
   transition:
     background 0.25s,
     box-shadow 0.25s,
