@@ -28,7 +28,7 @@ export function useAppHeader(options?: { showHomeLinks?: boolean; extraLinks?: N
 
     // 主要导航
     { name: 'Download', href: '/download' },
-    { name: 'Blog', href: 'https://reader-blog.slax.com', external: true }
+    { name: 'Blog', href: 'https://slax.com/blog/', external: true }
   ]
 
   // 合并额外的自定义链接
