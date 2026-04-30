@@ -342,6 +342,8 @@ const updateBookmarkStatus = async () => {
     bookmarkId.value = bookmarkRecord
     bookmarkUrl.value = url
     isCollected.value = true
+    expandWebPanel()
+    scheduleCollapse()
   } else {
     bookmarkUrl.value = ''
     bookmarkId.value = 0
