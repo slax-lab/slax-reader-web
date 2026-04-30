@@ -462,9 +462,8 @@ const panelClick = async (panel: PanelItem) => {
 
   if ([PanelItemType.AI, PanelItemType.Outline, PanelItemType.Chat, PanelItemType.Comments].indexOf(type) > -1) {
     closePanel()
+    expandWebPanel()
   }
-
-  expandWebPanel()
 
   switch (type) {
     case PanelItemType.Outline:
