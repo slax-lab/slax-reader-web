@@ -118,7 +118,12 @@
       </div>
 
       <div class="close-wrapper" v-show="!isPanelVisible">
-        <button @click="dismissItems = true">
+        <button
+          @click="
+            dismissItems = true
+            emits('dismiss')
+          "
+        >
           <img src="@/assets/button-tiny-close-white.png" alt="" />
         </button>
       </div>
@@ -154,7 +159,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['panel-item-action', 'more-panel-open', 'more-panel-close'])
+const emits = defineEmits(['panel-item-action', 'more-panel-open', 'more-panel-close', 'dismiss'])
 
 const dismissItems = ref(false)
 const isPanelVisible = ref(false)
