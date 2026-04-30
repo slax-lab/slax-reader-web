@@ -285,15 +285,8 @@ const onPanelBtnClick = (type: PanelItemType, name: string) => {
     activePanelItem.value = name
   }
 
-  // 对于需要打开侧边面板的功能（Outline / AI / Chat / Comments），点击后关闭更多面板
-  if ([PanelItemType.Outline, PanelItemType.AI, PanelItemType.Chat, PanelItemType.Comments].includes(type)) {
-    isPanelVisible.value = false
-  }
-
-  // 对于 Share / Feedback，点击后也关闭面板
-  if ([PanelItemType.Share, PanelItemType.Feedback].includes(type)) {
-    isPanelVisible.value = false
-  }
+  // 所有按钮点击后统一走 closeMorePanel，确保 more-panel-close 事件正确发出
+  closeMorePanel()
 
   emits('panel-item-action', panel)
 }
