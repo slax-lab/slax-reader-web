@@ -172,8 +172,8 @@ const isChatbotShowing = ref(false)
 const isCommentShowing = ref(false)
 
 const COLLAPSE_DELAY = 600
-const isWebPanelExpanded = ref(true)
-const isHandleVisible = ref(false)
+const isWebPanelExpanded = ref(false)
+const isHandleVisible = ref(true)
 const isHandleHinting = ref(false)
 let collapseTimer: ReturnType<typeof setTimeout> | null = null
 let hintResetTimer: ReturnType<typeof setTimeout> | null = null
@@ -741,7 +741,7 @@ const addBookmark = async () => {
 }
 
 .edge-handle {
-  --style: fixed z-99999 top-1/2 right-0 cursor-pointer;
+  --style: fixed z-99999 top-1/2 right-0 cursor-pointer flex items-center justify-center;
   width: 12px;
   height: 96px;
   border-radius: 6px 0 0 6px;
@@ -753,9 +753,31 @@ const addBookmark = async () => {
     box-shadow 0.25s,
     opacity 0.25s;
 
+  &::after {
+    content: '';
+    width: 6px;
+    height: 9px;
+    color: white;
+    opacity: 0.55;
+    background: currentColor;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    transition: opacity 0.25s;
+  }
+
   &:hover {
     background: rgba(60, 60, 70, 0.65);
     box-shadow: -2px 0 14px rgba(0, 0, 0, 0.15);
+
+    &::after {
+      opacity: 0.9;
+    }
   }
 
   &.hint {
