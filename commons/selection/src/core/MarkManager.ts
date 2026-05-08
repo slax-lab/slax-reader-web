@@ -768,7 +768,7 @@ export class MarkManager extends Base {
 
       if (!markInfoItem) {
         try {
-          if (mark.approx_source) {
+          if (mark.approx_source && Object.keys(mark.approx_source).length > 0) {
             const newRange = rangeSvc.getRange(mark.approx_source)
             const rawText = newRange ? getRangeTextWithNewlines(newRange) : undefined
             mark.approx_source.raw_text = rawText
