@@ -136,6 +136,10 @@ export const useWebBookmarkArticleRelative = (detail: Ref<WebBookmarkArticleDeta
   }
 }
 
+export const logAnalyzed = (_options: BookmarkTypeOptions, _userId: number) => {}
+
+export const logChat = (_options: BookmarkTypeOptions, _userId: number) => {}
+
 export const useLogBookmark = (options: BookmarkTypeOptions) => {
   if (options.type === BookmarkType.Share) {
     analyticsLog({
