@@ -10,6 +10,7 @@ import { initializeApp } from 'firebase/app'
 export const analyticsLog = (params: WebAnalyticsEvent) => {
   try {
     const config = useRuntimeConfig()
+    const { proxy } = useScriptGoogleTagManager()
 
     const { event, ...restParams } = params
     const enrichedParams = {
@@ -18,8 +19,7 @@ export const analyticsLog = (params: WebAnalyticsEvent) => {
       version: config.public.appVersion || 'unknown'
     }
 
-    window.dataLayer = window.dataLayer || []
-    window.dataLayer.push({
+    proxy.dataLayer.push({
       event,
       ...enrichedParams
     })
