@@ -18,11 +18,11 @@
 
           <!-- Contact Methods -->
           <div class="contact-methods">
-            <a href="mailto:support@slax.com" class="contact-item" target="_blank">
+            <a href="mailto:reader@slax.com" class="contact-item" target="_blank">
               <div class="contact-icon">📧</div>
               <div class="contact-info">
                 <h3>Email</h3>
-                <p>support@slax.com</p>
+                <p>reader@slax.com</p>
               </div>
             </a>
 

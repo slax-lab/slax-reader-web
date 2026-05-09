@@ -35,7 +35,24 @@ import BookmarkTags from '#layers/core/components/BookmarkTags.vue'
 import { urlHttpString } from '@commons/utils/string'
 
 import 'katex/dist/katex.css'
-import { PhotoSwiperDotsElement, registerComponents, TweetFooterInfoElement, TweetUserInfoElement, UnsupportedVideoElement, WechatVideoInfoElement } from './CEComponents'
+import { registerComponents } from './CEComponents'
+import type { WebProcessorContext } from './processors'
+import {
+  AnchorProcessor,
+  ArticleStyle,
+  DetailsProcessor,
+  DOMPipeline,
+  IFrameProcessor,
+  ImageProcessor,
+  ListProcessor,
+  PhotoSwipeProcessor,
+  SpanProcessor,
+  SvgProcessor,
+  TweetProcessor,
+  VideoProcessor,
+  WechatHeaderProcessor,
+  WechatVideoProcessor
+} from './processors'
 import { DwebBookmarkProvider, DwebEnvironmentAdapter, DwebHttpClient, DwebI18nService, DwebToastService, DwebUserProvider } from './Selection/adapters'
 import { DwebArticleSelection } from './Selection/DwebArticleSelection'
 import { MarkModal } from './Selection/modal'
@@ -47,12 +64,6 @@ import CursorToast from '#layers/core/components/CursorToast'
 import Preview from '#layers/core/components/ImagePreview'
 import Toast, { ToastType } from '#layers/core/components/Toast'
 import { useArticleDetail } from '#layers/core/composables/bookmark/useArticle'
-
-enum ArticleStyle {
-  Default = 'default',
-  Twitter = 'twitter',
-  PhotoSwipeTopic = 'photo-swipe-topic'
-}
 
 const route = useRoute()
 const props = defineProps({
@@ -178,325 +189,46 @@ const jumpToHighLight = () => {
     }
   }
 
-  // 去掉URL中的Query
   navigateTo({ path: route.path, query: {} })
 }
 
+const websiteClick = () => {
+  window.open(`${urlString.value}`)
+}
+
 const handleHTML = async () => {
-  const articleDetailDom = articleDetail.value
-  if (!articleDetailDom) {
-    return
+  const container = articleDetail.value
+  if (!container) return
+
+  const context: WebProcessorContext = {
+    container,
+    url: new URL(detail.value.target_url),
+    articleStyle: articleStyle.value,
+    callbacks: {
+      screenLockUpdate: locked => emits('screenLockUpdate', locked),
+      showImagePreview: opts => Preview.showImagePreview(opts),
+      websiteClick
+    },
+    cleanups: extraListeners
   }
 
-  const [imgs, svgs, uls, anchors, videos, iframes, wechatVideos, details, spans] = await Promise.allSettled(
-    ['img', 'svg', 'ul', 'a', 'video', 'iframe', 'mp-common-videosnap', 'details', 'span'].map(tag => {
-      return Array.from(articleDetailDom.querySelectorAll(tag)) || []
-    })
-  )
-  const uUrl = new URL(detail.value.target_url)
-  const retentionVideo = uUrl.host.includes('xiaohongshu.com') || uUrl.host.includes('x.com')
+  const pipeline = new DOMPipeline()
+    .register(new WechatHeaderProcessor())
+    .register(new ImageProcessor())
+    .register(new SvgProcessor())
+    .register(new ListProcessor())
+    .register(new AnchorProcessor())
+    .register(new VideoProcessor())
+    .register(new IFrameProcessor())
+    .register(new WechatVideoProcessor())
+    .register(new DetailsProcessor())
+    .register(new SpanProcessor())
+    .register(new PhotoSwipeProcessor())
+    .register(new TweetProcessor())
 
-  await Promise.allSettled([
-    imgs.status === 'fulfilled' && handleHTMLImgs(imgs.value as HTMLImageElement[]),
-    svgs.status === 'fulfilled' && handleHTMLSvgs(svgs.value as SVGSVGElement[]),
-    uls.status === 'fulfilled' && handleHTMLUls(uls.value as HTMLUListElement[]),
-    anchors.status === 'fulfilled' && handleHTMLAnchors(anchors.value as HTMLAnchorElement[]),
-    videos.status === 'fulfilled' && !retentionVideo && handleHTMLVideos(videos.value as HTMLVideoElement[]),
-    iframes.status === 'fulfilled' && handleHTMLIFrames(iframes.value as HTMLIFrameElement[]),
-    wechatVideos.status === 'fulfilled' && handleHTMLWechatVideos(wechatVideos.value as HTMLElement[]),
-    details.status === 'fulfilled' && handleHTMLDetails(details.value as HTMLDetailsElement[]),
-    spans.status === 'fulfilled' && handleHTMLSpans(spans.value as HTMLSpanElement[])
-  ])
-
-  const handlers: Promise<void>[] = []
-  if (articleStyle.value === ArticleStyle.PhotoSwipeTopic) {
-    handlers.push(handlePhotoSwipeTopicStyle())
-  } else if (articleStyle.value === ArticleStyle.Twitter) {
-    handlers.push(handleTweetComponents())
-  }
-
-  await Promise.allSettled(handlers)
+  await pipeline.run(context)
 
   isHandledHTML.value = true
-}
-
-const handleHTMLImgs = (imgs: HTMLImageElement[]) => {
-  const loadingKey = 'slax-image-loading'
-
-  imgs.forEach(img => {
-    // const isWrapperByAnchor = (img: HTMLImageElement) => {
-    //   let parent = img.parentElement
-    //   while (parent) {
-    //     if (parent.tagName.toLowerCase() === 'a') {
-    //       return true
-    //     }
-
-    //     parent = parent.parentElement
-    //   }
-
-    //   return false
-    // }
-    img.srcset = ''
-    img.onload = e => {
-      img.classList.remove(loadingKey)
-
-      if (articleStyle.value === ArticleStyle.PhotoSwipeTopic) {
-      } else {
-        if (img.naturalWidth < 5 || img.naturalHeight < 5) {
-          img.setAttribute('style', 'display: none;')
-          return
-        } else if (img.naturalWidth < 200) {
-          img.setAttribute('style', `width: ${img.naturalWidth}px !important;`)
-          return
-        }
-
-        ;[`padding: 0 !important`, `height: auto !important;`].forEach(style => {
-          img.setAttribute('style', style)
-        })
-      }
-
-      img.onclick = () => {
-        const rect = img.getBoundingClientRect()
-        const frame = {
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-          imgWidth: img.naturalWidth,
-          imgHeight: img.naturalHeight
-        }
-
-        emits('screenLockUpdate', true)
-        Preview.showImagePreview({
-          url: img.currentSrc || img.src,
-          frame,
-          dismissHandler: () => {
-            emits('screenLockUpdate', false)
-          }
-        })
-
-        return false
-      }
-    }
-
-    img.referrerPolicy = ''
-
-    img.onerror = e => {
-      img.classList.remove(loadingKey)
-      img.style.display = 'none'
-    }
-
-    img.classList.add(loadingKey)
-
-    const parentElement = img.parentElement
-    const parentChilds = parentElement ? Array.from(parentElement.childNodes) : []
-
-    const isOnlyImages = parentChilds.every(child => {
-      if (child.nodeType === Node.ELEMENT_NODE) {
-        const element = child as HTMLElement
-        return element.tagName.toLowerCase() === 'img'
-      }
-      return true
-    })
-
-    if (isOnlyImages) {
-      img.style.cssFloat = 'none'
-    }
-  })
-}
-
-const handleHTMLSvgs = (svgs: SVGSVGElement[]) => {
-  svgs.forEach(svg => {
-    const paths = Array.from(svg.getElementsByTagName('path')) || []
-    if (paths.length < 10) {
-      svg.setAttribute('style', 'display: none;')
-      return
-    }
-
-    const viewBox = svg.viewBox
-    if (!viewBox) {
-      return
-    }
-
-    const { width, height } = viewBox.baseVal
-    if (width < 5 || height < 5) {
-      svg.setAttribute('style', 'display: none;')
-    } else {
-      svg.setAttribute('style', `width: ${width}px !important; height: ${height}px !important;`)
-    }
-  })
-}
-
-const handleHTMLUls = (uls: HTMLUListElement[]) => {
-  uls.forEach(ul => {
-    if (ul.querySelector('li')) {
-      ul.classList.add('has-li')
-    }
-  })
-}
-
-const handleHTMLAnchors = (anchors: HTMLAnchorElement[]) => {
-  const url = new URL(detail.value.target_url)
-  if (!url) {
-    return
-  }
-
-  anchors.forEach(anchor => {
-    const href = anchor.getAttribute('href')
-    if (!href) {
-      return
-    }
-
-    if (href.indexOf('#') === 0) {
-      anchor.target = ''
-    } else {
-      const regex = /^\/.*/
-      if (regex.test(href)) {
-        anchor.href = `${url.origin}${href}`
-      } else if (href.indexOf('http') === -1 && href.indexOf('https') === -1) {
-        anchor.href = `${url.origin}${anchor.pathname}`
-      }
-
-      anchor.target = '_blank'
-    }
-  })
-}
-
-const handleHTMLWechatVideos = (videos: HTMLElement[]) => {
-  videos.forEach(video => {
-    const data = {
-      url: video.getAttribute('data-url'),
-      headimgurl: video.getAttribute('data-headimgurl'),
-      nickname: video.getAttribute('data-nickname'),
-      desc: video.getAttribute('data-desc')
-    }
-
-    video.parentNode?.replaceChild(new WechatVideoInfoElement({ data }), video)
-  })
-}
-const handleHTMLVideos = (videos: HTMLVideoElement[]) => {
-  const removeVideo = (video: HTMLVideoElement) => {
-    const poster = video.getAttribute('poster')
-    const unsupportVideo = new UnsupportedVideoElement({
-      poster
-    })
-
-    unsupportVideo.addEventListener('posterClick', () => {
-      websiteClick()
-    })
-
-    video.parentElement?.replaceChild(unsupportVideo, video)
-  }
-
-  videos.forEach(video => {
-    // 监听错误事件
-    removeVideo(video)
-  })
-}
-
-const handleHTMLIFrames = (iframes: HTMLIFrameElement[]) => {
-  iframes.forEach(iframe => {
-    if (iframe.width && Number(iframe.width) > 100) {
-      iframe.width = '100%'
-    }
-  })
-}
-
-const handleHTMLDetails = (details: HTMLDetailsElement[]) => {
-  details.forEach(detail => {
-    const summary = detail.querySelector('summary')
-    if (summary) {
-      detail.open = true
-    }
-  })
-}
-
-const handleHTMLSpans = (spans: HTMLSpanElement[]) => {
-  spans.forEach(span => {
-    if (span.textContent.replace(/\u00a0/g, '').trim().length === 0) {
-      span.style.display = 'none'
-    }
-  })
-}
-
-const handlePhotoSwipeTopicStyle = async () => {
-  const swiper = document.querySelector('slax-photo-swipe-topic > .topic-container .swiper')
-  if (!swiper) {
-    return
-  }
-
-  const count = swiper.childElementCount
-
-  const dotsEle = new PhotoSwiperDotsElement({
-    count,
-    selectIndex: 0
-  })
-
-  const indexSelectedHandler = (event: Event) => {
-    const customEvent = event as CustomEvent<number[]>
-    const args = customEvent.detail
-    console.log(args)
-
-    if (!args || args.length === 0) {
-      return
-    }
-
-    dotsEle.selectIndex = args[0]
-    swiper.scrollTo({
-      left: args[0] * swiper.clientWidth,
-      behavior: 'smooth'
-    })
-  }
-
-  dotsEle.addEventListener('indexSelected', indexSelectedHandler)
-  swiper.parentElement?.appendChild(dotsEle)
-
-  const debouncedScrollFn = useDebounceFn(
-    () => {
-      const index = Math.round(swiper.scrollLeft / swiper.clientWidth)
-      dotsEle.selectIndex = index
-    },
-    50,
-    { maxWait: 5000 }
-  )
-
-  swiper.addEventListener('scroll', debouncedScrollFn)
-
-  extraListeners.push(() => {
-    dotsEle.removeEventListener('indexSelected', indexSelectedHandler)
-    swiper.removeEventListener('scroll', debouncedScrollFn)
-  })
-}
-
-const handleTweetComponents = async () => {
-  const tweetHeader = document.querySelector('tweet-header')
-  if (tweetHeader && tweetHeader instanceof HTMLElement) {
-    const tweetHeaderElement = new TweetUserInfoElement({
-      href: tweetHeader.dataset['href'],
-      avatar: tweetHeader.dataset['avatar'],
-      name: tweetHeader.dataset['name'],
-      description: tweetHeader.dataset['description'],
-      screenName: tweetHeader.dataset['screenName'],
-      location: tweetHeader.dataset['location'],
-      website: tweetHeader.dataset['website'],
-      createdAt: tweetHeader.dataset['createdAt'],
-      followers: parseInt(tweetHeader.dataset['followers'] || '0'),
-      followings: parseInt(tweetHeader.dataset['followings'] || '0')
-    })
-
-    tweetHeader.parentElement?.replaceChild(tweetHeaderElement, tweetHeader)
-  }
-
-  const tweetFooter = document.querySelector('tweet-footer')
-  if (tweetFooter && tweetFooter instanceof HTMLElement) {
-    const tweetFooterElement = new TweetFooterInfoElement({
-      replyCount: parseInt(tweetFooter.dataset['replyCount'] || '0'),
-      retweetCount: parseInt(tweetFooter.dataset['retweetCount'] || '0'),
-      favoriteCount: parseInt(tweetFooter.dataset['favoriteCount'] || '0')
-    })
-
-    tweetFooter.parentElement?.replaceChild(tweetFooterElement, tweetFooter)
-  }
 }
 
 const handleDrawMark = async () => {
@@ -526,9 +258,8 @@ const handleDrawMark = async () => {
         collection: collection?.value,
         ownerUserId: bookmarkUserId.value
       }),
-      refFactory: ref, // 使用 Vue 的 ref 作为工厂函数
+      refFactory: ref,
       getMarkType: (type: 'comment' | 'reply' | 'line') => {
-        // Dweb 端根据是否有 iframe 决定返回类型
         if (type === 'comment') {
           return !!config.iframe ? MarkType.ORIGIN_COMMENT : MarkType.COMMENT
         } else if (type === 'reply') {
@@ -562,10 +293,6 @@ const handleDrawMark = async () => {
   await Promise.all(promise).then(() => {
     jumpToHighLight()
   })
-}
-
-const websiteClick = () => {
-  window.open(`${urlString.value}`)
 }
 
 const starBookmark = async (event: MouseEvent, isStar: boolean) => {

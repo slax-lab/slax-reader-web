@@ -219,7 +219,7 @@ export default defineNuxtConfig({
       sameAs: ['https://x.com/SlaxReader', 'https://t.me/slax_app', 'https://github.com/slax-lab/slax-reader', 'https://x.com/wulujia'],
       contactPoint: [
         {
-          email: 'support@slax.com',
+          email: 'reader@slax.com',
           contactType: 'customer support'
         }
       ]
