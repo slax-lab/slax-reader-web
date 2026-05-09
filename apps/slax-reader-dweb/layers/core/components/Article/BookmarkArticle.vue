@@ -413,7 +413,7 @@ const handleHTMLDetails = (details: HTMLDetailsElement[]) => {
 
 const handleHTMLSpans = (spans: HTMLSpanElement[]) => {
   spans.forEach(span => {
-    if (span.textContent.replace(/\u00a0/g, '').trim().length === 0) {
+    if (span.textContent.replace(/\u00a0/g, '').trim().length === 0 && !span.querySelector('img[src], video[src], picture:has(source[srcset]), svg, canvas')) {
       span.style.display = 'none'
     }
   })
