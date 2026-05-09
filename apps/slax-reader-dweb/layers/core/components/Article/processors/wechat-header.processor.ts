@@ -29,7 +29,7 @@ export class WechatHeaderProcessor implements DOMProcessor {
     const hideP = (anchor: Element): void => {
       const p = anchor.closest('p')
       if (p && isFirstElementChain(p)) {
-        ;(p as HTMLElement).style.visibility = 'hidden'
+        ;(p as HTMLElement).style.display = 'none'
       }
     }
 
