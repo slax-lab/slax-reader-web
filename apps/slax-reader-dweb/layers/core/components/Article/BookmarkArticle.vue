@@ -194,6 +194,11 @@ const handleHTML = async () => {
     })
   )
   const uUrl = new URL(detail.value.target_url)
+
+  if (uUrl.host.startsWith('https://mp.weixin.qq.com')) {
+    handleWechatHeader(articleDetailDom)
+  }
+
   const retentionVideo = uUrl.host.includes('xiaohongshu.com') || uUrl.host.includes('x.com')
 
   await Promise.allSettled([
@@ -415,6 +420,34 @@ const handleHTMLSpans = (spans: HTMLSpanElement[]) => {
   spans.forEach(span => {
     if (span.textContent.replace(/\u00a0/g, '').trim().length === 0 && !span.querySelector('img[src], video[src], picture:has(source[srcset]), svg, canvas')) {
       span.style.display = 'none'
+    }
+  })
+}
+
+const handleWechatHeader = (container: HTMLElement) => {
+  const spans = container.querySelectorAll('span#meta_content_hide_info')
+
+  spans.forEach(span => {
+    const p = span.parentElement
+    if (!p || p.tagName.toLowerCase() !== 'p') return
+
+    const children = Array.from(p.children)
+    let score = 0
+
+    if (p.parentElement?.tagName.toLowerCase() === 'div' && p.parentElement.classList.contains('img-content')) {
+      score++
+    }
+
+    if (children[0]?.tagName.toLowerCase() === 'span' && children[0].id === 'copyright_logo') {
+      score++
+    }
+
+    if (children[2]?.tagName.toLowerCase() === 'span' && children[2].id === 'profileBt') {
+      score++
+    }
+
+    if (score >= 2) {
+      p.remove()
     }
   })
 }
