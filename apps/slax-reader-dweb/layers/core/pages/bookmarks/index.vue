@@ -146,7 +146,7 @@ import type { ChannelMessageData } from '#layers/core/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
-import { useInfiniteScroll } from '@vueuse/core'
+import { useDebounceFn, useEventListener, useInfiniteScroll } from '@vueuse/core'
 import { showFeedbackModal } from '#layers/core/components/Modal'
 import Toast from '#layers/core/components/Toast'
 import useNotification from '#layers/core/composables/useNotification'
@@ -287,6 +287,7 @@ watch(
 )
 
 const { y } = useScroll(window, { behavior: 'smooth', throttle: 10 })
+const canLoadMoreList = () => !loading.value && !ending.value && isActivated.value && !searchText.value
 const { reset } = useInfiniteScroll(
   window,
   () => {
@@ -294,9 +295,18 @@ const { reset } = useInfiniteScroll(
   },
   {
     distance: 100,
-    canLoadMore: () => !ending.value && isActivated.value && !searchText.value
+    canLoadMore: canLoadMoreList
   }
 )
+const resetInfiniteScroll = useDebounceFn(() => {
+  reset()
+}, 100)
+
+useEventListener(window, 'resize', resetInfiniteScroll)
+
+if (window.visualViewport) {
+  useEventListener(window.visualViewport, 'resize', resetInfiniteScroll)
+}
 
 userStore.getUserInfo({ refresh: true }).then(info => {
   userInfo.value = info
