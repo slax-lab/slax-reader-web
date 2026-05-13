@@ -56,7 +56,7 @@
     "@types/markdown-it-link-attributes": "^3.0.5",
     "@types/ua-parser-js": "^0.7.39",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "@typescript-eslint/parser": "^8.44.1",
+    "@typescript-eslint/parser": "^8.59.3",
     "@unocss/eslint-config": "^66.5.2",
     "@unocss/eslint-plugin": "^66.5.2",
     "@unocss/preset-mini": "^66.5.2",
