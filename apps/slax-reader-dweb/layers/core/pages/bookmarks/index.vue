@@ -300,7 +300,7 @@ const { reset } = useInfiniteScroll(
 )
 const resetInfiniteScroll = useDebounceFn(() => {
   reset()
-}, 100)
+}, 1000)
 
 useEventListener(window, 'resize', resetInfiniteScroll)
 
