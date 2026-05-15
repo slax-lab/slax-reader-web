@@ -20,7 +20,9 @@ export default [
       '.node-modules-inspector',
       '**/public/**',
       '.claude/',
-      '.github/'
+      '.github/',
+      '**/eslint.config.mjs',
+      'commons/types/eslint.config.mjs'
     ]
   },
   {
@@ -30,23 +32,20 @@ export default [
       parserOptions: {
         parser: typescriptParser,
         sourceType: 'module',
-        ecmaVersion: 'latest'
+        ecmaVersion: 'latest',
+        tsconfigRootDir: import.meta.dirname
       }
-    },
-    plugins: {
-      'vue-scoped-css': vueScopedCss
-    },
-    rules: {
-      ...vueScopedCss.configs['vue3-recommended'].rules
     }
   },
+  ...vueScopedCss.configs['flat/recommended'].map(c => ({ ...c, files: ['**/*.vue'] })),
   ...vue.configs['flat/essential'],
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
-        project: './tsconfig.json'
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname
       }
     },
     plugins: {
