@@ -288,10 +288,10 @@ const textarea = ref<HTMLTextAreaElement>()
 const darkTrigger = ref<HTMLDivElement>()
 const inputText = ref('')
 const isChatting = ref(false)
-const messageList = ref<MessageItem[]>([])
-const bufferMessage = ref<BubbleMessageItem | null>(null)
+const messageList = ref<MessageItem[]>([]) as Ref<MessageItem[]>
+const bufferMessage = ref<BubbleMessageItem | null>(null) as Ref<BubbleMessageItem | null>
 const bufferMarkdownContent = ref('') // 用于缓存解析中的markdown文字内容
-const quoteInfo = ref<QuoteData | null>(null)
+const quoteInfo = ref<QuoteData | null>(null) as Ref<QuoteData | null>
 const sendable = computed(() => {
   return inputText.value.trim().length > 0 && !isChatting.value
 })
@@ -393,6 +393,7 @@ const sendMessage = () => {
 
   const history = getHistoryMessages()
   const text = inputText.value.trim()
+  const currentQuote = quoteInfo.value ?? undefined
   messageList.value.push({
     type: 'bubble',
     direction: 'right',
@@ -402,7 +403,7 @@ const sendMessage = () => {
         content: text
       }
     ],
-    quote: quoteInfo.value ? quoteInfo.value : undefined,
+    quote: currentQuote,
     id: `bubble_right_${text}`
   })
 
@@ -410,7 +411,7 @@ const sendMessage = () => {
     type: ChatParamsType.CONTENT,
     content: text,
     history,
-    quote: quoteInfo.value ? quoteInfo.value : undefined
+    quote: currentQuote
   })
 
   inputText.value = ''

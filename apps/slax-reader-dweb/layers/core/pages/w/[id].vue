@@ -113,9 +113,9 @@ import markCss from '#layers/core/styles/mark.css?raw'
 const route = useRoute()
 
 const id = String(route.params.id)
-const iframeRef = ref<HTMLIFrameElement | null>(null)
-const iframeDocument = ref<Document | null>(null)
-const iframeWindow = ref<Window | null>(null)
+const iframeRef = ref<HTMLIFrameElement | null>(null) as Ref<HTMLIFrameElement | null>
+const iframeDocument = ref<Document | null>(null) as Ref<Document | null>
+const iframeWindow = ref<Window | null>(null) as Ref<Window | null>
 const bookmarkBriefInfo = ref<BookmarkBriefDetail | null>(null)
 const articleSelection = ref<DwebArticleSelection | null>(null)
 const rawWebPanel = ref<InstanceType<typeof RawWebPanel>>()

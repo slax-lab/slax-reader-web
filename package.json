@@ -85,7 +85,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@intlify/message-compiler": "^10.0.0"
+      "@intlify/message-compiler": "^10.0.0",
+      "vite": "^7.2.4"
     }
   }
 }

@@ -33,7 +33,7 @@ const getPlatformAccount = (platform: string) => {
 }
 
 const bindTelegram = async () => {
-  const resp = await request
+  const resp = await request()
     .post<string>({
       url: RESTMethodPath.GET_BIND_LINK,
       body: { platform: 'telegram' }
