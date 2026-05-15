@@ -1,6 +1,6 @@
 import { isServer } from '@commons/utils/is'
 
-import { useCookies } from '@vueuse/integrations/useCookies.mjs'
+import { useCookies } from '@vueuse/integrations/useCookies'
 
 const { get } = useCookies()
 export default defineNuxtRouteMiddleware((to, from) => {

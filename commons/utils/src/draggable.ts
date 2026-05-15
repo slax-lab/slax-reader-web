@@ -1,5 +1,5 @@
 /* 模仿vueuse实现的useDraggable,增加对iframe的兼容 */
-import { ref, onMounted, onUnmounted, Ref } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref } from 'vue'
 import { getElementOwnerWindow } from './dom'
 
 export interface Position {

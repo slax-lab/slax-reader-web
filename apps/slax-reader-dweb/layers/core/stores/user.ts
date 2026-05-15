@@ -2,7 +2,7 @@ import { isSlaxReaderApp } from '../utils/environment'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserInfo } from '@commons/types/interface'
-import { useCookies } from '@vueuse/integrations/useCookies.mjs'
+import { useCookies } from '@vueuse/integrations/useCookies'
 import { type _GettersTree, defineStore } from 'pinia'
 
 interface UserState {
