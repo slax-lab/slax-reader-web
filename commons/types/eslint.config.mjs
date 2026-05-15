@@ -1,26 +1,24 @@
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
-import prettier from 'eslint-plugin-prettier/recommended'
+import prettierRecommend from 'eslint-plugin-prettier/recommended'
 import prettierConfig from 'eslint-config-prettier'
 
 export default [
+  { ignores: ['eslint.config.mjs'] },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   prettierConfig,
+  prettierRecommend,
   {
-    plugins: {
-      prettier: prettier
+    files: ['**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname
+      }
     },
     rules: {
-      'prettier/prettier': [
-        'error',
-        {},
-        {
-          fileInfoOptions: {
-            withNodeModules: true
-          }
-        }
-      ]
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off'
     }
   }
 ]
