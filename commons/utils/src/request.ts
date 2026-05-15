@@ -1,7 +1,7 @@
 import { isFunction, isPromise } from './is'
 
 export class RequestError extends Error {
-  name: string
+  override name: string
   code: number
 
   constructor(params: { message: string; name: string; code: number }) {
