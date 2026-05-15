@@ -18,10 +18,6 @@ export enum RequestMethodType {
   delete = 'delete'
 }
 
-declare global {
-  const $fetch: typeof fetch
-}
-
 // fetch请求配置
 interface FetchConfig {
   baseUrl: string | (() => string)

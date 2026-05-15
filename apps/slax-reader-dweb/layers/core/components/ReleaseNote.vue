@@ -72,7 +72,7 @@ const isElementInViewport = (el: HTMLElement) => {
   )
 }
 
-const lis = ref<HTMLElement[]>([])
+const lis = ref<HTMLElement[]>([]) as Ref<HTMLElement[]>
 
 onMounted(() => {
   lis.value = Array.from(ul.value?.querySelectorAll('li') || [])

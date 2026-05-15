@@ -1,3 +1,4 @@
+/// <reference path="./types/dom-anchor-text-position.d.ts" />
 import search from 'approx-string-match'
 import { toRange } from 'dom-anchor-text-position'
 
