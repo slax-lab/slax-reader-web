@@ -143,8 +143,7 @@ const actionClick = (panel: PanelItem) => {
   --style: relative;
 
   .menu-dots-button {
-    --style: w-18px h-auto flex-center box-content p-5px rounded-5px;
-    --style: 'hover:(bg-#262626) active:(scale-130) transition-all duration-250';
+    --style: 'w-18px h-auto flex-center box-content p-5px rounded-5px hover:(bg-#262626) active:(scale-130) transition-all duration-250';
 
     img {
       --style: w-full select-none;
@@ -158,8 +157,7 @@ const actionClick = (panel: PanelItem) => {
       --style: flex flex-col w-full relative;
 
       button.subpanel-button {
-        --style: flex items-center h-32px px-8px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250;
-        --style: 'text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
+        --style: 'flex items-center h-32px px-8px overflow-hidden whitespace-nowrap text-ellipsis rounded-6px transition-all duration-250 text-#ffffff99 hover:(bg-#00000029 text-#ffffffe6)';
 
         .icon {
           --style: relative size-16px;
@@ -207,8 +205,7 @@ const actionClick = (panel: PanelItem) => {
         --style: py-4px;
 
         button.subpanel-button {
-          --style: py-6px h-30px;
-          --style: 'text-#FFFFFF66 hover:(text-#ffffffe6)';
+          --style: 'py-6px h-30px text-#FFFFFF66 hover:(text-#ffffffe6)';
         }
       }
     }
