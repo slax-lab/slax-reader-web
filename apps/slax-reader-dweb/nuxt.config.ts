@@ -57,6 +57,23 @@ export default defineNuxtConfig({
     }
   },
 
+  // workaround for @unocss/nuxt v66 with Nuxt 4: 模块内的 cssnano 配置覆盖只检查 Nuxt 3
+  // 详见 https://github.com/unocss/unocss/issues/<TODO> 及对应 PR
+  postcss: {
+    plugins: {
+      cssnano: {
+        preset: [
+          'default',
+          {
+            mergeRules: false,
+            normalizeWhitespace: false,
+            discardComments: false
+          }
+        ]
+      }
+    }
+  },
+
   sourcemap: false,
   vite: {
     plugins: [],
