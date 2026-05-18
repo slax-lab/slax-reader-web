@@ -145,7 +145,7 @@ export default defineNuxtConfig({
     cloudflare: {
       pages: {
         routes: {
-          include: ['/s/*', '/__og-image__/image/*']
+          include: ['/s/*', '/_og/d/*', '/_og/r/*']
         }
       }
     }
@@ -228,14 +228,7 @@ export default defineNuxtConfig({
   },
   ogImage: {
     enabled: true,
-    fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/core/public/fonts/pingfang-sc-regular.woff' },
-      {
-        name: 'source-serif-pro-400-normal',
-        weight: 400,
-        path: '../../layers/core/public/fonts/source-serif-pro-400-normal.woff'
-      }
-    ]
+    fontSubsets: ['latin', 'chinese-simplified']
   },
   pwa: {
     mode: !isDev ? 'production' : 'development',
