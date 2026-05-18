@@ -45,8 +45,9 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxt/scripts'
   ],
+
   future: {
-    compatibilityVersion: 3
+    compatibilityVersion: 4
   },
 
   runtimeConfig: {
@@ -169,7 +170,7 @@ export default defineNuxtConfig({
   site: {
     enabled: true,
     indexable: !isDev,
-    url: envConfig.PUBLIC_BASE_URL,
+    url: envConfig.PUBLIC_BASE_URL as string,
     name: 'Slax Reader: Read Smarter, Save Forever'
   },
   sitemap: {
