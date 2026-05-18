@@ -11,5 +11,5 @@ export const formatDate = (date: Date, format: string) => {
     ss: pad(date.getSeconds())
   }
 
-  return format.replace(/YYYY|YY|MM|DD|HH|mm|ss/g, matched => replacements[matched])
+  return format.replace(/YYYY|YY|MM|DD|HH|mm|ss/g, matched => replacements[matched] ?? matched)
 }
