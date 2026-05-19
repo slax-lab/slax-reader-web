@@ -3,9 +3,5 @@
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     "esModuleInterop": true
-  },
-  "parserOptions": {
-    "sourceType": "module",
-    "ecmaVersion": 2020
   }
 }

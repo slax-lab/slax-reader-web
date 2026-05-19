@@ -11,7 +11,7 @@
     "postinstall": "nuxt prepare",
     "test": "vitest",
     "lint:fix": "eslint .  --fix",
-    "update:nuxt": "npx nuxt prepare",
+    "update:nuxt": "pnpm nuxt prepare",
     "update:utils": "pnpm install @commons/utils",
     "ssr:dev": "pnpm build && pnpm wrangler pages dev --port 3000"
   },
