@@ -28,7 +28,7 @@ class ServerRequest extends FetchRequest {
 
 export const request = () => {
   if (!requestInstance) {
-    const baseUrl = useNuxtApp().$config.public.DWEB_API_BASE_URL as string
+    const baseUrl = useRuntimeConfig().public.DWEB_API_BASE_URL as string
     requestInstance = new (isClient ? FetchRequest : ServerRequest)({
       baseUrl,
       requestInterceptors: async options => {
@@ -74,7 +74,7 @@ export const request = () => {
 }
 
 export const getUserToken = () => {
-  const COOKIE_TOKEN_NAME = useNuxtApp().$config.public.COOKIE_TOKEN_NAME
+  const COOKIE_TOKEN_NAME = useRuntimeConfig().public.COOKIE_TOKEN_NAME
 
   const getUserTokenClient = () => {
     const cookies = useCookies()

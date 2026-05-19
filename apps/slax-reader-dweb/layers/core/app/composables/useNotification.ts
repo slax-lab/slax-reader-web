@@ -5,7 +5,7 @@ import { registerSW } from 'virtual:pwa-register'
 const useNotification = () => {
   const isSupportedSW = computed(() => 'serviceWorker' in navigator)
   const isSupportedNotification = computed(() => 'Notification' in window)
-  const $config = useNuxtApp().$config.public
+  const $config = useRuntimeConfig().public
 
   const registerWorker = async () => {
     if (!isSupportedSW.value) {

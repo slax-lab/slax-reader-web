@@ -150,7 +150,7 @@ export const useUserStore = defineStore<'user', UserState, UserGetters, UserActi
         .then(res => {
           if (!res) return
 
-          const config = useNuxtApp().$config.public
+          const config = useRuntimeConfig().public
           const { set } = useCookies()
           set(config.COOKIE_TOKEN_NAME as string, res.token, { path: '/', expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), domain: `${config.COOKIE_DOMAIN}` })
         })
