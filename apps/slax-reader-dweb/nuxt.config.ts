@@ -147,7 +147,6 @@ export default defineNuxtConfig({
     siteKey: `${envConfig.TURNSTILE_SITE_KEY || ''}`
   },
   experimental: {
-    payloadExtraction: false,
     sharedPrerenderData: false
   },
   robots: {
