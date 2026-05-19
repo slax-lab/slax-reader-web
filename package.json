@@ -52,7 +52,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/inquirer": "^9.0.9",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-link-attributes": "^3.0.5",
     "@types/ua-parser-js": "^0.7.39",
