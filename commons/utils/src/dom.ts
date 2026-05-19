@@ -192,7 +192,7 @@ export const createStyleWithSearchRules = async (searchRules: string[]) => {
         } finally {
           if (!success) {
             for (let i = 0; i < style.cssRules.length; i++) {
-              styleElement.textContent += style.cssRules[i].cssText + '\n'
+              styleElement.textContent += (style.cssRules[i]?.cssText ?? '') + '\n'
             }
           }
         }

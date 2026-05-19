@@ -44,7 +44,6 @@ export default [
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
-        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname
       }
     },

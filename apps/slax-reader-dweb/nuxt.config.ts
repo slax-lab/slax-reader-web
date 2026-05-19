@@ -45,14 +45,32 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxt/scripts'
   ],
+
   future: {
-    compatibilityVersion: 3
+    compatibilityVersion: 4
   },
 
   runtimeConfig: {
     public: {
       ...envConfig,
       appVersion: pkg.version
+    }
+  },
+
+  // workaround for @unocss/nuxt v66 with Nuxt 4: 模块内的 cssnano 配置覆盖只检查 Nuxt 3
+  // 详见 https://github.com/unocss/unocss/issues/<TODO> 及对应 PR
+  postcss: {
+    plugins: {
+      cssnano: {
+        preset: [
+          'default',
+          {
+            mergeRules: false,
+            normalizeWhitespace: false,
+            discardComments: false
+          }
+        ]
+      }
     }
   },
 
@@ -144,7 +162,7 @@ export default defineNuxtConfig({
     cloudflare: {
       pages: {
         routes: {
-          include: ['/s/*', '/__og-image__/image/*']
+          include: ['/s/*', '/_og/d/*', '/_og/r/*']
         }
       }
     }
@@ -169,7 +187,7 @@ export default defineNuxtConfig({
   site: {
     enabled: true,
     indexable: !isDev,
-    url: envConfig.PUBLIC_BASE_URL,
+    url: envConfig.PUBLIC_BASE_URL as string,
     name: 'Slax Reader: Read Smarter, Save Forever'
   },
   sitemap: {
@@ -227,14 +245,7 @@ export default defineNuxtConfig({
   },
   ogImage: {
     enabled: true,
-    fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/core/public/fonts/pingfang-sc-regular.woff' },
-      {
-        name: 'source-serif-pro-400-normal',
-        weight: 400,
-        path: '../../layers/core/public/fonts/source-serif-pro-400-normal.woff'
-      }
-    ]
+    fontSubsets: ['latin', 'chinese-simplified']
   },
   pwa: {
     mode: !isDev ? 'production' : 'development',
