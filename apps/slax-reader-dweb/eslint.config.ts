@@ -1,19 +1,20 @@
-import config from '../../eslint.config.mjs'
+import type { Linter } from 'eslint'
+import config from '../../eslint.config'
 import typescriptParser from '@typescript-eslint/parser'
 import unocss from '@unocss/eslint-plugin'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
-export default [
+const dwebConfig: Linter.Config[] = [
   ...config,
+
   {
-    ignores: ['node_modules/', 'build/', '.wxt/', 'dist/']
+    ignores: ['node_modules/', 'build/', '.nuxt/', 'dist/', '.wrangler/', 'public/']
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
-        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname
       }
     }
@@ -49,3 +50,5 @@ export default [
     }
   }
 ]
+
+export default dwebConfig

@@ -1,12 +1,13 @@
+import type { Linter } from 'eslint'
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import prettierRecommend from 'eslint-plugin-prettier/recommended'
 import prettierConfig from 'eslint-config-prettier'
 
-export default [
-  { ignores: ['eslint.config.mjs'] },
+const config: Linter.Config[] = [
+  { ignores: ['eslint.config.ts'] },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...(tseslint.configs.recommended as Linter.Config[]),
   prettierConfig,
   prettierRecommend,
   {
@@ -22,3 +23,5 @@ export default [
     }
   }
 ]
+
+export default config
