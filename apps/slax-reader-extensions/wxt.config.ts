@@ -95,23 +95,9 @@ export default defineConfig({
         }
       : {
           sourcemap: false,
-          minify: 'terser',
-          terserOptions: {
-            maxWorkers: 5,
-            mangle: true,
-            compress: isPreview
-              ? undefined
-              : {
-                  drop_console: true,
-                  drop_debugger: true
-                },
-            output: {
-              beautify: true,
-              comments: false,
-              ascii_only: true
-            }
-          }
+          minify: 'esbuild'
         },
+    esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined,
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src')

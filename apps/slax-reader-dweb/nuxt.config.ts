@@ -85,23 +85,9 @@ export default defineNuxtConfig({
       : {
           // Enabling sourcemaps with Vue during development is known to cause problems with Vue
           sourcemap: false,
-          minify: 'terser',
-          terserOptions: {
-            maxWorkers: 5,
-            mangle: true,
-            compress: isPreview
-              ? undefined
-              : {
-                  drop_console: true,
-                  drop_debugger: true
-                },
-            output: {
-              beautify: true,
-              comments: false,
-              ascii_only: true
-            }
-          }
-        }
+          minify: 'esbuild'
+        },
+    esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined
   },
   nitro: {
     publicAssets: [
