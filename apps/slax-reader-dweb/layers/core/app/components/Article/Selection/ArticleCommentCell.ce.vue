@@ -153,7 +153,8 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 @use '#layers/core/styles/global.scss' as *;
 
 .article-comment-cell {
-  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px bg-#fff dark:bg-#333333FF';
+  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px';
+  --style: 'bg-#fff dark:bg-#333333FF';
 
   .comment-header {
     --style: flex justify-between items-center;
@@ -165,7 +166,8 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       }
 
       span {
-        --style: 'ml-8px text-(13px) line-height-18px text-#999 dark:text-#ffffff66';
+        --style: ml-8px text-(13px) line-height-18px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
 
@@ -179,14 +181,16 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   }
 
   .comment-content {
-    --style: 'text-(16px) line-height-24px whitespace-pre-line text-#333 dark:text-#ffffffcc';
+    --style: text-(16px) line-height-24px whitespace-pre-line;
+    --style: 'text-#333 dark:text-#ffffffcc';
   }
 
   .comment-footer {
     --style: mt-4px flex items-center justify-between;
 
     .date {
-      --style: 'text-(13px) line-height-18px select-none text-#999 dark:text-#999999ff';
+      --style: text-(13px) line-height-18px select-none;
+      --style: 'text-#999 dark:text-#999999ff';
     }
 
     .operates {
@@ -208,11 +212,13 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 
         .child-username,
         .parent-username {
-          --style: 'select-none text-#999 dark:text-#FFFFFF66';
+          --style: select-none;
+          --style: 'text-#999 dark:text-#FFFFFF66';
         }
 
         .reply-text {
-          --style: 'select-none text-#333 dark:text-#FFFFFFCC';
+          --style: select-none;
+          --style: 'text-#333 dark:text-#FFFFFFCC';
         }
 
         .comment-content-text {

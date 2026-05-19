@@ -41,7 +41,8 @@ defineProps({
 
 <style lang="scss" scoped>
 .quote-tweet-container {
-  --style: 'mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px hover:bg-#f5f8fa transition-colors duration-250';
+  --style: mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px;
+  --style: 'hover:bg-#f5f8fa transition-colors duration-250';
 
   .quote-tweet {
     --style: '!mt-0';

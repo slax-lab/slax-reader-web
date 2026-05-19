@@ -115,10 +115,12 @@ onUnmounted(() => {})
 
 <style lang="scss" scoped>
 .article-selection-menus {
-  --style: 'p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center bg-#fff dark:bg-#262626';
+  --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center;
+  --style: 'bg-#fff dark:bg-#262626';
 
   .menu {
-    --style: 'px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center transition-all duration-250 text-#999 active:(scale-105)';
+    --style: px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center transition-all duration-250;
+    --style: 'text-#999  active:(scale-105)';
 
     &:hover {
       --style: 'bg-#f5f5f3 dark:(bg-#00000029 text-#ffffff)';
