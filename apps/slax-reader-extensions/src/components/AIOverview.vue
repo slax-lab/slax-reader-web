@@ -365,7 +365,8 @@ const resizeHandler = (_: HTMLDivElement, size: DOMRectReadOnly) => {
       --style: mt-24px w-full flex flex-col;
 
       .row {
-        --style: 'w-full h-16px rounded-1 animate-pulse not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
+        --style: w-full h-16px rounded-1 animate-pulse;
+        --style: 'not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
       }
     }
   }

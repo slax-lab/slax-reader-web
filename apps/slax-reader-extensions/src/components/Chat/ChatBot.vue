@@ -819,7 +819,8 @@ defineExpose({
   --style: w-full h-full bg-#262626FF flex flex-col justify-stretch items-center overflow-hidden z-3;
 
   .chat-header {
-    --style: 'flex-1 w-full pt-20px px-16px flex justify-center items-center relative h-54px pb-10px dark:(h-70px pb-25px)';
+    --style: flex-1 w-full pt-20px px-16px flex justify-center items-center relative;
+    --style: 'h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
       --style: flex flex-col items-center select-none;
@@ -835,7 +836,8 @@ defineExpose({
   }
 
   .messages-container {
-    --style: 'relative flex-1 w-full h-full px-4px overflow-hidden dark:pt-15px';
+    --style: relative flex-1 w-full h-full px-4px overflow-hidden;
+    --style: 'dark:pt-15px';
 
     &::before,
     &::after {

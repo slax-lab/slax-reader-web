@@ -452,7 +452,8 @@ defineExpose({
 @use '#layers/core/styles/global.scss' as *;
 
 .article-selection-comment {
-  --style: 'w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a] bg-#f5f5f3 dark:bg-#262626';
+  --style: w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
+  --style: 'bg-#f5f5f3 dark:bg-#262626';
 
   .draggable {
     --style: absolute top-0 left-0 w-full h-20px cursor-grab z-0;
@@ -461,7 +462,8 @@ defineExpose({
   .header {
     --style: relative text-align-center min-h-11px;
     span {
-      --style: 'text-(16px) line-height-16px font-600 text-#333 dark:text-#ffffff66';
+      --style: text-(16px) line-height-16px font-600;
+      --style: 'text-#333 dark:text-#ffffff66';
     }
 
     .close {
@@ -473,7 +475,8 @@ defineExpose({
   }
 
   .menus {
-    --style: 'mt-22px p-4px rounded-8px flex items-center bg-#fcfcfc dark:bg-#333333';
+    --style: mt-22px p-4px rounded-8px flex items-center;
+    --style: 'bg-#fcfcfc dark:bg-#333333';
 
     .menu {
       --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-250';
@@ -487,7 +490,8 @@ defineExpose({
       }
 
       span {
-        --style: 'mt-6px text-(13px) line-height-18px text-#999 dark:text-#ffffff66';
+        --style: mt-6px text-(13px) line-height-18px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
   }
@@ -495,14 +499,17 @@ defineExpose({
   .comment-input {
     --style: mt-10px max-h-300px overflow-hidden;
     .comment-input-wrapper {
-      --style: 'pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between bg-#fff border-#ecf0f5 dark:(bg-#1a1a1aff border-#1a1a1aff)';
+      --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between;
+      --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1a1a1aff border-#1a1a1aff)';
 
       textarea {
-        --style: 'resize-none min-h-40px max-h-200px text-(16px) line-height-24px bg-transparent text-#333 dark:text-#ffffffcc';
+        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px bg-transparent;
+        --style: 'text-#333 dark:text-#ffffffcc';
 
         &::placeholder,
         &::-webkit-input-placeholder {
-          --style: 'text-(16px) line-height-24px text-#999 dark:text-#ffffff66';
+          --style: text-(16px) line-height-24px;
+          --style: 'text-#999 dark:text-#ffffff66';
         }
       }
 
@@ -539,7 +546,8 @@ defineExpose({
 
       &::before,
       &::after {
-        --style: 'z-2 content-empty absolute h-6px w-full left-0 to-transprent from-#F5F5F3 dark:from-#262626';
+        --style: z-2 content-empty absolute h-6px w-full left-0 to-transprent;
+        --style: 'from-#F5F5F3 dark:from-#262626';
       }
 
       &::before {

@@ -144,13 +144,16 @@ const sendMessage = () => {
 .article-comment-input {
   --style: max-h-300px overflow-hidden;
   .comment-input-wrapper {
-    --style: 'p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between bg-#fff border-#ecf0f5 dark:(bg-#1A1A1AFF border-#1a1a1aff)';
+    --style: p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between;
+    --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1A1A1AFF border-#1a1a1aff)';
     textarea {
-      --style: 'resize-none min-h-20px max-h-200px text-(14px #333) line-height-20px flex-1 bg-transparent text-#333 dark:text-#ffffffcc';
+      --style: resize-none min-h-20px max-h-200px text-(14px #333) line-height-20px flex-1 bg-transparent;
+      --style: 'text-#333 dark:text-#ffffffcc';
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: 'text-(14px) line-height-20px text-#999 dark:text-#ffffff66';
+        --style: text-(14px) line-height-20px;
+        --style: 'text-#999 dark:text-#ffffff66';
       }
     }
 

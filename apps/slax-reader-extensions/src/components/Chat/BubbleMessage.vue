@@ -413,7 +413,8 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full select-none;
 
     .bookmarks-title {
-      --style: 'text-(12px) line-height-17px mb-8px text-#999 dark:text-#999999ff';
+      --style: text-(12px) line-height-17px mb-8px;
+      --style: 'text-#999 dark:text-#999999ff';
     }
 
     .bookmarks-content {

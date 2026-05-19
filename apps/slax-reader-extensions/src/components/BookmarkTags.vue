@@ -354,7 +354,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
     }
 
     .tag {
-      --style: 'relative flex-center flex-wrap border-(1px solid) rounded-4px h-24px py-2px px-4px transition-all duration-250 mb-10px max-w-250px whitespace-nowrap border-#e4d6ba dark:border-#e4d6ba3d';
+      --style: relative flex-center flex-wrap border-(1px solid) rounded-4px h-24px py-2px px-4px transition-all duration-250 mb-10px max-w-250px whitespace-nowrap;
+      --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
 
       // &.group:hover { // 暂时让关闭按钮永久显示
       &.group {
@@ -372,7 +373,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
       button {
         --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-250 active:scale-110 opacity-100';
         .seperator {
-          --style: 'absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px bg-#0f141914 dark:bg-#FFFFFF1F';
+          --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px;
+          --style: 'bg-#0f141914 dark:bg-#FFFFFF1F';
         }
 
         img {
@@ -401,7 +403,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
       }
 
       .search-list {
-        --style: 'absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #a28d643d) shadow-[0px_40px_80px_0px_#00000052] px-12px py-16px z-10 select-none bg-#fff dark:(bg-#141414)';
+        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #a28d643d) shadow-[0px_40px_80px_0px_#00000052] px-12px py-16px z-10 select-none;
+        --style: 'bg-#fff dark:(bg-#141414)';
 
         &:focus {
           --style: border-(1.5px #e4d6ba66) text-#A28D64;
@@ -412,7 +415,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
         }
 
         .search-wrapper {
-          --style: 'select-none border-(1px solid) flex items-center rounded-6px h-36px transition-all duration-300 border-#3333330d dark:(border-#FFFFFF14)';
+          --style: select-none border-(1px solid) flex items-center rounded-6px h-36px transition-all duration-300;
+          --style: ' border-#3333330d dark:(border-#FFFFFF14)';
 
           &.focus {
             --style: border-(#e4d6ba99);
@@ -423,7 +427,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
           }
 
           input {
-            --style: 'ml-8px bg-transparent border-none text-(13px) line-height-18px w-full h-full text-#999 dark:(text-#A28D64)';
+            --style: ml-8px bg-transparent border-none text-(13px) line-height-18px w-full h-full;
+            --style: 'text-#999 dark:(text-#A28D64)';
 
             &:placeholder-shown {
               text-overflow: ellipsis;
@@ -440,7 +445,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
           --style: mt-16px overflow-y-scroll relative;
           &::before,
           &::after {
-            --style: 'z-2 content-empty absolute h-4px w-full left-0 to-transprent from-#fff dark:(from-#141414)';
+            --style: z-2 content-empty absolute h-4px w-full left-0 to-transprent;
+            --style: 'from-#fff dark:(from-#141414)';
           }
 
           &::before {
@@ -455,7 +461,8 @@ const tagsHandler = (tags: BookmarkTag[]) => {
         .result-wrapper,
         .create-wrapper {
           .search-tag {
-            --style: 'border-none rounded-6px p-10px flex items-center justify-between cursor-pointer transition-all duration-250 whitespace-nowrap select-none border-#e4d6ba dark:border-#e4d6ba3d';
+            --style: border-none rounded-6px p-10px flex items-center justify-between cursor-pointer transition-all duration-250 whitespace-nowrap select-none;
+            --style: 'border-#e4d6ba dark:border-#e4d6ba3d';
 
             .tag-icon {
               --style: size-16px object-contain;

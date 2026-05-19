@@ -149,7 +149,8 @@ const feedbackClick = () => {
 }
 
 .sidecontent-wrapper {
-  --style: 'w-0 h-full bg-#262626 z-2 max-md:(absolute right-0) md:(relative)';
+  --style: w-0 h-full bg-#262626 z-2;
+  --style: 'max-md:(absolute right-0) md:(relative)';
 
   .drag {
     --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;

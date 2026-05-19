@@ -391,20 +391,23 @@ defineExpose({
 
 <style lang="scss" scoped>
 .mark-mind-map {
-  --style: 'relative w-full h-full bg-#f5f5f3 dark:bg-#262626';
+  --style: relative w-full h-full;
+  --style: 'bg-#f5f5f3 dark:bg-#262626';
 
   .mind-svg {
     --style: absolute w-full h-full top-0 left-0;
 
     &:deep(.markmap-foreign) {
-      --style: 'font-400 text-12px line-height-20px text-#333 dark:text-#ffffffcc';
+      --style: font-400 text-12px line-height-20px;
+      --style: 'text-#333 dark:text-#ffffffcc';
       & > div {
         --style: flex items-center;
       }
     }
 
     &:deep(.slax_link) {
-      --style: 'ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounded-3px transition-colors duration-150 !decoration-none !bg-#16b9981f !text-#333 dark:!bg-#16b9981f dark:!text-#ffffffcc';
+      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounded-3px transition-colors duration-150;
+      --style: '!decoration-none !bg-#16b9981f !text-#333 dark:!bg-#16b9981f dark:!text-#ffffffcc';
 
       &:hover {
         --style: '!bg-#475467 !text-#fff';
@@ -418,11 +421,13 @@ defineExpose({
     .item {
       --style: 'cursor-pointer relative w-20px h-20px p-12px transition-transform duration-200 ease-in-out not-first:ml-5 hover:scale-110';
       .icon-bg {
-        --style: 'absolute top-0 left-0 filter-blur-10 w-full h-full bg-#f5f5f3 dark:bg-transparent';
+        --style: absolute top-0 left-0 filter-blur-10 w-full h-full;
+        --style: 'bg-#f5f5f3 dark:bg-transparent';
       }
 
       svg {
-        --style: 'absolute top-0 left-0 w-full h-full z-1 transform-colors duration-200 hover:text-emerald stroke-#333 dark:stroke-#ffffffe6';
+        --style: absolute top-0 left-0 w-full h-full z-1 transform-colors duration-200;
+        --style: 'hover:text-emerald stroke-#333 dark:stroke-#ffffffe6';
         div {
           --style: w-full h-full;
         }

@@ -788,14 +788,16 @@ defineExpose({
 
 <style lang="scss" scoped>
 .chat-bot {
-  --style: 'w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4 bg-#fcfcfc dark:bg-#262626';
+  --style: w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4;
+  --style: 'bg-#fcfcfc dark:bg-#262626';
 
   .dark-trigger {
     --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
   }
 
   .chat-header {
-    --style: 'w-full pt-20px px-16px flex justify-between items-center relative h-54px pb-10px dark:(h-70px pb-25px)';
+    --style: w-full pt-20px px-16px flex justify-between items-center relative;
+    --style: 'h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
       --style: flex items-center select-none;
@@ -818,7 +820,8 @@ defineExpose({
 
     &:before,
     &:after {
-      --style: 'content-empty absolute left-16px right-16px h-1px bg-transparent dark:bg-#FFFFFF0F';
+      --style: content-empty absolute left-16px right-16px h-1px;
+      --style: 'bg-transparent dark:bg-#FFFFFF0F';
     }
 
     &:before {
@@ -831,11 +834,13 @@ defineExpose({
   }
 
   .messages-container {
-    --style: 'relative flex-1 w-full h-full px-4px overflow-hidden dark:pt-15px';
+    --style: relative flex-1 w-full h-full px-4px overflow-hidden;
+    --style: 'dark:pt-15px';
 
     &::before,
     &::after {
-      --style: 'z-2 content-empty absolute h-10px w-full left-0 to-transprent from-#fcfcfc dark:from-#262626';
+      --style: z-2 content-empty absolute h-10px w-full left-0 to-transprent;
+      --style: 'from-#fcfcfc dark:from-#262626';
     }
 
     &::before {
@@ -871,10 +876,12 @@ defineExpose({
   .bottom-container {
     --style: w-full;
     .quote-container {
-      --style: 'px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid) border-t-#ecf0f5 dark:border-t-#ffffff0f';
+      --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid);
+      --style: 'border-t-#ecf0f5 dark:border-t-#ffffff0f';
 
       .quote {
-        --style: 'pl-8px border-l-(2px solid) line-clamp-2 text-15px break-all border-l-#0f141914 text-#0f141999 dark:border-l-#ffffff14 dark:(text-#ffffff66)';
+        --style: pl-8px border-l-(2px solid) line-clamp-2 text-15px break-all;
+        --style: 'border-l-#0f141914 text-#0f141999 dark:border-l-#ffffff14 dark:(text-#ffffff66)';
 
         i.img {
           --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -898,17 +905,20 @@ defineExpose({
     }
 
     .input-container {
-      --style: 'w-full p-12px rounded-1 overflow-hidden dark:bg-#262626FF';
+      --style: w-full p-12px rounded-1 overflow-hidden;
+      --style: 'dark:bg-#262626FF';
 
       .textarea-wrapper {
-        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250 border-#ecf0f5 dark:(border-#1f1f1fff bg-#1f1f1fff)';
+        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250;
+        --style: 'border-#ecf0f5 dark:(border-#1f1f1fff bg-#1f1f1fff)';
 
         &.focus {
           --style: border-(1px solid #16b99899);
         }
 
         textarea {
-          --style: 'w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent text-#333 dark:text-#ffffffe6';
+          --style: w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent;
+          --style: 'text-#333 dark:text-#ffffffe6';
 
           &::placeholder,
           &::-webkit-input-placeholder {
