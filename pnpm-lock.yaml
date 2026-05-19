@@ -17100,7 +17100,7 @@ snapshots:
       '@unocss/reset': 66.6.8
       '@unocss/vite': 66.6.8(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
       '@unocss/webpack': 66.6.8(webpack@5.98.0(esbuild@0.28.0)(lightningcss@1.32.0)(postcss@8.5.14))
-      unocss: 66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8(webpack@5.98.0(esbuild@0.28.0)(lightningcss@1.32.0)(postcss@8.5.14)))(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
+      unocss: 66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8)(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -17776,7 +17776,7 @@ snapshots:
     dependencies:
       defu: 6.1.4
       fast-glob: 3.3.3
-      unocss: 66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8(webpack@5.98.0(esbuild@0.28.0)(lightningcss@1.32.0)(postcss@8.5.14)))(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
+      unocss: 66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8)(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
       wxt: 0.20.26(@types/node@25.9.0)(eslint@10.3.0(jiti@2.7.0))(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0)
 
   '@xtuc/ieee754@1.2.0': {}
@@ -24783,7 +24783,7 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss@66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8(webpack@5.98.0(esbuild@0.28.0)(lightningcss@1.32.0)(postcss@8.5.14)))(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0)):
+  unocss@66.6.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@unocss/webpack@66.6.8)(vite@7.3.3(@types/node@25.9.0)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0)):
     dependencies:
       '@unocss/cli': 66.6.8
       '@unocss/core': 66.6.8
