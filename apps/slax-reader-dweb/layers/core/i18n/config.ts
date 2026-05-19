@@ -1,5 +1,5 @@
-const en = require('./locales/en.json')
-const zh = require('./locales/zh.json')
+import en from './locales/en.json'
+import zh from './locales/zh.json'
 
 export const getI18nLang = () => {
   return {
