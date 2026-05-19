@@ -43,7 +43,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   }
 
   const showAnalyzed = () => {
-    if (!loginVerify()) {
+    if (!loginVerify() || checkSubscriptionExpired()) {
       return
     }
 
