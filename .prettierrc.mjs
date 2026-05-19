@@ -13,10 +13,6 @@ export default {
   singleQuote: true,
   //末尾逗号
   trailingComma: 'none',
-  //在 windows 操作系统中换行符通常是回车 (CR) 加换行分隔符 (LF)，也就是回车换行(CRLF)，
-  //然而在 Linux 和 Unix 中只使用简单的换行分隔符 (LF)。
-  //对应的控制字符为 "\n" (LF) 和 "\r\n"(CRLF)。auto意为保持现有的行尾
-  endOfLine: 'auto',
   // 对象中打印空格 默认true
   // true: { foo: bar }
   // false: {foo: bar}

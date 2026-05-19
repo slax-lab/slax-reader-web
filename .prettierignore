@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.nuxt
+.wxt
+.wrangler
+.output
+.cache
+public
+pnpm-lock.yaml
+*.min.js
+*.min.css
+coverage
+.husky/_
+graphify-out
+.claude

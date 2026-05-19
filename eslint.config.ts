@@ -38,7 +38,7 @@ const config: Linter.Config[] = [
       }
     }
   },
-  ...vueScopedCss.configs['flat/recommended'].map((c: Linter.Config) => ({ ...c, files: ['**/*.vue'] })),
+  ...(vueScopedCss.configs['flat/recommended'] as Linter.Config[]).map(c => ({ ...c, files: ['**/*.vue'] })),
   ...(vue.configs['flat/essential'] as Linter.Config[]),
   {
     files: ['**/*.ts', '**/*.tsx'],
