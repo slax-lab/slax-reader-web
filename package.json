@@ -14,6 +14,8 @@
     "build:extensions": "pnpm --F @apps/slax-reader-extensions run build",
     "build:extensions:zip": "pnpm --F @apps/slax-reader-extensions run zip",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "inspect:deps": "node-modules-inspector"
   },
   "keywords": [],
@@ -64,7 +66,7 @@
     "colorette": "^2.0.20",
     "dotenv": "^17.4.2",
     "eslint": "^10.3.0",
-    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-vue": "^10.9.1",
     "eslint-plugin-vue-scoped-css": "^3.1.0",

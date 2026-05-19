@@ -1,7 +1,6 @@
 import type { Linter } from 'eslint'
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
-import prettierRecommend from 'eslint-plugin-prettier/recommended'
 import prettierConfig from 'eslint-config-prettier'
 
 const config: Linter.Config[] = [
@@ -9,7 +8,6 @@ const config: Linter.Config[] = [
   eslint.configs.recommended,
   ...(tseslint.configs.recommended as Linter.Config[]),
   prettierConfig,
-  prettierRecommend,
   {
     files: ['**/*.ts'],
     languageOptions: {
