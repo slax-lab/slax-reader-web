@@ -1,6 +1,5 @@
 import type { Linter } from 'eslint'
 import tseslint from 'typescript-eslint'
-import prettierRecommend from 'eslint-plugin-prettier/recommended'
 import vueScopedCss from 'eslint-plugin-vue-scoped-css'
 import vueParser from 'vue-eslint-parser'
 import typescriptParser from '@typescript-eslint/parser'
@@ -57,19 +56,9 @@ const config: Linter.Config[] = [
       '@typescript-eslint/no-explicit-any': 'warn'
     }
   },
-  prettierRecommend,
   {
     rules: {
       camelcase: ['error', { properties: 'never' }],
-      'prettier/prettier': [
-        'error',
-        {
-          css: 'true',
-          fileInfoOptions: {
-            withNodeModules: true
-          }
-        }
-      ],
       'vue/multi-word-component-names': 'off'
     }
   },

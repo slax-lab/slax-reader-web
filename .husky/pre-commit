@@ -1,1 +1,2 @@
+pnpm run format:check
 pnpm run lint
