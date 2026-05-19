@@ -58,6 +58,7 @@
     "@vue/test-utils": "^2.4.10",
     "@vueuse/nuxt": "^14.3.0",
     "consola": "^3.4.2",
+    "happy-dom": "^20.9.0",
     "nitro-cloudflare-dev": "^0.2.2",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.6",

@@ -34,17 +34,7 @@ export default defineNuxtConfig({
 
   srcDir: 'src/',
 
-  modules: [
-    '@nuxtjs/turnstile',
-    'nuxt-og-image',
-    'nuxt-schema-org',
-    '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
-    'nuxt-site-config',
-    '@vite-pwa/nuxt',
-    '@nuxt/test-utils/module',
-    '@nuxt/scripts'
-  ],
+  modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/scripts'],
 
   future: {
     compatibilityVersion: 4
