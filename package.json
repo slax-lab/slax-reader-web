@@ -76,6 +76,7 @@
     "execa": "^9.6.1",
     "husky": "^9.1.7",
     "inquirer": "^13.4.3",
+    "jiti": "^2.7.0",
     "node-modules-inspector": "^2.0.1",
     "prettier": "^3.8.3",
     "terser": "^5.47.1",

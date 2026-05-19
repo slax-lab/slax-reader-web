@@ -1,3 +1,4 @@
+import type { Linter } from 'eslint'
 import tseslint from 'typescript-eslint'
 import prettierRecommend from 'eslint-plugin-prettier/recommended'
 import vueScopedCss from 'eslint-plugin-vue-scoped-css'
@@ -6,7 +7,7 @@ import typescriptParser from '@typescript-eslint/parser'
 import prettierConfig from 'eslint-config-prettier'
 import vue from 'eslint-plugin-vue'
 
-export default [
+const config: Linter.Config[] = [
   {
     ignores: [
       '**/node_modules/**',
@@ -21,8 +22,8 @@ export default [
       '**/public/**',
       '.claude/',
       '.github/',
-      '**/eslint.config.mjs',
-      'commons/types/eslint.config.mjs'
+      '**/eslint.config.ts',
+      'commons/types/eslint.config.ts'
     ]
   },
   {
@@ -37,8 +38,8 @@ export default [
       }
     }
   },
-  ...vueScopedCss.configs['flat/recommended'].map(c => ({ ...c, files: ['**/*.vue'] })),
-  ...vue.configs['flat/essential'],
+  ...vueScopedCss.configs['flat/recommended'].map((c: Linter.Config) => ({ ...c, files: ['**/*.vue'] })),
+  ...(vue.configs['flat/essential'] as Linter.Config[]),
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
@@ -51,7 +52,7 @@ export default [
       '@typescript-eslint': tseslint.plugin
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
+      ...(tseslint.configs.recommended as unknown as { rules?: Linter.RulesRecord }).rules,
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn'
     }
@@ -74,3 +75,5 @@ export default [
   },
   prettierConfig
 ]
+
+export default config
