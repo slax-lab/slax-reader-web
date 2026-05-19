@@ -11,7 +11,7 @@ const route = useRoute()
 const lang = route.params.lang as 'zh' | 'en'
 await useI18n().setLocale(lang)
 
-const $config = useNuxtApp().$config.public
+const $config = useRuntimeConfig().public
 const hreflangs = [
   { hreflang: 'zh-CN', lang: 'zh' },
   { hreflang: 'zh-HK', lang: 'zh' },

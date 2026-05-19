@@ -25,7 +25,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isFromHomepage = homepagePaths.includes(from.path)
 
   const ignoreAuth = isToHomepage || isToAuthWhiteList
-  const needAuth = get ? !get(useNuxtApp().$config.public.COOKIE_TOKEN_NAME) : true
+  const needAuth = get ? !get(useRuntimeConfig().public.COOKIE_TOKEN_NAME) : true
 
   if (needAuth) {
     if (!ignoreAuth) {

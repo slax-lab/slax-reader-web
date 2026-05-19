@@ -82,7 +82,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 
-const $config = useNuxtApp().$config.public
+const $config = useRuntimeConfig().public
 
 const publishTime = computed(() => {
   const now = new Date()

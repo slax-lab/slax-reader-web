@@ -106,7 +106,7 @@ const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
 
-const config = useNuxtApp().$config.public
+const config = useRuntimeConfig().public
 const detailLayout = ref<InstanceType<typeof DetailLayout>>()
 const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
 const botSidebar = ref<InstanceType<typeof SidebarLayout>>()

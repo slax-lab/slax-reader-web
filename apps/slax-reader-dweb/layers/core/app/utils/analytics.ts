@@ -40,7 +40,7 @@ export const firebaseAnalyticsLog = (params: WebAnalyticsEvent) => {
 
   try {
     if (!analytics) {
-      const $config = useNuxtApp().$config.public
+      const $config = useRuntimeConfig().public
       const initialConfig = {
         apiKey: `${$config.FIREBASE_API_KEY || ''}`,
         authDomain: `${$config.FIREBASE_AUTH_DOMAIN || ''}`,

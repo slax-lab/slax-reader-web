@@ -75,7 +75,7 @@ const props = defineProps({
   }
 })
 
-const $config = useNuxtApp().$config.public
+const $config = useRuntimeConfig().public
 
 const t = (text: string) => {
   return useNuxtApp().$i18n.t(text)
