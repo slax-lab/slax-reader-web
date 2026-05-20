@@ -35,5 +35,12 @@ export const dwebEnvSchema = baseEnvSchema.extend({
     FIREBASE_APP_ID: z.string().optional(),
     FIREBASE_MEASUREMENT_ID: z.string().optional()
   },
+  ...{
+    // Stripe 相关配置
+    STRIPE_ONCE_PRICE_ID: z.string().startsWith('price_').optional(),
+    STRIPE_SUB_PRICE_ID: z.string().startsWith('price_').optional(),
+    STRIPE_ONTIME_PRICE_ID: z.string().startsWith('price_').optional(),
+    STRIPE_PUBLIC_KEY: z.string().startsWith('pk_').optional()
+  },
   GTM_CONTAINER_ID: z.string().optional()
 })
