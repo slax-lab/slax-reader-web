@@ -3,7 +3,6 @@ import pkg from './package.json'
 import replace from '@rollup/plugin-replace'
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 
 const env = getEnv()
 const isDev = env === 'development'
@@ -16,9 +15,6 @@ const envConfig = getDWebConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url))
-  },
 
   app: {
     head: {
@@ -31,8 +27,6 @@ export default defineNuxtConfig({
       ]
     }
   },
-
-  srcDir: 'src/',
 
   modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/scripts'],
 
@@ -300,7 +294,7 @@ export default defineNuxtConfig({
     'build:before': () => {
       console.log('build:before, copy liveproxy-sw file...')
       const swSource = path.resolve(__dirname, 'node_modules/@slax-lab/liveproxy-sw/dist/liveproxy-sw.js')
-      const swDest = path.resolve(__dirname, 'src/public/liveproxy-sw.js')
+      const swDest = path.resolve(__dirname, 'public/liveproxy-sw.js')
       fs.copyFileSync(swSource, swDest)
     }
   },
