@@ -7,14 +7,14 @@
           <span>{{ $t('page.bookmarks_detail.chat') }}</span>
         </button>
       </div>
-    </div>
-    <div class="panel-wrapper">
       <div class="item ai-expanded" v-if="canShowPanelButton(BookmarkPanelType.AI)">
         <button @click="buttonClick(BookmarkPanelType.AI)">
           <img src="@images/panel-item-ai.png" alt="" />
           <span>{{ $t('page.bookmarks_detail.ai_analyze') }}</span>
         </button>
       </div>
+    </div>
+    <div class="panel-wrapper">
       <div class="item" v-if="canShowPanelButton(BookmarkPanelType.ARCHIVE)">
         <button @click="buttonClick(BookmarkPanelType.ARCHIVE)">
           <img src="@images/panel-item-archive.png" alt="" />
