@@ -5,7 +5,8 @@ export enum BookmarkParseStatus {
   PENDING_RETRY = 'pending_retry',
   PARSEING = 'parseing',
   RETRYING = 'retrying',
-  SUCCESS = 'success'
+  SUCCESS = 'success',
+  UPDATING = 'updating'
 }
 
 export interface MarkDetail {
