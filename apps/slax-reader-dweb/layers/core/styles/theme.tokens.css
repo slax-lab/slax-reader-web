@@ -1,0 +1,124 @@
+/* Slax Reader Design Tokens（仅 :root + [data-slax-theme] 变量块）
+ *
+ * 安全注入范围：dweb 主站 + iframe 文章预览 + 可选 CE shadow
+ *   - 所有变量名使用 --slax-* 私有前缀，避开公网原网页（含 daisyUI / Tailwind dark mode 等）的命名空间冲突
+ *   - 不含任何 html / body / * 全局规则；全局兜底与 E-ink 通配禁用在配套的 theme.css 中
+ */
+
+/* Light（日间，默认） */
+:root {
+  /* 颜色 - 基础 */
+  --slax-bg: #faf8f2;
+  --slax-surface: rgba(255, 251, 244, 0.7);
+  --slax-surface-solid: #fffbf4;
+  --slax-topbar-bg: rgba(250, 248, 242, 0.75);
+
+  /* 颜色 - 文本 */
+  --slax-text: #1a1814;
+  --slax-text-muted: #6a5f52;
+  --slax-text-light: #9a8e7f;
+  --slax-btn-text: #faf8f2;
+
+  /* 颜色 - 强调 */
+  --slax-accent: #b45837;
+  --slax-accent-soft: #e4b894;
+  --slax-accent-bg: rgba(180, 88, 55, 0.06);
+
+  /* 颜色 - 功能 */
+  --slax-danger: #c44;
+  --slax-danger-bg: rgba(204, 68, 68, 0.06);
+  --slax-selection: rgba(180, 88, 55, 0.15);
+  --slax-border: rgba(26, 24, 20, 0.08);
+
+  /* 阴影 */
+  --slax-shadow-warm: 0 8px 32px rgba(180, 88, 55, 0.08);
+  --slax-shadow-sm: 0 2px 8px rgba(180, 88, 55, 0.05);
+
+  /* 渐变氛围 */
+  --slax-grad-a: #fff4e0;
+  --slax-grad-b: #f4e4d4;
+  --slax-grad-c: #f8efe4;
+
+  /* 浮层细节 */
+  --slax-inset-hi: rgba(255, 255, 255, 0.6);
+
+  /* 圆角 */
+  --slax-radius: 14px;
+  --slax-radius-sm: 10px;
+
+  /* 布局 */
+  --slax-sidebar-w: 240px;
+  --slax-shell-w: 1200px;
+  --slax-content-w: 820px;
+  --slax-header-height: 44px;
+
+  /* 字体 */
+  --slax-font-sans: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --slax-font-serif: 'Playfair Display', 'Noto Serif SC', serif;
+  --slax-font-mono: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Dark（夜间） */
+[data-slax-theme='dark'] {
+  --slax-bg: #141210;
+  --slax-surface: rgba(30, 27, 24, 0.75);
+  --slax-surface-solid: #1e1b18;
+  --slax-topbar-bg: rgba(20, 18, 16, 0.8);
+
+  --slax-text: #e8e2d8;
+  --slax-text-muted: #9a8e7f;
+  --slax-text-light: #6a5f52;
+  --slax-btn-text: #141210;
+
+  --slax-accent: #d4764f;
+  --slax-accent-soft: #7a4a30;
+  --slax-accent-bg: rgba(212, 118, 79, 0.08);
+
+  --slax-danger: #e07070;
+  --slax-danger-bg: rgba(224, 112, 112, 0.1);
+  --slax-selection: rgba(212, 118, 79, 0.2);
+  --slax-border: rgba(255, 251, 244, 0.08);
+
+  --slax-shadow-warm: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --slax-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  --slax-grad-a: #1e1810;
+  --slax-grad-b: #1a1612;
+  --slax-grad-c: #181410;
+
+  --slax-inset-hi: rgba(255, 255, 255, 0.04);
+}
+
+/* E-ink（墨水屏，仅 token；通配禁用与 View Transition 禁用见 theme.css，仅作用主站） */
+[data-slax-theme='eink'] {
+  --slax-bg: #ffffff;
+  --slax-surface: #ffffff;
+  --slax-surface-solid: #ffffff;
+  --slax-topbar-bg: #ffffff;
+
+  --slax-text: #000000;
+  --slax-text-muted: #333333;
+  --slax-text-light: #666666;
+  --slax-btn-text: #ffffff;
+
+  --slax-accent: #000000;
+  --slax-accent-soft: #666666;
+  --slax-accent-bg: #f0f0f0;
+
+  --slax-danger: #444444;
+  --slax-danger-bg: #eeeeee;
+  --slax-selection: #dddddd;
+  --slax-border: #cccccc;
+
+  --slax-shadow-warm: none;
+  --slax-shadow-sm: none;
+
+  --slax-grad-a: transparent;
+  --slax-grad-b: transparent;
+  --slax-grad-c: transparent;
+
+  --slax-inset-hi: none;
+
+  --slax-radius: 4px;
+  --slax-radius-sm: 2px;
+}
