@@ -231,7 +231,7 @@ const fetchServerData = async () => {
 const renderServerData = async () => {
   try {
     isServer &&
-      defineOgImageComponent('Share', {
+      defineOgImage('Share', {
         title: `${detail.value?.title || ''}`
       })
 

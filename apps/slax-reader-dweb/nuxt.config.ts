@@ -71,7 +71,32 @@ export default defineNuxtConfig({
           sourcemap: false,
           minify: 'esbuild'
         },
-    esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined
+    esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined,
+    optimizeDeps: {
+      include: [
+        'ua-parser-js',
+        'dompurify',
+        'highlight.js',
+        'markdown-it',
+        'markdown-it/lib/token.mjs',
+        '@vscode/markdown-it-katex',
+        'markdown-it-link-attributes',
+        'zod',
+        'approx-string-match',
+        'dom-anchor-text-position',
+        'easy-dom2img',
+        'markmap-common',
+        'markmap-lib',
+        'markmap-view',
+        'jszip'
+      ]
+    }
+  },
+  content: {
+    database: {
+      type: 'd1',
+      bindingName: 'DB'
+    }
   },
   nitro: {
     publicAssets: [
