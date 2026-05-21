@@ -334,7 +334,7 @@ defineExpose({
   --style: relative -mb-10px;
 
   .title {
-    --style: text-(24px #0f1419) font-semibold line-height-36px line-clamp-2;
+    --style: text-24px text-txt font-semibold line-height-36px line-clamp-2;
   }
 
   .desc {
@@ -348,15 +348,15 @@ defineExpose({
       }
     }
     .text {
-      --style: 'text-(14px #999999 ellipsis) line-height-20px not-first:ml-10px shrink-0 overflow-hidden max-w-200px whitespace-nowrap';
+      --style: 'text-(14px txt-light ellipsis) line-height-20px not-first:ml-10px shrink-0 overflow-hidden max-w-200px whitespace-nowrap';
     }
 
     .seperator {
-      --style: 'mx-8px w-1px h-10px bg-#d6d6d6 flex-shrink-0';
+      --style: 'mx-8px w-1px h-10px bg-border flex-shrink-0';
     }
 
     button {
-      --style: 'text-(14px #999999 ellipsis) line-height-20px hover:(underline underline-#999999) shrink-1 overflow-hidden whitespace-nowrap';
+      --style: 'text-(14px txt-light ellipsis) line-height-20px hover:(underline underline-txt-light) shrink-1 overflow-hidden whitespace-nowrap';
     }
   }
 
@@ -402,7 +402,8 @@ defineExpose({
 
         &::after {
           content: '···';
-          --style: absolute h-25px w-25px px-0px rounded-full bg-#f6af69ee -right-5px -top-5px line-height-25px text-(#fff 15px align-center) transition-transform duration-250;
+          --style: absolute h-25px w-25px px-0px rounded-full bg-#f6af69ee -right-5px -top-5px line-height-25px text-txt-btn text-15px text-align-center transition-transform
+            duration-250;
         }
 
         slax-mark {
@@ -420,8 +421,9 @@ defineExpose({
   }
 
   .end {
-    --style: text-(12px #999999) select-none py-60px flex-center;
+    --style: text-(12px txt-light) select-none py-60px flex-center;
     .line {
+      // #a8b1cd3d 是带蓝调的半透明分隔线，与 token border（黑色 8% 透明）质感不同，保留
       --style: w-36px h-1px bg-#a8b1cd3d;
     }
 
