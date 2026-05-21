@@ -92,7 +92,7 @@ const logoClick = () => {
   }
 
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
 
     .header-container {
       --style: flex items-center;
@@ -122,7 +122,7 @@ const logoClick = () => {
   }
 
   .content {
-    --style: w-full pt-[var(--header-height)] pb-68px;
+    --style: w-full pt-[var(--slax-header-height)] pb-68px;
     .guide-container {
       --style: pt-40px;
 

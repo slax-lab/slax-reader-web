@@ -69,8 +69,8 @@ defineExpose({
   }
 
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
-    --md-height: calc(100vh - var(--header-height));
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --md-height: calc(100vh - var(--slax-header-height));
     .left {
       --style: h-full flex-1 flex flex-row-reverse items-center relative;
 
@@ -119,7 +119,7 @@ defineExpose({
     }
 
     .left {
-      --style: 'pt-[var(--header-height)] flex-1 min-w-200px max-md:(w-full pl-0 pb-[var(--header-height)])';
+      --style: 'pt-[var(--slax-header-height)] flex-1 min-w-200px max-md:(w-full pl-0 pb-[var(--slax-header-height)])';
     }
 
     .list {
