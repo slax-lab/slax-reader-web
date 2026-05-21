@@ -49,6 +49,7 @@
   "devDependencies": {
     "@nuxt/scripts": "^1.1.0",
     "@nuxt/test-utils": "^4.0.3",
+    "@nuxtjs/color-mode": "^4.0.0",
     "@pinia/nuxt": "^0.11.3",
     "@rollup/plugin-replace": "^6.0.3",
     "@slax-lab/liveproxy-sw": "1.0.3-dev.1",

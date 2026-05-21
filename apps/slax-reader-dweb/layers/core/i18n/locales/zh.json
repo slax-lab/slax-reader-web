@@ -1,5 +1,11 @@
 {
   "common": {
+    "theme": {
+      "light": "日间",
+      "dark": "夜间",
+      "eink": "墨水屏",
+      "system": "跟随系统"
+    },
     "app": {
       "name": "Slax Reader",
       "seo_title": "Slax Reader: Read Smarter, Save Forever. Your AI read-it-later app for deep insights.",
