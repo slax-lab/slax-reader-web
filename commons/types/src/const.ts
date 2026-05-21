@@ -71,37 +71,15 @@ enum RESTMethodPath {
   COLLECT_UNSUBSCRIBE = '/v1/collection/unsubscribe',
   COLLECT_DELETE_SUBSCRIBE = '/v1/collection/delete_subscribe',
   COLLECT_SUBSCRIBED_LIST = '/v1/collection/subscribed_list',
-  COLLECT_BOOKMARK_DETAIL = '/v1/collection/bookmark',
-  SUBSCRIBE_REDEEM = '/v1/subscription/redeem',
-  RECEIVE_SUBSCRIBE = '/v1/subscription/receive',
-  GET_TABS_CONFIG = '/v1/user/setting/tabs_config',
-  USER_API_KEYS = '/v1/user/api_keys',
-  USER_API_KEY_ROLL = '/v1/user/roll',
-  IMPORT_FAILURE_LIST = '/v1/bookmark/import_failed',
-  IMPORT_FAILURE_DELETE = '/v1/bookmark/import/batch_delete',
-  PROMOTION_BLOGGER_INFO = '/v1/promotion/blogger_info',
-  PROMOTION_CHECK_RECEIVE = '/v1/promotion/check_receive',
-  PROMOTION_RECEIVE = '/v1/promotion/receive',
-  USER_INAPP_PURCHASE = '/v1/subscription/user_inapp_purchase',
-  CREATE_INAPP_PURCHASE = '/v1/subscription/create_inapp_purchase',
-  DASHBOARD_ACCESS = '/m/dashboard',
-  DASHBOARD_METRICS_OVERALL = '/m/dashboard/metrics_overall',
-  DASHBOARD_METRICS_PLATFORM = '/m/dashboard/metrics_platform',
-  DASHBOARD_METRICS_DAILY = '/m/dashboard/metrics_daily',
-  DASHBOARD_METRIC = '/m'
+  COLLECT_BOOKMARK_DETAIL = '/v1/collection/bookmark'
 }
-
-export type MetricActionType = 'heartbeat' | 'ai_overview' | 'ai_summary'
 
 enum LocalStorageKey {
   USER_TOKEN = 'local:token',
   ANALYTICS_ENABLED = 'local:analytics-enabled',
   USER_INFO = 'local:user_info',
   SIDE_BAR_TIPS = 'local:side_bar_tips',
-  TABS_CONFIG_COLLECTION_EXISTS = 'local:tabs_config_collection_exists',
-  TABS_CONFIG_HIGHLIGHT_EXISTS = 'local:tabs_config_highlight_exists',
-  LOCAL_CONFIG = 'local:local_config',
-  LAST_METRIC_TRACK_TIME = 'local:last_metric_track_time'
+  LOCAL_CONFIG = 'local:local_config'
 }
 
 export { RESTMethodPath, StatusCode, LocalStorageKey }

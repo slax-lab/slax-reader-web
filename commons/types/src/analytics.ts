@@ -186,17 +186,6 @@ export interface HomepageClaimFreeTrialEvent {
   referral_code?: string
 }
 
-// ==================== 订阅相关埋点 ====================
-
-/**
- * 访问订阅页面
- * 上报渠道：Web
- */
-export interface SubscriptionViewEvent {
-  event: 'subscription_view'
-  presentation: 'dialog' | 'screen'
-}
-
 // ==================== 联合类型 ====================
 
 /**
@@ -227,8 +216,6 @@ export type AnalyticsEvent =
   | HomepageViewEvent
   | HomepageDownloadEvent
   | HomepageClaimFreeTrialEvent
-  // 订阅相关
-  | SubscriptionViewEvent
 
 /**
  * Web 端埋点事件类型
@@ -252,7 +239,6 @@ export type WebAnalyticsEvent =
   | HomepageViewEvent
   | HomepageDownloadEvent
   | HomepageClaimFreeTrialEvent
-  | SubscriptionViewEvent
 
 /**
  * Extension 端埋点事件类型
