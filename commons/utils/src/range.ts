@@ -93,7 +93,7 @@ export class HighlightRange {
     const matches = search(variable1, variable2, maxErrors)
     if (matches.length === 0) return null
 
-    const bestMatch = matches.reduce((best, current) => (current.errors < best.errors ? current : best), matches[0])
+    const bestMatch = matches.reduce((best, current) => (current.errors < best.errors ? current : best), matches[0]!)
     return bestMatch
   }
 
@@ -144,7 +144,7 @@ export class HighlightRange {
       }
     })
 
-    const bestMatch = rankedMatches.reduce((best, current) => (current.totalScore > best.totalScore ? current : best), rankedMatches[0])
+    const bestMatch = rankedMatches.reduce((best, current) => (current.totalScore > best.totalScore ? current : best), rankedMatches[0]!)
 
     // discard matches with too low a score
     if (bestMatch.totalScore > 0.3) return this.createReangFromMatch(bestMatch.start, bestMatch.end)
@@ -203,7 +203,7 @@ export class HighlightRange {
       return aLengthDiff - bLengthDiff
     })
 
-    return this.createReangFromMatch(matches[0].start, matches[0].end)
+    return this.createReangFromMatch(matches[0]!.start, matches[0]!.end)
   }
 
   public getSelector(range: Range): HighlightRangeInfo {

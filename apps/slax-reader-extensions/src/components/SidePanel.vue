@@ -426,7 +426,7 @@ const loadSelection = async () => {
         }
         return bookmarkId.value
       }),
-      refFactory: ref, // 使用 Vue 的 ref 作为工厂函数
+      refFactory: <T,>(value: T) => ref(value) as Ref<T>, // 使用 Vue 的 ref 作为工厂函数
       getMarkType: (type: 'comment' | 'reply' | 'line') => {
         // Extensions 端总是返回 ORIGIN 类型
         if (type === 'comment') {

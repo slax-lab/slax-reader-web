@@ -116,7 +116,7 @@ onUnmounted(() => {})
 <style lang="scss" scoped>
 .article-selection-menus {
   --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center;
-  --style: ' bg-#fff dark:bg-#262626';
+  --style: 'bg-#fff dark:bg-#262626';
 
   .menu {
     --style: px-12px py-8px rounded-6px whitespace-nowrap cursor-pointer flex items-center transition-all duration-250;

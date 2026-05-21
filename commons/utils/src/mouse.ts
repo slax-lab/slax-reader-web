@@ -62,6 +62,7 @@ export class MouseTrack {
     }
 
     const touch = event.touches[0]
+    if (!touch) return
     this.mousePos.x = touch.clientX
     this.mousePos.y = touch.clientY
 

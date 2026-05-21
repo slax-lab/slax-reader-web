@@ -1,3 +1,4 @@
+/// <reference path="./types/dom-anchor-text-position.d.ts" />
 import search from 'approx-string-match'
 import { toRange } from 'dom-anchor-text-position'
 
@@ -45,15 +46,15 @@ export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true
         const matches = search(text, normalizedText, maxErrors)
         if (matches.length > 0) {
           matches.sort((a, b) => a.errors - b.errors)
-          const bestMatchInElement = matches[0]
+          const bestMatchInElement = matches[0]!
 
           if (
             !result.candidate ||
             bestMatchInElement.errors < result.candidate.errors ||
             (bestMatchInElement.errors === result.candidate.errors && content.length <= result.candidate.length)
           ) {
-            const rawStart = ranges[bestMatchInElement.start].start
-            const rawEnd = ranges[bestMatchInElement.end - 1].end
+            const rawStart = ranges[bestMatchInElement.start]!.start
+            const rawEnd = ranges[bestMatchInElement.end - 1]!.end
 
             result.candidate = {
               element,
@@ -146,13 +147,13 @@ export const extractMarkdownNodes = (modelResponse: string) => {
     if (!root) {
       const rMatch = rootPatt.exec(line)
       if (rMatch) {
-        root = rMatch[1]
+        root = rMatch[1]!
         return
       }
     }
     const loMatch = levelOnePatt.exec(line)
     if (loMatch) {
-      levelOneNode = loMatch[1]
+      levelOneNode = loMatch[1]!
       const edge: [string, string] = [root, levelOneNode]
       // 使用 JSON.stringify 来比较两个数组（边）是否相等
       if (!resList.some(e => JSON.stringify(e) === JSON.stringify(edge))) {
@@ -162,7 +163,7 @@ export const extractMarkdownNodes = (modelResponse: string) => {
     }
     const ltMatch = levelTwoPatt.exec(line)
     if (ltMatch) {
-      const edge: [string, string] = [levelOneNode, ltMatch[1]]
+      const edge: [string, string] = [levelOneNode, ltMatch[1]!]
       if (!resList.some(e => JSON.stringify(e) === JSON.stringify(edge))) {
         resList.push(edge)
       }
@@ -181,7 +182,7 @@ export const queryMarkdownAnchorQuote = (markdown: string) => {
     result.push({
       index: matches.index,
       anchorNum: encodeURIComponent(String(matches[1])),
-      text: matches[2],
+      text: matches[2] ?? '',
       anchorText: matches[0]
     })
   }
@@ -198,7 +199,7 @@ export const querySimularMarkdownAnchorQuote = (markdown: string) => {
     result.push({
       index: matches.index,
       anchorNum: encodeURIComponent(String(matches[1])),
-      text: matches[2],
+      text: matches[2] ?? '',
       anchorText: matches[0]
     })
   }

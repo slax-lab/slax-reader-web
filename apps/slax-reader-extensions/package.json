@@ -1,6 +1,6 @@
 {
   "name": "@apps/slax-reader-extensions",
-  "version": "1.13.4",
+  "version": "1.13.5",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -17,23 +17,23 @@
     "update:utils": "pnpm install @commons/utils"
   },
   "dependencies": {
-    "@slax-reader/selection": "workspace:*",
     "@slax-lab/readability": "^0.6.3",
-    "@wxt-dev/analytics": "^0.5.1",
-    "@wxt-dev/i18n": "^0.2.4",
-    "@wxt-dev/storage": "^1.2.0",
+    "@slax-reader/selection": "workspace:*",
+    "@wxt-dev/analytics": "^0.5.4",
+    "@wxt-dev/i18n": "^0.2.5",
+    "@wxt-dev/storage": "^1.2.8",
     "md5": "^2.3.0"
   },
   "devDependencies": {
-    "@types/chrome": "^0.1.12",
-    "@types/md5": "^2.3.5",
+    "@types/chrome": "^0.1.42",
+    "@types/md5": "^2.3.6",
     "@wxt-dev/module-vue": "^1.0.3",
     "@wxt-dev/unocss": "^1.0.1",
-    "sass": "^1.93.2",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.7",
-    "vue-tsc": "^3.0.8",
-    "wxt": "^0.20.9"
+    "sass": "^1.99.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13",
+    "vue-tsc": "^3.3.1",
+    "wxt": "^0.20.26"
   },
   "keywords": [],
   "author": "",

@@ -1,5 +1,3 @@
-import type { PluginOption } from 'vite'
-
 function strToUtf8(str: string) {
   return str
     .split('')
@@ -7,7 +5,9 @@ function strToUtf8(str: string) {
     .join('')
 }
 
-export default function toUtf8(): PluginOption {
+// wxt 内部锁的 vite 版本可能与 extensions 自身 vite 版本不一致，
+// 不导入 vite.PluginOption 类型，仅提供运行时形状以避免跨实例类型不兼容
+export default function toUtf8() {
   return {
     name: 'to-utf8',
     generateBundle(options: any, bundle: any) {

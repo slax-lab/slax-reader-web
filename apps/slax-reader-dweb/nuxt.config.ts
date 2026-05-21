@@ -3,7 +3,6 @@ import pkg from './package.json'
 import replace from '@rollup/plugin-replace'
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 
 const env = getEnv()
 const isDev = env === 'development'
@@ -16,9 +15,6 @@ const envConfig = getDWebConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url))
-  },
 
   app: {
     head: {
@@ -32,27 +28,33 @@ export default defineNuxtConfig({
     }
   },
 
-  srcDir: 'src/',
+  modules: ['@nuxtjs/turnstile', 'nuxt-og-image', 'nuxt-schema-org', '@nuxtjs/robots', '@nuxtjs/sitemap', 'nuxt-site-config', '@vite-pwa/nuxt', '@nuxt/scripts'],
 
-  modules: [
-    '@nuxtjs/turnstile',
-    'nuxt-og-image',
-    'nuxt-schema-org',
-    '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
-    'nuxt-site-config',
-    '@vite-pwa/nuxt',
-    '@nuxt/test-utils/module',
-    '@nuxt/scripts'
-  ],
   future: {
-    compatibilityVersion: 3
+    compatibilityVersion: 4
   },
 
   runtimeConfig: {
     public: {
       ...envConfig,
       appVersion: pkg.version
+    }
+  },
+
+  // workaround for @unocss/nuxt v66 with Nuxt 4: 模块内的 cssnano 配置覆盖只检查 Nuxt 3
+  // 详见 https://github.com/unocss/unocss/issues/<TODO> 及对应 PR
+  postcss: {
+    plugins: {
+      cssnano: {
+        preset: [
+          'default',
+          {
+            mergeRules: false,
+            normalizeWhitespace: false,
+            discardComments: false
+          }
+        ]
+      }
     }
   },
 
@@ -67,23 +69,34 @@ export default defineNuxtConfig({
       : {
           // Enabling sourcemaps with Vue during development is known to cause problems with Vue
           sourcemap: false,
-          minify: 'terser',
-          terserOptions: {
-            maxWorkers: 5,
-            mangle: true,
-            compress: isPreview
-              ? undefined
-              : {
-                  drop_console: true,
-                  drop_debugger: true
-                },
-            output: {
-              beautify: true,
-              comments: false,
-              ascii_only: true
-            }
-          }
-        }
+          minify: 'esbuild'
+        },
+    esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined,
+    optimizeDeps: {
+      include: [
+        'ua-parser-js',
+        'dompurify',
+        'highlight.js',
+        'markdown-it',
+        'markdown-it/lib/token.mjs',
+        '@vscode/markdown-it-katex',
+        'markdown-it-link-attributes',
+        'zod',
+        'approx-string-match',
+        'dom-anchor-text-position',
+        'easy-dom2img',
+        'markmap-common',
+        'markmap-lib',
+        'markmap-view',
+        'jszip'
+      ]
+    }
+  },
+  content: {
+    database: {
+      type: 'd1',
+      bindingName: 'DB'
+    }
   },
   nitro: {
     publicAssets: [
@@ -144,7 +157,7 @@ export default defineNuxtConfig({
     cloudflare: {
       pages: {
         routes: {
-          include: ['/s/*', '/__og-image__/image/*']
+          include: ['/s/*', '/_og/d/*', '/_og/r/*']
         }
       }
     }
@@ -153,7 +166,6 @@ export default defineNuxtConfig({
     siteKey: `${envConfig.TURNSTILE_SITE_KEY || ''}`
   },
   experimental: {
-    payloadExtraction: false,
     sharedPrerenderData: false
   },
   robots: {
@@ -169,7 +181,7 @@ export default defineNuxtConfig({
   site: {
     enabled: true,
     indexable: !isDev,
-    url: envConfig.PUBLIC_BASE_URL,
+    url: envConfig.PUBLIC_BASE_URL as string,
     name: 'Slax Reader: Read Smarter, Save Forever'
   },
   sitemap: {
@@ -227,14 +239,7 @@ export default defineNuxtConfig({
   },
   ogImage: {
     enabled: true,
-    fonts: [
-      { name: 'PingFang SC Regular', weight: 400, path: '../../layers/core/public/fonts/pingfang-sc-regular.woff' },
-      {
-        name: 'source-serif-pro-400-normal',
-        weight: 400,
-        path: '../../layers/core/public/fonts/source-serif-pro-400-normal.woff'
-      }
-    ]
+    fontSubsets: ['latin', 'chinese-simplified']
   },
   pwa: {
     mode: !isDev ? 'production' : 'development',
@@ -314,7 +319,7 @@ export default defineNuxtConfig({
     'build:before': () => {
       console.log('build:before, copy liveproxy-sw file...')
       const swSource = path.resolve(__dirname, 'node_modules/@slax-lab/liveproxy-sw/dist/liveproxy-sw.js')
-      const swDest = path.resolve(__dirname, 'src/public/liveproxy-sw.js')
+      const swDest = path.resolve(__dirname, 'public/liveproxy-sw.js')
       fs.copyFileSync(swSource, swDest)
     }
   },

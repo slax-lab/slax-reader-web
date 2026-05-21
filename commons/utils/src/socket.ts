@@ -171,7 +171,7 @@ class SlaxWebSocket {
    * @param data 要发送的数据
    * @returns 是否发送成功
    */
-  public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): boolean {
+  public send(data: string | ArrayBuffer | Blob | ArrayBufferView<ArrayBuffer>): boolean {
     if (this.ws && this.ws.readyState === WebSocketState.OPEN) {
       this.ws.send(data)
       return true

@@ -1,5 +1,5 @@
 /* 模仿vueuse实现的useDraggable,增加对iframe的兼容 */
-import { ref, onMounted, onUnmounted, Ref } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref } from 'vue'
 import { getElementOwnerWindow } from './dom'
 
 export interface Position {
@@ -29,8 +29,8 @@ export const useDraggable = (target: Ref<HTMLElement | undefined>, options: UseD
 
     isDragging.value = true
 
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
+    const clientX = 'touches' in event ? (event.touches[0]?.clientX ?? 0) : event.clientX
+    const clientY = 'touches' in event ? (event.touches[0]?.clientY ?? 0) : event.clientY
 
     offset = {
       x: clientX - position.value.x,
@@ -49,8 +49,8 @@ export const useDraggable = (target: Ref<HTMLElement | undefined>, options: UseD
   const handleDragMove = (event: MouseEvent | TouchEvent) => {
     if (!isDragging.value || !target.value) return
 
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
+    const clientX = 'touches' in event ? (event.touches[0]?.clientX ?? 0) : event.clientX
+    const clientY = 'touches' in event ? (event.touches[0]?.clientY ?? 0) : event.clientY
 
     let newX = clientX - offset.x
     let newY = clientY - offset.y

@@ -31,12 +31,12 @@ export default defineNuxtConfig({
   },
   alias: {
     '@': fileURLToPath(new URL('./', import.meta.url)),
-    '@images': join(currentDir, './assets/images')
+    '@images': join(currentDir, './app/assets/images')
   },
   components: {
     dirs: [
       {
-        path: join(currentDir, './components/global'),
+        path: join(currentDir, './app/components/global'),
         global: true
       }
     ]

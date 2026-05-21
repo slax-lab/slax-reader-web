@@ -1,7 +1,7 @@
 import { isFunction, isPromise } from './is'
 
 export class RequestError extends Error {
-  name: string
+  override name: string
   code: number
 
   constructor(params: { message: string; name: string; code: number }) {
@@ -16,10 +16,6 @@ export enum RequestMethodType {
   post = 'post',
   put = 'put',
   delete = 'delete'
-}
-
-declare global {
-  const $fetch: typeof fetch
 }
 
 // fetch请求配置

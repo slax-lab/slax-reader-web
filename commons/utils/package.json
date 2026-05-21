@@ -31,9 +31,9 @@
   "license": "ISC",
   "dependencies": {
     "approx-string-match": "^2.0.0",
-    "axios": "^1.7.9",
+    "axios": "^1.16.1",
     "dom-anchor-text-position": "^5.0.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.18.1"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12"
