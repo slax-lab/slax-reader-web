@@ -272,7 +272,7 @@ const compositionend = () => {
         }
 
         .seperator {
-          --style: w-1px h-14px bg-#0f141914 shrink-0;
+          --style: w-1px h-14px bg-border shrink-0;
         }
 
         button {
@@ -342,7 +342,7 @@ const compositionend = () => {
       }
 
       span {
-        --style: ml-14px text-(#333 16px) line-height-20px font-500;
+        --style: ml-14px text-(txt 16px) line-height-20px font-500;
       }
     }
   }

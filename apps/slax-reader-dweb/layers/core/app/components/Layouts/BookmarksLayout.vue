@@ -69,7 +69,7 @@ defineExpose({
   }
 
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-surface';
     --md-height: calc(100vh - var(--slax-header-height));
     .left {
       --style: h-full flex-1 flex flex-row-reverse items-center relative;
@@ -89,12 +89,14 @@ defineExpose({
           }
 
           .title {
+            // #16b998 当前品牌绿 logo 文字色，保留
             --style: font-semibold text-(#16b998 15px) line-height-21px;
           }
         }
       }
 
       .inbox {
+        // 移动端 from-#FAFAF9 to-#fcfcfc 渐变是浅米白专属过渡，与 surface token 调性不同，保留
         --style: 'w-180p max-md:(p-0 left-0 w-vw bg-gradient-to-b from-#FAFAF9 to-#fcfcfc) md:(right-0 pl-44px pr-16px pt-18px min-w-200px h-[var(--md-height)] flex flex-col justify-between) absolute top-full z-1';
       }
     }
@@ -112,7 +114,7 @@ defineExpose({
   }
 
   .content {
-    --style: 'w-full flex justify-center max-md:(flex-col) md:(flex-row) bg-#fcfcfc';
+    --style: 'w-full flex justify-center max-md:(flex-col) md:(flex-row) bg-surface-solid';
 
     .blank {
       --style: ' w-200px';

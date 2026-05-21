@@ -540,27 +540,28 @@ const starBookmark = async (isStar: boolean) => {
 
     .cell-content {
       .seperator {
-        --style: w-1px h-10px bg-#99999952;
+        --style: w-1px h-10px bg-border;
       }
 
       .cell-header {
-        --style: flex items-center overflow-hidden text-ellipsis overflow-hidden whitespace-nowrap flex-nowrap text-#0f1419;
+        --style: flex items-center overflow-hidden text-ellipsis overflow-hidden whitespace-nowrap flex-nowrap text-txt;
         .title {
-          --style: relative text-(14px #0f1419 ellipsis) line-height-22px overflow-hidden;
+          --style: relative text-(14px txt ellipsis) line-height-22px overflow-hidden;
 
           &.stroking {
             &:before {
-              --style: content-empty absolute top-1/2 left-0 w-full h-1px bg-#0f1419 animate-fade-in-left animate-ease-in-out animate-duration-500;
+              --style: content-empty absolute top-1/2 left-0 w-full h-1px bg-txt animate-fade-in-left animate-ease-in-out animate-duration-500;
             }
           }
         }
 
         input {
-          --style: border-(1px solid #a8b1cd) text-(14px #0f1419) line-height-20px px-4px w-auto min-w-160px max-w-500px;
+          // #a8b1cd 浅蓝灰为输入边框辅助色，不属于 token 色板，保留
+          --style: border-(1px solid #a8b1cd) text-(14px txt) line-height-20px px-4px w-auto min-w-160px max-w-500px;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(12px #999999);
+            --style: text-(12px txt-light);
           }
         }
 
@@ -586,7 +587,7 @@ const starBookmark = async (isStar: boolean) => {
         --style: flex items-center mt-2px line-height-17px;
 
         & > * {
-          --style: text-(12px #999999);
+          --style: text-(12px txt-light);
         }
 
         .seperator {
@@ -598,12 +599,12 @@ const starBookmark = async (isStar: boolean) => {
         }
 
         .edit {
-          --style: 'text-(12px #999999) hover:(text-#333333)';
+          --style: 'text-(12px txt-light) hover:(text-txt)';
         }
 
         .archieve {
           &.hover {
-            --style: text-#333;
+            --style: text-txt;
           }
         }
 
@@ -622,15 +623,16 @@ const starBookmark = async (isStar: boolean) => {
           --style: 'flex-shrink-0';
 
           &.hover {
+            // #FF6838 是删除按钮 hover 警示橙色，比 token --slax-danger（红色 #c44）更偏橙暖，保留
             --style: text-#FF6838;
           }
         }
 
         .revert {
-          --style: ml-20px text-(12px #999999);
+          --style: ml-20px text-(12px txt-light);
 
           &.hover {
-            --style: text-#333;
+            --style: text-txt;
           }
         }
       }

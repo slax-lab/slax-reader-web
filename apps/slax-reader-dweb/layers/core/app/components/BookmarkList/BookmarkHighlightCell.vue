@@ -84,11 +84,11 @@ const jumpToOriginal = (item: HighlightItem) => {
 
 <style lang="scss" scoped>
 .bookmark-item {
-  --style: 'bg-#F5F5F3 rounded-8px py-16px px-24px select-none not-first:(mt-10px)';
+  --style: 'bg-surface rounded-8px py-16px px-24px select-none not-first:(mt-10px)';
 
   .article-header {
     .article-title {
-      --style: text-(12px #999) line-height-17px;
+      --style: text-(12px txt-light) line-height-17px;
     }
   }
 
@@ -98,15 +98,16 @@ const jumpToOriginal = (item: HighlightItem) => {
       .content {
         --style: flex flex-col justify-start items-start;
         .cell-title {
-          --style: inline-block text-(14px #0f1419 truncate) line-height-22px font-500 max-w-full;
+          --style: inline-block text-(14px txt truncate) line-height-22px font-500 max-w-full;
         }
 
         .stroke {
+          // #f6af69 是 mark 系列划线色（与 mark.css 同源），保留
           --style: pb-2px border-b-(1.5px solid #f6af69);
         }
 
         .quote-content {
-          --style: pl-8px w-full text-(14px #999 ellipsis) line-height-22px border-l-(2px solid #d6d6d6) overflow-hidden whitespace-nowrap;
+          --style: pl-8px w-full text-(14px txt-light ellipsis) line-height-22px border-l-(2px solid border) overflow-hidden whitespace-nowrap;
 
           &.deleted {
             --style: pl-0 border-0 line-through;
@@ -127,10 +128,11 @@ const jumpToOriginal = (item: HighlightItem) => {
     }
 
     span {
-      --style: ml-4px text-(14px #333 ellipsis) line-height-22px overflow-hidden whitespace-nowrap;
+      --style: ml-4px text-(14px txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap;
     }
 
     .source {
+      // #5490C2 是来源链接的蓝色辅助色，保留
       --style: 'max-md:(hidden) shrink-0 text-#5490C2 ml-auto pl-10px';
     }
   }

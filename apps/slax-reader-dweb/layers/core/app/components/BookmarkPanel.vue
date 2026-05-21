@@ -80,7 +80,8 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
       --style: border-#E9C596 pt-20px;
 
       &:before {
-        --style: absolute top-0 left-0 w-full h-20px bg-#E9C596 flex-center font-600 text-(12px #fff);
+        // #E9C596 是 Pro 标签的金黄底色，与 tags 金黄系列同源，保留
+        --style: absolute top-0 left-0 w-full h-20px bg-#E9C596 flex-center font-600 text-(12px txt-btn);
         content: 'Pro';
       }
     }
@@ -95,13 +96,13 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
       }
 
       button {
-        --style: 'w-full py-15px rounded-2 flex flex-col items-center justify-center hover:(bg-#f5f5f3) transition-all duration-250 active:(scale-110)';
+        --style: 'w-full py-15px rounded-2 flex flex-col items-center justify-center hover:(bg-surface) transition-all duration-250 active:(scale-110)';
         img {
           --style: w-6 h-6;
         }
 
         span {
-          --style: mt-4px text-(10px #999999) line-height-14px text-align-center;
+          --style: mt-4px text-(10px txt-light) line-height-14px text-align-center;
         }
       }
     }
@@ -110,7 +111,8 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
   .feedback-wrapper {
     --style: mt-35px w-68px flex-center;
     button {
-      --style: 'rounded-full bg-#FCFCFC w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-#f5f5f3) active:(scale-110) transition-all duration-250';
+      // #a8b1cd14 蓝灰辅助边框、#00000014 浮动按钮阴影：保留
+      --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-250';
       box-shadow: 0px 15px 30px 0px #00000014;
 
       img {

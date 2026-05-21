@@ -245,7 +245,7 @@ const addingTagClick = (e: MouseEvent) => {
       button {
         --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-250 active:scale-110 opacity-100';
         .seperator {
-          --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px bg-#0f141914;
+          --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px bg-border;
         }
 
         img {
@@ -269,11 +269,11 @@ const addingTagClick = (e: MouseEvent) => {
       }
 
       .search-list {
-        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid #3333330d) shadow-[0px_20px_60px_0px_#0000000a] bg-#fff px-12px py-16px pb-12px
-          z-10;
+        --style: absolute top-full -mt-2px w-260px rounded-8px overflow-hidden border-(1px solid border) shadow-warm bg-surface-solid px-12px py-16px pb-12px z-10;
 
         input {
-          --style: rounded-6px bg-#fcfcfc border-(1px solid #3333330d) px-10px py-9px h-36px text-(13px #999) line-height-18px w-full transition-all duration-300;
+          // bg-#fcfcfc 浮层内输入框的浅灰白，与 tags 金黄系搭配协调，保留
+          --style: rounded-6px bg-#fcfcfc border-(1px solid border) px-10px py-9px h-36px text-(13px txt-light) line-height-18px w-full transition-all duration-300;
 
           &:focus {
             --style: border-(1.5px #f4c982) text-#A28D64;
@@ -284,7 +284,7 @@ const addingTagClick = (e: MouseEvent) => {
           --style: mt-12px overflow-y-scroll relative;
           &::before,
           &::after {
-            --style: z-2 content-empty absolute h-4px w-full left-0 from-#fff to-transprent;
+            --style: z-2 content-empty absolute h-4px w-full left-0 from-surface-solid to-transprent;
           }
 
           &::before {

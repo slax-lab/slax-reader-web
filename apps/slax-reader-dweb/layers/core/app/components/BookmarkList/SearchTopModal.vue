@@ -65,12 +65,13 @@ const closeModal = () => {
 <style lang="scss" scoped>
 .bookmark-list-top-modals {
   --modal-height: 170px;
+  // shadow-[0px_30px_60px_0px_#00000014] 为该 modal 专属下投阴影规格，保留
   --style: 'absolute top-full left-0 right-0 h-[var(--modal-height)] shadow-[0px_30px_60px_0px_#00000014] rounded-b-8px overflow-hidden max-md:(fixed top-104px left-0 w-full)';
   .search-modal {
-    --style: 'absolute bottom-0 left-0 w-full h-[var(--modal-height)] bg-#fff pt-24px pb-48px px-54px ';
+    --style: 'absolute bottom-0 left-0 w-full h-[var(--modal-height)] bg-surface-solid pt-24px pb-48px px-54px ';
 
     .title {
-      --style: text-(18px #333) line-height-25px font-bold;
+      --style: text-(18px txt) line-height-25px font-bold;
     }
 
     .input-bar-wrapper {
