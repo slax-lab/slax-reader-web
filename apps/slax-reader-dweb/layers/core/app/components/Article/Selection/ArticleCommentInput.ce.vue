@@ -141,19 +141,20 @@ const sendMessage = () => {
 <style lang="scss" scoped>
 @use '#layers/core/styles/global.scss' as *;
 
+// 本组件消费的 token（无 dark prop）：
+//   --slax-surface-solid, --slax-text, --slax-text-light
+// 其余 (#ecf0f5 浅蓝灰输入框边框辅助色) 保留。
 .article-comment-input {
   --style: max-h-300px overflow-hidden;
   .comment-input-wrapper {
-    --style: p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between;
-    --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1A1A1AFF border-#1a1a1aff)';
+    --style: p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between bg-surface-solid border-#ecf0f5;
+
     textarea {
-      --style: resize-none min-h-20px max-h-200px text-(14px #333) line-height-20px flex-1 bg-transparent;
-      --style: 'text-#333 dark:text-#ffffffcc';
+      --style: resize-none min-h-20px max-h-200px text-(14px txt) line-height-20px flex-1 bg-transparent;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(14px) line-height-20px;
-        --style: 'text-#999 dark:text-#ffffff66';
+        --style: text-(14px) line-height-20px text-txt-light;
       }
     }
 

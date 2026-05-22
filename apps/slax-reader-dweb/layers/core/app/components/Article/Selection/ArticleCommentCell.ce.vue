@@ -7,7 +7,7 @@
           <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
         </div>
         <div class="right">
-          <div class="i-svg-spinners:180-ring-with-bg size-16px text-18px text-#999" v-if="!comment.markUid || comment.loading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light size-16px text-18px" v-if="!comment.markUid || comment.loading"></div>
         </div>
       </div>
       <div class="comment-content">{{ comment.isDeleted ? t('component.article_selection.comment_deleted') : comment.comment }}</div>
@@ -25,7 +25,7 @@
               @click="commentDeleteClick(comment)"
             ></button>
           </template>
-          <div class="i-svg-spinners:180-ring-with-bg ml-10px text-16px text-#999" v-else-if="comment.operateLoading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light ml-10px text-16px" v-else-if="comment.operateLoading"></div>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
             <span class="parent-username">{{ childComment.reply?.username || '' }}: </span>
             <span class="comment-content-text">{{ childComment.comment }}</span>
             <div
-              class="i-svg-spinners:180-ring-with-bg ml-5px inline-block h-14px w-14px translate-y-2px text-14px text-#999 line-height-22px"
+              class="i-svg-spinners:180-ring-with-bg text-txt-light ml-5px inline-block h-14px w-14px translate-y-2px text-14px line-height-22px"
               v-if="!childComment.markUid || childComment.loading"
             ></div>
           </div>
@@ -56,7 +56,7 @@
                   @click="commentDeleteClick(childComment)"
                 ></button>
               </template>
-              <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999" v-else-if="childComment.operateLoading"></div>
+              <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-16px" v-else-if="childComment.operateLoading"></div>
             </div>
           </div>
           <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
@@ -152,9 +152,12 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 <style lang="scss" scoped>
 @use '#layers/core/styles/global.scss' as *;
 
+// 本组件消费的 token（无 dark prop，全靠宿主 data-slax-theme 切换）：
+//   --slax-surface-solid, --slax-text, --slax-text-light, --slax-border
+// 其余 (#99999933 蓝灰半透明分隔线) 保留。
+
 .article-comment-cell {
-  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px';
-  --style: 'bg-#fff dark:bg-#333333FF';
+  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px bg-surface-solid';
 
   .comment-header {
     --style: flex justify-between items-center;
@@ -166,8 +169,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       }
 
       span {
-        --style: ml-8px text-(13px) line-height-18px;
-        --style: 'text-#999 dark:text-#ffffff66';
+        --style: ml-8px text-(13px) line-height-18px text-txt-light;
       }
     }
 
@@ -181,16 +183,14 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   }
 
   .comment-content {
-    --style: text-(16px) line-height-24px whitespace-pre-line;
-    --style: 'text-#333 dark:text-#ffffffcc';
+    --style: text-(16px) line-height-24px whitespace-pre-line text-txt;
   }
 
   .comment-footer {
     --style: mt-4px flex items-center justify-between;
 
     .date {
-      --style: text-(13px) line-height-18px select-none;
-      --style: 'text-#999 dark:text-#999999ff';
+      --style: text-(13px) line-height-18px select-none text-txt-light;
     }
 
     .operates {
@@ -202,6 +202,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   }
 
   .child-comments {
+    // #99999933 蓝灰半透明左竖线，与 token border 调性不完全一致，保留
     --style: mt-16px pl-12px border-l-(2px solid #99999933);
 
     .child-comment {
@@ -212,17 +213,15 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 
         .child-username,
         .parent-username {
-          --style: select-none;
-          --style: 'text-#999 dark:text-#FFFFFF66';
+          --style: select-none text-txt-light;
         }
 
         .reply-text {
-          --style: select-none;
-          --style: 'text-#333 dark:text-#FFFFFFCC';
+          --style: select-none text-txt;
         }
 
         .comment-content-text {
-          --style: 'text-#333 dark:text-#FFFFFFCC';
+          --style: text-txt;
         }
       }
     }

@@ -120,15 +120,18 @@ onUnmounted(() => {})
 <style lang="scss" scoped>
 @use '#layers/core/styles/global.scss' as *;
 
+// 本组件消费的 token（dark prop override 需全覆盖）：
+//   --slax-surface-solid, --slax-surface, --slax-text-light
+// 其余颜色 (#a8b1cd33 蓝灰辅助、#00000029 阴影规格) 保持 inline。
+
 .article-selection-menus {
-  --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center;
-  --style: ' bg-#fff dark:bg-#262626';
+  --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center bg-surface-solid;
 
   .menu {
     --style: 'px-10px py-4px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
 
     &:hover {
-      --style: 'bg-#f5f5f3 dark:bg-#333333FF';
+      --style: bg-surface;
     }
 
     img {
@@ -136,9 +139,17 @@ onUnmounted(() => {})
     }
 
     span {
-      --style: ml-2px text-(13px) line-height-18px shrink-0 whitespace-nowrap;
-      --style: 'text-#999 dark:text-#ffffff66';
+      --style: ml-2px text-(13px) line-height-18px shrink-0 whitespace-nowrap text-txt-light;
     }
   }
+}
+
+// dark prop：iframe 浮层场景强制深色（与全站主题正交，宿主原网页可能浅色也可能深色）。
+// 完整覆盖本组件 scoped 内消费的全部 token；CSS 自定义属性默认 inherit，
+// 子元素 .article-selection-menus 通过 cascade 自动拿到 override。
+.dark {
+  --slax-surface-solid: #1e1b18;
+  --slax-surface: rgba(30, 27, 24, 0.75);
+  --slax-text-light: #6a5f52;
 }
 </style>
