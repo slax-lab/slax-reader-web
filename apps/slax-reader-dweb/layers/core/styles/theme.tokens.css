@@ -36,7 +36,7 @@
 
   /* 渐变氛围 */
   --slax-grad-a: #fff4e0;
-  --slax-grad-b: #f4e4d4;
+  --slax-grad-b: #faecdc;
   --slax-grad-c: #f8efe4;
 
   /* 浮层细节 */
@@ -50,6 +50,8 @@
   --slax-sidebar-w: 240px;
   --slax-shell-w: 1200px;
   --slax-content-w: 820px;
+  --slax-content-min-w: 640px;
+  --slax-side-panel-w: 440px;
   --slax-header-height: 44px;
 
   /* 字体 */
