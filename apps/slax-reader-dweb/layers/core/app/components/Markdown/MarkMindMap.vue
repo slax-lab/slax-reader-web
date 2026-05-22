@@ -404,7 +404,7 @@ defineExpose({
     }
 
     &:deep(.slax_link) {
-      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-tag line-height-16px rounded-3px transition-colors duration-150;
+      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-tag line-height-16px rounded-3px transition-colors duration-fast;
       // bg-#16b9981f 当前品牌绿半透明背景，保留
       --style: '!decoration-none !bg-#16b9981f !text-txt';
 

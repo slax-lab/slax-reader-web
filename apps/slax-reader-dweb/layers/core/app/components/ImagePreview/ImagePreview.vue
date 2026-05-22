@@ -234,7 +234,7 @@ const handleLeave = () => {
   }
 
   .placholder {
-    --style: absolute z-0 object-contain transition-all duration-250 bg-surface;
+    --style: absolute z-0 object-contain transition-all duration-normal bg-surface;
   }
 }
 
@@ -243,7 +243,7 @@ const handleLeave = () => {
 }
 
 .dismiss-enter-active {
-  transition: background-color 0.25s ease-in-out;
+  transition: background-color var(--slax-dur-normal) ease-in-out;
 }
 
 .dismiss-leave-to {
@@ -251,6 +251,6 @@ const handleLeave = () => {
 }
 
 .dismiss-leave-active {
-  transition: opacity 0.25s ease-in-out;
+  transition: opacity var(--slax-dur-normal) ease-in-out;
 }
 </style>

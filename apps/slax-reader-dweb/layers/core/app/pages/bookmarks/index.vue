@@ -643,7 +643,7 @@ const notificationBack = () => {
         // #a8b1cd3d 蓝灰辅助边框（与 BookmarkPanel 同源），保留
         --style: 'mt-24px bg-surface-solid border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
         button {
-          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-surface) transition-all duration-250 active:(scale-105)';
+          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-surface) transition-all duration-normal active:(scale-105)';
           img {
             --style: object-fit w-24px h-24px;
           }
@@ -658,7 +658,7 @@ const notificationBack = () => {
         --style: mt-35px w-68px flex-center;
         button {
           // #a8b1cd14 蓝灰辅助 + #00000014 浮动按钮阴影，保留
-          --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-250';
+          --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-normal';
           box-shadow: 0px 15px 30px 0px #00000014;
 
           img {

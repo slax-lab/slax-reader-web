@@ -112,7 +112,7 @@ const onResizeObserver = (entries: unknown | ReadonlyArray<ResizeObserverEntry>)
       }
 
       .close {
-        --style: 'ml-10px w-16px h-16px flex-center hover:(scale-110 opacity-90) active:(scale-110) transition-all duration-250';
+        --style: 'ml-10px w-16px h-16px flex-center hover:(scale-110 opacity-90) active:(scale-110) transition-all duration-normal';
         .close-img {
           --style: w-full select-none;
         }

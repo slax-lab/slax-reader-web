@@ -74,7 +74,7 @@ const shakeTextarea = () => {
     --style: 'relative w-240px pt-28px px-10px pb-16px bg-gradient-to-b from-#E0FFF1 to-#FCFFFD rounded-8px border-(1px solid #bef6e4) flex flex-col';
 
     .close {
-      --style: 'absolute right-12px top-12px w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'absolute right-12px top-12px w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
       img {
         --style: w-full select-none;
       }
@@ -94,7 +94,7 @@ const shakeTextarea = () => {
 
     .install {
       // bg-#16B998 品牌绿主按钮 + #14A698 hover 暗一档，保留
-      --style: 'mt-24px bg-#16B998 w-full py-7px rounded-6px hover:(bg-#14A698) active:(scale-105) transition-all duration-250';
+      --style: 'mt-24px bg-#16B998 w-full py-7px rounded-6px hover:(bg-#14A698) active:(scale-105) transition-all duration-normal';
       span {
         --style: text-(txt-btn 13px) line-height-16px;
       }

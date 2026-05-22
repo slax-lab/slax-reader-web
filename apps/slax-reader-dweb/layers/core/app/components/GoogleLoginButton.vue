@@ -47,7 +47,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 .google-login-button {
-  --style: 'w-300px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+  --style: 'w-300px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
   & > * {
     --style: 'not-first:ml-8px';
   }

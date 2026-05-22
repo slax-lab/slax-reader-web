@@ -371,7 +371,7 @@ defineExpose({
     }
 
     &:deep(slax-mark) {
-      --style: color-inherit relative transition-colors duration-250;
+      --style: color-inherit relative transition-colors duration-normal;
 
       &.comment {
         --style: 'cursor-pointer';
@@ -406,7 +406,7 @@ defineExpose({
           content: '···';
           // bg-#f6af69ee mark 评论小圆点暖橙底（与 mark 系强调色同源），保留
           --style: absolute h-25px w-25px px-0px rounded-full bg-#f6af69ee -right-5px -top-5px line-height-25px text-txt-btn text-meta text-align-center transition-transform
-            duration-250;
+            duration-normal;
         }
 
         slax-mark {

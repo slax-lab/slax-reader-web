@@ -129,7 +129,7 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 
 <style lang="scss" scoped>
 .feedback-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
     // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
@@ -137,7 +137,7 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 }
 
 button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 }
 
 .modal-content {
@@ -192,7 +192,7 @@ button {
       --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer;
 
       button {
-        --style: shrink-0 border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-250;
+        --style: shrink-0 border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-normal;
 
         &.selected {
           --style: 'bg-center bg-[length:7px_6px] border-1';
@@ -215,7 +215,7 @@ button {
 
     .submit {
       // #16B998 品牌绿（slax 主色）提交按钮底色，保留
-      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-250;
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
 
       &.disabled {
         // #ccc 通用 UI 灰禁用底色，保留
@@ -246,6 +246,6 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

@@ -142,7 +142,7 @@ const handleAnchors = () => {
     }
 
     &:deep(.slax_link) {
-      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-tag rounded-3px transition-colors duration-150;
+      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-tag rounded-3px transition-colors duration-fast;
       // bg-#16b9981f 当前品牌绿淡背景，与列表蓝灰辅助色一同保留
       --style: '!decoration-none bg-#16b9981f text-txt';
     }

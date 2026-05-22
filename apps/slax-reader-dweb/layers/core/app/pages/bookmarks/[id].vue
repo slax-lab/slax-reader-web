@@ -442,7 +442,7 @@ const panelClick = (type: BookmarkPanelType) => {
       --style: relative w-200px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center cursor-auto;
 
       &:not(:has(.archive-loading)) {
-        --style: 'hover:(opacity-90 scale-105) transition-all duration-250 cursor-pointer';
+        --style: 'hover:(opacity-90 scale-105) transition-all duration-normal cursor-pointer';
       }
 
       & > * {

@@ -465,7 +465,7 @@ defineExpose({
     }
 
     .close {
-      --style: 'absolute right-4px top-1/2 -translate-y-1/2 w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'absolute right-4px top-1/2 -translate-y-1/2 w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
       img {
         --style: w-full select-none;
       }
@@ -476,7 +476,7 @@ defineExpose({
     --style: mt-22px p-4px rounded-8px flex items-center bg-surface-solid;
 
     .menu {
-      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-250';
+      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-normal';
 
       &:hover {
         --style: bg-surface;
@@ -508,7 +508,7 @@ defineExpose({
       }
 
       button.send-button {
-        --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-250;
+        --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-normal;
         background-image: url('@images/button-tiny-send.png');
 
         &.disabled {
@@ -582,7 +582,7 @@ textarea.shake {
 
 .input-enter-active,
 .input-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 
 // dark prop：iframe 浮层场景强制深色（与全站主题正交）。
@@ -619,6 +619,6 @@ textarea.shake {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 .article-selection-panel-container {
-  --style: transition-all duration-250;
+  --style: transition-all duration-normal;
 }
 </style>

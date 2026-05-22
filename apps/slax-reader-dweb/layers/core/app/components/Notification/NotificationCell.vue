@@ -136,7 +136,7 @@ const handleClick = (): void => {
 
 <style lang="scss" scoped>
 .notification-cell {
-  --style: 'rounded-8px cursor-pointer transition-all duration-250 !active:(scale-102) select-none';
+  --style: 'rounded-8px cursor-pointer transition-all duration-normal !active:(scale-102) select-none';
 
   &.normal {
     --style: 'bg-surface px-24px py-16px not-first:(mt-10px) hover:(scale-101)';
@@ -221,7 +221,7 @@ const handleClick = (): void => {
       }
 
       button {
-        --style: 'ml-auto px-10px shrink-0 text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'ml-auto px-10px shrink-0 text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-normal';
       }
     }
   }

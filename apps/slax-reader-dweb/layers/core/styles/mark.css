@@ -3,7 +3,7 @@
 slax-mark {
   color: inherit;
   position: relative;
-  transition: color 250ms;
+  transition: color var(--slax-dur-normal);
 }
 
 slax-mark.comment {
@@ -53,7 +53,7 @@ slax-mark:has(img)::after {
   color: #fff;
   font-size: 15px;
   text-align: center;
-  transition: transform 250ms;
+  transition: transform var(--slax-dur-normal);
 }
 
 slax-mark:has(img) slax-mark {

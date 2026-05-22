@@ -154,7 +154,7 @@ const feedbackClick = () => {
   --style: 'max-md:(absolute right-0) md:(relative)';
 
   .drag {
-    --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
+    --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-normal;
 
     &:hover {
       // bg-#ffffff04 暗底拖拽条悬停高光（白色 1.5% 透明），与暗色面板配套，保留
@@ -180,7 +180,7 @@ const feedbackClick = () => {
         }
 
         button {
-          --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+          --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
         }
 
         .close {
@@ -214,7 +214,7 @@ const feedbackClick = () => {
               .icon {
                 --style: relative size-full;
                 img {
-                  --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+                  --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-normal object-contain select-none;
                 }
 
                 .normal {
@@ -274,7 +274,7 @@ const feedbackClick = () => {
       button {
         // bg-#262626 暗色侧栏按钮底（与 web-sidebar 同源），保留
         --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
-          transition-max-width duration-250;
+          transition-max-width duration-normal;
 
         .icon-wrapper {
           --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
@@ -282,7 +282,7 @@ const feedbackClick = () => {
           .icon {
             --style: relative size-36px;
             img {
-              --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+              --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-normal object-contain select-none;
             }
 
             .normal {
@@ -328,6 +328,6 @@ const feedbackClick = () => {
 
 .sidecontent-enter-active,
 .sidecontent-leave-active {
-  --style: transition-width duration-250 ease-in-out;
+  --style: transition-width duration-normal ease-in-out;
 }
 </style>

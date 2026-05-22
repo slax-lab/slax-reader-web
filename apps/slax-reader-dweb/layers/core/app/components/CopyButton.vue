@@ -22,7 +22,7 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
   overflow: hidden;
   flex-wrap: nowrap;
   white-space: nowrap;
-  transition: all 0.25s ease-in-out;
+  transition: all var(--slax-dur-normal) ease-in-out;
   height: 40px;
   border-radius: 20px;
   cursor: pointer;
@@ -34,13 +34,13 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.25s ease-in-out;
+    transition: transform var(--slax-dur-normal) ease-in-out;
 
     svg {
       position: relative;
       width: 24px;
       height: 24px;
-      transition: transform 0.25s ease-in-out;
+      transition: transform var(--slax-dur-normal) ease-in-out;
     }
   }
 
@@ -57,7 +57,7 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
     line-height: 20px;
     text-align: right;
     font-style: normal;
-    transition: opacity 0.15s ease-in-out;
+    transition: opacity var(--slax-dur-fast) ease-in-out;
   }
 
   &:hover {

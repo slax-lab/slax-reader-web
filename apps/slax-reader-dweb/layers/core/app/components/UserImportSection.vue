@@ -146,7 +146,7 @@ section {
         }
 
         button.inline {
-          --style: 'text-(meta #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-250 hover:(scale-102) active:(scale-105)';
+          --style: 'text-(meta #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-normal hover:(scale-102) active:(scale-105)';
         }
       }
     }

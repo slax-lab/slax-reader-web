@@ -80,7 +80,7 @@ const closePopup = () => {
     }
 
     i {
-      --style: ml-5px shrink-0 w-16px h-16px bg-contain transition-transform duration-250;
+      --style: ml-5px shrink-0 w-16px h-16px bg-contain transition-transform duration-normal;
     }
   }
 
@@ -109,6 +109,6 @@ const closePopup = () => {
 
 .operates-enter-active,
 .operates-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

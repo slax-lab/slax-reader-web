@@ -286,7 +286,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
         }
 
         button {
-          --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-250;
+          --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-normal;
 
           &.disabled {
             --style: opacity-50 cursor-auto;
@@ -334,6 +334,6 @@ textarea.shake {
 
 .input-enter-active,
 .input-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

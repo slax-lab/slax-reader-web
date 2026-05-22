@@ -397,7 +397,7 @@ const quoteClick = (quote: QuoteData) => {
           --style: hidden;
         }
         .link-content {
-          --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250 not-first:ml-8px bg-surface-solid border-border hover:(bg-surface shadow-sm)';
+          --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-normal not-first:ml-8px bg-surface-solid border-border hover:(bg-surface shadow-sm)';
 
           .title {
             --style: text-(tag) line-height-17px line-clamp-2 text-txt;
@@ -418,10 +418,10 @@ const quoteClick = (quote: QuoteData) => {
       }
 
       .operate {
-        --style: 'absolute right-0 top-0 -translate-y-full flex pb-9px opacity-0 transition-opacity duration-250';
+        --style: 'absolute right-0 top-0 -translate-y-full flex pb-9px opacity-0 transition-opacity duration-normal';
 
         button {
-          --style: w-11px h-10px flex-center rounded-full transition-transform duration-250;
+          --style: w-11px h-10px flex-center rounded-full transition-transform duration-normal;
 
           &:hover {
             --style: scale-105;
@@ -514,7 +514,7 @@ const quoteClick = (quote: QuoteData) => {
         }
 
         i {
-          --style: shrink-0 w-16px h-16px bg-contain transition-transform duration-250 ml-12px;
+          --style: shrink-0 w-16px h-16px bg-contain transition-transform duration-normal ml-12px;
         }
       }
     }
@@ -524,7 +524,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: absolute left-16px bottom-16px flex;
 
     .copy-btn {
-      --style: 'w-16px h-16px flex-center rounded-3px bg-contain active:(scale-110) transition-all duration-250 ease-in-out';
+      --style: 'w-16px h-16px flex-center rounded-3px bg-contain active:(scale-110) transition-all duration-normal ease-in-out';
 
       &:hover {
         --style: scale-105 bg-surface;

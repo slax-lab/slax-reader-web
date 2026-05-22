@@ -63,6 +63,6 @@ const onAfterLeave = () => {
 
 .cursor-toast-enter-active,
 .cursor-toast-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

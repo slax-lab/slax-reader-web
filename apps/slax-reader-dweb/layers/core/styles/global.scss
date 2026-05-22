@@ -76,7 +76,7 @@ button {
 
 .opacity-enter-active,
 .opacity-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 
 // --slax-header-height 已迁入 theme.tokens.css 的 :root；此处不再单独声明

@@ -44,7 +44,7 @@ const buttonClick = () => {
 
   &.clickable {
     // bg-#fafafa 通用浅灰 hover 底色，保留
-    --style: 'transition-all duration-250 hover:(scale-105 bg-#fafafa) active:(scale-110)';
+    --style: 'transition-all duration-normal hover:(scale-105 bg-#fafafa) active:(scale-110)';
   }
 
   .content {

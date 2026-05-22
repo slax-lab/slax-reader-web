@@ -98,7 +98,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
       }
 
       button {
-        --style: 'w-full py-15px rounded-2 flex flex-col items-center justify-center hover:(bg-surface) transition-all duration-250 active:(scale-110)';
+        --style: 'w-full py-15px rounded-2 flex flex-col items-center justify-center hover:(bg-surface) transition-all duration-normal active:(scale-110)';
         img {
           --style: w-6 h-6;
         }
@@ -114,7 +114,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
     --style: mt-35px w-68px flex-center;
     button {
       // #a8b1cd14 蓝灰辅助边框、#00000014 浮动按钮阴影：保留
-      --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-250';
+      --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-normal';
       box-shadow: 0px 15px 30px 0px #00000014;
 
       img {

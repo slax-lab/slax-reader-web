@@ -231,7 +231,7 @@ const addingTagClick = (e: MouseEvent) => {
     }
 
     .tag {
-      --style: relative flex-center flex-wrap border-(1px solid #e4d6ba) rounded-4px h-24px py-2px px-4px transition-all duration-250 mb-10px max-w-250px whitespace-nowrap;
+      --style: relative flex-center flex-wrap border-(1px solid #e4d6ba) rounded-4px h-24px py-2px px-4px transition-all duration-normal mb-10px max-w-250px whitespace-nowrap;
 
       // &.group:hover { // 暂时让关闭按钮永久显示
       &.group {
@@ -243,7 +243,7 @@ const addingTagClick = (e: MouseEvent) => {
       }
 
       button {
-        --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-250 active:scale-110 opacity-100';
+        --style: 'absolute right-3px top-0 w-16px h-full flex-center hover:scale-105 transition-all duration-normal active:scale-110 opacity-100';
         .seperator {
           --style: absolute -left-3px top-1/2 -translate-y-1/2 w-1px h-10px bg-border;
         }
@@ -301,7 +301,7 @@ const addingTagClick = (e: MouseEvent) => {
             --style: max-h-422px py-4px overflow-y-scroll;
 
             .search-tag {
-              --style: 'border-(1px solid #e4d6ba) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-250 whitespace-nowrap';
+              --style: 'border-(1px solid #e4d6ba) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-normal whitespace-nowrap';
               span {
                 --style: text-(meta #a28d64) line-height-16px text-ellipsis overflow-hidden;
               }
@@ -342,6 +342,6 @@ const addingTagClick = (e: MouseEvent) => {
 
 .cell-enter-active,
 .cell-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

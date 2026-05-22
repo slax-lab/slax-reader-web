@@ -139,6 +139,6 @@ const jumpToOriginal = (item: HighlightItem) => {
 }
 
 .clickable {
-  --style: 'cursor-pointer transition-all duration-250 hover:(scale-101) active:(scale-103)';
+  --style: 'cursor-pointer transition-all duration-normal hover:(scale-101) active:(scale-103)';
 }
 </style>

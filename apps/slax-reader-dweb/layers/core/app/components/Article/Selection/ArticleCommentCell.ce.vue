@@ -194,7 +194,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
     .operates {
       --style: flex-center;
       button {
-        --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-250';
+        --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-normal';
       }
 
       .reply,
