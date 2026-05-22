@@ -94,7 +94,7 @@ defineExpose({
     }
 
     .header-container {
-      --style: h-44px border-b-(1px solid #ecf0f5);
+      --style: h-header border-b-(1px solid #ecf0f5);
     }
 
     .detail-container {
