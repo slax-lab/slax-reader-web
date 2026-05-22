@@ -51,13 +51,13 @@ const THEME_REQUIRED_TOKENS = [
   '--slax-grad-b'
 ]
 
-const ROOT_ONLY_TOKENS = ['--slax-header-height', '--slax-font-sans', '--slax-font-serif', '--slax-font-mono']
+const ROOT_ONLY_TOKENS = ['--slax-header-height', '--slax-content-min-w', '--slax-side-panel-w', '--slax-font-sans', '--slax-font-serif', '--slax-font-mono']
 
 const extractBlock = (selector: string): string => {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const re = new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\}`, 'm')
   const match = RAW.match(re)
-  if (!match) throw new Error(`未找到选择器块：${selector}`)
+  if (!match || match[1] === undefined) throw new Error(`未找到选择器块：${selector}`)
   return match[1]
 }
 
@@ -106,12 +106,13 @@ describe('theme.tokens.css 静态校验', () => {
   })
 
   it('dark / eink 块不重复声明 :root 独有的尺寸 token (避免 layout 抖动)', () => {
-    // --slax-header-height / 字体族 设计上仅 :root 一次，dark / eink 不应 override
+    // --slax-header-height / --slax-content-min-w / --slax-side-panel-w / 字体族
+    // 设计上仅 :root 一次，dark / eink 不应 override
     const dark = extractBlock("[data-slax-theme='dark']")
     const eink = extractBlock("[data-slax-theme='eink']")
-    expect(dark).not.toContain('--slax-header-height')
-    expect(dark).not.toContain('--slax-font-sans')
-    expect(eink).not.toContain('--slax-header-height')
-    expect(eink).not.toContain('--slax-font-sans')
+    for (const t of ROOT_ONLY_TOKENS) {
+      expect(dark, `dark 不应重复声明 ${t}`).not.toContain(t)
+      expect(eink, `eink 不应重复声明 ${t}`).not.toContain(t)
+    }
   })
 })

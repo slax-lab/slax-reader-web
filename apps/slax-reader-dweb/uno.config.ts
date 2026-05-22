@@ -48,11 +48,16 @@ export default defineConfig(
         width: {
           sidebar: 'var(--slax-sidebar-w)',
           shell: 'var(--slax-shell-w)',
-          content: 'var(--slax-content-w)'
+          content: 'var(--slax-content-w)',
+          'content-min': 'var(--slax-content-min-w)',
+          'side-panel': 'var(--slax-side-panel-w)'
         },
         maxWidth: {
           shell: 'var(--slax-shell-w)',
           content: 'var(--slax-content-w)'
+        },
+        minWidth: {
+          content: 'var(--slax-content-min-w)'
         },
         height: {
           header: 'var(--slax-header-height)'
