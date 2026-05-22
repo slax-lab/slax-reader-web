@@ -12,7 +12,7 @@
           @input="handleInput"
         >
         </textarea>
-        <button :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')] dark:bg-[url('@images/button-tiny-send-dark.png')]" @click="sendMessage"></button>
+        <button class="send-button" :class="{ disabled: !sendable }" @click="sendMessage"></button>
       </div>
     </div>
   </Transition>
@@ -144,6 +144,12 @@ const sendMessage = () => {
 // 本组件消费的 token（无 dark prop）：
 //   --slax-surface-solid, --slax-text, --slax-text-light
 // 其余 (#ecf0f5 浅蓝灰输入框边框辅助色) 保留。
+//
+// send-button 资源切图（双 PNG）：
+//   shadow DOM 不能匹配 [data-slax-theme] / :host-context()，故 light/dark 切图依赖
+//   父级 ArticleSelectionPanel 的 dark prop（在其 scoped 内 `.dark` 容器 cascade 至此）。
+//   注意：ArticleCommentInput 也作为独立 CE 在主站非 iframe 场景使用，但主站 send 资源仅 light，
+//   此时不存在 dark 切换，故下面以 light 为默认值，dark 切换由 panel 容器接管。
 .article-comment-input {
   --style: max-h-300px overflow-hidden;
   .comment-input-wrapper {
@@ -158,8 +164,9 @@ const sendMessage = () => {
       }
     }
 
-    button {
+    .send-button {
       --style: mb-2px ml-8px self-end w-16px h-16px bg-contain transition-transform duration-250;
+      background-image: url('@images/button-tiny-send.png');
 
       &.disabled {
         --style: opacity-50 cursor-auto;
