@@ -26,10 +26,25 @@ if (isClient) {
   userStore.checkAndRefreshUserToken()
 }
 
+// theme-color meta 跟随主题切换驱动浏览器 / iOS 状态栏 / Android 工具栏配色
+// 三档值与 theme.tokens.css 内 --slax-bg 严格对位，PWA manifest 走 light 默认
+const colorMode = useColorMode()
+const themeColorMap: Record<string, string> = {
+  light: '#faf8f2',
+  dark: '#141210',
+  eink: '#ffffff'
+}
+
 useHead({
   htmlAttrs: {
     lang: locale.value
-  }
+  },
+  meta: [
+    {
+      name: 'theme-color',
+      content: computed(() => themeColorMap[colorMode.value] ?? themeColorMap.light)
+    }
+  ]
 })
 
 onMounted(() => {
