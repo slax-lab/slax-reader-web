@@ -70,7 +70,8 @@ const posterClick = () => {
       height: 0;
       border-style: solid;
       border-width: 12px 0 12px 20px;
-      border-color: transparent transparent transparent #ffffff;
+      // 视频图标三角箭头白色（暗底对比），使用 button-text token 保持主题切换感
+      border-color: transparent transparent transparent var(--slax-btn-text);
       margin-left: 5px;
     }
   }
