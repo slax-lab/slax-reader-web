@@ -1,5 +1,5 @@
 <template>
-  <div class="top-tips" v-show="isShow" :style="{ background: backgroundColor ? backgroundColor : '#fff' }">
+  <div class="top-tips" v-show="isShow" :style="{ background: backgroundColor ? backgroundColor : 'txt-btn' }">
     <div class="tips responsive-width">
       <slot name="left"></slot>
       <span class="flex-1">{{ tipsText }}</span>
@@ -53,7 +53,7 @@ defineEmits(['clickButton'])
     }
 
     span {
-      --style: text-(#333 ellipsis) whitespace-nowrap overflow-hidden;
+      --style: text-(txt ellipsis) whitespace-nowrap overflow-hidden;
     }
 
     button {

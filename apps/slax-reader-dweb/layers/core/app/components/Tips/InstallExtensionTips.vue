@@ -80,7 +80,7 @@ const shakeTextarea = () => {
     }
 
     .title {
-      --style: text-(15px #0f1419) line-height-21px font-600;
+      --style: text-(15px txt) line-height-21px font-600;
     }
 
     .guide {
@@ -94,7 +94,7 @@ const shakeTextarea = () => {
     .install {
       --style: 'mt-24px bg-#16B998 w-full py-7px rounded-6px hover:(bg-#14A698) active:(scale-105) transition-all duration-250';
       span {
-        --style: text-(#fff 13px) line-height-16px;
+        --style: text-(txt-btn 13px) line-height-16px;
       }
     }
   }

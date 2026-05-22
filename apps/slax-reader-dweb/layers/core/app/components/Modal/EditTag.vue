@@ -161,12 +161,12 @@ button {
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
+  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
 
   .header {
     --style: flex justify-between items-center;
     span {
-      --style: text-(13px #999999) line-height-18px;
+      --style: text-(13px txt-light) line-height-18px;
     }
 
     button {
@@ -180,11 +180,11 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     textarea {
-      --style: w-full h-60px rounded-2 border-(1px solid #3333330d) text-(15px #0f1419) bg-#fcfcfc line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-60px rounded-2 border-(1px solid #3333330d) text-(15px txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(15px #999999);
+        --style: text-(15px txt-light);
       }
     }
   }
@@ -197,7 +197,7 @@ button {
     }
 
     button:not(.delete) {
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
       &:hover {
         --style: bg-#14a689;

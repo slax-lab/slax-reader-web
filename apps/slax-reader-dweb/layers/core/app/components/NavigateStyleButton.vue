@@ -40,7 +40,7 @@ const buttonClick = () => {
 
 <style lang="scss" scoped>
 .navigate-style-button {
-  --style: relative bg-#fcfcfc px-12px py-13px rounded-8px border-(1px solid #a8b1cd3d) overflow-hidden;
+  --style: relative bg-surface-solid px-12px py-13px rounded-8px border-(1px solid #a8b1cd3d) overflow-hidden;
 
   &.clickable {
     --style: 'transition-all duration-250 hover:(scale-105 bg-#fafafa) active:(scale-110)';
@@ -58,7 +58,7 @@ const buttonClick = () => {
   }
 
   .loading {
-    --style: absolute inset-0 flex-center bg-#fcfcfc;
+    --style: absolute inset-0 flex-center bg-surface-solid;
   }
 }
 </style>

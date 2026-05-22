@@ -240,7 +240,7 @@ if (notification.isSupportedNotification) {
   }
 
   .notification-bubble {
-    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-#fff border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-250';
+    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-surface-solid border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-250';
 
     width: v-bind(bubbleWidth);
     left: v-bind(leftOffset);
@@ -249,7 +249,7 @@ if (notification.isSupportedNotification) {
       --style: px-24px h-56px border-b-(1px solid #ecf0f5) flex justify-between items-center;
 
       span {
-        --style: text-(14px #333) font-600 line-height-20px;
+        --style: text-(14px txt) font-600 line-height-20px;
       }
 
       .check-all {
@@ -277,7 +277,7 @@ if (notification.isSupportedNotification) {
       }
 
       span {
-        --style: mt-24px text-(14px #999) line-height-22px;
+        --style: mt-24px text-(14px txt-light) line-height-22px;
       }
     }
 

@@ -111,11 +111,11 @@ getImportProgressData()
   --style: flex justify-between items-center px-24px py-16px border-b-(1px solid #eee);
 
   h3 {
-    --style: text-(18px #333) font-600 m-0;
+    --style: text-(18px txt) font-600 m-0;
   }
 
   .close-btn {
-    --style: text-24px text-#666 bg-transparent border-none cursor-pointer hover: text-#333;
+    --style: text-24px text-txt-muted bg-transparent border-none cursor-pointer hover: text-txt;
   }
 }
 
@@ -134,11 +134,11 @@ getImportProgressData()
     gap: 16px;
 
     &.header {
-      --style: text-(14px #666) font-500 bg-#f8f9fa mb-8px;
+      --style: text-(14px txt-muted) font-500 bg-surface mb-8px;
     }
 
     &:not(.header) {
-      --style: text-(14px #333) hover: bg-#f8f9fa transition-colors duration-200;
+      --style: text-(14px txt) hover: bg-surface transition-colors duration-200;
     }
   }
 

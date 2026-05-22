@@ -86,13 +86,13 @@ button {
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10;
+  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10;
   position: relative;
 
   .header {
     --style: flex justify-between items-center;
     span {
-      --style: text-(16px #333333) line-height-22px font-medium;
+      --style: text-(16px txt) line-height-22px font-medium;
     }
 
     button {
@@ -106,7 +106,7 @@ button {
   .content {
     --style: mt-20px;
     .message {
-      --style: text-(14px #666666) line-height-20px;
+      --style: text-(14px txt-muted) line-height-20px;
     }
   }
 
@@ -121,7 +121,7 @@ button {
       }
 
       .checkbox-label {
-        --style: text-(13px #666666) line-height-18px cursor-pointer;
+        --style: text-(13px txt-muted) line-height-18px cursor-pointer;
       }
     }
 
@@ -129,7 +129,7 @@ button {
       --style: flex justify-end;
 
       button.primary {
-        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
         &:hover {
           --style: bg-#14a689;

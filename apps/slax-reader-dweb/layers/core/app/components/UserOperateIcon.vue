@@ -52,7 +52,7 @@ const logoutClick = () => {
   --style: relative;
 
   .user-icon {
-    --style: 'rounded-full border-(1px #ffffff solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
+    --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
     img {
       --style: absolute w-full h-full top-0 left-0 object-contain;
     }
@@ -61,7 +61,7 @@ const logoutClick = () => {
   .user-operates-container {
     --style: absolute top-full right-0 pt-10px z-10;
     .user-operates {
-      --style: w-136px h-104px px-10px bg-#fff rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden;
+      --style: w-136px h-104px px-10px bg-surface-solid rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden;
       box-shadow: 0px 20px 60px 0px #0000001a;
 
       .operate {
@@ -72,7 +72,7 @@ const logoutClick = () => {
         }
 
         span {
-          --style: ml-16px text-(13px #333) line-height-18px font-500;
+          --style: ml-16px text-(13px txt) line-height-18px font-500;
         }
       }
     }

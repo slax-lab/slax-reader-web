@@ -104,7 +104,7 @@ const handler = () => {
 
   &::before,
   &::after {
-    --style: z-12 content-empty absolute w-10px h-full top-0 from-#fcfcfc to-transprent;
+    --style: z-12 content-empty absolute w-10px h-full top-0 from-surface-solid to-transprent;
   }
 
   &::before {
@@ -147,10 +147,10 @@ const handler = () => {
         --style: relative min-w-342px pt-32px px-24px transition-opacity duration-250;
 
         h1 {
-          --style: relative px-28px text-(#333 18px) line-height-25px;
+          --style: relative px-28px text-(txt 18px) line-height-25px;
 
           &::after {
-            --style: content-empty absolute rounded-full top-1/2 -translate-y-1/2 left-0 w-16px h-16px bg-#fff border-(4px solid #a8b1cd80);
+            --style: content-empty absolute rounded-full top-1/2 -translate-y-1/2 left-0 w-16px h-16px bg-surface-solid border-(4px solid #a8b1cd80);
           }
         }
 
@@ -158,14 +158,14 @@ const handler = () => {
           --style: mt-24px;
 
           li {
-            --style: 'px-28px relative text-(15px #999) line-height-21px not-first:(mt-8px)';
+            --style: 'px-28px relative text-(15px txt-light) line-height-21px not-first:(mt-8px)';
 
             &::marker {
               --style: content-none hidden;
             }
 
             &:before {
-              --style: absolute top-8px left-5px w-4px h-4px bg-#999 content-empty rounded;
+              --style: absolute top-8px left-5px w-4px h-4px bg-txt-light content-empty rounded;
             }
           }
         }
@@ -181,10 +181,10 @@ const handler = () => {
 
           ul {
             li {
-              --style: text-(15px #333);
+              --style: text-(15px txt);
 
               &:before {
-                --style: bg-#333;
+                --style: bg-txt;
               }
             }
           }
