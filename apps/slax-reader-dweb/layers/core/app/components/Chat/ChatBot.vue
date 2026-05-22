@@ -796,7 +796,7 @@ defineExpose({
   }
 
   .chat-header {
-    --style: w-full pt-20px px-16px flex justify-between items-center relative h-54px pb-10px dark: (h-70px pb-25px);
+    --style: 'w-full pt-20px px-16px flex justify-between items-center relative h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
       --style: flex items-center select-none;
@@ -820,7 +820,7 @@ defineExpose({
     &:before,
     &:after {
       // dark 模式专属装饰条（half-transparent white），light 下不显示，保留
-      --style: content-empty absolute left-16px right-16px h-1px bg-transparent dark: bg-#FFFFFF0F;
+      --style: 'content-empty absolute left-16px right-16px h-1px bg-transparent dark:bg-#FFFFFF0F';
     }
 
     &:before {
@@ -833,7 +833,7 @@ defineExpose({
   }
 
   .messages-container {
-    --style: relative flex-1 w-full h-full px-4px overflow-hidden dark: pt-15px;
+    --style: 'relative flex-1 w-full h-full px-4px overflow-hidden dark:pt-15px';
 
     &::before,
     &::after {
@@ -905,7 +905,7 @@ defineExpose({
       --style: 'dark:bg-surface-solid';
 
       .textarea-wrapper {
-        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250 border-border dark: bg-surface-solid;
+        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250 border-border dark:bg-surface-solid';
 
         &.focus {
           // #16b99899 当前品牌绿半透明聚焦边框，保留

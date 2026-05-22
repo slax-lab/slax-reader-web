@@ -6,6 +6,7 @@
           <!-- <img class="h-200px mr-15" src="@images/logo.png" /> -->
           <span class="line-clamp-3 overflow-hidden text-ellipsis"> {{ title }} </span>
         </div>
+        <!-- text-#16B998 OG 图像内嵌品牌绿，satori 渲染不可 token 化，保留 -->
         <p class="mb-0 text-4xl text-#16B998 font-bold">r.slax.com</p>
       </div>
     </div>

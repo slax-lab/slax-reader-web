@@ -234,7 +234,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: flex items-center justify-between cursor-pointer;
     .quote {
       // 引用块在 right bubble (深底白字) 内：左边线 / 文字色绑定 user-bubble 反色体系，保留
-      --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px) text-#fcfcfc99 dark: text-#ffffff66;
+      --style: 'pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px) text-#fcfcfc99 dark:text-#ffffff66';
 
       i.img {
         --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -297,11 +297,13 @@ const quoteClick = (quote: QuoteData) => {
       --style: pl-0 flex flex-col;
       li {
         &::marker {
+          // #a8b1cd 列表 marker 蓝灰辅助色（与 BookmarkArticle / MarkdownText 同源），保留
           --style: content-none hidden text-#a8b1cd;
         }
 
         & li {
           &::marker {
+            // #a8b1cd 嵌套列表 marker 蓝灰辅助色（与上层 marker 同源），保留
             --style: content-none hidden text-#a8b1cd;
           }
           &:before {
@@ -315,6 +317,7 @@ const quoteClick = (quote: QuoteData) => {
         }
 
         &:before {
+          // #a8b1cd 列表 bullet 蓝灰辅助色（与 marker 同源），保留
           --style: absolute top-8px left-4px w-4px h-4px bg-#a8b1cd content-empty rounded;
         }
       }
@@ -342,6 +345,7 @@ const quoteClick = (quote: QuoteData) => {
     }
 
     &:deep(a) {
+      // #5490C2 第三方蓝色锚点（twitter / 链接体系），保留
       --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
     }
 
@@ -393,8 +397,7 @@ const quoteClick = (quote: QuoteData) => {
           --style: hidden;
         }
         .link-content {
-          --style: flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250 not-first: ml-8px
-            bg-surface-solid border-border hover: (bg-surface shadow-sm);
+          --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250 not-first:ml-8px bg-surface-solid border-border hover:(bg-surface shadow-sm)';
 
           .title {
             --style: text-(12px) line-height-17px line-clamp-2 text-txt;
@@ -451,7 +454,7 @@ const quoteClick = (quote: QuoteData) => {
         --style: flex flex-col gap-8px;
 
         .bookmark-content {
-          --style: p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 bg-surface-solid border-border hover: (bg-surface shadow-md);
+          --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 bg-surface-solid border-border hover:(bg-surface shadow-md)';
 
           .title {
             --style: text-(14px) font-medium line-height-20px line-clamp-2 text-txt mb-6px;
@@ -503,7 +506,7 @@ const quoteClick = (quote: QuoteData) => {
 
         &::before {
           // #a8b1cd 蓝灰装饰圆点（与列表 marker 同色板），保留
-          --style: content-empty absolute left-0 top-1/2 w-4px h-4px -translate-y-1/2 rounded-2px bg-#a8b1cd dark: bg-#ffffff66;
+          --style: 'content-empty absolute left-0 top-1/2 w-4px h-4px -translate-y-1/2 rounded-2px bg-#a8b1cd dark:bg-#ffffff66';
         }
 
         span {

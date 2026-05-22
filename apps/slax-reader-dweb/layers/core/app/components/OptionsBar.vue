@@ -91,6 +91,7 @@ const closePopup = () => {
         shadow-[0px_20px_100px_0px_#0000001a];
 
       .option-wrapper {
+        // bg-#3333330a 深色 hover 半透叠加，保留
         --style: 'h-40px flex justify-start items-center px-10px py-11px rounded-8px transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
 
         span {

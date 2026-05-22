@@ -35,6 +35,7 @@
           </div>
         </div>
         <Transition name="opacity">
+          <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
             <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
           </div>
@@ -298,6 +299,7 @@ const optionClick = async (index: number) => {
 .share-modal-modal {
   --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
@@ -312,8 +314,10 @@ const optionClick = async (index: number) => {
     }
 
     .switch {
+      // #c5c6cb80 通用 UI 灰色开关底（关态），保留
       --style: cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-250 bg-#c5c6cb80;
       &:has(.open) {
+        // #16b998 品牌绿（slax 主色）开关开态，保留
         --style: bg-#16b998;
       }
 
@@ -331,6 +335,7 @@ const optionClick = async (index: number) => {
   }
 
   .tips {
+    // #FFF6E7 提示黄底（与 token 警示色调性不同），保留
     --style: bg-#FFF6E7 flex-center px-6px py-0 h-32px overflow-hidden;
     span {
       --style: text-(14px #f19943) line-height-20px;
@@ -359,9 +364,11 @@ const optionClick = async (index: number) => {
       }
 
       button {
+        // #16B998 品牌绿（slax 主色）复制按钮底色，保留
         --style: p-10px bg-#16B998 flex-center text-(14px txt-btn) font-600 min-w-76px transition-all duration-250;
 
         &:hover {
+          // #14a689 品牌绿（slax 主色）按钮悬停态，保留
           --style: bg-#14a689;
         }
 
@@ -428,6 +435,7 @@ const optionClick = async (index: number) => {
         .option {
           --style: cursor-auto;
           button {
+            // #f5f5f5 通用 UI 浅灰禁用底色，保留
             --style: bg-#f5f5f5 cursor-auto;
             &:hover,
             &:active {

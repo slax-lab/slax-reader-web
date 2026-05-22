@@ -59,6 +59,7 @@ const t = (text: string) => {
 .edit-name-modal {
   --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
   &.appear {
+    // bg-#0f141999 深色半透蒙层底色，保留
     --style: bg-#0f141999;
   }
 }

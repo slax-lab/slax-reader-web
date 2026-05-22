@@ -221,6 +221,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
 
 <style lang="scss" scoped>
 .article-comments-view {
+  // bg-#262626 评论侧栏深色面板底（与 RawWebPanel 同源），保留
   --style: size-full flex flex-col bg-#262626 justify-between;
 
   .title {
@@ -232,6 +233,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
 
     &::before,
     &::after {
+      // from-#262626 上下边缘渐变遮罩（与面板底同源 #262626），保留
       --style: z-2 content-empty absolute h-6px w-full left-0 from-#262626 to-transprent;
     }
 
@@ -273,6 +275,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
       --style: max-h-300px overflow-hidden;
 
       .comment-input-wrapper {
+        // bg-#1a1a1aff / border #1a1a1aff 评论输入框深色底（比面板更深一档），保留
         --style: pl-16px pt-16px pr-20px pb-14px w-full relative bg-#1a1a1aff border-(1px solid #1a1a1aff) rounded-8px flex flex-col justify-between;
         textarea {
           --style: resize-none min-h-40px max-h-200px text-(16px #ffffffcc) line-height-24px bg-transparent;

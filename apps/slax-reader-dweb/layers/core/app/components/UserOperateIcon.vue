@@ -65,6 +65,7 @@ const logoutClick = () => {
       box-shadow: 0px 20px 60px 0px #0000001a;
 
       .operate {
+        // bg-#3333330a 深色 hover 半透叠加，保留
         --style: 'flex justify-start items-center px-10px py-11px rounded-8px transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
 
         img {

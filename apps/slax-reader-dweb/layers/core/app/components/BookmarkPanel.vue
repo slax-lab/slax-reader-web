@@ -77,6 +77,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
     --style: 'relative w-68px border-(1px solid #a8b1cd3d) rounded-2 flex flex-col bg-transparent not-first:mt-10px overflow-hidden';
 
     &.pro {
+      // #E9C596 Pro 标签金黄边框（与 :before 同色），保留
       --style: border-#E9C596 pt-20px;
 
       &:before {
@@ -91,6 +92,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
 
       &:not(:first-child) {
         &::before {
+          // bg-#ecf0f5 浅蓝灰分隔线辅助色，保留
           --style: 'content-empty absolute w-36px h-1px bg-#ecf0f5 top-0 left-1/2 -translate-x-1/2';
         }
       }

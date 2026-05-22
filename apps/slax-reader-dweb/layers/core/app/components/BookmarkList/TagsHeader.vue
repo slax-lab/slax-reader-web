@@ -253,6 +253,7 @@ const compositionend = () => {
       }
 
       .tag-add {
+        // bg-#a28d6414 / #a28d6430 tags 金黄系按钮底（褐金 8% / 19% 透明），保留
         --style: 'py-10px px-16px rounded-6px bg-#a28d6414 flex-1 flex items-center cursor-pointer transition-colors duration-250 hover:bg-#a28d6430';
         span {
           --style: ml-12px text-(15px #a28d64) line-height-16px;
@@ -288,6 +289,7 @@ const compositionend = () => {
         }
 
         &:has(.ai) {
+          // #e4d6ba4d / #333333ad tags 金黄 AI 标签弱化边框 + 黑色 68% 文字，保留
           --style: border-#e4d6ba4d;
           span {
             --style: text-#333333ad;

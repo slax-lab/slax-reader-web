@@ -77,6 +77,7 @@ const onAfterLeave = () => {
 .snapshot-status-modal {
   --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
@@ -129,9 +130,11 @@ button {
       --style: flex justify-end;
 
       button.primary {
+        // #16B998 品牌绿（slax 主色）确认按钮底色，保留
         --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
         &:hover {
+          // #14a689 品牌绿（slax 主色）按钮悬停态，保留
           --style: bg-#14a689;
         }
 

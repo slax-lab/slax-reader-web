@@ -35,6 +35,7 @@
 
   /* 链接类 */
   a {
+    // text-#5490C2 第三方蓝色锚点（twitter/anchor 同源），保留
     --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
   }
 
@@ -55,6 +56,7 @@
     }
 
     &.slax-image-loading {
+      // from-#f5f5f3 to-#99999950 图片加载灰渐变占位，保留
       --style: bg-gradient-to-br from-#f5f5f3 to-#99999950;
       background-size: 400% 400%;
       animation: imageLoading 3s ease infinite;

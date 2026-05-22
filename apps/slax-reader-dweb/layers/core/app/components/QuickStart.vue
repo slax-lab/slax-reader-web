@@ -67,7 +67,7 @@ const installClick = () => {
           --style: pl-20px text-12px text-[#333333];
         }
         .link {
-          --style: text-[#567895] hover: underline ml-1;
+          --style: 'text-[#567895] hover:underline ml-1';
         }
       }
     }
@@ -98,7 +98,7 @@ const installClick = () => {
         background-image: url('@images/download.png');
         background-size: 100% 100%;
       }
-      --style: flex items-center gap-8px bg-#18C190 text-white px-32px py-10px rounded-8px hover: (bg-#14A698);
+      --style: 'flex items-center gap-8px bg-#18C190 text-white px-32px py-10px rounded-8px hover:(bg-#14A698)';
     }
   }
 }

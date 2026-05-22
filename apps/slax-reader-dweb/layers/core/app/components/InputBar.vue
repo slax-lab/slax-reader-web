@@ -98,10 +98,12 @@ defineExpose({
   }
 
   .operate {
+    // bg-#16B998 品牌绿主按钮 + #14A698 hover 暗一档，保留
     --style: 'relative bg-#16B998 hover:(bg-#14A698) transition-all duration-250';
 
     &.loading,
     &.disabled {
+      // bg-#ccc 通用禁用灰，保留
       --style: 'bg-#ccc';
     }
 

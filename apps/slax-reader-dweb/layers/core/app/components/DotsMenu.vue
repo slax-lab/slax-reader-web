@@ -70,6 +70,7 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
         --style: px-20px py-10px flex justify-center items-center rounded-8px cursor-pointer;
 
         &:has(span) {
+          // bg-#3333330a 深色 hover 半透叠加，保留
           --style: 'transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
         }
 

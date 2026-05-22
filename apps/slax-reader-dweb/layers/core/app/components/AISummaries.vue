@@ -705,7 +705,7 @@ $copyButtonXOffset: 20px;
       &:before,
       &:after {
         // #FFFFFF0F 半透明白横线：dark 模式专属装饰条（light 下不可见），保留
-        --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F bg-transparent dark: bg-#FFFFFF0F;
+        --style: 'content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F bg-transparent dark:bg-#FFFFFF0F';
       }
 
       &:before {
@@ -815,6 +815,7 @@ $copyButtonXOffset: 20px;
       --style: mt-24px w-200px h-48px rounded-24px text-(16px txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
 
       &:hover {
+        // #16b998aa 品牌绿 hover 半透明，保留
         --style: bg-#16b998aa;
       }
     }

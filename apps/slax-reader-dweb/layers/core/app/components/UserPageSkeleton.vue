@@ -36,6 +36,7 @@
   --style: w-full;
 
   .skeleton {
+    // bg-#f0f0f0 骨架屏通用灰底，保留
     --style: bg-#f0f0f0 rounded-8px animate-pulse;
   }
 
