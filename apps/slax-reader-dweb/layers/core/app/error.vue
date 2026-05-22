@@ -67,7 +67,7 @@ const errorMessage = computed(() => {
   }
 
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-surface';
 
     .header-container {
       --style: flex items-center;
@@ -106,11 +106,11 @@ const errorMessage = computed(() => {
       }
 
       span {
-        --style: mt-16px text-(14px #999) line-height-20px text-align-center whitespace-pre-line;
+        --style: mt-16px text-(14px txt-light) line-height-20px text-align-center whitespace-pre-line;
       }
 
       button {
-        --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+        --style: 'mt-100px w-274px h-48px text-(15px txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
       }
     }
   }
@@ -120,6 +120,6 @@ const errorMessage = computed(() => {
 <!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 body {
-  --style: bg-#FCFCFC;
+  --style: bg-surface-solid;
 }
 </style>

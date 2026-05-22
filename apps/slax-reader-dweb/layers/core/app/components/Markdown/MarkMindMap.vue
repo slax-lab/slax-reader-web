@@ -427,7 +427,7 @@ defineExpose({
       }
 
       svg {
-        --style: absolute top-0 left-0 w-full h-full z-1 transform-colors duration-200 hover: text-emerald stroke-txt;
+        --style: 'absolute top-0 left-0 w-full h-full z-1 transform-colors duration-200 hover:text-emerald stroke-txt';
         div {
           --style: w-full h-full;
         }
