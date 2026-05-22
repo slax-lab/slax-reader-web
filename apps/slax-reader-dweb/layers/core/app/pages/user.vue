@@ -202,7 +202,7 @@ const localeSelect = (index: number) => {
 
 <style lang="scss" scoped>
 .user-info {
-  --style: w-full relative flex justify-center items-start bg-#fcfcfc pb-88px;
+  --style: w-full relative flex justify-center items-start pb-88px;
 
   .content {
     --style: 'relative min-h-screen flex-1 max-md:(pb-10 !w-full) transition-transform duration-200';
