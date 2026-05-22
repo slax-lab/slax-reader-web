@@ -119,6 +119,8 @@ const canView = computed(() => {
 const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(inlineBookmarkDetail)
 
 const { injectCssToIframe } = useIframeStyles(iframeRef, markCss)
+// 同步主站主题到 iframe（注入 theme.tokens.css + data-slax-theme），与 markCss 注入并存
+useIframeTheme(iframeRef)
 
 const { progress, start, finish, clear } = useLoadingIndicator({
   duration: 5000,
