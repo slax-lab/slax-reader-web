@@ -162,6 +162,8 @@ const emit = defineEmits<{
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
+        // 营销页豁免：锁死 light 文字色，避免继承 body { color: var(--slax-text) } 在 dark 主题下变白
+        color: #1a1a1a;
       }
 
       .ai-demo h4 {

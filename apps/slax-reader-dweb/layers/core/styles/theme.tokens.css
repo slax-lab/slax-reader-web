@@ -7,19 +7,19 @@
 
 /* Light（日间，默认） */
 :root {
-  /* 颜色 - 基础 */
-  --slax-bg: #faf8f2;
-  --slax-surface: rgba(255, 251, 244, 0.7);
-  --slax-surface-solid: #fffbf4;
-  --slax-topbar-bg: rgba(250, 248, 242, 0.75);
+  /* 颜色 - 基础（保持改造前的纯白系，不引入暖色背景） */
+  --slax-bg: #ffffff;
+  --slax-surface: rgba(255, 255, 255, 0.7);
+  --slax-surface-solid: #ffffff;
+  --slax-topbar-bg: rgba(255, 255, 255, 0.75);
 
   /* 颜色 - 文本 */
   --slax-text: #1a1814;
   --slax-text-muted: #6a5f52;
   --slax-text-light: #9a8e7f;
-  --slax-btn-text: #faf8f2;
+  --slax-btn-text: #ffffff;
 
-  /* 颜色 - 强调 */
+  /* 颜色 - 强调（accent / danger 保留品牌暖橙 / 警示红，与全局白底搭配） */
   --slax-accent: #b45837;
   --slax-accent-soft: #e4b894;
   --slax-accent-bg: rgba(180, 88, 55, 0.06);
@@ -34,10 +34,10 @@
   --slax-shadow-warm: 0 8px 32px rgba(180, 88, 55, 0.08);
   --slax-shadow-sm: 0 2px 8px rgba(180, 88, 55, 0.05);
 
-  /* 渐变氛围 */
-  --slax-grad-a: #fff4e0;
-  --slax-grad-b: #f4e4d4;
-  --slax-grad-c: #f8efe4;
+  /* 渐变氛围（light 不再渲染氛围渐变；用 transparent 让 body::before 不可见） */
+  --slax-grad-a: transparent;
+  --slax-grad-b: transparent;
+  --slax-grad-c: transparent;
 
   /* 浮层细节 */
   --slax-inset-hi: rgba(255, 255, 255, 0.6);

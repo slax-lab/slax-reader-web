@@ -249,7 +249,7 @@ export default defineNuxtConfig({
       short_name: 'Slax Reader',
       description:
         'Slax Reader is the open-source read-later app for deep thinkers. Archive the web permanently, read smarter with AI instant summaries, interactive outline and deep-dive chat.',
-      theme_color: '#faf8f2',
+      theme_color: '#ffffff',
       start_url: '/bookmarks',
       display_override: ['fullscreen', 'minimal-ui'],
       icons: [
