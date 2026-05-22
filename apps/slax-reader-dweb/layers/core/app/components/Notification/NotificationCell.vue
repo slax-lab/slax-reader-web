@@ -139,7 +139,7 @@ const handleClick = (): void => {
   --style: 'rounded-8px cursor-pointer transition-all duration-250 !active:(scale-102) select-none';
 
   &.normal {
-    --style: 'bg-#F5F5F3 px-24px py-16px not-first:(mt-10px) hover:(scale-101)';
+    --style: 'bg-surface px-24px py-16px not-first:(mt-10px) hover:(scale-101)';
     .notification-header {
       --style: flex items-center justify-between;
 
@@ -151,7 +151,7 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-8px text-(12px #999) line-height-17px;
+          --style: ml-8px text-(12px txt-light) line-height-17px;
 
           &.highlighted {
             --style: text-#F6AF69;
@@ -160,7 +160,7 @@ const handleClick = (): void => {
       }
 
       .right {
-        --style: ml-8px text-(12px #999) line-height-17px shrink-0;
+        --style: ml-8px text-(12px txt-light) line-height-17px shrink-0;
       }
     }
 
@@ -168,7 +168,7 @@ const handleClick = (): void => {
       --style: mt-12px;
       .comment {
         .comment-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-2;
+          --style: text-(16px txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -180,20 +180,20 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-1;
+          --style: text-(16px txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {
@@ -214,7 +214,7 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-4px text-(14px #333 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+          --style: ml-4px text-(14px txt ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
         }
       }
 
@@ -225,7 +225,7 @@ const handleClick = (): void => {
   }
 
   &.simple {
-    --style: 'py-16px px-14px hover:(bg-#F5F5F3)';
+    --style: 'py-16px px-14px hover:(bg-surface)';
     .notification-header {
       --style: flex justify-between items-start;
       .left {
@@ -234,7 +234,7 @@ const handleClick = (): void => {
           --style: w-24px h-24px rounded-full;
         }
         span {
-          --style: ml-16px text-(13px #999) line-height-18px;
+          --style: ml-16px text-(13px txt-light) line-height-18px;
 
           &.highlighted {
             --style: text-#F6AF69;
@@ -243,7 +243,7 @@ const handleClick = (): void => {
       }
 
       .right {
-        --style: text-(13px #999) line-height-18px shrink-0;
+        --style: text-(13px txt-light) line-height-18px shrink-0;
       }
     }
 
@@ -252,7 +252,7 @@ const handleClick = (): void => {
 
       .comment {
         .comment-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-2;
+          --style: text-(16px txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -264,20 +264,20 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-1;
+          --style: text-(16px txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {

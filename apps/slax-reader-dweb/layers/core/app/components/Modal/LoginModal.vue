@@ -64,7 +64,7 @@ const t = (text: string) => {
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
+  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
 
   .header {
     --style: flex justify-end items-center;
@@ -80,7 +80,7 @@ const t = (text: string) => {
   .content {
     --style: mt-26px flex flex-col items-center justify-stretch;
     span {
-      --style: text-(16px #333) line-height-24px;
+      --style: text-(16px txt) line-height-24px;
     }
   }
 

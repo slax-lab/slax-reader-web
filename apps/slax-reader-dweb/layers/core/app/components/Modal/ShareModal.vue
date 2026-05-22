@@ -7,7 +7,7 @@
           <div class="switch" @click="switchClick">
             <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
               <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-14px text-#fff" v-show="isSwitchLoading"></div>
+                <div class="i-svg-spinners:180-ring-with-bg text-txt-btn text-14px" v-show="isSwitchLoading"></div>
               </Transition>
             </div>
           </div>
@@ -303,12 +303,12 @@ const optionClick = async (index: number) => {
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-0px w-480px select-none mb-10 relative overflow-hidden;
+  --style: bg-surface rounded-2 p-0px w-480px select-none mb-10 relative overflow-hidden;
 
   .header {
-    --style: p-24px flex items-center justify-between bg-#FCFCFC;
+    --style: p-24px flex items-center justify-between bg-surface-solid;
     span {
-      --style: text-(18px #333) line-height-25px font-500;
+      --style: text-(18px txt) line-height-25px font-500;
     }
 
     .switch {
@@ -318,7 +318,7 @@ const optionClick = async (index: number) => {
       }
 
       .ball {
-        --style: w-14px h-14px rounded-full bg-#fff transition-all -translate-x-7px duration-250;
+        --style: w-14px h-14px rounded-full bg-surface-solid transition-all -translate-x-7px duration-250;
         &.open {
           --style: translate-x-7px;
         }
@@ -338,28 +338,28 @@ const optionClick = async (index: number) => {
   }
 
   .content {
-    --style: bg-#F5F5F3 pt-20px px-24px pb-32px;
+    --style: bg-surface pt-20px px-24px pb-32px;
 
     .title {
-      --style: w-full text-(14px #333) line-height-21px font-500 whitespace-nowrap text-ellipsis overflow-hidden;
+      --style: w-full text-(14px txt) line-height-21px font-500 whitespace-nowrap text-ellipsis overflow-hidden;
     }
 
     .copy {
-      --style: mt-20px bg-#fff p-0 border-(2px #16b998 solid) rounded-8px flex items-center justify-between overflow-hidden transition-all duration-250;
+      --style: mt-20px bg-surface-solid p-0 border-(2px #16b998 solid) rounded-8px flex items-center justify-between overflow-hidden transition-all duration-250;
 
       .link {
         --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-250;
 
         span {
-          --style: relative text-(15px #333 ellipsis) line-height-21px select-all font-500;
+          --style: relative text-(15px txt ellipsis) line-height-21px select-all font-500;
           &:before {
-            --style: content-empty bg-#999 w-full h-1px absolute top-1/2 left-0 transition-all duration-250 opacity-0;
+            --style: content-empty bg-txt-light w-full h-1px absolute top-1/2 left-0 transition-all duration-250 opacity-0;
           }
         }
       }
 
       button {
-        --style: p-10px bg-#16B998 flex-center text-(14px #fff) font-600 min-w-76px transition-all duration-250;
+        --style: p-10px bg-#16B998 flex-center text-(14px txt-btn) font-600 min-w-76px transition-all duration-250;
 
         &:hover {
           --style: bg-#14a689;
@@ -377,7 +377,7 @@ const optionClick = async (index: number) => {
           --style: p-0;
 
           span {
-            --style: text-#999 select-none;
+            --style: text-txt-light select-none;
             &:before {
               --style: opacity-100;
             }
@@ -397,7 +397,7 @@ const optionClick = async (index: number) => {
         --style: 'flex items-center not-first:(mt-10px) cursor-pointer';
 
         button {
-          --style: border-(1px solid #3333331a) bg-#fcfcfc w-12px h-12px rounded-3px transition-transform duration-250;
+          --style: border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-250;
 
           &.selected {
             --style: 'bg-center bg-[length:7px_6px] border-1';
@@ -414,14 +414,14 @@ const optionClick = async (index: number) => {
         }
 
         span {
-          --style: ml-12px text-(15px #333) line-height-22px;
+          --style: ml-12px text-(15px txt) line-height-22px;
         }
       }
     }
 
     &.disabled {
       .title {
-        --style: text-#999;
+        --style: text-txt-light;
       }
 
       .options {
@@ -436,7 +436,7 @@ const optionClick = async (index: number) => {
           }
 
           span {
-            --style: text-#999;
+            --style: text-txt-light;
           }
         }
       }

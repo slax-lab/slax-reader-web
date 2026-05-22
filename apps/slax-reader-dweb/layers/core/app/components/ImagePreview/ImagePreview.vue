@@ -215,7 +215,7 @@ const handleLeave = () => {
   }
 
   .image {
-    --style: z-10 object-contain bg-#f5f5f3;
+    --style: z-10 object-contain bg-surface;
     object-fit: contain;
 
     &.wider {
@@ -234,7 +234,7 @@ const handleLeave = () => {
   }
 
   .placholder {
-    --style: absolute z-0 object-contain transition-all duration-250 bg-#f5f5f3;
+    --style: absolute z-0 object-contain transition-all duration-250 bg-surface;
   }
 }
 

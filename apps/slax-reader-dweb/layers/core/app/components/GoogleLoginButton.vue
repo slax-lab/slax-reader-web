@@ -53,7 +53,7 @@ defineExpose({
   }
 
   span {
-    --style: text-(15px #1f1f1f) font-bold line-height-18px;
+    --style: text-(15px txt) font-bold line-height-18px;
   }
 }
 </style>

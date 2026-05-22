@@ -17,7 +17,7 @@
       </button>
       <Transition name="opacity">
         <div class="loading-content" v-show="loading">
-          <i class="i-svg-spinners:90-ring text-30px color-#fff"></i>
+          <i class="i-svg-spinners:90-ring text-txt-btn text-30px"></i>
         </div>
       </Transition>
     </div>
@@ -90,10 +90,10 @@ defineExpose({
   --style: w-full rounded-8px h-48px flex overflow-hidden relative;
 
   input {
-    --style: min-w-0 rounded-l-8px flex-1 border-(1px solid #ecf0f5) border-r-none pt-13px px-16px pb-14px text-(15px #333) line-height-21px;
+    --style: min-w-0 rounded-l-8px flex-1 border-(1px solid #ecf0f5) border-r-none pt-13px px-16px pb-14px text-(15px txt) line-height-21px;
     &::placeholder,
     &::-webkit-input-placeholder {
-      --style: text-(15px #999) line-height-21px;
+      --style: text-(15px txt-light) line-height-21px;
     }
   }
 
@@ -112,7 +112,7 @@ defineExpose({
       }
 
       span {
-        --style: 'text-(18px #fff) line-height-25px max-md:(hidden)';
+        --style: 'text-(18px txt-btn) line-height-25px max-md:(hidden)';
       }
 
       img + span {

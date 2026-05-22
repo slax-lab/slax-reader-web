@@ -72,11 +72,11 @@ const closePopup = () => {
   --style: relative select-none;
 
   .bar-container {
-    --style: bg-#fff relative z-11 pl-8px pr-6px max-w-200px overflow-hidden rounded-4px border-(1px solid #33333314) min-w-120px h-30px cursor-pointer flex items-center
+    --style: bg-surface-solid relative z-11 pl-8px pr-6px max-w-200px overflow-hidden rounded-4px border-(1px solid #33333314) min-w-120px h-30px cursor-pointer flex items-center
       justify-between;
 
     .title {
-      --style: text-(14px #333) line-height-20px whitespace-nowrap overflow-hidden text-ellipsis;
+      --style: text-(14px txt) line-height-20px whitespace-nowrap overflow-hidden text-ellipsis;
     }
 
     i {
@@ -87,14 +87,14 @@ const closePopup = () => {
   .options-container {
     --style: absolute top-full right-0 pt-10px z-10;
     .options {
-      --style: min-w-136px p-10px bg-#fff max-w-200px rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden
+      --style: min-w-136px p-10px bg-surface-solid max-w-200px rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden
         shadow-[0px_20px_100px_0px_#0000001a];
 
       .option-wrapper {
         --style: 'h-40px flex justify-start items-center px-10px py-11px rounded-8px transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
 
         span {
-          --style: text-(13px #333) line-height-18px font-500 whitespace-nowrap overflow-hidden text-ellipsis;
+          --style: text-(13px txt) line-height-18px font-500 whitespace-nowrap overflow-hidden text-ellipsis;
         }
       }
     }

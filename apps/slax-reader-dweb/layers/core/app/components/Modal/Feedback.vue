@@ -140,12 +140,12 @@ button {
 }
 
 .modal-content {
-  --style: relative bg-#f5f5f3 rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
+  --style: relative bg-surface rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
 
   .header {
     --style: relative z-1 flex justify-between items-center;
     span {
-      --style: text-(13px #999999) line-height-18px;
+      --style: text-(13px txt-light) line-height-18px;
     }
 
     button {
@@ -159,7 +159,7 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
-      --style: 'w-full text-(14px ellipsis #333333) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
+      --style: 'w-full text-(14px ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
     }
 
     .link {
@@ -175,11 +175,11 @@ button {
     }
 
     textarea {
-      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(15px #0f1419) bg-#fcfcfc line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(15px txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(15px #999999);
+        --style: text-(15px txt-light);
       }
     }
   }
@@ -191,7 +191,7 @@ button {
       --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer;
 
       button {
-        --style: shrink-0 border-(1px solid #3333331a) bg-#fcfcfc w-12px h-12px rounded-3px transition-transform duration-250;
+        --style: shrink-0 border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-250;
 
         &.selected {
           --style: 'bg-center bg-[length:7px_6px] border-1';
@@ -208,12 +208,12 @@ button {
       }
 
       span {
-        --style: ml-5px text-(#333 14px) line-height-22px overflow-hidden text-ellipsis;
+        --style: ml-5px text-(txt 14px) line-height-22px overflow-hidden text-ellipsis;
       }
     }
 
     .submit {
-      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
       &.disabled {
         --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';

@@ -32,7 +32,7 @@ defineProps<{
     }
 
     .text {
-      --style: mt-16px text-center text-(14px #333);
+      --style: mt-16px text-center text-(14px txt);
     }
   }
 }
