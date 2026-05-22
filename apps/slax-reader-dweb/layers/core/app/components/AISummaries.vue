@@ -659,8 +659,7 @@ $copyButtonXOffset: 20px;
   }
 
   .bg-container {
-    --style: w-full h-full flex flex-col rounded-4;
-    --style: 'bg-#fcfcfc dark:bg-#262626';
+    --style: w-full h-full flex flex-col rounded-4 bg-surface-solid;
   }
 
   .operate-container {
@@ -680,13 +679,12 @@ $copyButtonXOffset: 20px;
     .refresh {
       --style: flex-center;
       span {
-        --style: text-(13px #999) line-height-18px;
+        --style: text-(13px txt-light) line-height-18px;
       }
     }
 
     .seperator {
-      --style: mx-10px w-1px h-10px invisible;
-      --style: 'bg-#D6D6D6 dark:bg-#333';
+      --style: mx-10px w-1px h-10px invisible bg-border;
     }
 
     button + .seperator {
@@ -696,16 +694,18 @@ $copyButtonXOffset: 20px;
 
   .summaries-container {
     --style: items-center overflow-y-auto;
-    --style: 'bg-#f5f5f3 dark:bg-transparent';
+    // dark 模式下让外层接管背景（透明），与原 light/dark 配对行为保持一致
+    --style: 'bg-surface dark:bg-transparent';
 
     .header {
       --style: relative w-full pt-20px px-20px flex items-center;
-      --style: 'bg-#fcfcfc dark:(bg-transparent pb-25px)';
+      // dark 模式下 header 透明 + 多 25px 底 padding，是 dark 专属布局调整（C 类布局差异），保留
+      --style: 'bg-surface-solid dark:(bg-transparent pb-25px)';
 
       &:before,
       &:after {
-        --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F;
-        --style: 'bg-transparent dark:bg-#FFFFFF0F';
+        // #FFFFFF0F 半透明白横线：dark 模式专属装饰条（light 下不可见），保留
+        --style: content-empty absolute left-20px right-20px h-1px bg-#FFFFFF0F bg-transparent dark: bg-#FFFFFF0F;
       }
 
       &:before {
@@ -717,6 +717,7 @@ $copyButtonXOffset: 20px;
       }
 
       .title {
+        // #16b998 当前品牌绿，保留
         --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
       }
 
@@ -751,8 +752,7 @@ $copyButtonXOffset: 20px;
         }
 
         span {
-          --style: text-12px line-height-16px;
-          --style: 'text-#333 dark:text-#ffffff66';
+          --style: text-12px line-height-16px text-txt-light;
         }
       }
     }
@@ -765,15 +765,13 @@ $copyButtonXOffset: 20px;
       }
 
       .text-content {
-        --style: px-20px pt-24px pb-32px relative rounded-b-4;
-        --style: 'bg-#fcfcfc dark:bg-#262626';
+        --style: px-20px pt-24px pb-32px relative rounded-b-4 bg-surface-solid;
 
         .text-container {
           --style: relative h-0 overflow-hidden;
 
           &::before {
-            --style: z-2 content-empty bg-gradient-to-t to-transparent absolute left-0 bottom-0 w-full h-20px;
-            --style: 'from-#fcfcfc dark:from-#262626';
+            --style: z-2 content-empty bg-gradient-to-t to-transparent absolute left-0 bottom-0 w-full h-20px from-surface-solid;
           }
         }
 
@@ -783,21 +781,17 @@ $copyButtonXOffset: 20px;
       }
 
       .map-content {
-        --style: relative p-0 min-h-500px flex flex-col justify-between;
-        --style: 'bg-#f5f5f3 dark:bg-#262626';
+        --style: relative p-0 min-h-500px flex flex-col justify-between bg-surface;
 
         .map-header {
-          --style: absolute top-0 left-0 w-full pt-40px pb-5px px-20px z-1;
-          --style: 'bg-#f5f5f3 dark:bg-#262626';
+          --style: absolute top-0 left-0 w-full pt-40px pb-5px px-20px z-1 bg-surface;
 
           .title {
-            --style: font-600 text-16px line-height-22px;
-            --style: 'text-#0f1419 dark:text-#ffffffe6';
+            --style: font-600 text-16px line-height-22px text-txt;
           }
 
           .description {
-            --style: mt-4px font-400 text-13px line-height-20px;
-            --style: 'text-#808080 dark:text-#ffffffcc';
+            --style: mt-4px font-400 text-13px line-height-20px text-txt-muted;
           }
         }
 
@@ -813,12 +807,12 @@ $copyButtonXOffset: 20px;
     --style: h-100vh select-none justify-center items-center;
 
     span {
-      --style: font-400 text-14px line-height-20px;
-      --style: 'text-#999999 dark:text-#ffffff66';
+      --style: font-400 text-14px line-height-20px text-txt-light;
     }
 
     .button {
-      --style: mt-24px w-200px h-48px rounded-24px text-(16px #fff) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
+      // #16b998 当前品牌绿主按钮 + #16b998aa hover 半透明，保留
+      --style: mt-24px w-200px h-48px rounded-24px text-(16px txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
 
       &:hover {
         --style: bg-#16b998aa;
@@ -829,6 +823,7 @@ $copyButtonXOffset: 20px;
     --style: min-h-screen py-24px px-20px select-none;
 
     span {
+      // 品牌绿 loading 文字，保留
       --style: font-500 text-(14px #16b998) line-height-20px text-align-left;
     }
 
@@ -836,7 +831,7 @@ $copyButtonXOffset: 20px;
       --style: mt-24px w-full flex flex-col;
 
       .row {
-        --style: w-full h-16px rounded-1 animate-pulse;
+        // light/dark 模式各自的骨架渐变 (半透明灰 / 半透明白)，与具体半透明度强绑定，保留
         --style: 'not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
       }
     }
