@@ -30,7 +30,7 @@ if (isClient) {
 // 三档值与 theme.tokens.css 内 --slax-bg 严格对位，PWA manifest 走 light 默认
 const colorMode = useColorMode()
 const themeColorMap: Record<string, string> = {
-  light: '#ffffff',
+  light: '#faf8f2',
   dark: '#141210',
   eink: '#ffffff'
 }
