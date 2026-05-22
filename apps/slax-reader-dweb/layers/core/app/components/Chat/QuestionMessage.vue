@@ -63,7 +63,7 @@ const questionClick = () => {
   }
 
   i {
-    --style: w-16px h-16px bg-contain transition-transform duration-250;
+    --style: w-16px h-16px bg-contain transition-transform duration-normal;
   }
 }
 </style>

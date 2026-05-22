@@ -811,7 +811,7 @@ defineExpose({
     }
 
     .close {
-      --style: 'w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
       img {
         --style: w-full select-none;
       }
@@ -888,7 +888,7 @@ defineExpose({
       }
 
       button {
-        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-250;
+        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-normal;
         &:hover {
           --style: scale-105;
         }
@@ -905,7 +905,7 @@ defineExpose({
       --style: 'dark:bg-surface-solid';
 
       .textarea-wrapper {
-        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250 border-border dark:bg-surface-solid';
+        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-normal border-border dark:bg-surface-solid';
 
         &.focus {
           // #16b99899 当前品牌绿半透明聚焦边框，保留
@@ -922,7 +922,7 @@ defineExpose({
         }
 
         button {
-          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-250;
+          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-normal;
 
           &.disabled {
             --style: opacity-50 cursor-auto;

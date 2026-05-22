@@ -146,7 +146,7 @@ const handler = () => {
       }
 
       .timeline-content {
-        --style: relative min-w-342px pt-32px px-24px transition-opacity duration-250;
+        --style: relative min-w-342px pt-32px px-24px transition-opacity duration-normal;
 
         h1 {
           --style: relative px-28px text-(txt 18px) line-height-25px;

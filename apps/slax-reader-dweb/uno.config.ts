@@ -78,6 +78,17 @@ export default defineConfig(
           serif: ['Playfair Display', 'Noto Serif SC', 'serif'],
           sans: ['Inter', 'PingFang SC', '-apple-system', 'sans-serif'],
           mono: ['SF Mono', 'Fira Code', 'monospace']
+        },
+        // 特效参数桥接（来源：design-system §6）。业务侧 utility：
+        //   duration-fast / duration-normal、ease-spring。Tailwind 的 backdrop-blur 因接受
+        //   单一 blur(...) 函数无法表达 "blur(16px) saturate(150%)" 复合滤镜，故 backdrop-filter
+        //   仍直接写 `backdrop-filter: var(--slax-blur)`，不在此桥接 backdropBlur key。
+        transitionDuration: {
+          fast: 'var(--slax-dur-fast)',
+          normal: 'var(--slax-dur-normal)'
+        },
+        transitionTimingFunction: {
+          spring: 'var(--slax-ease-spring)'
         }
       }
     }

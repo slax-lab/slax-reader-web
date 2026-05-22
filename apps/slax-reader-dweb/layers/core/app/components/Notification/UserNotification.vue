@@ -241,7 +241,7 @@ if (notification.isSupportedNotification) {
   }
 
   .notification-bubble {
-    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-surface-solid border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-250';
+    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-surface-solid border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-normal';
 
     width: v-bind(bubbleWidth);
     left: v-bind(leftOffset);
@@ -254,11 +254,11 @@ if (notification.isSupportedNotification) {
       }
 
       .check-all {
-        --style: 'text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-normal';
       }
 
       .close {
-        --style: 'md:(hidden) ml-10px -mr-16px w-32px h-32px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+        --style: 'md:(hidden) ml-10px -mr-16px w-32px h-32px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 
         img {
           --style: w-16px h-auto;

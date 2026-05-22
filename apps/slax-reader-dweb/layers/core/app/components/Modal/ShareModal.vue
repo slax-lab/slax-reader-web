@@ -297,7 +297,7 @@ const optionClick = async (index: number) => {
 
 <style lang="scss" scoped>
 .share-modal-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
     // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
@@ -315,14 +315,14 @@ const optionClick = async (index: number) => {
 
     .switch {
       // #c5c6cb80 通用 UI 灰色开关底（关态），保留
-      --style: cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-250 bg-#c5c6cb80;
+      --style: cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-normal bg-#c5c6cb80;
       &:has(.open) {
         // #16b998 品牌绿（slax 主色）开关开态，保留
         --style: bg-#16b998;
       }
 
       .ball {
-        --style: w-14px h-14px rounded-full bg-surface-solid transition-all -translate-x-7px duration-250;
+        --style: w-14px h-14px rounded-full bg-surface-solid transition-all -translate-x-7px duration-normal;
         &.open {
           --style: translate-x-7px;
         }
@@ -350,22 +350,22 @@ const optionClick = async (index: number) => {
     }
 
     .copy {
-      --style: mt-20px bg-surface-solid p-0 border-(2px #16b998 solid) rounded-8px flex items-center justify-between overflow-hidden transition-all duration-250;
+      --style: mt-20px bg-surface-solid p-0 border-(2px #16b998 solid) rounded-8px flex items-center justify-between overflow-hidden transition-all duration-normal;
 
       .link {
-        --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-250;
+        --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-normal;
 
         span {
           --style: relative text-(meta txt ellipsis) line-height-21px select-all font-500;
           &:before {
-            --style: content-empty bg-txt-light w-full h-1px absolute top-1/2 left-0 transition-all duration-250 opacity-0;
+            --style: content-empty bg-txt-light w-full h-1px absolute top-1/2 left-0 transition-all duration-normal opacity-0;
           }
         }
       }
 
       button {
         // #16B998 品牌绿（slax 主色）复制按钮底色，保留
-        --style: p-10px bg-#16B998 flex-center text-(meta txt-btn) font-600 min-w-76px transition-all duration-250;
+        --style: p-10px bg-#16B998 flex-center text-(meta txt-btn) font-600 min-w-76px transition-all duration-normal;
 
         &:hover {
           // #14a689 品牌绿（slax 主色）按钮悬停态，保留
@@ -404,7 +404,7 @@ const optionClick = async (index: number) => {
         --style: 'flex items-center not-first:(mt-10px) cursor-pointer';
 
         button {
-          --style: border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-250;
+          --style: border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-normal;
 
           &.selected {
             --style: 'bg-center bg-[length:7px_6px] border-1';
@@ -459,7 +459,7 @@ const optionClick = async (index: number) => {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 
 .tips-leave-to,
@@ -469,6 +469,6 @@ const optionClick = async (index: number) => {
 
 .tips-enter-active,
 .tips-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

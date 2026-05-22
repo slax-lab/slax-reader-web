@@ -638,7 +638,7 @@ const starBookmark = async (isStar: boolean) => {
       }
 
       button {
-        --style: 'p-0 transition-all duration-250 active:(scale-102)';
+        --style: 'p-0 transition-all duration-normal active:(scale-102)';
       }
     }
   }

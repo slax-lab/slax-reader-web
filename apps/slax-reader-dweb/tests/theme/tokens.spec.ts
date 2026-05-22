@@ -30,7 +30,8 @@ const ROOT_REQUIRED_TOKENS = [
   '--slax-radius',
   '--slax-radius-sm',
   '--slax-grad-a',
-  '--slax-grad-b'
+  '--slax-grad-b',
+  '--slax-blur'
 ]
 
 // 主题块（dark / eink）必须 override 的核心颜色 token；尺寸 / 字体 / 部分阴影从 :root 继承
@@ -65,8 +66,15 @@ const ROOT_ONLY_TOKENS = [
   '--slax-fs-tag',
   '--slax-font-sans',
   '--slax-font-serif',
-  '--slax-font-mono'
+  '--slax-font-mono',
+  '--slax-ease-spring',
+  '--slax-dur-normal',
+  '--slax-dur-fast'
 ]
+
+// E-ink 必须显式 override 的 token：blur 在 :root 是 blur(16px) saturate(150%)，
+// E-ink 必须置 none 以禁用毛玻璃残影
+const EINK_OVERRIDE_TOKENS = ['--slax-blur']
 
 const extractBlock = (selector: string): string => {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -132,5 +140,16 @@ describe('theme.tokens.css 静态校验', () => {
       expect(dark, `dark 不应重复声明 ${t}`).not.toContain(t)
       expect(eink, `eink 不应重复声明 ${t}`).not.toContain(t)
     }
+  })
+
+  it("[data-slax-theme='eink'] 块必须显式 override --slax-blur 为 none", () => {
+    // theme.css 内 `[data-slax-theme='eink'] *` 通配规则会禁用 backdrop-filter，
+    // 但若有写法直接消费 var(--slax-blur)（绕过通配的内联 / 行内场景），
+    // E-ink 仍会落到 :root 的 blur(16px) 值。强制 eink 块 override --slax-blur: none 兜住此情况
+    const eink = extractBlock("[data-slax-theme='eink']")
+    for (const t of EINK_OVERRIDE_TOKENS) {
+      expect(eink, `eink 必须 override ${t}`).toContain(t)
+    }
+    expect(eink, 'eink --slax-blur 必须为 none').toMatch(/--slax-blur:\s*none/)
   })
 })

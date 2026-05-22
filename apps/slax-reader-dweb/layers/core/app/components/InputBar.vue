@@ -99,7 +99,7 @@ defineExpose({
 
   .operate {
     // bg-#16B998 品牌绿主按钮 + #14A698 hover 暗一档，保留
-    --style: 'relative bg-#16B998 hover:(bg-#14A698) transition-all duration-250';
+    --style: 'relative bg-#16B998 hover:(bg-#14A698) transition-all duration-normal';
 
     &.loading,
     &.disabled {
@@ -108,7 +108,7 @@ defineExpose({
     }
 
     button {
-      --style: 'shrink-0 h-full pl-16px pr-20px text-(ellipsis) md:(min-w-100px) active:(scale-105) whitespace-nowrap overflow-hidden flex-center transition-all duration-250';
+      --style: 'shrink-0 h-full pl-16px pr-20px text-(ellipsis) md:(min-w-100px) active:(scale-105) whitespace-nowrap overflow-hidden flex-center transition-all duration-normal';
       img {
         --style: w-24px h-24px;
       }

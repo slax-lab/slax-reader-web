@@ -666,7 +666,7 @@ $copyButtonXOffset: 20px;
     --style: z-1 absolute top-20px right-20px flex-center;
 
     button {
-      --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
     }
 
     .close {
@@ -728,7 +728,7 @@ $copyButtonXOffset: 20px;
         }
 
         button {
-          --style: w-11px h-10px flex-center rounded-full transition-transform duration-250;
+          --style: w-11px h-10px flex-center rounded-full transition-transform duration-normal;
 
           &:hover {
             --style: scale-105;
@@ -776,7 +776,7 @@ $copyButtonXOffset: 20px;
         }
 
         .loading-bottom {
-          --style: 'absolute left-0 top-full left-0 pt-[calc(24px+32px)] pl-[calc(4px+20px)] transition-top duration-250';
+          --style: 'absolute left-0 top-full left-0 pt-[calc(24px+32px)] pl-[calc(4px+20px)] transition-top duration-normal';
         }
       }
 
@@ -812,7 +812,7 @@ $copyButtonXOffset: 20px;
 
     .button {
       // #16b998 当前品牌绿主按钮 + #16b998aa hover 半透明，保留
-      --style: mt-24px w-200px h-48px rounded-24px text-(body txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
+      --style: mt-24px w-200px h-48px rounded-24px text-(body txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-fast;
 
       &:hover {
         // #16b998aa 品牌绿 hover 半透明，保留

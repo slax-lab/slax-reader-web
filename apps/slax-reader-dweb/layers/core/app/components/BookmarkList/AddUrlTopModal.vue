@@ -92,7 +92,7 @@ const closeModal = () => {
 
 .top-modals-enter-active,
 .top-modals-leave-active {
-  transition: all 0.25s;
+  transition: all var(--slax-dur-normal);
 }
 
 .top-modals-enter-from,

@@ -43,7 +43,7 @@ defineProps({
 .quote-tweet-container {
   // #e1e8ed / #f5f8fa 是 Twitter 嵌入引用块的浅蓝灰色板（与 _twitter.scss 同源），保留
   --style: mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px;
-  --style: 'hover:bg-#f5f8fa transition-colors duration-250';
+  --style: 'hover:bg-#f5f8fa transition-colors duration-normal';
 
   .quote-tweet {
     --style: '!mt-0';

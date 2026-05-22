@@ -382,7 +382,7 @@ const panelClick = (type: BookmarkPanelType) => {
   --style: w-full min-h-screen relative flex justify-center items-start bg-surface-solid;
 
   .user-icon {
-    --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
+    --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-normal hover:scale-102 active:scale-105';
     img {
       --style: absolute w-full h-full top-0 left-0 object-contain;
     }

@@ -151,7 +151,7 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .edit-tag-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
     // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
@@ -159,7 +159,7 @@ const t = (text: string) => {
 }
 
 button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 }
 
 .modal-content {
@@ -200,7 +200,7 @@ button {
 
     button:not(.delete) {
       // #16B998 品牌绿（slax 主色）保存按钮底色，保留
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-250;
+      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
 
       &:hover {
         // #14a689 品牌绿（slax 主色）按钮悬停态，保留
@@ -221,6 +221,6 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

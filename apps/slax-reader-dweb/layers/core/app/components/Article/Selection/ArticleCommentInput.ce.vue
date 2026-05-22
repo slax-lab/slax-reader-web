@@ -165,7 +165,7 @@ const sendMessage = () => {
     }
 
     .send-button {
-      --style: mb-2px ml-8px self-end w-16px h-16px bg-contain transition-transform duration-250;
+      --style: mb-2px ml-8px self-end w-16px h-16px bg-contain transition-transform duration-normal;
       background-image: url('@images/button-tiny-send.png');
 
       &.disabled {
@@ -192,6 +192,6 @@ const sendMessage = () => {
 
 .input-enter-active,
 .input-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

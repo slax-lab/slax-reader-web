@@ -128,7 +128,7 @@ onUnmounted(() => {})
   --style: p-4px shadow-[0px_20px_40px_0px_#00000029] rounded-8px border-(1px solid #a8b1cd33) inline-flex items-center bg-surface-solid;
 
   .menu {
-    --style: 'px-10px py-4px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-250';
+    --style: 'px-10px py-4px rounded-6px whitespace-nowrap cursor-pointer flex items-center active:(scale-105) transition-all duration-normal';
 
     &:hover {
       --style: bg-surface;

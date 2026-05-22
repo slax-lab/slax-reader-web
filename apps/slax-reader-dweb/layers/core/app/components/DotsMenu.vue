@@ -89,6 +89,6 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
 
 .operates-enter-active,
 .operates-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

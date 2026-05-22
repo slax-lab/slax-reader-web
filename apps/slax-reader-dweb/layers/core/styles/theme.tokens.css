@@ -91,6 +91,20 @@
   --slax-fs-meta: 14px;
   --slax-fs-aux: 13px;
   --slax-fs-tag: 12px;
+
+  /* 特效参数（来源：design-system §6）：
+   *   --slax-blur:        磨砂玻璃；topbar / surface 浮层统一用 backdrop-filter: var(--slax-blur)
+   *   --slax-ease-spring: 弹性曲线，浮层滑入 / 面板出现等阅读侧动画统一使用
+   *   --slax-dur-normal:  Transition 标准时长 0.2s
+   *   --slax-dur-fast:    Transition 快速时长 0.15s
+   * E-ink 由 theme.css 内 `[data-slax-theme='eink'] *` 通配禁用 transition / animation /
+   *   backdrop-filter，本块 eink override 把 --slax-blur 显式置 none，作用于直接消费
+   *   var(--slax-blur) 的写法（绕过通配的内联 / 行内场景），保证墨水屏零毛玻璃残影。
+   */
+  --slax-blur: blur(16px) saturate(150%);
+  --slax-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --slax-dur-normal: 0.2s;
+  --slax-dur-fast: 0.15s;
 }
 
 /* Dark（夜间） */
@@ -156,4 +170,7 @@
 
   --slax-radius: 4px;
   --slax-radius-sm: 2px;
+
+  /* E-ink 显式禁用毛玻璃；transition / animation 由 theme.css 内通配规则统一禁用 */
+  --slax-blur: none;
 }

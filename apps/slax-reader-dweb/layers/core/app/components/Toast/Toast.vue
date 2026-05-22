@@ -69,7 +69,7 @@ const onAfterLeave = () => {
 
 .toast-enter-active,
 .toast-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>
 

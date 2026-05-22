@@ -57,7 +57,7 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .edit-name-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
     // bg-#0f141999 深色半透蒙层底色，保留
     --style: bg-#0f141999;
@@ -97,6 +97,6 @@ const t = (text: string) => {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>
