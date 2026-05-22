@@ -52,7 +52,20 @@
   --slax-content-w: 820px;
   --slax-content-min-w: 640px;
   --slax-side-panel-w: 440px;
-  --slax-header-height: 44px;
+
+  /* 顶栏高度三档（来源：design-system §5.1）：
+   *   --slax-header-h-list:     列表页 / error / guide / [...slug] / 营销页等默认场景
+   *   --slax-header-h-snapshot: 快照页桌面（pages/w/[id]、pages/sw/[id]），通过页面 layout
+   *                             override --slax-header-height 切到此值
+   *   --slax-header-h-mobile:   H5 移动模式，由 theme.css 内 @media (max-width: 768px)
+   *                             把 --slax-header-height 切到此值
+   * 默认值 --slax-header-height = list 56px；任意页面用 h-header / var(--slax-header-height)
+   * 都先拿到默认 list 高，需要快照档的页面在自己 scoped 内 override --slax-header-height 即可
+   */
+  --slax-header-h-list: 56px;
+  --slax-header-h-snapshot: 52px;
+  --slax-header-h-mobile: 48px;
+  --slax-header-height: var(--slax-header-h-list);
 
   /* 字体 */
   --slax-font-sans: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
