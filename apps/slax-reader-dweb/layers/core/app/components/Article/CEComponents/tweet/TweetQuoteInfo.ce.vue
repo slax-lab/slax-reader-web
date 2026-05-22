@@ -41,6 +41,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .quote-tweet-container {
+  // #e1e8ed / #f5f8fa 是 Twitter 嵌入引用块的浅蓝灰色板（与 _twitter.scss 同源），保留
   --style: mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px;
   --style: 'hover:bg-#f5f8fa transition-colors duration-250';
 
@@ -55,7 +56,7 @@ defineProps({
       }
 
       .quote-title {
-        --style: 'font-bold !text-(14px #333)';
+        --style: 'font-bold !text-(14px txt)';
       }
 
       img + .quote-title {
@@ -64,6 +65,7 @@ defineProps({
     }
 
     .quote-description {
+      // #555 介于 token text-muted (#6a5f52) 与 text (#1a1814) 之间，保留为 quote 引用色
       --style: mt-10px text-(14px #555);
     }
 
