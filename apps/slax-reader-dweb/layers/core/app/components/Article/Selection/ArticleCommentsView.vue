@@ -224,7 +224,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
   --style: size-full flex flex-col bg-#262626 justify-between;
 
   .title {
-    --style: pt-24px px-24px pb-12px text-(16px #999) line-height-22px;
+    --style: pt-24px px-24px pb-12px text-(16px txt-light) line-height-22px;
   }
 
   .comment-list-container {

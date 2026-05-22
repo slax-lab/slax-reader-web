@@ -13,7 +13,7 @@
               :button-enabled="isShowTransferButton"
               :tipsText="shareText"
               :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
-              :buttonTextColor="isShowTransferButton ? '#5490C2' : '#999999'"
+              :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
               :background-color="'#EDF8F2'"
               @clickButton="transferSaveClick"
             >
@@ -375,10 +375,10 @@ const panelClick = (type: BookmarkPanelType) => {
 
 <style lang="scss" scoped>
 .bookmark-detail {
-  --style: w-full min-h-screen relative flex justify-center items-start bg-#fcfcfc;
+  --style: w-full min-h-screen relative flex justify-center items-start bg-surface-solid;
 
   .user-icon {
-    --style: 'rounded-full border-(1px #ffffff solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
+    --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
     img {
       --style: absolute w-full h-full top-0 left-0 object-contain;
     }
@@ -416,6 +416,6 @@ const panelClick = (type: BookmarkPanelType) => {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  --style: bg-#fcfcfc;
+  --style: bg-surface-solid;
 }
 </style>

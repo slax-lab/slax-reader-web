@@ -2,7 +2,8 @@
   <div class="bookmarks-view">
     <div class="fixed left-0 top-0 z-100 h-0px w-full flex-center">
       <Transition name="list-loading">
-        <div class="h-30px w-30px translate-y-50px rounded-full bg-#fff shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
+        <div class="bg-surface-solid h-30px w-30px translate-y-50px rounded-full shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
+          <!-- color-#16b998 当前品牌绿 loading spinner，保留 -->
           <div class="i-svg-spinners:90-ring text-24px color-#16b998"></div>
         </div>
       </Transition>
@@ -639,15 +640,16 @@ const notificationBack = () => {
     .tools-sidebar {
       --style: mb-80px w-full flex flex-col justify-end;
       .add-url {
-        --style: 'mt-24px bg-#fcfcfc border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
+        // #a8b1cd3d 蓝灰辅助边框（与 BookmarkPanel 同源），保留
+        --style: 'mt-24px bg-surface-solid border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
         button {
-          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-#f5f5f3) transition-all duration-250 active:(scale-105)';
+          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-surface) transition-all duration-250 active:(scale-105)';
           img {
             --style: object-fit w-24px h-24px;
           }
 
           span {
-            --style: mt-4px text-(10px #999999) line-height-14px;
+            --style: mt-4px text-(10px txt-light) line-height-14px;
           }
         }
       }
@@ -655,7 +657,8 @@ const notificationBack = () => {
       .feedback {
         --style: mt-35px w-68px flex-center;
         button {
-          --style: 'rounded-full bg-#FCFCFC w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-#f5f5f3) active:(scale-110) transition-all duration-250';
+          // #a8b1cd14 蓝灰辅助 + #00000014 浮动按钮阴影，保留
+          --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-250';
           box-shadow: 0px 15px 30px 0px #00000014;
 
           img {
@@ -679,7 +682,7 @@ const notificationBack = () => {
   }
 
   .no-data {
-    --style: pb-52px text-(12px #999999) select-none relative shrink-0;
+    --style: pb-52px text-(12px txt-light) select-none relative shrink-0;
     .empty {
       --style: relative pt-168px flex-col items-center h-full flex-center;
       .icon {
@@ -697,7 +700,7 @@ const notificationBack = () => {
   }
 
   .bottom-status {
-    --style: py-52px text-(12px #999999) select-none relative shrink-0;
+    --style: py-52px text-(12px txt-light) select-none relative shrink-0;
 
     & > * {
       --style: flex-center absolute inset-0;
@@ -711,6 +714,7 @@ const notificationBack = () => {
 
     .end {
       .line {
+        // #a8b1cd3d 带蓝调的半透明分隔线（与 BookmarkArticle .end .line 同源），保留
         --style: w-36px h-1px bg-#a8b1cd3d;
       }
 
@@ -739,6 +743,6 @@ const notificationBack = () => {
 <!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 body {
-  --style: 'max-md:(bg-#fcfcfc) md:(bg-#fcfcfc)';
+  --style: 'max-md:(bg-surface-solid) md:(bg-surface-solid)';
 }
 </style>

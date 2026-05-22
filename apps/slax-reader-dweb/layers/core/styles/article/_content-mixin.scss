@@ -18,18 +18,19 @@
 
   /* 引用类 */
   blockquote {
-    --style: border-l-(3px solid #33333314) pl-3 text-(#33333399) line-height-24px;
+    // text-#33333399 (60% 半透明黑) 与 token --slax-text-muted 不完全对应，保留 inline 引用
+    --style: border-l-(3px solid border) pl-3 text-(#33333399) line-height-24px;
   }
 
   /* 表格类 */
   table {
-    --style: '!w-full border-separate border border-spacing-5px border-(1px solid #33333314)';
+    --style: '!w-full border-separate border border-spacing-5px border-(1px solid border)';
   }
 
   th,
   tr,
   td {
-    --style: text-align-left border-(1px solid #33333314);
+    --style: text-align-left border-(1px solid border);
   }
 
   /* 链接类 */
@@ -48,7 +49,7 @@
   }
 
   img {
-    --style: max-w-full h-auto bg-#f5f5f3 object-contain;
+    --style: max-w-full h-auto bg-surface object-contain;
     & + img {
       --style: '!mt-10px';
     }
@@ -113,7 +114,7 @@
     }
 
     & > li::before {
-      --style: 'content-empty !absolute bg-#333333 w-4px h-4px rounded-full top-11px -left-20px';
+      --style: 'content-empty !absolute bg-txt w-4px h-4px rounded-full top-11px -left-20px';
     }
   }
 

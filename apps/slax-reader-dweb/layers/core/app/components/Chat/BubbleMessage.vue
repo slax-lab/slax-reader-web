@@ -218,12 +218,12 @@ const quoteClick = (quote: QuoteData) => {
 
   &.left {
     // dark 模式下 left bubble 让外层接管背景（透明），保留 dark:bg-transparent override
-    --style: ml-0 mr-auto justify-start mr-50px bg-surface text-txt dark: (bg-transparent text-txt);
+    --style: 'ml-0 mr-auto justify-start mr-50px bg-surface text-txt dark:(bg-transparent text-txt)';
   }
 
   &.right {
     // right bubble 是用户消息气泡，深色背景+浅文字，与全站主题反色（light/dark 都用深底白字），保留
-    --style: mr-0 my-8px ml-auto justify-end min-w-auto max-w-366px bg-#333 text-#fcfcfc dark: (bg-#333 text-#ffffffe6);
+    --style: 'mr-0 my-8px ml-auto justify-end min-w-auto max-w-366px bg-#333 text-#fcfcfc dark:(bg-#333 text-#ffffffe6)';
   }
 
   & > *:not(.dark-trigger) {

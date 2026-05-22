@@ -67,9 +67,9 @@
             </div>
             <div class="invalid" v-else-if="isInvalidBookmark">
               <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-              <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-              <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-              <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
+              <span class="text-txt mt-30px text-20px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+              <span class="text-txt mt-16px text-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+              <span class="text-txt mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
             </div>
             <div class="refresh" v-else-if="isNeedRefresh">
               <span>{{ $t('common.tips.fetch_error') }}</span>
@@ -389,7 +389,7 @@ const {
   --style: relative w-full h-100vh flex flex-col;
 
   .header {
-    --style: 'absolute top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center shrink-0 justify-between select-none bg-#f5f5f3';
+    --style: 'absolute top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center shrink-0 justify-between select-none bg-surface';
 
     .left {
       --style: ml-40px h-full flex items-center relative;
@@ -449,11 +449,11 @@ const {
 
       .refresh {
         span {
-          --style: mt-16px text-(14px #999) line-height-20px;
+          --style: mt-16px text-(14px txt-light) line-height-20px;
         }
 
         button {
-          --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+          --style: 'mt-100px w-274px h-48px text-(15px txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
         }
       }
     }
@@ -464,6 +464,6 @@ const {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  background-color: #f5f5f3;
+  background-color: var(--slax-surface);
 }
 </style>

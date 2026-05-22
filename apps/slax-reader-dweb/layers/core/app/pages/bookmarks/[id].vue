@@ -26,7 +26,7 @@
                 <button class="share" @click="shareUrl"></button>
               </ShareBubbleTips>
               <DotsMenu v-if="!menuLoading" :actions="menuActions" @action="menuClick" />
-              <div v-else class="i-svg-spinners:90-ring w-1em text-#333333"></div>
+              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
             </div>
           </div>
         </template>
@@ -77,9 +77,9 @@
         </div>
         <div class="invalid" v-else-if="isInvalidBookmark">
           <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-          <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-          <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
+          <span class="text-txt mt-30px text-20px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+          <span class="text-txt mt-16px text-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+          <span class="text-txt mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
         </div>
         <div class="processing" v-else-if="detail?.status === 'pending'">
           <div class="i-svg-spinners:clock mt-1px w-1em"></div>
@@ -402,7 +402,7 @@ const panelClick = (type: BookmarkPanelType) => {
 
 <style lang="scss" scoped>
 .bookmark-detail {
-  --style: w-full relative flex justify-center items-start bg-#fcfcfc;
+  --style: w-full relative flex justify-center items-start bg-surface-solid;
 
   .header {
     --style: h-full flex justify-between items-center;
@@ -450,7 +450,7 @@ const panelClick = (type: BookmarkPanelType) => {
       }
 
       span {
-        --style: text-(15px #1f1f1f) font-bold line-height-18px;
+        --style: text-(15px txt) font-bold line-height-18px;
       }
 
       .archive-loading {
@@ -479,6 +479,6 @@ const panelClick = (type: BookmarkPanelType) => {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  --style: bg-#fcfcfc;
+  --style: bg-surface-solid;
 }
 </style>
