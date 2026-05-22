@@ -29,6 +29,33 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
+
+  // 隔离 stacking context，让 body::before 渐变层只覆盖 body 自身而不冒泡至父级
+  isolation: isolate;
+}
+
+// 全局氛围渐变层：跟随主题切换的暖色径向渐变
+// E-ink 主题通过 token (--slax-grad-a/b: transparent) 自动隐藏渐变
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%);
+}
+
+// Nuxt 渲染入口与默认布局：放在渐变层之上
+#__nuxt,
+.default-layout {
+  position: relative;
+  z-index: 1;
+}
+
+// 文本选区色
+::selection {
+  background: var(--slax-selection);
+  color: var(--slax-text);
 }
 
 button {
