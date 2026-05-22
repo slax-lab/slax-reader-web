@@ -128,6 +128,7 @@ const handler = () => {
       scroll-snap-align: center;
 
       &:before {
+        // bg-#ECECEC 时间轴主轨浅灰（与 token border 不同语义，专属时间轴色），保留
         --style: content-empty absolute top-0px left-0 right-0 h-2px bg-#ECECEC -translate-y-1/2;
       }
 
@@ -137,6 +138,7 @@ const handler = () => {
         }
 
         &:after {
+          // bg-#ECECEC 时间轴起始箭头浅灰（与主轨同源），保留
           --style: content-empty absolute left-0 top-0 w-18px h-12px bg-#ECECEC -translate-y-1/2;
 
           clip-path: polygon(0 50%, 100% 0, 72% 50%, 100% 100%); /* 定义箭头形状 */
@@ -175,6 +177,7 @@ const handler = () => {
             --style: text-(#16b998 18px);
 
             &::after {
+              // border-#16b998 active 时间节点品牌绿描边（slax 主色，与全局主题正交），保留
               --style: border-#16b998;
             }
           }

@@ -40,10 +40,12 @@ const onAfterLeave = () => {
     py-6px px-16px text-(14px) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
 
   &.success {
+    // #16b998 品牌绿边框/文字 + #E7FAF6 浅绿底，成功 toast，保留
     --style: border-(1px solid #16b998) bg-#E7FAF6 text-(#16b998);
   }
 
   &.error {
+    // #f4c982 浅橙边框 + #FFF6E7 黄底 + #f19943 橙文，错误 toast，保留
     --style: border-(1px solid #f4c982) bg-#FFF6E7 text-(#f19943);
   }
 

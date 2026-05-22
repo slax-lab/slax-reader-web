@@ -262,6 +262,7 @@ const addingTagClick = (e: MouseEvent) => {
       // --style: relative;
 
       button {
+        // bg-#a28d6414 tags 金黄系按钮底（褐金 8% 透明），保留
         --style: bg-#a28d6414 rounded-4px w-24px h-24px flex-center;
         img {
           --style: w-10px h-10px;
@@ -276,6 +277,7 @@ const addingTagClick = (e: MouseEvent) => {
           --style: rounded-6px bg-#fcfcfc border-(1px solid border) px-10px py-9px h-36px text-(13px txt-light) line-height-18px w-full transition-all duration-300;
 
           &:focus {
+            // #f4c982 / #A28D64 tags 金黄聚焦边框 + 褐金文字，保留
             --style: border-(1.5px #f4c982) text-#A28D64;
           }
         }
@@ -305,6 +307,7 @@ const addingTagClick = (e: MouseEvent) => {
               }
 
               &:has(.ai) {
+                // #e4d6ba4d / #333333ad tags 金黄 AI 标签弱化边框 + 黑色 68% 文字，保留
                 --style: border-#e4d6ba4d;
                 span {
                   --style: text-#333333ad;
@@ -324,6 +327,7 @@ const addingTagClick = (e: MouseEvent) => {
         }
 
         .list-loading {
+          // bg-#ffffff99 浮层加载遮罩（白色 60% 透明），保留
           --style: absolute inset-0 flex-center bg-#ffffff99;
         }
       }

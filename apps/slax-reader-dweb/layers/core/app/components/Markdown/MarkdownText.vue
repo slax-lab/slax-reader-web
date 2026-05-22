@@ -109,15 +109,15 @@ const handleAnchors = () => {
 
         // #a8b1cd / #A8B1CD66 列表 marker 与嵌套 marker 都是蓝灰辅助色板，与 BubbleMessage / BookmarkArticle 同源，保留
         &::marker {
-          --style: content-none hidden text-#a8b1cd dark: text-#A8B1CD66;
+          --style: 'content-none hidden text-#a8b1cd dark:text-#A8B1CD66';
         }
 
         & li {
           &::marker {
-            --style: content-none hidden text-#a8b1cd dark: text-#A8B1CD66;
+            --style: 'content-none hidden text-#a8b1cd dark:text-#A8B1CD66';
           }
           &:before {
-            --style: box-border top-8px left-4px w-4px h-4px border border-solid bg-surface-solid border-#a8b1cd dark: bg-#A8B1CD66 dark: border-#A8B1CD66;
+            --style: 'box-border top-8px left-4px w-4px h-4px border border-solid bg-surface-solid border-#a8b1cd dark:(bg-#A8B1CD66 border-#A8B1CD66)';
           }
         }
 
@@ -126,16 +126,18 @@ const handleAnchors = () => {
         }
 
         &:before {
-          --style: absolute top-8px left-4px w-4px h-4px content-empty rounded bg-#a8b1cd dark: bg-#A8B1CD66;
+          --style: 'absolute top-8px left-4px w-4px h-4px content-empty rounded bg-#a8b1cd dark:bg-#A8B1CD66';
         }
       }
     }
 
     &:deep(a) {
+      // #5080a8 第三方蓝色锚点（twitter / 链接体系），保留
       --style: -top-1px relative text-#5080a8;
     }
 
     &:deep(a:not(.slax_link)) {
+      // #5080a8 第三方蓝色锚点（与上方 a 同源），保留
       color: #5080a8;
     }
 

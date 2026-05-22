@@ -43,6 +43,7 @@ const buttonClick = () => {
   --style: relative bg-surface-solid px-12px py-13px rounded-8px border-(1px solid #a8b1cd3d) overflow-hidden;
 
   &.clickable {
+    // bg-#fafafa 通用浅灰 hover 底色，保留
     --style: 'transition-all duration-250 hover:(scale-105 bg-#fafafa) active:(scale-110)';
   }
 

@@ -39,6 +39,7 @@ defineProps({
       --style: pl-12px relative;
 
       &::before {
+        // bg-#a8b1cd 蓝灰列表 marker 装饰圆点，保留
         --style: content-empty absolute left-0 top-1/2 -translate-y-1/2 w-4px h-4px bg-#a8b1cd rounded-full;
       }
 

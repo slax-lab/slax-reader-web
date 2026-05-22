@@ -366,6 +366,7 @@ defineExpose({
 
   .article-detail {
     *::selection {
+      // bg-#ffd99933 文本选区暖黄高亮（与 mark 高亮系同源），保留
       --style: 'bg-#ffd99933';
     }
 
@@ -387,6 +388,7 @@ defineExpose({
       }
 
       &.highlighted {
+        // bg-#FCF4E8 mark 高亮浅米色底（与 mark.css 同源），保留
         --style: 'bg-#FCF4E8';
       }
 
@@ -402,6 +404,7 @@ defineExpose({
 
         &::after {
           content: '···';
+          // bg-#f6af69ee mark 评论小圆点暖橙底（与 mark 系强调色同源），保留
           --style: absolute h-25px w-25px px-0px rounded-full bg-#f6af69ee -right-5px -top-5px line-height-25px text-txt-btn text-15px text-align-center transition-transform
             duration-250;
         }

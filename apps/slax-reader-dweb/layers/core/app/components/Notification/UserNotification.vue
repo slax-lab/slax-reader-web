@@ -236,6 +236,7 @@ if (notification.isSupportedNotification) {
   }
 
   .dot {
+    // bg-#f6af69 通知未读橙色提示点，保留
     --style: absolute top-0 right-0 w-5px h-5px rounded-full bg-#f6af69;
   }
 

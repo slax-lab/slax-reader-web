@@ -131,6 +131,7 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 .feedback-modal {
   --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
@@ -213,13 +214,16 @@ button {
     }
 
     .submit {
+      // #16B998 品牌绿（slax 主色）提交按钮底色，保留
       --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
       &.disabled {
+        // #ccc 通用 UI 灰禁用底色，保留
         --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';
       }
 
       &:not(.disabled):hover {
+        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
         --style: bg-#14a689;
       }
 
@@ -230,6 +234,7 @@ button {
   }
 
   .loading {
+    // #ffffff40 反色体系浅白加载遮罩，保留
     --style: absolute inset-0 bg-#ffffff40 flex-center;
   }
 }

@@ -29,6 +29,7 @@
   }
 
   &::v-deep(a) {
+    // text-#4ECACD markdown 链接蓝绿色（专属排版色），保留
     --style: text-#4ECACD;
   }
 

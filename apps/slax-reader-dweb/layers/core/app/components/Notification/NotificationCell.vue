@@ -154,6 +154,7 @@ const handleClick = (): void => {
           --style: ml-8px text-(12px txt-light) line-height-17px;
 
           &.highlighted {
+            // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
             --style: text-#F6AF69;
           }
         }
@@ -197,6 +198,7 @@ const handleClick = (): void => {
           }
 
           &::after {
+            // bg-#d6d6d6 引用左侧分隔短线（中性浅灰，与 token border 不同语义），保留
             --style: content-empty absolute left-0 top-1/2 w-2px h-21px bg-#d6d6d6 -translate-y-1/2;
           }
         }
@@ -237,6 +239,7 @@ const handleClick = (): void => {
           --style: ml-16px text-(13px txt-light) line-height-18px;
 
           &.highlighted {
+            // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
             --style: text-#F6AF69;
           }
         }
@@ -281,6 +284,7 @@ const handleClick = (): void => {
           }
 
           &::after {
+            // bg-#d6d6d6 引用左侧分隔短线（中性浅灰，与 token border 不同语义），保留
             --style: content-empty absolute left-0 top-1/2 w-2px h-21px bg-#d6d6d6 -translate-y-1/2;
           }
         }

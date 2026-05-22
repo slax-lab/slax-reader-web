@@ -52,6 +52,7 @@ defineExpose({
   }
 
   .sidebar-container {
+    // #a8b1cd33 蓝灰半透分隔线 + bg-#f5f5f3 浅米白侧栏底色，保留
     --style: 'relative z-10 max-md:(pb-10 !w-full h-80vh border-t-(1px solid #a8b1cd33)) md:(h-full border-l-(1px solid #a8b1cd33) shadow-[-20px_0px_40px_0px_#0000000a]) bg-#f5f5f3 overflow-auto box-content';
 
     &.expanded {

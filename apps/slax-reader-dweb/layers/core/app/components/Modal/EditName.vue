@@ -16,6 +16,7 @@
           <button @click="submitBookmarkName">{{ t('common.operate.save') }}</button>
         </div>
         <Transition name="opacity">
+          <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
             <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
           </div>
@@ -98,6 +99,7 @@ const t = (text: string) => {
 .edit-name-modal {
   --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
@@ -146,9 +148,11 @@ button {
   .bottom {
     --style: mt-20px flex justify-end items-center;
     button {
+      // #16B998 品牌绿（slax 主色）保存按钮底色，保留
       --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
 
       &:hover {
+        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
         --style: bg-#14a689;
       }
 

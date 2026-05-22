@@ -35,6 +35,7 @@ const isShowBubble = ref(false)
   }
 
   .bubble-container {
+    // bg-#0F1419FF 深色 tooltip 反色底，保留
     --style: -ml-12px mt-11px z-12 absolute top-full left-0 px-8px py-7px bg-#0F1419FF flex items-center rounded-6px shadow-[0px_20px_30px_0px_#0000001f];
 
     &::before {
