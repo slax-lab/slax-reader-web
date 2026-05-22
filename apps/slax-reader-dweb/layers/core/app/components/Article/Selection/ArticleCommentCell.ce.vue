@@ -15,10 +15,7 @@
         <span class="date">{{ showCreateTime(comment) }}</span>
         <div class="operates" v-if="comment.markUid && !comment.loading">
           <template v-if="!comment.operateLoading">
-            <button
-              class="reply bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
-              @click="replyComment(comment)"
-            ></button>
+            <button class="reply group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
             <button
               class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/comment:!opacity-100"
               v-if="canDeleteComment(comment)"
@@ -46,10 +43,7 @@
             <span class="date">{{ showCreateTime(comment) }}</span>
             <div class="operates" v-if="childComment.markUid && !childComment.loading">
               <template v-if="!childComment.operateLoading">
-                <button
-                  class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/child:!opacity-100"
-                  @click="replyComment(childComment)"
-                ></button>
+                <button class="reply-child group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
                 <button
                   class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/child:!opacity-100"
                   v-if="!childComment.isDeleted && canDeleteComment(childComment)"
@@ -155,6 +149,10 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 // 本组件消费的 token（无 dark prop，全靠宿主 data-slax-theme 切换）：
 //   --slax-surface-solid, --slax-text, --slax-text-light, --slax-border
 // 其余 (#99999933 蓝灰半透明分隔线) 保留。
+//
+// reply / reply-child 资源切图（双 PNG）：
+//   shadow DOM 不能匹配 [data-slax-theme] / :host-context()，故 light/dark 切图依赖
+//   父级 ArticleSelectionPanel 的 dark prop（在其 scoped 内 `.dark` 容器 cascade 至此）。
 
 .article-comment-cell {
   --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px bg-surface-solid';
@@ -197,6 +195,11 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       --style: flex-center;
       button {
         --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-250';
+      }
+
+      .reply,
+      .reply-child {
+        background-image: url('@images/tiny-comment-icon.png');
       }
     }
   }

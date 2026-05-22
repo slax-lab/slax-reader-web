@@ -51,11 +51,7 @@
                 @input="handleInput"
               >
               </textarea>
-              <button
-                :class="{ disabled: !sendable }"
-                class="bg-[url('@images/button-tiny-send.png')] dark:bg-[url('@images/button-tiny-send-dark.png')]"
-                @click="sendMessage"
-              ></button>
+              <button class="send-button" :class="{ disabled: !sendable }" @click="sendMessage"></button>
             </div>
           </div>
         </Transition>
@@ -511,8 +507,9 @@ defineExpose({
         }
       }
 
-      button {
+      button.send-button {
         --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-250;
+        background-image: url('@images/button-tiny-send.png');
 
         &.disabled {
           --style: opacity-50 cursor-auto;
@@ -598,6 +595,24 @@ textarea.shake {
   --slax-text: #e8e2d8;
   --slax-text-light: #6a5f52;
   --slax-text-muted: #9a8e7f;
+
+  // 资源切图（双 PNG）：CSS 变量无法承载 url() 的 dark 切换语义在 shadow DOM 内的稳定路径，
+  // 故在 .dark 容器内显式覆盖：
+  //   - panel 本组件 .send-button（comment-input-wrapper > button）
+  //   - 子组件 ArticleCommentInput .send-button（:deep 穿透）
+  //   - 子组件 ArticleCommentCell .reply / .reply-child（:deep 穿透）
+  .send-button {
+    background-image: url('@images/button-tiny-send-dark.png');
+  }
+
+  :deep(.send-button) {
+    background-image: url('@images/button-tiny-send-dark.png');
+  }
+
+  :deep(.reply),
+  :deep(.reply-child) {
+    background-image: url('@images/tiny-comment-icon-dark.png');
+  }
 }
 </style>
 
