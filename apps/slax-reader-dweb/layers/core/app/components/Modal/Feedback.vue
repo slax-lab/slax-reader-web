@@ -146,7 +146,7 @@ button {
   .header {
     --style: relative z-1 flex justify-between items-center;
     span {
-      --style: text-(13px txt-light) line-height-18px;
+      --style: text-(aux txt-light) line-height-18px;
     }
 
     button {
@@ -160,7 +160,7 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
-      --style: 'w-full text-(14px ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
+      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
     }
 
     .link {
@@ -176,11 +176,11 @@ button {
     }
 
     textarea {
-      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(15px txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(meta txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(15px txt-light);
+        --style: text-(meta txt-light);
       }
     }
   }
@@ -215,7 +215,7 @@ button {
 
     .submit {
       // #16B998 品牌绿（slax 主色）提交按钮底色，保留
-      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-250;
 
       &.disabled {
         // #ccc 通用 UI 灰禁用底色，保留

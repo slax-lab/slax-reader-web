@@ -79,11 +79,11 @@ const logoClick = () => {
       }
 
       span {
-        --style: mt-16px text-(14px #999) line-height-20px;
+        --style: mt-16px text-(meta #999) line-height-20px;
       }
 
       button {
-        --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+        --style: 'mt-100px w-274px h-48px text-(meta #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
       }
     }
   }

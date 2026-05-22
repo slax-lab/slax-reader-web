@@ -82,7 +82,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
 
       &:before {
         // #E9C596 是 Pro 标签的金黄底色，与 tags 金黄系列同源，保留
-        --style: absolute top-0 left-0 w-full h-20px bg-#E9C596 flex-center font-600 text-(12px txt-btn);
+        --style: absolute top-0 left-0 w-full h-20px bg-#E9C596 flex-center font-600 text-(tag txt-btn);
         content: 'Pro';
       }
     }
@@ -104,7 +104,7 @@ const canShowPanelButton = (type: BookmarkPanelType) => {
         }
 
         span {
-          --style: mt-4px text-(10px txt-light) line-height-14px text-align-center;
+          --style: mt-4px text-(tag txt-light) line-height-14px text-align-center;
         }
       }
     }

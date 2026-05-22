@@ -397,14 +397,14 @@ defineExpose({
     --style: absolute w-full h-full top-0 left-0;
 
     &:deep(.markmap-foreign) {
-      --style: font-400 text-12px line-height-20px text-txt;
+      --style: font-400 text-tag line-height-20px text-txt;
       & > div {
         --style: flex items-center;
       }
     }
 
     &:deep(.slax_link) {
-      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-10px line-height-16px rounded-3px transition-colors duration-150;
+      --style: ml-6px select-none cursor-pointer align-middle h-16px py-0 px-5px font-500 text-tag line-height-16px rounded-3px transition-colors duration-150;
       // bg-#16b9981f 当前品牌绿半透明背景，保留
       --style: '!decoration-none !bg-#16b9981f !text-txt';
 

@@ -111,11 +111,11 @@ getImportProgressData()
   --style: flex justify-between items-center px-24px py-16px border-b-(1px solid #eee);
 
   h3 {
-    --style: text-(18px txt) font-600 m-0;
+    --style: text-(card txt) font-600 m-0;
   }
 
   .close-btn {
-    --style: 'text-24px text-txt-muted bg-transparent border-none cursor-pointer hover:text-txt';
+    --style: 'text-h2 text-txt-muted bg-transparent border-none cursor-pointer hover:text-txt';
   }
 }
 
@@ -134,11 +134,11 @@ getImportProgressData()
     gap: 16px;
 
     &.header {
-      --style: text-(14px txt-muted) font-500 bg-surface mb-8px;
+      --style: text-(meta txt-muted) font-500 bg-surface mb-8px;
     }
 
     &:not(.header) {
-      --style: 'text-(14px txt) hover:bg-surface transition-colors duration-200';
+      --style: 'text-(meta txt) hover:bg-surface transition-colors duration-200';
     }
   }
 
@@ -152,7 +152,7 @@ getImportProgressData()
 
   .status {
     span {
-      --style: px-8px py-2px rounded-full text-12px;
+      --style: px-8px py-2px rounded-full text-tag;
 
       &.status-success {
         // bg-#e6f4ea text-#1e8e3e 成功状态浅绿底深绿字，保留

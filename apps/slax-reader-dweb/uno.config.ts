@@ -62,6 +62,18 @@ export default defineConfig(
         height: {
           header: 'var(--slax-header-height)'
         },
+        fontSize: {
+          // 字号语义 8 档（来源：design-system §3）。业务侧 text-display / text-h2 / text-card / ...
+          // 直接消费；非标值（15/18/24/34）在 task2 期间已按最近档映射，详见 .claude/task2-fontsize-shifts.md
+          display: 'var(--slax-fs-display)',
+          h2: 'var(--slax-fs-h2)',
+          brand: 'var(--slax-fs-brand)',
+          card: 'var(--slax-fs-card)',
+          body: 'var(--slax-fs-body)',
+          meta: 'var(--slax-fs-meta)',
+          aux: 'var(--slax-fs-aux)',
+          tag: 'var(--slax-fs-tag)'
+        },
         fontFamily: {
           serif: ['Playfair Display', 'Noto Serif SC', 'serif'],
           sans: ['Inter', 'PingFang SC', '-apple-system', 'sans-serif'],

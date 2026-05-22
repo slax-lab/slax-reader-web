@@ -51,7 +51,22 @@ const THEME_REQUIRED_TOKENS = [
   '--slax-grad-b'
 ]
 
-const ROOT_ONLY_TOKENS = ['--slax-header-height', '--slax-content-min-w', '--slax-side-panel-w', '--slax-font-sans', '--slax-font-serif', '--slax-font-mono']
+const ROOT_ONLY_TOKENS = [
+  '--slax-header-height',
+  '--slax-content-min-w',
+  '--slax-side-panel-w',
+  '--slax-fs-display',
+  '--slax-fs-h2',
+  '--slax-fs-brand',
+  '--slax-fs-card',
+  '--slax-fs-body',
+  '--slax-fs-meta',
+  '--slax-fs-aux',
+  '--slax-fs-tag',
+  '--slax-font-sans',
+  '--slax-font-serif',
+  '--slax-font-mono'
+]
 
 const extractBlock = (selector: string): string => {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

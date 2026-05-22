@@ -79,19 +79,19 @@ const handleAnchors = () => {
     }
 
     &:deep(h1) {
-      --style: font-bold text-20px line-height-28px;
+      --style: font-bold text-brand line-height-28px;
       // 顺手修复原写法 `text-0f1419` 缺 `#` 的笔误（编译时被丢弃，无 color 输出）
       --style: 'not-first:mt-32px text-txt';
     }
 
     &:deep(h2) {
-      --style: font-bold text-16px line-height-22px mt-32px text-txt;
+      --style: font-bold text-body line-height-22px mt-32px text-txt;
     }
 
     &:deep(h3),
     &:deep(h4),
     &:deep(h5) {
-      --style: font-bold text-12px mt-20px text-txt;
+      --style: font-bold text-tag mt-20px text-txt;
     }
 
     // 非标题类内容，在前面有内容时才增加间距
@@ -105,7 +105,7 @@ const handleAnchors = () => {
     &:deep(ul) {
       --style: pl-0 flex flex-col list-none;
       li {
-        --style: relative pl-20px box-border font-normal text-14px line-height-20px text-txt;
+        --style: relative pl-20px box-border font-normal text-meta line-height-20px text-txt;
 
         // #a8b1cd / #A8B1CD66 列表 marker 与嵌套 marker 都是蓝灰辅助色板，与 BubbleMessage / BookmarkArticle 同源，保留
         &::marker {
@@ -142,7 +142,7 @@ const handleAnchors = () => {
     }
 
     &:deep(.slax_link) {
-      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-10px rounded-3px transition-colors duration-150;
+      --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-tag rounded-3px transition-colors duration-150;
       // bg-#16b9981f 当前品牌绿淡背景，与列表蓝灰辅助色一同保留
       --style: '!decoration-none bg-#16b9981f text-txt';
     }

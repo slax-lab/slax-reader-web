@@ -4,19 +4,19 @@
   }
 
   &::v-deep(h1) {
-    --style: text-(34px txt) line-height-48px font-semibold;
+    --style: text-(display txt) line-height-48px font-semibold;
   }
 
   &::v-deep(h2) {
-    --style: mt-45px text-(26px txt) line-height-42px font-semibold;
+    --style: mt-45px text-(h2 txt) line-height-42px font-semibold;
   }
 
   &::v-deep(h3) {
-    --style: mt-45px text-(22px txt) line-height-36px font-semibold;
+    --style: mt-45px text-(h2 txt) line-height-36px font-semibold;
   }
 
   &::v-deep(p) {
-    --style: mt-35px text-(17px #4d4d4d) line-height-34px font-medium;
+    --style: mt-35px text-(card #4d4d4d) line-height-34px font-medium;
   }
 
   &::v-deep(ul),
@@ -25,7 +25,7 @@
   }
 
   &::v-deep(li) {
-    --style: mt-10px text-(17px #4d4d4d) line-height-34px font-medium;
+    --style: mt-10px text-(card #4d4d4d) line-height-34px font-medium;
   }
 
   &::v-deep(a) {
@@ -70,7 +70,7 @@
     &,
     * {
       // text-#4d4d4d 是 markdown 表格中等偏暗灰文字，与 token --slax-text-muted 不完全对应，保留
-      --style: border-(1px solid border) p-10px text-(16px #4d4d4d) line-height-28px font-medium;
+      --style: border-(1px solid border) p-10px text-(body #4d4d4d) line-height-28px font-medium;
     }
   }
 }

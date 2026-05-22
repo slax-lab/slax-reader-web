@@ -461,7 +461,7 @@ defineExpose({
   .header {
     --style: relative text-align-center min-h-11px;
     span {
-      --style: text-(16px) line-height-16px font-600 text-txt-light;
+      --style: text-(body) line-height-16px font-600 text-txt-light;
     }
 
     .close {
@@ -487,7 +487,7 @@ defineExpose({
       }
 
       span {
-        --style: mt-6px text-(13px) line-height-18px text-txt-light;
+        --style: mt-6px text-(aux) line-height-18px text-txt-light;
       }
     }
   }
@@ -499,11 +499,11 @@ defineExpose({
       --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between bg-surface-solid;
 
       textarea {
-        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px bg-transparent text-txt;
+        --style: resize-none min-h-40px max-h-200px text-(body) line-height-24px bg-transparent text-txt;
 
         &::placeholder,
         &::-webkit-input-placeholder {
-          --style: text-(16px) line-height-24px text-txt-light;
+          --style: text-(body) line-height-24px text-txt-light;
         }
       }
 

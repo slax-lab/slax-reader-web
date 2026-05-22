@@ -75,7 +75,7 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
         }
 
         span {
-          --style: text-(13px txt) line-height-18px font-500 whitespace-nowrap;
+          --style: text-(aux txt) line-height-18px font-500 whitespace-nowrap;
         }
       }
     }

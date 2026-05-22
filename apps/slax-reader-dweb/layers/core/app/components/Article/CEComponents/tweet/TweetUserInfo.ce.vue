@@ -105,11 +105,11 @@ const t = (text: string) => {
       --style: ml-16px flex flex-col;
 
       .username {
-        --style: text-(18px txt) line-height-25px font-600;
+        --style: text-(card txt) line-height-25px font-600;
       }
 
       .screen-name {
-        --style: mt-2px text-(14px txt-light) line-height-20px;
+        --style: mt-2px text-(meta txt-light) line-height-20px;
       }
     }
   }
@@ -122,11 +122,11 @@ const t = (text: string) => {
       --style: flex flex-col;
 
       span {
-        --style: text-(18px txt) line-height-25px font-600;
+        --style: text-(card txt) line-height-25px font-600;
       }
 
       span + span {
-        --style: mt-2px text-(14px txt-light) line-height-20px;
+        --style: mt-2px text-(meta txt-light) line-height-20px;
       }
     }
 
@@ -146,7 +146,7 @@ const t = (text: string) => {
 
       span,
       a {
-        --style: text-14px line-height-20px;
+        --style: text-meta line-height-20px;
       }
 
       span {
@@ -160,14 +160,14 @@ const t = (text: string) => {
   }
 
   .description-info {
-    --style: text-(14px txt) line-height-20px mt-14px;
+    --style: text-(meta txt) line-height-20px mt-14px;
   }
 
   .tail-info {
     --style: mt-30px flex items-center;
 
     span {
-      --style: text-(14px txt-light) line-height-20px;
+      --style: text-(meta txt-light) line-height-20px;
     }
 
     .seperator {
@@ -175,7 +175,7 @@ const t = (text: string) => {
     }
 
     a {
-      --style: text-(14px #5490c2) line-height-20px underline-none decoration-none;
+      --style: text-(meta #5490c2) line-height-20px underline-none decoration-none;
     }
   }
 }

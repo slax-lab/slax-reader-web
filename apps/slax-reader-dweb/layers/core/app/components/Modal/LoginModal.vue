@@ -81,7 +81,7 @@ const t = (text: string) => {
   .content {
     --style: mt-26px flex flex-col items-center justify-stretch;
     span {
-      --style: text-(16px txt) line-height-24px;
+      --style: text-(body txt) line-height-24px;
     }
   }
 

@@ -1,6 +1,6 @@
 <template>
   <button class="apple-login-button" @click="loginClick">
-    <div class="i-logos:apple w-20px text-20px" />
+    <div class="i-logos:apple w-20px text-brand" />
     <span>{{ t('component.login_view.apple_login') }}</span>
   </button>
 </template>
@@ -53,7 +53,7 @@ defineExpose({
   }
 
   span {
-    --style: text-(15px txt) font-bold line-height-18px;
+    --style: text-(meta txt) font-bold line-height-18px;
   }
 }
 </style>

@@ -19,7 +19,7 @@
         </div>
         <Transition name="loading">
           <div class="loading" v-show="loading">
-            <div class="i-svg-spinners:90-ring text-24px color-#16b998"></div>
+            <div class="i-svg-spinners:90-ring text-h2 color-#16b998"></div>
           </div>
         </Transition>
         <div class="empty" v-if="notifications.length === 0">
@@ -250,11 +250,11 @@ if (notification.isSupportedNotification) {
       --style: px-24px h-56px border-b-(1px solid #ecf0f5) flex justify-between items-center;
 
       span {
-        --style: text-(14px txt) font-600 line-height-20px;
+        --style: text-(meta txt) font-600 line-height-20px;
       }
 
       .check-all {
-        --style: 'text-(14px #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
       }
 
       .close {
@@ -278,7 +278,7 @@ if (notification.isSupportedNotification) {
       }
 
       span {
-        --style: mt-24px text-(14px txt-light) line-height-22px;
+        --style: mt-24px text-(meta txt-light) line-height-22px;
       }
     }
 

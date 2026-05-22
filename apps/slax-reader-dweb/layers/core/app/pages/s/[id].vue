@@ -394,7 +394,7 @@ const panelClick = (type: BookmarkPanelType) => {
     .left {
       --style: flex items-center justify-start;
       .app-name {
-        --style: text-(16px #16b998) font-bold line-height-22px;
+        --style: text-(body #16b998) font-bold line-height-22px;
       }
 
       & > * {

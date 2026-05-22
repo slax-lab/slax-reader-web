@@ -5,7 +5,7 @@
     </div>
     <Transition name="opacity">
       <div class="loading" v-show="loading">
-        <div class="i-svg-spinners:90-ring text-24px color-#5490c2"></div>
+        <div class="i-svg-spinners:90-ring text-h2 color-#5490c2"></div>
       </div>
     </Transition>
   </button>
@@ -50,7 +50,7 @@ const buttonClick = () => {
   .content {
     --style: flex-center;
     span {
-      --style: text-(16px #5490c2) line-height-22px font-600;
+      --style: text-(body #5490c2) line-height-22px font-600;
     }
 
     img {

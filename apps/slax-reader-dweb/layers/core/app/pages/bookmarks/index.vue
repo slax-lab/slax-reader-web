@@ -4,7 +4,7 @@
       <Transition name="list-loading">
         <div class="bg-surface-solid h-30px w-30px translate-y-50px rounded-full shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
           <!-- color-#16b998 当前品牌绿 loading spinner，保留 -->
-          <div class="i-svg-spinners:90-ring text-24px color-#16b998"></div>
+          <div class="i-svg-spinners:90-ring text-h2 color-#16b998"></div>
         </div>
       </Transition>
     </div>
@@ -649,7 +649,7 @@ const notificationBack = () => {
           }
 
           span {
-            --style: mt-4px text-(10px txt-light) line-height-14px;
+            --style: mt-4px text-(tag txt-light) line-height-14px;
           }
         }
       }
@@ -682,7 +682,7 @@ const notificationBack = () => {
   }
 
   .no-data {
-    --style: pb-52px text-(12px txt-light) select-none relative shrink-0;
+    --style: pb-52px text-(tag txt-light) select-none relative shrink-0;
     .empty {
       --style: relative pt-168px flex-col items-center h-full flex-center;
       .icon {
@@ -691,7 +691,7 @@ const notificationBack = () => {
       }
 
       span {
-        --style: mt-24px text-14px line-height-22px;
+        --style: mt-24px text-meta line-height-22px;
       }
     }
     .quick-start {
@@ -700,7 +700,7 @@ const notificationBack = () => {
   }
 
   .bottom-status {
-    --style: py-52px text-(12px txt-light) select-none relative shrink-0;
+    --style: py-52px text-(tag txt-light) select-none relative shrink-0;
 
     & > * {
       --style: flex-center absolute inset-0;
@@ -724,7 +724,7 @@ const notificationBack = () => {
     }
 
     .icon {
-      --style: 'cursor-pointer transition-transform duration-200 hover:scale-120 text-13px';
+      --style: 'cursor-pointer transition-transform duration-200 hover:scale-120 text-aux';
     }
   }
 }

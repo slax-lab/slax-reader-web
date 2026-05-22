@@ -67,11 +67,11 @@ onMounted(() => {
         --style: flex flex-col z-1 items-center relative;
 
         .title {
-          --style: font-bold text-(28px #1f1f1f) line-height-42px;
+          --style: font-bold text-(display #1f1f1f) line-height-42px;
         }
 
         .subtitle {
-          --style: mt-48px text-(16px #333333) line-height-22px;
+          --style: mt-48px text-(body #333333) line-height-22px;
         }
 
         .login-buttons {

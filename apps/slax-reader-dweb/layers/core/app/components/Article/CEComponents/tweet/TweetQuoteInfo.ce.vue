@@ -56,7 +56,7 @@ defineProps({
       }
 
       .quote-title {
-        --style: 'font-bold !text-(14px txt)';
+        --style: 'font-bold !text-(meta txt)';
       }
 
       img + .quote-title {
@@ -66,7 +66,7 @@ defineProps({
 
     .quote-description {
       // #555 介于 token text-muted (#6a5f52) 与 text (#1a1814) 之间，保留为 quote 引用色
-      --style: mt-10px text-(14px #555);
+      --style: mt-10px text-(meta #555);
     }
 
     .quote-media {

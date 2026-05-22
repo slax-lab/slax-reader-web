@@ -679,7 +679,7 @@ $copyButtonXOffset: 20px;
     .refresh {
       --style: flex-center;
       span {
-        --style: text-(13px txt-light) line-height-18px;
+        --style: text-(aux txt-light) line-height-18px;
       }
     }
 
@@ -718,7 +718,7 @@ $copyButtonXOffset: 20px;
 
       .title {
         // #16b998 当前品牌绿，保留
-        --style: text-(14px #16b998) font-500 line-height-20px text-align-left;
+        --style: text-(meta #16b998) font-500 line-height-20px text-align-left;
       }
 
       .switch {
@@ -752,7 +752,7 @@ $copyButtonXOffset: 20px;
         }
 
         span {
-          --style: text-12px line-height-16px text-txt-light;
+          --style: text-tag line-height-16px text-txt-light;
         }
       }
     }
@@ -787,11 +787,11 @@ $copyButtonXOffset: 20px;
           --style: absolute top-0 left-0 w-full pt-40px pb-5px px-20px z-1 bg-surface;
 
           .title {
-            --style: font-600 text-16px line-height-22px text-txt;
+            --style: font-600 text-body line-height-22px text-txt;
           }
 
           .description {
-            --style: mt-4px font-400 text-13px line-height-20px text-txt-muted;
+            --style: mt-4px font-400 text-aux line-height-20px text-txt-muted;
           }
         }
 
@@ -807,12 +807,12 @@ $copyButtonXOffset: 20px;
     --style: h-100vh select-none justify-center items-center;
 
     span {
-      --style: font-400 text-14px line-height-20px text-txt-light;
+      --style: font-400 text-meta line-height-20px text-txt-light;
     }
 
     .button {
       // #16b998 当前品牌绿主按钮 + #16b998aa hover 半透明，保留
-      --style: mt-24px w-200px h-48px rounded-24px text-(16px txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
+      --style: mt-24px w-200px h-48px rounded-24px text-(body txt-btn) font-600 flex-center cursor-pointer bg-#16b998 transition-colors duration-150;
 
       &:hover {
         // #16b998aa 品牌绿 hover 半透明，保留
@@ -825,7 +825,7 @@ $copyButtonXOffset: 20px;
 
     span {
       // 品牌绿 loading 文字，保留
-      --style: font-500 text-(14px #16b998) line-height-20px text-align-left;
+      --style: font-500 text-(meta #16b998) line-height-20px text-align-left;
     }
 
     .placeholder {

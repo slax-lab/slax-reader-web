@@ -151,22 +151,22 @@ const search = async () => {
         --style: flex items-center justify-between;
 
         .cell-header-title {
-          --style: relative text-(14px txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap cursor-pointer;
+          --style: relative text-(meta txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap cursor-pointer;
         }
 
         .cell-header-ai-tag {
-          --style: text-(12px txt-light) line-height-17px whitespace-nowrap shrink-0 ml-30px;
+          --style: text-(tag txt-light) line-height-17px whitespace-nowrap shrink-0 ml-30px;
         }
       }
 
       .search-cell-content {
-        --style: 'relative mt-2px text-(14px txt-light) line-height-22px overflow-hidden max-md:(text-ellipsis whitespace-nowrap)';
+        --style: 'relative mt-2px text-(meta txt-light) line-height-22px overflow-hidden max-md:(text-ellipsis whitespace-nowrap)';
       }
     }
   }
 
   .no-data {
-    --style: pb-52px text-(12px txt-light) select-none relative shrink-0 select-none;
+    --style: pb-52px text-(tag txt-light) select-none relative shrink-0 select-none;
     .empty {
       --style: relative pt-168px flex-col items-center h-full flex-center;
       .icon {
@@ -175,7 +175,7 @@ const search = async () => {
       }
 
       span {
-        --style: mt-24px text-14px lien-height-22px;
+        --style: mt-24px text-meta lien-height-22px;
       }
     }
   }

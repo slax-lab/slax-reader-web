@@ -806,7 +806,7 @@ defineExpose({
       }
 
       span {
-        --style: ml-8px text-(13px txt-light) line-height-18px;
+        --style: ml-8px text-(aux txt-light) line-height-18px;
       }
     }
 
@@ -876,7 +876,7 @@ defineExpose({
       --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid) border-t-border;
 
       .quote {
-        --style: pl-8px border-l-(2px solid) line-clamp-2 text-15px break-all border-l-border text-txt-muted;
+        --style: pl-8px border-l-(2px solid) line-clamp-2 text-meta break-all border-l-border text-txt-muted;
 
         i.img {
           --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -913,11 +913,11 @@ defineExpose({
         }
 
         textarea {
-          --style: w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent text-txt;
+          --style: w-full min-h-22px max-h-88px h-22px resize-none text-meta line-height-22px bg-transparent text-txt;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-15px line-height-21px;
+            --style: text-meta line-height-21px;
           }
         }
 
