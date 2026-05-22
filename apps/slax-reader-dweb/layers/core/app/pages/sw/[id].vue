@@ -370,6 +370,10 @@ const {
 
 <style lang="scss" scoped>
 .raw-web {
+  // 快照页桌面顶栏切到 snapshot 档（design-system §5.1：52px），
+  // 通过 override --slax-header-height 让本页所有 var(--slax-header-height) / h-header 都拿到 52
+  --slax-header-height: var(--slax-header-h-snapshot);
+
   --style: relative w-full h-100vh flex flex-col;
 
   .header {

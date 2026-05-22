@@ -100,9 +100,12 @@ describe('theme.tokens.css 静态校验', () => {
   })
 
   it('文件不含 ::view-transition-* / @media 等仅主站需要的规则', () => {
-    expect(RAW).not.toContain('::view-transition')
-    expect(RAW).not.toContain('@media')
-    expect(RAW).not.toContain('@keyframes')
+    // 注释里出现 @media / ::view-transition 字样是允许的（如解释为什么放在 theme.css 而不是这里），
+    // 仅断言 CSS 规则位置不出现这些 at-rule / pseudo
+    const stripped = RAW.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+    expect(stripped, '禁止 ::view-transition-* 伪元素').not.toContain('::view-transition')
+    expect(stripped, '禁止 @media 媒体查询').not.toContain('@media')
+    expect(stripped, '禁止 @keyframes 动画').not.toContain('@keyframes')
   })
 
   it('dark / eink 块不重复声明 :root 独有的尺寸 token (避免 layout 抖动)', () => {

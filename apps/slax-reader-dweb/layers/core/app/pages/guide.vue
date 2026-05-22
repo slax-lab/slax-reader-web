@@ -85,7 +85,6 @@ const logoClick = () => {
 <style lang="scss" scoped>
 .guide {
   --style: w-full flex flex-col items-center overflow-hidden select-none;
-  --header-height: 44px;
 
   .responsive-width {
     --style: pl-128px;
