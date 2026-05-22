@@ -7,7 +7,7 @@
           <div class="switch" @click="switchClick">
             <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
               <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-txt-btn text-14px" v-show="isSwitchLoading"></div>
+                <div class="i-svg-spinners:180-ring-with-bg text-txt-btn text-meta" v-show="isSwitchLoading"></div>
               </Transition>
             </div>
           </div>
@@ -310,7 +310,7 @@ const optionClick = async (index: number) => {
   .header {
     --style: p-24px flex items-center justify-between bg-surface-solid;
     span {
-      --style: text-(18px txt) line-height-25px font-500;
+      --style: text-(card txt) line-height-25px font-500;
     }
 
     .switch {
@@ -338,7 +338,7 @@ const optionClick = async (index: number) => {
     // #FFF6E7 提示黄底（与 token 警示色调性不同），保留
     --style: bg-#FFF6E7 flex-center px-6px py-0 h-32px overflow-hidden;
     span {
-      --style: text-(14px #f19943) line-height-20px;
+      --style: text-(meta #f19943) line-height-20px;
     }
   }
 
@@ -346,7 +346,7 @@ const optionClick = async (index: number) => {
     --style: bg-surface pt-20px px-24px pb-32px;
 
     .title {
-      --style: w-full text-(14px txt) line-height-21px font-500 whitespace-nowrap text-ellipsis overflow-hidden;
+      --style: w-full text-(meta txt) line-height-21px font-500 whitespace-nowrap text-ellipsis overflow-hidden;
     }
 
     .copy {
@@ -356,7 +356,7 @@ const optionClick = async (index: number) => {
         --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-250;
 
         span {
-          --style: relative text-(15px txt ellipsis) line-height-21px select-all font-500;
+          --style: relative text-(meta txt ellipsis) line-height-21px select-all font-500;
           &:before {
             --style: content-empty bg-txt-light w-full h-1px absolute top-1/2 left-0 transition-all duration-250 opacity-0;
           }
@@ -365,7 +365,7 @@ const optionClick = async (index: number) => {
 
       button {
         // #16B998 品牌绿（slax 主色）复制按钮底色，保留
-        --style: p-10px bg-#16B998 flex-center text-(14px txt-btn) font-600 min-w-76px transition-all duration-250;
+        --style: p-10px bg-#16B998 flex-center text-(meta txt-btn) font-600 min-w-76px transition-all duration-250;
 
         &:hover {
           // #14a689 品牌绿（slax 主色）按钮悬停态，保留
@@ -421,7 +421,7 @@ const optionClick = async (index: number) => {
         }
 
         span {
-          --style: ml-12px text-(15px txt) line-height-22px;
+          --style: ml-12px text-(meta txt) line-height-22px;
         }
       }
     }

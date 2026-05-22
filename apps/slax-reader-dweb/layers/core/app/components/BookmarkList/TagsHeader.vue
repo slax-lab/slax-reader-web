@@ -256,7 +256,7 @@ const compositionend = () => {
         // bg-#a28d6414 / #a28d6430 tags 金黄系按钮底（褐金 8% / 19% 透明），保留
         --style: 'py-10px px-16px rounded-6px bg-#a28d6414 flex-1 flex items-center cursor-pointer transition-colors duration-250 hover:bg-#a28d6430';
         span {
-          --style: ml-12px text-(15px #a28d64) line-height-16px;
+          --style: ml-12px text-(meta #a28d64) line-height-16px;
         }
       }
 
@@ -264,11 +264,11 @@ const compositionend = () => {
         --style: border-(1px solid #f4c982) rounded-6px p-0 flex-1 flex items-center justify-between cursor-pointer transition-all duration-250;
 
         input {
-          --style: flex-1 min-w-0 px-16px py-10px text-(15px #a28d64) line-height-16px font-500 bg-transparent;
+          --style: flex-1 min-w-0 px-16px py-10px text-(meta #a28d64) line-height-16px font-500 bg-transparent;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(15px #a28d64) font-400;
+            --style: text-(meta #a28d64) font-400;
           }
         }
 
@@ -277,7 +277,7 @@ const compositionend = () => {
         }
 
         button {
-          --style: 'shrink-0 px-12px text-(15px #a28d64) font-500 line-height-16px h-full transition-transfrom duration-250 hover:scale-105 active:scale-110';
+          --style: 'shrink-0 px-12px text-(meta #a28d64) font-500 line-height-16px h-full transition-transfrom duration-250 hover:scale-105 active:scale-110';
         }
       }
 
@@ -285,7 +285,7 @@ const compositionend = () => {
         --style: border-(1px solid #e4d6ba) rounded-6px px-16px py-10px flex-1 flex items-center justify-between cursor-pointer transition-all duration-250 overflow-hidden;
 
         span {
-          --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden whitespace-nowrap;
+          --style: text-(meta #a28d64) line-height-16px text-ellipsis overflow-hidden whitespace-nowrap;
         }
 
         &:has(.ai) {
@@ -329,7 +329,7 @@ const compositionend = () => {
       --style: 'flex items-center max-md:(justify-center)';
 
       span {
-        --style: ml-10px text-(15px #a28d64);
+        --style: ml-10px text-(meta #a28d64);
       }
     }
   }

@@ -55,10 +55,10 @@ const questionClick = () => {
   }
 
   .text {
-    --style: text-(15px) line-height-22px font-500 text-txt;
+    --style: text-(meta) line-height-22px font-500 text-txt;
 
     &:deep(*) {
-      --style: text-(15px) line-height-22px font-500 list-none text-txt;
+      --style: text-(meta) line-height-22px font-500 list-none text-txt;
     }
   }
 

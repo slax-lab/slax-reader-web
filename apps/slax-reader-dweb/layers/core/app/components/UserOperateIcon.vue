@@ -73,7 +73,7 @@ const logoutClick = () => {
         }
 
         span {
-          --style: ml-16px text-(13px txt) line-height-18px font-500;
+          --style: ml-16px text-(aux txt) line-height-18px font-500;
         }
       }
     }

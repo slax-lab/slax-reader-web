@@ -234,7 +234,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: flex items-center justify-between cursor-pointer;
     .quote {
       // 引用块在 right bubble (深底白字) 内：左边线 / 文字色绑定 user-bubble 反色体系，保留
-      --style: 'pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px) text-#fcfcfc99 dark:text-#ffffff66';
+      --style: 'pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(meta) text-#fcfcfc99 dark:text-#ffffff66';
 
       i.img {
         --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -247,7 +247,7 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   .text {
-    --style: flex flex-col text-(15px) line-height-22px whitespace-pre-line;
+    --style: flex flex-col text-(meta) line-height-22px whitespace-pre-line;
     text-autospace: normal;
 
     &:deep(& :not(code)) {
@@ -264,17 +264,17 @@ const quoteClick = (quote: QuoteData) => {
     }
 
     &:deep(h1) {
-      --style: 'font-bold text-(20px) line-height-28px not-first:mt-32px';
+      --style: 'font-bold text-(brand) line-height-28px not-first:mt-32px';
     }
 
     &:deep(h2) {
-      --style: 'font-bold text-(16px) line-height-22px not-first:mt-22px';
+      --style: 'font-bold text-(body) line-height-22px not-first:mt-22px';
     }
 
     &:deep(h3),
     &:deep(h4),
     &:deep(h5) {
-      --style: 'font-bold text-(15px) not-first:mt-12px';
+      --style: 'font-bold text-(meta) not-first:mt-12px';
     }
 
     // 非标题类内容，在前面有内容时才增加间距
@@ -285,7 +285,7 @@ const quoteClick = (quote: QuoteData) => {
     }
 
     &:deep(li) {
-      --style: relative pl-20px box-border font-normal text-(14px) line-height-20px whitespace-normal;
+      --style: relative pl-20px box-border font-normal text-(meta) line-height-20px whitespace-normal;
     }
 
     &:deep(ul),
@@ -377,7 +377,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full;
 
     .links-title {
-      --style: text-(12px) line-height-17px text-txt-light;
+      --style: text-(tag) line-height-17px text-txt-light;
     }
 
     .links-content {
@@ -400,11 +400,11 @@ const quoteClick = (quote: QuoteData) => {
           --style: 'flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250 not-first:ml-8px bg-surface-solid border-border hover:(bg-surface shadow-sm)';
 
           .title {
-            --style: text-(12px) line-height-17px line-clamp-2 text-txt;
+            --style: text-(tag) line-height-17px line-clamp-2 text-txt;
           }
 
           .href {
-            --style: flex items-center text-(12px) text-txt-light;
+            --style: flex items-center text-(tag) text-txt-light;
 
             i {
               --style: w-9px h-8px;
@@ -446,7 +446,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full;
 
     .bookmarks-title {
-      --style: text-(12px) line-height-17px mb-8px text-txt-light;
+      --style: text-(tag) line-height-17px mb-8px text-txt-light;
     }
 
     .bookmarks-content {
@@ -457,11 +457,11 @@ const quoteClick = (quote: QuoteData) => {
           --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 bg-surface-solid border-border hover:(bg-surface shadow-md)';
 
           .title {
-            --style: text-(14px) font-medium line-height-20px line-clamp-2 text-txt mb-6px;
+            --style: text-(meta) font-medium line-height-20px line-clamp-2 text-txt mb-6px;
           }
 
           .content-preview {
-            --style: text-(12px) line-height-16px line-clamp-3 text-txt-muted;
+            --style: text-(tag) line-height-16px line-clamp-3 text-txt-muted;
           }
         }
       }
@@ -471,7 +471,7 @@ const quoteClick = (quote: QuoteData) => {
   .tips {
     --style: flex items-center;
     span {
-      --style: text-(12px) line-height-17px text-txt-light;
+      --style: text-(tag) line-height-17px text-txt-light;
 
       &.loading {
         animation: loading 1.5s linear infinite;
@@ -496,7 +496,7 @@ const quoteClick = (quote: QuoteData) => {
   .related-question {
     --style: max-w-366px;
     .related-question-title {
-      --style: text-(12px) line-height-17px text-txt-light;
+      --style: text-(tag) line-height-17px text-txt-light;
     }
 
     .related-question-content {
@@ -510,7 +510,7 @@ const quoteClick = (quote: QuoteData) => {
         }
 
         span {
-          --style: text-(15px) line-height-22px text-txt;
+          --style: text-(meta) line-height-22px text-txt;
         }
 
         i {

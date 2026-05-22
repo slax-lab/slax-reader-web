@@ -88,7 +88,7 @@ const jumpToOriginal = (item: HighlightItem) => {
 
   .article-header {
     .article-title {
-      --style: text-(12px txt-light) line-height-17px;
+      --style: text-(tag txt-light) line-height-17px;
     }
   }
 
@@ -98,7 +98,7 @@ const jumpToOriginal = (item: HighlightItem) => {
       .content {
         --style: flex flex-col justify-start items-start;
         .cell-title {
-          --style: inline-block text-(14px txt truncate) line-height-22px font-500 max-w-full;
+          --style: inline-block text-(meta txt truncate) line-height-22px font-500 max-w-full;
         }
 
         .stroke {
@@ -107,7 +107,7 @@ const jumpToOriginal = (item: HighlightItem) => {
         }
 
         .quote-content {
-          --style: pl-8px w-full text-(14px txt-light ellipsis) line-height-22px border-l-(2px solid border) overflow-hidden whitespace-nowrap;
+          --style: pl-8px w-full text-(meta txt-light ellipsis) line-height-22px border-l-(2px solid border) overflow-hidden whitespace-nowrap;
 
           &.deleted {
             --style: pl-0 border-0 line-through;
@@ -128,7 +128,7 @@ const jumpToOriginal = (item: HighlightItem) => {
     }
 
     span {
-      --style: ml-4px text-(14px txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap;
+      --style: ml-4px text-(meta txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap;
     }
 
     .source {

@@ -225,7 +225,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
   --style: size-full flex flex-col bg-#262626 justify-between;
 
   .title {
-    --style: pt-24px px-24px pb-12px text-(16px txt-light) line-height-22px;
+    --style: pt-24px px-24px pb-12px text-(body txt-light) line-height-22px;
   }
 
   .comment-list-container {
@@ -260,7 +260,7 @@ const commentDelete = (comment: MarkCommentInfo) => {}
     --style: border-t-(1px solid #ffffff0f) pt-20px px-24px pb-16px;
 
     .comment-quote-container {
-      --style: pl-8px mb-20px border-l-(2px solid #ffffff14) line-clamp-2 text-(15px #ffffff66) break-all;
+      --style: pl-8px mb-20px border-l-(2px solid #ffffff14) line-clamp-2 text-(meta #ffffff66) break-all;
 
       span {
         --style: line-height-21px overflow-hidden;
@@ -278,10 +278,10 @@ const commentDelete = (comment: MarkCommentInfo) => {}
         // bg-#1a1a1aff / border #1a1a1aff 评论输入框深色底（比面板更深一档），保留
         --style: pl-16px pt-16px pr-20px pb-14px w-full relative bg-#1a1a1aff border-(1px solid #1a1a1aff) rounded-8px flex flex-col justify-between;
         textarea {
-          --style: resize-none min-h-40px max-h-200px text-(16px #ffffffcc) line-height-24px bg-transparent;
+          --style: resize-none min-h-40px max-h-200px text-(body #ffffffcc) line-height-24px bg-transparent;
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(16px #ffffff66) line-height-24px;
+            --style: text-(body #ffffff66) line-height-24px;
           }
         }
 

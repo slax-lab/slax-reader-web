@@ -93,7 +93,7 @@ button {
   .header {
     --style: flex justify-between items-center;
     span {
-      --style: text-(16px txt) line-height-22px font-medium;
+      --style: text-(body txt) line-height-22px font-medium;
     }
 
     button {
@@ -107,7 +107,7 @@ button {
   .content {
     --style: mt-20px;
     .message {
-      --style: text-(14px txt-muted) line-height-20px;
+      --style: text-(meta txt-muted) line-height-20px;
     }
   }
 
@@ -122,7 +122,7 @@ button {
       }
 
       .checkbox-label {
-        --style: text-(13px txt-muted) line-height-18px cursor-pointer;
+        --style: text-(aux txt-muted) line-height-18px cursor-pointer;
       }
     }
 
@@ -131,7 +131,7 @@ button {
 
       button.primary {
         // #16B998 品牌绿（slax 主色）确认按钮底色，保留
-        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(14px txt-btn) font-semibold line-height-40px transition-all duration-250;
+        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-250;
 
         &:hover {
           // #14a689 品牌绿（slax 主色）按钮悬停态，保留

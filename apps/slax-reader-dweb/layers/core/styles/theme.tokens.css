@@ -71,6 +71,26 @@
   --slax-font-sans: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --slax-font-serif: 'Playfair Display', 'Noto Serif SC', serif;
   --slax-font-mono: 'SF Mono', 'Fira Code', monospace;
+
+  /* 字号语义 8 档（来源：design-system §3）：
+   *   --slax-fs-display: 文章大标题 / 快照页标题 32px
+   *   --slax-fs-h2:      二级标题 / 侧栏面板标题 22px
+   *   --slax-fs-brand:   Logo 20px
+   *   --slax-fs-card:    列表卡片标题 17px
+   *   --slax-fs-body:    正文 16px
+   *   --slax-fs-meta:    辅助信息（侧栏导航 / tag） 14px
+   *   --slax-fs-aux:     日期 / 来源 / 副标题 13px
+   *   --slax-fs-tag:     标签 / 角标 / 计数 12px
+   * 项目内既有非标值（15/18/24/34）在本轮 token 化时映射到最近档，详见 .claude/task2-fontsize-shifts.md 追踪表。
+   */
+  --slax-fs-display: 32px;
+  --slax-fs-h2: 22px;
+  --slax-fs-brand: 20px;
+  --slax-fs-card: 17px;
+  --slax-fs-body: 16px;
+  --slax-fs-meta: 14px;
+  --slax-fs-aux: 13px;
+  --slax-fs-tag: 12px;
 }
 
 /* Dark（夜间） */

@@ -84,7 +84,7 @@ defineExpose({
   }
 
   button {
-    --style: 'py-8px px-16px rounded-full text-(14px txt-light) line-height-20px font-medium text-align-left transition-transform duration-250 max-md:(text-align-center px-24px) flex items-center';
+    --style: 'py-8px px-16px rounded-full text-(meta txt-light) line-height-20px font-medium text-align-left transition-transform duration-250 max-md:(text-align-center px-24px) flex items-center';
 
     &.highlighted {
       // #16B998 / #16b9980f 是当前品牌绿 + 6% 半透明背景，激活态保留

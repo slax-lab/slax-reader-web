@@ -40,7 +40,7 @@
                 </template>
                 <template v-else>
                   <div class="archive-loading">
-                    <div class="i-svg-spinners:90-ring text-20px"></div>
+                    <div class="i-svg-spinners:90-ring text-brand"></div>
                   </div>
                 </template>
               </button>
@@ -77,9 +77,9 @@
         </div>
         <div class="invalid" v-else-if="isInvalidBookmark">
           <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-          <span class="text-txt mt-30px text-20px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-          <span class="text-txt mt-16px text-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-          <span class="text-txt mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
+          <span class="text-txt mt-30px text-brand font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+          <span class="text-txt mt-16px text-body line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+          <span class="text-txt mt-8px text-meta line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
         </div>
         <div class="processing" v-else-if="detail?.status === 'pending'">
           <div class="i-svg-spinners:clock mt-1px w-1em"></div>
@@ -414,7 +414,7 @@ const panelClick = (type: BookmarkPanelType) => {
     .left {
       --style: flex items-center justify-start;
       .app-name {
-        --style: text-(16px #16b998) font-bold line-height-22px;
+        --style: text-(body #16b998) font-bold line-height-22px;
       }
 
       & > * {
@@ -454,7 +454,7 @@ const panelClick = (type: BookmarkPanelType) => {
       }
 
       span {
-        --style: text-(15px txt) font-bold line-height-18px;
+        --style: text-(meta txt) font-bold line-height-18px;
       }
 
       .archive-loading {

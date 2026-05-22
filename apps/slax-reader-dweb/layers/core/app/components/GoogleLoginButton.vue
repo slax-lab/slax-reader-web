@@ -1,6 +1,6 @@
 <template>
   <button class="google-login-button" @click="loginClick">
-    <div class="i-logos:google-icon w-20px text-20px" />
+    <div class="i-logos:google-icon w-20px text-brand" />
     <span>{{ t('component.login_view.google_login') }}</span>
   </button>
 </template>
@@ -53,7 +53,7 @@ defineExpose({
   }
 
   span {
-    --style: text-(15px txt) font-bold line-height-18px;
+    --style: text-(meta txt) font-bold line-height-18px;
   }
 }
 </style>

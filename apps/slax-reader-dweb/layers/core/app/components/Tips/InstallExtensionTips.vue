@@ -81,7 +81,7 @@ const shakeTextarea = () => {
     }
 
     .title {
-      --style: text-(15px txt) line-height-21px font-600;
+      --style: text-(meta txt) line-height-21px font-600;
     }
 
     .guide {
@@ -89,7 +89,7 @@ const shakeTextarea = () => {
     }
 
     .descript {
-      --style: mt-16px text-(12px #333333cc) line-height-17px;
+      --style: mt-16px text-(tag #333333cc) line-height-17px;
     }
 
     .install {

@@ -239,7 +239,7 @@ const addingTagClick = (e: MouseEvent) => {
       }
 
       span {
-        --style: text-(13px #a28d64) line-height-18px text-ellipsis overflow-hidden;
+        --style: text-(aux #a28d64) line-height-18px text-ellipsis overflow-hidden;
       }
 
       button {
@@ -274,7 +274,7 @@ const addingTagClick = (e: MouseEvent) => {
 
         input {
           // bg-#fcfcfc 浮层内输入框的浅灰白，与 tags 金黄系搭配协调，保留
-          --style: rounded-6px bg-#fcfcfc border-(1px solid border) px-10px py-9px h-36px text-(13px txt-light) line-height-18px w-full transition-all duration-300;
+          --style: rounded-6px bg-#fcfcfc border-(1px solid border) px-10px py-9px h-36px text-(aux txt-light) line-height-18px w-full transition-all duration-300;
 
           &:focus {
             // #f4c982 / #A28D64 tags 金黄聚焦边框 + 褐金文字，保留
@@ -303,7 +303,7 @@ const addingTagClick = (e: MouseEvent) => {
             .search-tag {
               --style: 'border-(1px solid #e4d6ba) rounded-6px flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-250 whitespace-nowrap';
               span {
-                --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden;
+                --style: text-(meta #a28d64) line-height-16px text-ellipsis overflow-hidden;
               }
 
               &:has(.ai) {

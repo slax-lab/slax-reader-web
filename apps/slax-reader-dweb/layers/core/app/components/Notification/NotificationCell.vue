@@ -151,7 +151,7 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-8px text-(12px txt-light) line-height-17px;
+          --style: ml-8px text-(tag txt-light) line-height-17px;
 
           &.highlighted {
             // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
@@ -161,7 +161,7 @@ const handleClick = (): void => {
       }
 
       .right {
-        --style: ml-8px text-(12px txt-light) line-height-17px shrink-0;
+        --style: ml-8px text-(tag txt-light) line-height-17px shrink-0;
       }
     }
 
@@ -169,7 +169,7 @@ const handleClick = (): void => {
       --style: mt-12px;
       .comment {
         .comment-text {
-          --style: text-(16px txt) line-heigh-24px line-clamp-2;
+          --style: text-(body txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -181,20 +181,20 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px txt) line-heigh-24px line-clamp-1;
+          --style: text-(body txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {
@@ -216,12 +216,12 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-4px text-(14px txt ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+          --style: ml-4px text-(meta txt ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
         }
       }
 
       button {
-        --style: 'ml-auto px-10px shrink-0 text-(14px #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'ml-auto px-10px shrink-0 text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
       }
     }
   }
@@ -236,7 +236,7 @@ const handleClick = (): void => {
           --style: w-24px h-24px rounded-full;
         }
         span {
-          --style: ml-16px text-(13px txt-light) line-height-18px;
+          --style: ml-16px text-(aux txt-light) line-height-18px;
 
           &.highlighted {
             // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
@@ -246,7 +246,7 @@ const handleClick = (): void => {
       }
 
       .right {
-        --style: text-(13px txt-light) line-height-18px shrink-0;
+        --style: text-(aux txt-light) line-height-18px shrink-0;
       }
     }
 
@@ -255,7 +255,7 @@ const handleClick = (): void => {
 
       .comment {
         .comment-text {
-          --style: text-(16px txt) line-heigh-24px line-clamp-2;
+          --style: text-(body txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -267,20 +267,20 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px txt) line-heigh-24px line-clamp-1;
+          --style: text-(body txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {

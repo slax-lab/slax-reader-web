@@ -67,9 +67,9 @@
             </div>
             <div class="invalid" v-else-if="isInvalidBookmark">
               <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-              <span class="text-txt mt-30px text-20px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-              <span class="text-txt mt-16px text-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-              <span class="text-txt mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
+              <span class="text-txt mt-30px text-brand font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+              <span class="text-txt mt-16px text-body line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+              <span class="text-txt mt-8px text-meta line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
             </div>
             <div class="refresh" v-else-if="isNeedRefresh">
               <span>{{ $t('common.tips.fetch_error') }}</span>
@@ -455,11 +455,11 @@ const {
 
       .refresh {
         span {
-          --style: mt-16px text-(14px txt-light) line-height-20px;
+          --style: mt-16px text-(meta txt-light) line-height-20px;
         }
 
         button {
-          --style: 'mt-100px w-274px h-48px text-(15px txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+          --style: 'mt-100px w-274px h-48px text-(meta txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
         }
       }
     }

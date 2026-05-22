@@ -44,7 +44,7 @@ defineProps({
       }
 
       span {
-        --style: text-(13px txt-light) line-height-22px font-500;
+        --style: text-(aux txt-light) line-height-22px font-500;
       }
     }
   }
@@ -55,7 +55,7 @@ defineProps({
     .error-text {
       --style: w-full relative flex-center;
       span {
-        --style: text-(13px txt-light) line-height-22px font-500;
+        --style: text-(aux txt-light) line-height-22px font-500;
       }
     }
   }

@@ -49,7 +49,7 @@ defineEmits(['clickButton'])
     --style: w-full flex items-center line-height-20px;
 
     * {
-      --style: text-(14px);
+      --style: text-(meta);
     }
 
     span {

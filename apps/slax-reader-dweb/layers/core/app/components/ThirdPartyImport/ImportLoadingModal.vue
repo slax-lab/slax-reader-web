@@ -34,7 +34,7 @@ defineProps<{
     }
 
     .text {
-      --style: mt-16px text-center text-(14px txt);
+      --style: mt-16px text-center text-(meta txt);
     }
   }
 }

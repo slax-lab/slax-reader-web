@@ -105,11 +105,11 @@ const errorMessage = computed(() => {
       }
 
       span {
-        --style: mt-16px text-(14px txt-light) line-height-20px text-align-center whitespace-pre-line;
+        --style: mt-16px text-(meta txt-light) line-height-20px text-align-center whitespace-pre-line;
       }
 
       button {
-        --style: 'mt-100px w-274px h-48px text-(15px txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+        --style: 'mt-100px w-274px h-48px text-(meta txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
       }
     }
   }

@@ -156,11 +156,11 @@ const sendMessage = () => {
     --style: p-8px w-full relative border-(1px solid) rounded-8px flex flex-row justify-between bg-surface-solid border-#ecf0f5;
 
     textarea {
-      --style: resize-none min-h-20px max-h-200px text-(14px txt) line-height-20px flex-1 bg-transparent;
+      --style: resize-none min-h-20px max-h-200px text-(meta txt) line-height-20px flex-1 bg-transparent;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(14px) line-height-20px text-txt-light;
+        --style: text-(meta) line-height-20px text-txt-light;
       }
     }
 

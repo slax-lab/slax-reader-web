@@ -314,7 +314,7 @@ const feedbackClick = () => {
         }
 
         span {
-          --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
+          --style: ml-8px text-(aux #ffffff99) line-height-18px shrink-0;
         }
       }
     }

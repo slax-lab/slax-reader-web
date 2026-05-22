@@ -160,7 +160,7 @@ const handler = () => {
           --style: mt-24px;
 
           li {
-            --style: 'px-28px relative text-(15px txt-light) line-height-21px not-first:(mt-8px)';
+            --style: 'px-28px relative text-(meta txt-light) line-height-21px not-first:(mt-8px)';
 
             &::marker {
               --style: content-none hidden;
@@ -184,7 +184,7 @@ const handler = () => {
 
           ul {
             li {
-              --style: text-(15px txt);
+              --style: text-(meta txt);
 
               &:before {
                 --style: bg-txt;

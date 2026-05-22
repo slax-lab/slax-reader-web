@@ -139,7 +139,7 @@ onUnmounted(() => {})
     }
 
     span {
-      --style: ml-2px text-(13px) line-height-18px shrink-0 whitespace-nowrap text-txt-light;
+      --style: ml-2px text-(aux) line-height-18px shrink-0 whitespace-nowrap text-txt-light;
     }
   }
 }

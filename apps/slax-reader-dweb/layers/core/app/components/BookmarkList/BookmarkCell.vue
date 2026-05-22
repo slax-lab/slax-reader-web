@@ -532,7 +532,7 @@ const starBookmark = async (isStar: boolean) => {
   }
 
   .index {
-    --style: mt-1 w-54px h-22px text-(13px #a8b1cd) line-height-22px text-align-center flex-shrink-0 select-none;
+    --style: mt-1 w-54px h-22px text-(aux #a8b1cd) line-height-22px text-align-center flex-shrink-0 select-none;
   }
 
   .main-content {
@@ -546,7 +546,7 @@ const starBookmark = async (isStar: boolean) => {
       .cell-header {
         --style: flex items-center overflow-hidden text-ellipsis overflow-hidden whitespace-nowrap flex-nowrap text-txt;
         .title {
-          --style: relative text-(14px txt ellipsis) line-height-22px overflow-hidden;
+          --style: relative text-(meta txt ellipsis) line-height-22px overflow-hidden;
 
           &.stroking {
             &:before {
@@ -557,11 +557,11 @@ const starBookmark = async (isStar: boolean) => {
 
         input {
           // #a8b1cd 浅蓝灰为输入边框辅助色，不属于 token 色板，保留
-          --style: border-(1px solid #a8b1cd) text-(14px txt) line-height-20px px-4px w-auto min-w-160px max-w-500px;
+          --style: border-(1px solid #a8b1cd) text-(meta txt) line-height-20px px-4px w-auto min-w-160px max-w-500px;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(12px txt-light);
+            --style: text-(tag txt-light);
           }
         }
 
@@ -579,7 +579,7 @@ const starBookmark = async (isStar: boolean) => {
         }
 
         .retry {
-          --style: text-(12px #5490c2) line-height-17px;
+          --style: text-(tag #5490c2) line-height-17px;
         }
       }
 
@@ -587,7 +587,7 @@ const starBookmark = async (isStar: boolean) => {
         --style: flex items-center mt-2px line-height-17px;
 
         & > * {
-          --style: text-(12px txt-light);
+          --style: text-(tag txt-light);
         }
 
         .seperator {
@@ -599,7 +599,7 @@ const starBookmark = async (isStar: boolean) => {
         }
 
         .edit {
-          --style: 'text-(12px txt-light) hover:(text-txt)';
+          --style: 'text-(tag txt-light) hover:(text-txt)';
         }
 
         .archieve {
@@ -629,7 +629,7 @@ const starBookmark = async (isStar: boolean) => {
         }
 
         .revert {
-          --style: ml-20px text-(12px txt-light);
+          --style: ml-20px text-(tag txt-light);
 
           &.hover {
             --style: text-txt;

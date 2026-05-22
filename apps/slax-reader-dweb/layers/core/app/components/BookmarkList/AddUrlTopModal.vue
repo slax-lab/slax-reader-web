@@ -81,7 +81,7 @@ const closeModal = () => {
     --style: 'absolute bottom-0 left-0 w-full h-[var(--modal-height)] bg-surface-solid pt-24px pb-48px px-54px ';
 
     .title {
-      --style: text-(18px txt) line-height-25px font-bold;
+      --style: text-(card txt) line-height-25px font-bold;
     }
 
     .add-url-input {

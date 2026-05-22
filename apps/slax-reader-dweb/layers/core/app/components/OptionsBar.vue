@@ -76,7 +76,7 @@ const closePopup = () => {
       justify-between;
 
     .title {
-      --style: text-(14px txt) line-height-20px whitespace-nowrap overflow-hidden text-ellipsis;
+      --style: text-(meta txt) line-height-20px whitespace-nowrap overflow-hidden text-ellipsis;
     }
 
     i {
@@ -95,7 +95,7 @@ const closePopup = () => {
         --style: 'h-40px flex justify-start items-center px-10px py-11px rounded-8px transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
 
         span {
-          --style: text-(13px txt) line-height-18px font-500 whitespace-nowrap overflow-hidden text-ellipsis;
+          --style: text-(aux txt) line-height-18px font-500 whitespace-nowrap overflow-hidden text-ellipsis;
         }
       }
     }

@@ -37,7 +37,7 @@ const onAfterLeave = () => {
 <style lang="scss" scoped>
 .text-toast {
   --style: select-none max-w-md min-w-140px flex-center rounded-6px bg-black bg-opacity-50 flex-wrap whitespace-break-spaces text-center color-white overflow-hidden text-ellipsis
-    py-6px px-16px text-(14px) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
+    py-6px px-16px text-(meta) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
 
   &.success {
     // #16b998 品牌绿边框/文字 + #E7FAF6 浅绿底，成功 toast，保留
