@@ -206,8 +206,7 @@ const quoteClick = (quote: QuoteData) => {
 
 <style lang="scss" scoped>
 .bubble-message {
-  --style: relative min-h-10 min-w-300px rounded-8px p-16px;
-  --style: 'bg-#F5F5F3 dark:bg-#1F1F1FFF';
+  --style: relative min-h-10 min-w-300px rounded-8px p-16px bg-surface;
 
   .dark-trigger {
     --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
@@ -218,13 +217,13 @@ const quoteClick = (quote: QuoteData) => {
   }
 
   &.left {
-    --style: ml-0 mr-auto justify-start mr-50px;
-    --style: 'bg-#F5F5F3 text-#333 dark:(bg-transparent text-#fff)';
+    // dark 模式下 left bubble 让外层接管背景（透明），保留 dark:bg-transparent override
+    --style: ml-0 mr-auto justify-start mr-50px bg-surface text-txt dark: (bg-transparent text-txt);
   }
 
   &.right {
-    --style: mr-0 my-8px ml-auto justify-end min-w-auto max-w-366px;
-    --style: 'bg-#333 text-#fcfcfc dark:(bg-#333 text-#ffffffe6)';
+    // right bubble 是用户消息气泡，深色背景+浅文字，与全站主题反色（light/dark 都用深底白字），保留
+    --style: mr-0 my-8px ml-auto justify-end min-w-auto max-w-366px bg-#333 text-#fcfcfc dark: (bg-#333 text-#ffffffe6);
   }
 
   & > *:not(.dark-trigger) {
@@ -234,8 +233,8 @@ const quoteClick = (quote: QuoteData) => {
   .quote-container {
     --style: flex items-center justify-between cursor-pointer;
     .quote {
-      --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px);
-      --style: 'text-#fcfcfc99 dark:text-#ffffff66';
+      // 引用块在 right bubble (深底白字) 内：左边线 / 文字色绑定 user-bubble 反色体系，保留
+      --style: pl-8px border-l-(2px solid #fcfcfc29) line-clamp-2 text-(15px) text-#fcfcfc99 dark: text-#ffffff66;
 
       i.img {
         --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -252,11 +251,11 @@ const quoteClick = (quote: QuoteData) => {
     text-autospace: normal;
 
     &:deep(& :not(code)) {
-      --style: m-0;
-      --style: 'text-#0f1419 dark:text-#FFFFFFE6';
+      --style: m-0 text-txt;
     }
 
     &:deep(.hljs) {
+      // 代码块底色 light=半透明黑 / dark=半透明白，专属反色对位（不能用 border token，含意不同），保留
       --style: 'bg-#33333314 dark:bg-#FFFFFFE6';
     }
 
@@ -306,7 +305,8 @@ const quoteClick = (quote: QuoteData) => {
             --style: content-none hidden text-#a8b1cd;
           }
           &:before {
-            --style: box-border top-8px left-4px w-4px h-4px border border-#a8b1cd border-solid bg-#fff;
+            // #a8b1cd 是嵌套列表 marker 的蓝灰辅助色（与 BookmarkArticle 同源），保留
+            --style: box-border top-8px left-4px w-4px h-4px border border-#a8b1cd border-solid bg-surface-solid;
           }
         }
 
@@ -353,7 +353,7 @@ const quoteClick = (quote: QuoteData) => {
     &:deep(td),
     &:deep(tr),
     &:deep(th) {
-      --style: border-(1px solid #9999991a) p-4px text-align-center;
+      --style: border-(1px solid border) p-4px text-align-center;
     }
 
     &:deep(* + p) {
@@ -373,20 +373,17 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full;
 
     .links-title {
-      --style: text-(12px) line-height-17px;
-      --style: 'text-#999 dark:text-#999999ff';
+      --style: text-(12px) line-height-17px text-txt-light;
     }
 
     .links-content {
       --style: mt-6px w-full relative;
       &::before {
-        --style: content-empty absolute w-5px h-full right-0px top-0 bg-gradient-to-l to-transprent z-2;
-        --style: 'from-#F5F5F3 dark:from-#262626FF';
+        --style: content-empty absolute w-5px h-full right-0px top-0 bg-gradient-to-l to-transprent z-2 from-surface;
       }
 
       &::after {
-        --style: content-empty absolute w-5px h-full -left-5px top-0 bg-gradient-to-r to-transprent z-2;
-        --style: 'from-#F5F5F3 dark:from-#262626FF';
+        --style: content-empty absolute w-5px h-full -left-5px top-0 bg-gradient-to-r to-transprent z-2 from-surface;
       }
 
       .content-wrapper {
@@ -396,17 +393,15 @@ const quoteClick = (quote: QuoteData) => {
           --style: hidden;
         }
         .link-content {
-          --style: flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250;
-          --style: 'not-first:ml-8px bg-#ffffffcc border-#9999991a hover:(bg-#f8f9fa shadow-sm) dark:(bg-#1F1F1FFF border-#FFFFFF0A hover:(bg-#191919FF))';
+          --style: flex flex-col justify-between p-8px w-160px h-69px border-(1px solid) shrink-0 rounded-4px cursor-pointer transition-all duration-250 not-first: ml-8px
+            bg-surface-solid border-border hover: (bg-surface shadow-sm);
 
           .title {
-            --style: text-(12px) line-height-17px line-clamp-2;
-            --style: 'text-#333 dark:text-#ffffff99';
+            --style: text-(12px) line-height-17px line-clamp-2 text-txt;
           }
 
           .href {
-            --style: flex items-center text-(12px);
-            --style: 'text-#999 dark:text-#ffffff33';
+            --style: flex items-center text-(12px) text-txt-light;
 
             i {
               --style: w-9px h-8px;
@@ -448,8 +443,7 @@ const quoteClick = (quote: QuoteData) => {
     --style: relative w-full;
 
     .bookmarks-title {
-      --style: text-(12px) line-height-17px mb-8px;
-      --style: 'text-#999 dark:text-#999999ff';
+      --style: text-(12px) line-height-17px mb-8px text-txt-light;
     }
 
     .bookmarks-content {
@@ -457,17 +451,14 @@ const quoteClick = (quote: QuoteData) => {
         --style: flex flex-col gap-8px;
 
         .bookmark-content {
-          --style: p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200;
-          --style: 'bg-#ffffff border-#e5e5e5 hover:(bg-#f8f9fa shadow-md) dark:(bg-#2a2a2a border-#404040 hover:bg-#333333)';
+          --style: p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 bg-surface-solid border-border hover: (bg-surface shadow-md);
 
           .title {
-            --style: text-(14px) font-medium line-height-20px line-clamp-2;
-            --style: 'text-#1a1a1a dark:text-#ffffff mb-6px';
+            --style: text-(14px) font-medium line-height-20px line-clamp-2 text-txt mb-6px;
           }
 
           .content-preview {
-            --style: text-(12px) line-height-16px line-clamp-3;
-            --style: 'text-#666 dark:text-#999';
+            --style: text-(12px) line-height-16px line-clamp-3 text-txt-muted;
           }
         }
       }
@@ -477,8 +468,7 @@ const quoteClick = (quote: QuoteData) => {
   .tips {
     --style: flex items-center;
     span {
-      --style: text-(12px) line-height-17px;
-      --style: 'text-#999 dark:text-#ffffff99';
+      --style: text-(12px) line-height-17px text-txt-light;
 
       &.loading {
         animation: loading 1.5s linear infinite;
@@ -503,8 +493,7 @@ const quoteClick = (quote: QuoteData) => {
   .related-question {
     --style: max-w-366px;
     .related-question-title {
-      --style: text-(12px) line-height-17px;
-      --style: 'text-#999 dark:text-#ffffff66';
+      --style: text-(12px) line-height-17px text-txt-light;
     }
 
     .related-question-content {
@@ -513,13 +502,12 @@ const quoteClick = (quote: QuoteData) => {
         --style: 'py-0px pl-16px flex items-center justify-between relative not-first:mt-10px cursor-pointer';
 
         &::before {
-          --style: content-empty absolute left-0 top-1/2 w-4px h-4px -translate-y-1/2 rounded-2px;
-          --style: 'bg-#a8b1cd dark:bg-#ffffff66';
+          // #a8b1cd 蓝灰装饰圆点（与列表 marker 同色板），保留
+          --style: content-empty absolute left-0 top-1/2 w-4px h-4px -translate-y-1/2 rounded-2px bg-#a8b1cd dark: bg-#ffffff66;
         }
 
         span {
-          --style: text-(15px) line-height-22px;
-          --style: 'text-#333 dark:text-#ffffff99';
+          --style: text-(15px) line-height-22px text-txt;
         }
 
         i {
@@ -536,8 +524,7 @@ const quoteClick = (quote: QuoteData) => {
       --style: 'w-16px h-16px flex-center rounded-3px bg-contain active:(scale-110) transition-all duration-250 ease-in-out';
 
       &:hover {
-        --style: scale-105;
-        --style: 'bg-#ebebeb dark:bg-#1F1F1F';
+        --style: scale-105 bg-surface;
       }
 
       img {

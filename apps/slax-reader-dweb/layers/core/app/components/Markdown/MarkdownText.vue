@@ -75,25 +75,23 @@ const handleAnchors = () => {
   .markdown-content {
     --style: flex flex-col;
     &:deep(*) {
-      --style: m-0;
-      --style: 'text-#0f1419 dark:text-#ffffffe6';
+      --style: m-0 text-txt;
     }
 
     &:deep(h1) {
       --style: font-bold text-20px line-height-28px;
-      --style: 'not-first:mt-32px text-0f1419 dark:text-#ffffffe6';
+      // 顺手修复原写法 `text-0f1419` 缺 `#` 的笔误（编译时被丢弃，无 color 输出）
+      --style: 'not-first:mt-32px text-txt';
     }
 
     &:deep(h2) {
-      --style: font-bold text-16px line-height-22px mt-32px;
-      --style: 'text-#0f1419 dark:text-#ffffffcc';
+      --style: font-bold text-16px line-height-22px mt-32px text-txt;
     }
 
     &:deep(h3),
     &:deep(h4),
     &:deep(h5) {
-      --style: font-bold text-12px mt-20px;
-      --style: 'text-#0f1419 dark:text-#ffffffcc';
+      --style: font-bold text-12px mt-20px text-txt;
     }
 
     // 非标题类内容，在前面有内容时才增加间距
@@ -107,22 +105,19 @@ const handleAnchors = () => {
     &:deep(ul) {
       --style: pl-0 flex flex-col list-none;
       li {
-        --style: relative pl-20px box-border font-normal text-14px line-height-20px;
-        --style: 'text-#333333 dark:text-#ffffff99';
+        --style: relative pl-20px box-border font-normal text-14px line-height-20px text-txt;
 
+        // #a8b1cd / #A8B1CD66 列表 marker 与嵌套 marker 都是蓝灰辅助色板，与 BubbleMessage / BookmarkArticle 同源，保留
         &::marker {
-          --style: content-none hidden;
-          --style: 'text-#a8b1cd dark:text-#A8B1CD66';
+          --style: content-none hidden text-#a8b1cd dark: text-#A8B1CD66;
         }
 
         & li {
           &::marker {
-            --style: content-none hidden;
-            --style: 'text-#a8b1cd dark:text-#A8B1CD66';
+            --style: content-none hidden text-#a8b1cd dark: text-#A8B1CD66;
           }
           &:before {
-            --style: box-border top-8px left-4px w-4px h-4px border border-solid;
-            --style: 'bg-#fff border-#a8b1cd dark:bg-#A8B1CD66 dark:border-#A8B1CD66';
+            --style: box-border top-8px left-4px w-4px h-4px border border-solid bg-surface-solid border-#a8b1cd dark: bg-#A8B1CD66 dark: border-#A8B1CD66;
           }
         }
 
@@ -131,8 +126,7 @@ const handleAnchors = () => {
         }
 
         &:before {
-          --style: absolute top-8px left-4px w-4px h-4px content-empty rounded;
-          --style: 'bg-#a8b1cd dark:bg-#A8B1CD66';
+          --style: absolute top-8px left-4px w-4px h-4px content-empty rounded bg-#a8b1cd dark: bg-#A8B1CD66;
         }
       }
     }
@@ -147,10 +141,12 @@ const handleAnchors = () => {
 
     &:deep(.slax_link) {
       --style: ml-0 select-none cursor-pointer align-middle h-16px line-height-16px py-3px px-5px font-500 text-10px rounded-3px transition-colors duration-150;
-      --style: '!decoration-none bg-#16b9981f text-#333333  dark:text-#ffffff99';
+      // bg-#16b9981f 当前品牌绿淡背景，与列表蓝灰辅助色一同保留
+      --style: '!decoration-none bg-#16b9981f text-txt';
     }
 
     &:deep(.slax_link:hover) {
+      // hover 反色状态（深蓝灰底 + 白字），与全站主题无关，保留
       --style: 'bg-#475467 !text-#fff';
     }
   }
