@@ -10,11 +10,13 @@ vi.mock('firebase/messaging', () => ({
   getMessaging: vi.fn(),
   onMessage: vi.fn(),
   getToken: vi.fn(),
-  isSupported: vi.fn(async () => true)
+  isSupported: vi.fn()
 }))
 
 vi.mock('workbox-precaching', () => ({ precacheAndRoute: vi.fn() }))
 vi.mock('workbox-routing', () => ({ registerRoute: vi.fn() }))
+// StaleWhileRevalidate 仅 service-worker/sw_prod.ts 使用，sw 测试第三期才启用
+// 提前挂位避免 workbox-strategies 被间接 import 时报 "X is not a constructor"
 vi.mock('workbox-strategies', () => ({
   NetworkFirst: vi.fn(),
   CacheFirst: vi.fn(),
