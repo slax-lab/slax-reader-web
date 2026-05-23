@@ -35,4 +35,10 @@
 
 ## Nuxt auto-import 怎么 mock
 
-statically auto-imported 函数（`navigateTo` / `useRuntimeConfig` / `useRequestHeaders` 等）一律用 `mockNuxtImport('name', () => mockFn)`，**不要**用 `vi.stubGlobal`——编译后的导入绑定 stubGlobal 拦不到。
+statically auto-imported 函数（`navigateTo` / `useRuntimeConfig` / `useRequestHeaders` / `request` 等）一律用 `mockNuxtImport('name', () => mockFn)`，**不要**用 `vi.stubGlobal`——编译后的导入绑定 stubGlobal 拦不到。
+
+**关键约束（施工期发现）**：`mockNuxtImport` 是 macro，被 transform 成 `vi.mock` 后会被 hoist 到文件顶部，此时**跨文件 import 的 binding 仍在 TDZ**——不能从 `tests/mocks/*.ts` import spy 句柄传给 `mockNuxtImport` factory。每个 spec 必须在自己文件内用 `vi.hoisted` 声明 spy。
+
+完整示例参考 [tests/unit/composables/useAuth.spec.ts](unit/composables/useAuth.spec.ts) 顶部 vi.hoisted + mockNuxtImport('request', ...) 的写法。
+
+至于 `tests/mocks/request.ts` 的角色：它仅服务于"被测代码用**显式 import** 形式调 request()"的场景（目前只有 `components/Article/Selection/adapters/DwebHttpClient.ts`）。auto-import 场景请按上面 vi.hoisted 模式自建 mock。详见 mock 文件顶部的两套用法注释。

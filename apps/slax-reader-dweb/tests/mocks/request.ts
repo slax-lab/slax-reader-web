@@ -1,15 +1,13 @@
 import { vi } from 'vitest'
 
-// dweb 业务代码用 nuxt auto-import 调用 request() / getUserToken() / haveRequestToken()
-// （没有显式 import 语句），所以 spec 拦截这些调用必须用 mockNuxtImport 宏。
+// dweb 业务代码主要走 nuxt auto-import 调用 request() / getUserToken() / haveRequestToken()
+// （没有显式 import 语句），少数文件（如 components/Article/Selection/adapters/DwebHttpClient.ts）
+// 走显式 import 路径 `#layers/core/app/utils/request`。两套路径需要不同的 mock 策略。
 //
-// 本文件提供两件事：
-//   1. 共享的 mock 句柄（mockPost / mockGet / ... 等），让所有 spec 用同一份
-//   2. 一个返回所有 mock 的 vi.hoisted helper，spec 在自己顶层调用 + 把 mockRequest
-//      传给 mockNuxtImport('request', ...) 来挂上链路
-//
-// 同时附带 vi.mock('#layers/core/app/utils/request', ...) 作为显式 import 路径的兜底
-// （目前只 DwebHttpClient.ts 显式用 # 路径 import，未来 spec 测它时仍可命中）。
+// 本文件提供：
+//   1. vi.mock('#layers/...' / '~~/...') 兜底 —— 让任何**显式 import** request 的代码
+//      自动拿到下面 vi.hoisted 里造的 mock 实例
+//   2. 共享的方法名 reference 与本文件的 spy 句柄（仅"显式 import 路径"测试可消费）
 //
 // 方法名以 commons/utils/src/request.ts 的 FetchRequest 为准：
 //   - 标准动词：get / post / put / delete（注意是 delete，不是 del）
@@ -64,15 +62,37 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
   haveRequestToken: requestMockHandles.mockHaveRequestToken
 }))
 
-// spec 内典型用法（auto-import 路径）：
+// 两套用法（按被测代码的 import 形式选）：
 //
-//   import { mockPost, mockRequest, mockGetUserToken, mockHaveRequestToken } from '~~/tests/mocks/request'
+// A. 被测代码**显式 import** request（走 vi.mock 路径）：
 //
-//   mockNuxtImport('request', () => mockRequest)
-//   mockNuxtImport('getUserToken', () => mockGetUserToken)
-//   mockNuxtImport('haveRequestToken', () => mockHaveRequestToken)
+//      // 被测：components/Article/Selection/adapters/DwebHttpClient.ts
+//      // 它写：import { request } from '#layers/core/app/utils/request'
 //
-//   beforeEach(() => mockPost.mockReset())
-//   mockPost.mockResolvedValueOnce({ token: 'abc' })
+//      import { mockPost } from '~~/tests/mocks/request'
 //
-// 注意：mockNuxtImport 是 macro，必须直接写在 spec 顶层（不能封装到 helper 里）。
+//      beforeEach(() => mockPost.mockReset())
+//      mockPost.mockResolvedValueOnce({ data: ... })
+//
+//   本文件下面的两行 vi.mock 已经把 #layers / ~~ 两套路径都拦住，spec 直接 import
+//   句柄即可控制返回值。
+//
+// B. 被测代码走 **nuxt auto-import**（走 mockNuxtImport 宏）：
+//
+//      // 被测：layers/core/app/composables/useAuth.ts —— 直接调 request() 没有 import
+//
+//      import { vi } from 'vitest'
+//
+//      // 必须在 spec 自己文件里 vi.hoisted —— mockNuxtImport 被 transform 后 hoist 到顶部，
+//      // 它的 factory 拿不到跨文件 import 的 binding（仍在 TDZ）。
+//      const { mockRequest, mockPost } = vi.hoisted(() => {
+//        const post = vi.fn()
+//        return {
+//          mockPost: post,
+//          mockRequest: vi.fn(() => ({ post, get: vi.fn(), put: vi.fn(), delete: vi.fn() }))
+//        }
+//      })
+//      mockNuxtImport('request', () => mockRequest)
+//
+//   参考实现：tests/unit/composables/useAuth.spec.ts。本文件的 mockRequest / mockPost
+//   等导出**对 auto-import 场景无效**，请勿与上面用法混用。
