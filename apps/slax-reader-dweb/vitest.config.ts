@@ -64,6 +64,25 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 3（2026-05-23 启用）：environment.ts 13 用例覆盖完整
+        // 实测 100/94.44/100/100，branches 94.44% 因 v8 把 split(';')[0] ?? '' fallback 算不可达分支
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/utils/environment.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
+        // 第二期 sprint 3（2026-05-23 启用）：DwebEnvironmentAdapter.ts 6 用例覆盖完整
+        // 实测 100/100/100/100，阈值给定 80/70/85/80 留余量
+        'layers/core/app/components/Article/Selection/adapters/DwebEnvironmentAdapter.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }
