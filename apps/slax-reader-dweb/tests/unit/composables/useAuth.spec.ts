@@ -3,12 +3,15 @@
 // useAuth.ts 模块顶层 `const { set, get, remove } = useCookies()` 在 import 时即执行，
 // 因此 vi.mock('@vueuse/integrations/useCookies', ...) 必须在 import useAuth 之前生效。
 // vitest 会 hoist vi.mock 调用到文件顶部，但 mock factory 内引用的顶层变量在 hoist 后
-// "还未初始化"，因此用 vi.hoisted 显式包装 cookie spies 与 store spy，
-// 确保 mock factory 拿到的是同一引用。
+// "还未初始化"，因此用 vi.hoisted 显式包装 cookie spies 与 store spy。
 //
 // request() 是 Nuxt auto-import（来源 layers/core/app/utils/request.ts），
 // 必须用 mockNuxtImport('request', ...) 拦截 —— vi.mock 模块路径方式不会作用于
 // auto-import 改写后的代码（README 已说明）。
+//
+// 注意：mockNuxtImport 是 macro，被 transform 成 vi.mock 后 hoist 到文件顶部，
+// 此时跨文件 import binding 仍在 TDZ，因此 mockPost/mockRequest 必须来自同文件的
+// vi.hoisted，不能从 tests/mocks/request.ts import。
 import useAuth from '~~/layers/core/app/composables/useAuth'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -143,7 +146,15 @@ describe('useAuth', () => {
         if (callCount === 3) throw new Error('remove failed')
       })
       await expect(useAuth().clearAuth()).resolves.toBeUndefined()
+      expect(cookieRemove).toHaveBeenCalledTimes(3) // 2 次正常 + 1 次抛错
       expect(clearUserInfo).toHaveBeenCalled()
+    })
+
+    it('COOKIE_DOMAIN 有三段但 cookie 为空时不调用额外 remove', async () => {
+      runtimeConfig.public.COOKIE_DOMAIN = '.sub.example.com'
+      // cookieGet 默认返回 undefined（beforeEach 已设），不需要额外设置
+      await useAuth().clearAuth()
+      expect(cookieRemove).toHaveBeenCalledTimes(2) // 仅两次正常 remove，没有第三次
     })
   })
 })
