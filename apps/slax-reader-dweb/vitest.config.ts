@@ -46,10 +46,16 @@ export default defineVitestConfig({
           branches: 70,
           functions: 90,
           statements: 80
-        }
+        },
 
-        // request.ts 第一期不设阈值（样板只测两个辅助函数，单例本身分支不在覆盖范围）
-        // 第二期补完 interceptor / 401 / error 分支后启用 80/70/85/80
+        // 第二期 sprint 1（2026-05-23 启用）：request.ts 23 用例覆盖完整
+        // 实测 100/93.33/100/100，阈值给定 80/70/85/80 留 ~10pt 缓冲
+        'layers/core/app/utils/request.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        }
       }
     }
   }

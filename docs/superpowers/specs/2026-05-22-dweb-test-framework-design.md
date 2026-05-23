@@ -464,8 +464,9 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 
 | 阶段 | 全局门槛 | 局部门槛 | pages 门槛 | 触发节点 |
 | --- | --- | --- | --- | --- |
-| 第一期 | 注释保留，不强制 | **仅对已落样板的 2 个具体文件**设单文件阈值（string.ts 90/85/90/90、useAuth.ts 80/70/90/80）；request.ts 第一期不设阈值（样板只测两个辅助函数，单例本身分支不在覆盖范围） | 不设，仅观测 | 5 类样板用例落地后 |
-| 第二期 | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70；request.ts 单文件 80/70/85/80（同期补完 interceptor/401/error 分支） | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
+| 第一期（2026-05-23 达成） | 注释保留，不强制 | **仅对已落样板的 2 个具体文件**设单文件阈值（string.ts 90/85/90/90、useAuth.ts 80/70/90/80）；request.ts 第一期不设阈值 | 不设，仅观测 | 5 类样板用例落地后 |
+| **第二期 sprint 1（2026-05-23 达成）** | 注释保留 | 在第一期基础上启用 request.ts 单文件阈值 80/70/85/80（实测 100/93.33/100/100） | 不设，仅观测 | request.ts 23 用例完整覆盖后 |
+| 第二期目录级（待启用） | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70 | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
 | 第三期 | 80/75/80/80 | utils 95/90/95/95、composables 90/85/90/90 | 60/55/60/60 起步 | 全模块 + 主要页面集成测试覆盖稳定后 |
 
 > 阶段升级条件是"实测达标 5 个工作日内未回退"，不是日期。不卡死时间，避免为了过门槛刷无效用例。
@@ -491,6 +492,24 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 
 第二期不一次性立项，按优先级单 PR 推进，每个模块完成后跑一次 coverage 看回归。
 
+### 8.1 第二期 fixture / mock 数据来源（用户 2026-05-23 提供）
+
+第二期补 fixture（bookmark / article / chat / notification 等）和 mock 返回值时，**优先从真实后端拉数据反向构造**，避免凭空编结构：
+
+- **本地后端 baseUrl**：`http://localhost:8787`（开发期调试 URL）
+- **后端工程位置**：`../slax-reader-api-community/`（与本仓库同级，路径 `/Users/yjc/Documents/Company/slax-reader-api-community`），可读其源码确认接口路径、参数、返回类型、ID 长度、枚举值
+- **测试用 user token**（仅在受控本地环境使用，**不要写进 commit 或对外文档**；token 已在用户提供的指令里出现过，需要时回看会话历史，**不要在代码注释/fixture/日志里出现**）：调登录态接口时用 `Authorization: Bearer <token>` 头
+
+工作流：
+
+1. 写新 fixture 前先 `curl -H "Authorization: Bearer <token>" http://localhost:8787/<endpoint>` 抓一份真实 response
+2. 把 response 的字段名/类型/可能枚举对照 `commons/types/src/interface.ts` 接口定义校准
+3. fixture 用真实 ID 长度（如 bookmark_id 通常 19 位数字）、真实时间戳格式
+4. 敏感数据（user_id、email 等）替换成 fixture 标准值（baseUser 已就绪），但形态保持真实
+5. **绝不**把 token 字符串硬编码到 fixture / spec / 注释里——需要它的测试在本地用环境变量临时注入
+
+> 后端只读：第二期阶段任何对 `slax-reader-api-community` 的 query 都是只读 `curl`。**不要**用 token 做 POST/PUT/DELETE 创建测试数据，避免污染本地后端状态。
+
 ---
 
 ## 9. 验证流程
@@ -511,7 +530,17 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 - [x] `tests/README.md` 写好测试指南（含 fixture/mock 用法 + auto-import 跨文件 spy 约束说明）
 - [x] 全量 49 用例通过（含 theme 系列原有），`pnpm dev` 启动 mock 不污染运行时
 
-### 9.3 失败处理
+### 9.3 第二期 sprint 1 验收点（2026-05-23 全部达成 — request.ts 完整覆盖）
+
+- [x] 23 用例全过（4 客户端 getUserToken/haveRequestToken + 11 客户端 request() 工厂/拦截器 + 8 服务端 ServerRequest/getUserToken/errorInterceptor）
+- [x] request.ts 覆盖率 100/93.33/100/100（lines/branches/functions/statements），远超阈值 80/70/85/80
+- [x] vitest.config.ts 启用 request.ts 单文件阈值，`pnpm test:coverage` 退出码 0
+- [x] 全量 49 → 72 用例（49 + 23）通过，0 todo / 0 fail
+- [x] §7 渐进策略表 sprint 1 行回填
+- [x] commit 全英文 message，分 4 commits（task 1.1/1.2/1.3 + sprint 1.4 done）
+- [x] vi.doMock + vi.resetModules 模块隔离方案验证通过（**真切换 isServer**，无降级）
+
+### 9.4 失败处理
 
 任一步失败：
 
