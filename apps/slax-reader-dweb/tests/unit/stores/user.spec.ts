@@ -12,12 +12,51 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // vi.hoisted：mock factory 在 hoist 后早于顶层变量初始化执行，必须显式包装
 // mockNuxtImport 是 macro，被 transform 成 vi.mock 后由 vitest hoist 到 import 之前，因此
 // useUserStore 即便在源码里写在顶部，运行时也能拿到下面 mockNuxtImport 注入的 haveRequestToken / useI18n
-const { haveRequestTokenMock, useI18nMock } = vi.hoisted(() => ({
-  haveRequestTokenMock: vi.fn(() => false),
-  useI18nMock: vi.fn(() => ({ locale: { value: 'en' } }))
-}))
+// Sprint 2.2 扩展：合并 request / cookies 等句柄到同一 hoisted 块，避免二次声明覆盖原有 mock。
+// 注意：不在顶层 mockNuxtImport('useNuxtApp', ...)，否则会覆盖 setupNuxt 自身依赖的 nuxtApp 实例
+// （pinia payload-plugin / router plugin 都会在 init 期失败）。改为在用例内 vi.spyOn(store, 'changeLocalLocale')
+// 阻断真实副作用，等价覆盖 changeLocalLocale 是否被调用的验证目的
+const { haveRequestTokenMock, useI18nMock, mockGet, mockPost, mockRequest, cookieGet, cookieSet, cookieRemove } = vi.hoisted(() => {
+  const post = vi.fn()
+  const get = vi.fn()
+  return {
+    haveRequestTokenMock: vi.fn(() => false),
+    useI18nMock: vi.fn(() => ({ locale: { value: 'en' } })),
+    mockGet: get,
+    mockPost: post,
+    mockRequest: vi.fn(() => ({
+      get,
+      post,
+      put: vi.fn(),
+      delete: vi.fn(),
+      stream: vi.fn(),
+      upgrade: vi.fn(),
+      uploadFile: vi.fn()
+    })),
+    cookieGet: vi.fn(),
+    cookieSet: vi.fn(),
+    cookieRemove: vi.fn()
+  }
+})
 mockNuxtImport('haveRequestToken', () => haveRequestTokenMock)
 mockNuxtImport('useI18n', () => useI18nMock)
+// Sprint 2.2：refreshUserInfo / refreshUserToken / changeUserSetting 都走 request() 这条 auto-import 通道
+mockNuxtImport('request', () => mockRequest)
+
+// runtimeConfig 必须保留 app.baseURL（同 useAuth.spec.ts），否则 nuxt-test-utils 启动 router plugin 时会读到 undefined
+const runtimeConfig = {
+  app: { baseURL: '/' },
+  public: {
+    COOKIE_TOKEN_NAME: 'token',
+    COOKIE_DOMAIN: '.example.com'
+  }
+}
+mockNuxtImport('useRuntimeConfig', () => () => runtimeConfig)
+
+// useCookies 在 user.ts 顶部以显式路径 import，必须用 vi.mock 拦截模块路径（mockNuxtImport 不覆盖此场景）
+vi.mock('@vueuse/integrations/useCookies', () => ({
+  useCookies: () => ({ set: cookieSet, get: cookieGet, remove: cookieRemove })
+}))
 
 describe('useUserStore - getters', () => {
   beforeEach(() => {
@@ -368,6 +407,141 @@ describe('useUserStore - subscribe 相关 actions', () => {
       store.clearSubscribeCollectionTimeRecord('col-1')
       expect(store.subscribeCollectionTimeRecord).toEqual({
         'col-2': { time: Date.now(), subscribed: false, cancelled: true, deleted: false }
+      })
+    })
+  })
+})
+
+// Sprint 2.2.1：4 个直接调 request() 的 action（refreshUserInfo / getUserInfo / refreshUserToken / changeUserSetting）
+// 共 10 用例。注意 refreshUserToken 是 fire-and-forget 风格——内部 .then 走 microtask；
+// 由于 vi.useFakeTimers 不会自动推进 timer，但 await Promise.resolve() 仍可同步推进 microtask 队列，
+// 因此用 `await Promise.resolve(); await Promise.resolve()` 兜住 .then 副作用。
+describe('useUserStore - request 类 actions', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    haveRequestTokenMock.mockReset().mockReturnValue(false)
+    useI18nMock.mockReset().mockReturnValue({ locale: { value: 'en' } })
+    mockGet.mockReset()
+    mockPost.mockReset()
+    mockRequest.mockClear()
+    cookieGet.mockReset().mockReturnValue(undefined)
+    cookieSet.mockClear()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-23T10:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  describe('refreshUserInfo', () => {
+    it('request().get 成功 → 写入 store.user 并返回 user', async () => {
+      const fixture = makeUser({ lang: 'en' })
+      mockGet.mockResolvedValueOnce(fixture)
+      const store = useUserStore()
+      // 与 fixture.lang 一致，避免触发 changeLocalLocale 副作用干扰本用例断言面
+      store.locale = 'en'
+      const result = await store.refreshUserInfo()
+      expect(result).toEqual(fixture)
+      expect(store.user).toEqual(fixture)
+      expect(mockGet).toHaveBeenCalledWith({ url: '/v1/user/me' })
+    })
+
+    it('后端返回空 → 抛 "refresh user info failed"', async () => {
+      mockGet.mockResolvedValueOnce(undefined)
+      const store = useUserStore()
+      await expect(store.refreshUserInfo()).rejects.toThrow('refresh user info failed')
+      // 异常路径下 user 不被覆写
+      expect(store.user).toBeNull()
+    })
+
+    it('resp.lang 与当前 locale 不同 → 调 changeLocalLocale 同步', async () => {
+      mockGet.mockResolvedValueOnce(makeUser({ lang: 'zh' }))
+      const store = useUserStore()
+      store.locale = 'en'
+      // 直接 spy 在 store action 上，避免顶层 mock useNuxtApp 破坏 setupNuxt 初始化
+      // （pinia payload-plugin 在 init 期会读 nuxtApp 上的 skipHydrate）
+      const spy = vi.spyOn(store, 'changeLocalLocale').mockResolvedValue()
+      await store.refreshUserInfo()
+      expect(spy).toHaveBeenCalledWith('zh')
+    })
+
+    it('resp.lang 与当前 locale 相同 → 不调 changeLocalLocale', async () => {
+      mockGet.mockResolvedValueOnce(makeUser({ lang: 'en' }))
+      const store = useUserStore()
+      store.locale = 'en'
+      const spy = vi.spyOn(store, 'changeLocalLocale').mockResolvedValue()
+      await store.refreshUserInfo()
+      expect(spy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getUserInfo', () => {
+    it('options.refresh=true + isLogin=true → 先调 refreshUserInfo + 返回更新后的 user', async () => {
+      const fixture = makeUser()
+      mockGet.mockResolvedValueOnce(fixture)
+      // isLogin getter 调 haveRequestToken()，置 true 走 refresh 分支
+      haveRequestTokenMock.mockReturnValue(true)
+      const store = useUserStore()
+      const result = await store.getUserInfo({ refresh: true })
+      expect(result).toEqual(fixture)
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+
+    it('this.user 已存在 + 不带 refresh → 直接返回 user，不调 refreshUserInfo', async () => {
+      const store = useUserStore()
+      store.user = baseUser
+      const result = await store.getUserInfo()
+      expect(result).toEqual(baseUser)
+      // 不进入 refresh 分支，request().get 不应被触发
+      expect(mockGet).not.toHaveBeenCalled()
+    })
+
+    it('this.user 为空 + 没有 refresh → 抛 "get user info failed"', async () => {
+      const store = useUserStore()
+      await expect(store.getUserInfo()).rejects.toThrow('get user info failed')
+    })
+  })
+
+  describe('refreshUserToken', () => {
+    it('request().post 成功 → cookies.set 写入 token（含 60 天 expires + COOKIE_DOMAIN）', async () => {
+      mockPost.mockResolvedValueOnce({ token: 'tk-1' })
+      const store = useUserStore()
+      // 源码 line 145-156：refreshUserToken 内部 .then 是 microtask，await action 本身只等同步部分
+      await store.refreshUserToken()
+      // microtask flush：第一次 resolve `request().post(...)`，第二次 settle .then 的回调
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(cookieSet).toHaveBeenCalledWith(
+        'token',
+        'tk-1',
+        expect.objectContaining({
+          path: '/',
+          domain: '.example.com',
+          expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+        })
+      )
+    })
+
+    it('后端返回 falsy → return 不写 cookie 不抛错', async () => {
+      mockPost.mockResolvedValueOnce(undefined)
+      const store = useUserStore()
+      await expect(store.refreshUserToken()).resolves.toBeUndefined()
+      // 同样 flush 一遍 microtask，确认 .then 早退分支不触发 cookieSet
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(cookieSet).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('changeUserSetting', () => {
+    it('调用 request().post 用正确 url + body', async () => {
+      mockPost.mockResolvedValueOnce({ ok: true })
+      const store = useUserStore()
+      await store.changeUserSetting('lang', 'zh')
+      expect(mockPost).toHaveBeenCalledWith({
+        url: '/v1/user/setting',
+        body: { key: 'lang', value: 'zh' }
       })
     })
   })
