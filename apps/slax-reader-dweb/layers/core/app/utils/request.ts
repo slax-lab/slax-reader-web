@@ -50,7 +50,6 @@ export const request = () => {
         return response as FetchResult<T>
       },
       errorInterceptors: error => {
-        console.log(error)
         if (isServer) {
           return error
         }
