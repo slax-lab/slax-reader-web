@@ -11,7 +11,7 @@
 // 本 task（1.1）仅落客户端 getUserToken / haveRequestToken 4 用例，
 // 服务端块写 it.todo 占位避免空 describe 失败 —— 8 个真用例由 task 1.3 补。
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // FetchRequest mock：继承真实 class 以保留 combineUrlWithQuery 等方法，
 // constructor 把传入的 config 暴露到 lastConfig，供 task 1.2 直接调拦截器。
@@ -227,16 +227,111 @@ describe('服务端环境', () => {
     vi.doUnmock('@commons/utils/is')
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let requestModule: typeof import('~~/layers/core/app/utils/request')
+  // 服务端 ServerRequest.fetchRequest 直接调全局 fetch；用 vi.stubGlobal 拦截以断言调用参数
+  const fetchSpy = vi.fn()
 
   beforeEach(async () => {
     vi.resetModules()
     requestHeadersMock.mockReset().mockReturnValue({})
+    showToast.mockClear()
     lastConfig.value = null
+    fetchSpy.mockReset().mockResolvedValue({ status: 200, json: () => Promise.resolve({}) })
+    vi.stubGlobal('fetch', fetchSpy)
     requestModule = await import('~~/layers/core/app/utils/request')
   })
 
-  // task 1.3 在此 describe 块补 8 个真用例（getUserToken 服务端 2 / ServerRequest fetchRequest 5 / errorInterceptor 服务端 1）
-  it.todo('Task 3 will fill server-side cases')
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  describe('getUserToken（服务端）', () => {
+    it('cookie header 含 token=abc → 返回 abc', () => {
+      requestHeadersMock.mockReturnValue({ cookie: 'token=abc; other=x' })
+      expect(requestModule.getUserToken()).toBe('abc')
+      // 同时确认 useRequestHeaders 被传入正确的 keys，避免实现走错分支
+      expect(requestHeadersMock).toHaveBeenCalledWith(['cookie'])
+    })
+
+    it('无 cookie header → 返回 undefined', () => {
+      // beforeEach 已设 mockReset + mockReturnValue({})，此处显式断言空 headers 分支
+      expect(requestModule.getUserToken()).toBeUndefined()
+    })
+  })
+
+  describe('ServerRequest.fetchRequest', () => {
+    // 通过 request() 工厂走服务端实例化路径，再调实例 fetchRequest 触发服务端覆盖逻辑
+    it('POST 请求抛 "Server not support other method"', async () => {
+      const instance = requestModule.request()
+      await expect(
+        instance.fetchRequest({
+          url: '/x',
+          method: 'post' as never
+        })
+      ).rejects.toThrow('Server not support other method')
+      // 抛错路径不应触达 fetch
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('stream=true 抛 "Server not support other method"', async () => {
+      const instance = requestModule.request()
+      await expect(
+        instance.fetchRequest({
+          url: '/x',
+          method: 'get' as never,
+          stream: true
+        })
+      ).rejects.toThrow('Server not support other method')
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('GET + query 走 combineUrlWithQuery 拼接 URL', async () => {
+      const instance = requestModule.request()
+      await instance.fetchRequest({
+        url: '/path',
+        method: 'get' as never,
+        query: { a: '1', b: '2' }
+      })
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+      const calledUrl = fetchSpy.mock.calls[0][0]
+      // baseUrl 来自 runtimeConfig.public.DWEB_API_BASE_URL = 'https://api.test'
+      expect(calledUrl).toBe('https://api.test/path?a=1&b=2')
+    })
+
+    it('body 是 File 时直接传给 fetch', async () => {
+      const file = new File(['hello'], 'a.txt', { type: 'text/plain' })
+      const instance = requestModule.request()
+      await instance.fetchRequest({
+        url: '/upload',
+        method: 'get' as never,
+        body: file
+      })
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+      const options = fetchSpy.mock.calls[0][1]
+      expect(options.body).toBe(file)
+    })
+
+    it('body 是 plain object 时 JSON.stringify', async () => {
+      const payload = { foo: 'bar', n: 1 }
+      const instance = requestModule.request()
+      await instance.fetchRequest({
+        url: '/json',
+        method: 'get' as never,
+        body: payload
+      })
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+      const options = fetchSpy.mock.calls[0][1]
+      expect(options.body).toBe(JSON.stringify(payload))
+    })
+  })
+
+  describe('errorInterceptors（服务端）', () => {
+    it('服务端环境下直接 return error，不调 Toast', () => {
+      requestModule.request()
+      const err = new Error('any error')
+      const result = lastConfig.value.errorInterceptors(err)
+      expect(result).toBe(err)
+      expect(showToast).not.toHaveBeenCalled()
+    })
+  })
 })
