@@ -35,8 +35,9 @@ describe('/ 路由集成', () => {
     })
 
     // CTA 文案断言（HomepageHero.vue 内 .btn-free 的可见文本）
+    // getByText 找不到会自己抛 TestingLibraryElementError —— 不需要包 expect().toBeTruthy()
     await waitFor(() => {
-      expect(screen.getByText(/Start Reading Smarter - Free/i)).toBeTruthy()
+      screen.getByText(/Start Reading Smarter - Free/i)
     })
   })
 
