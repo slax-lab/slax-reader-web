@@ -55,6 +55,15 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 2.2（2026-05-23 启用）：user.ts 54 用例覆盖完整
+        // 实测 100/100/100/100，阈值给定 80/70/85/80 留 ~20pt 缓冲
+        'layers/core/app/stores/user.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }

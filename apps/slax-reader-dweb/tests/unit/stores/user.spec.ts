@@ -546,3 +546,155 @@ describe('useUserStore - request 类 actions', () => {
     })
   })
 })
+
+// Sprint 2.2.2：复合 actions（changeLocale / checkAndRefreshUserToken）共 5 用例
+// 关键风险：changeLocale 链路 changeUserSetting().then(refreshUserToken + changeLocalLocale)，
+// refreshUserToken 内部又是 fire-and-forget；mockPost 必须按调用顺序预置，避免 undefined.then 异步抛错。
+// vi.useFakeTimers 不会自动推进 timer，但 await Promise.resolve() 仍可同步推进 microtask 队列。
+describe('useUserStore - 复合 actions', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    haveRequestTokenMock.mockReset().mockReturnValue(false)
+    useI18nMock.mockReset().mockReturnValue({ locale: { value: 'en' } })
+    mockGet.mockReset()
+    mockPost.mockReset()
+    mockRequest.mockClear()
+    cookieGet.mockReset().mockReturnValue(undefined)
+    cookieSet.mockClear()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-23T10:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  describe('changeLocale', () => {
+    it('locale 与当前相同 → 早退（不调 mockPost）', async () => {
+      const store = useUserStore()
+      // 当前 locale 与目标一致 → 命中 user.ts:130 的 `if (this.locale === locale) return`
+      store.locale = 'zh'
+      await store.changeLocale('zh')
+      expect(mockPost).not.toHaveBeenCalled()
+    })
+
+    it('locale 不同 → changeUserSetting 后 .then 触发 refreshUserToken + changeLocalLocale', async () => {
+      // changeUserSetting 与 refreshUserToken 都调 mockPost；按顺序预置两次返回值，
+      // 否则 fire-and-forget 链路 undefined.then 会异步抛错并污染下个用例
+      mockPost.mockResolvedValueOnce(undefined).mockResolvedValueOnce({ token: 'tk' })
+
+      const store = useUserStore()
+      store.locale = 'en'
+
+      // 在 store action 上局部 spy 拦 changeLocalLocale —— 不能 mock useNuxtApp 顶层（破坏 setupNuxt）
+      const localeSpy = vi.spyOn(store, 'changeLocalLocale').mockResolvedValue()
+
+      await store.changeLocale('zh')
+      // 第一次 flush：changeUserSetting 的 await 链 settle，进入 .then 回调
+      await Promise.resolve()
+      // 第二次 flush：refreshUserToken 内部 .then 链 settle
+      await Promise.resolve()
+
+      expect(mockPost).toHaveBeenCalledTimes(2)
+      // 用 toHaveBeenNthCalledWith 替代 mock.calls[i][j] 索引访问，规避元组元素可能为 undefined 的 TS 收紧
+      expect(mockPost).toHaveBeenNthCalledWith(1, {
+        url: '/v1/user/setting',
+        body: { key: 'lang', value: 'zh' }
+      })
+      expect(mockPost).toHaveBeenNthCalledWith(2, { url: '/v1/user/refresh' })
+      expect(localeSpy).toHaveBeenCalledWith('zh')
+    })
+  })
+
+  describe('checkAndRefreshUserToken', () => {
+    it('距 lastRefreshTokenDate < 24h → 早退', () => {
+      const store = useUserStore()
+      // 1 小时前刚刷过 → 命中 user.ts:172 的 24h 早退分支
+      store.lastRefreshTokenDate = Date.now() - 1000 * 60 * 60
+      store.checkAndRefreshUserToken()
+      expect(cookieGet).not.toHaveBeenCalled()
+      expect(mockPost).not.toHaveBeenCalled()
+    })
+
+    it('距 > 24h 但 token cookie 不存在 → 早退（不调 refreshUserToken）', () => {
+      const store = useUserStore()
+      // 25 小时前刷过 → 跨过 24h 门槛，进入 cookie 检查
+      store.lastRefreshTokenDate = Date.now() - 1000 * 60 * 60 * 25
+      cookieGet.mockReturnValue(undefined) // 'token' cookie 不存在
+      store.checkAndRefreshUserToken()
+      // 源码 line 177 写死字符串 'token'（不是 COOKIE_TOKEN_NAME）
+      expect(cookieGet).toHaveBeenCalledWith('token')
+      expect(mockPost).not.toHaveBeenCalled()
+    })
+
+    it('距 > 24h + token 存在 → 更新 lastRefreshTokenDate + 调 refreshUserToken', async () => {
+      const store = useUserStore()
+      const oldDate = Date.now() - 1000 * 60 * 60 * 25
+      store.lastRefreshTokenDate = oldDate
+      cookieGet.mockReturnValue('existing-token')
+      // refreshUserToken 内部 .then 链需要 mockPost 有 resolve 值，否则 undefined.then 异步抛错
+      mockPost.mockResolvedValueOnce({ token: 'new-tk' })
+
+      // checkAndRefreshUserToken 不返 promise（非 async），直接调
+      store.checkAndRefreshUserToken()
+      // 推进 microtask：第一次 settle request().post，第二次 settle 内部 .then
+      await Promise.resolve()
+      await Promise.resolve()
+
+      // 同步副作用：lastRefreshTokenDate 在调 refreshUserToken 之前就赋成 now
+      expect(store.lastRefreshTokenDate).toBe(Date.now())
+      expect(mockPost).toHaveBeenCalledWith({ url: '/v1/user/refresh' })
+      // refreshUserToken 内部 .then 触发的 cookie 写入（确认链路真的走完）
+      expect(cookieSet).toHaveBeenCalled()
+    })
+  })
+})
+
+// Sprint 2.2.2：changeLocalLocale 共 3 用例
+// 不能在顶层 mockNuxtImport('useNuxtApp', ...)（破坏 pinia payload-plugin 的 skipHydrate 初始化）；
+// 改在用例内通过真实 useNuxtApp() 拿到 nuxtApp 实例后，对 $i18n.setLocale 局部 spy。
+describe('useUserStore - changeLocalLocale', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    haveRequestTokenMock.mockReset().mockReturnValue(false)
+    useI18nMock.mockReset().mockReturnValue({ locale: { value: 'en' } })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-23T10:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('locale 在白名单 ["en", "zh"] → 调 i18n.setLocale 用原值', async () => {
+    const nuxtApp = useNuxtApp()
+    // 局部 spy：不替换 useNuxtApp，仅劫持已注入实例上的 setLocale
+    const setLocaleSpy = vi.spyOn(nuxtApp.$i18n, 'setLocale').mockResolvedValue()
+    const store = useUserStore()
+    await store.changeLocalLocale('zh')
+    expect(store.locale).toBe('zh')
+    expect(setLocaleSpy).toHaveBeenCalledWith('zh')
+    setLocaleSpy.mockRestore()
+  })
+
+  it('locale 不在白名单（如 "fr"）→ fallback "en"，调 i18n.setLocale("en")', async () => {
+    const nuxtApp = useNuxtApp()
+    const setLocaleSpy = vi.spyOn(nuxtApp.$i18n, 'setLocale').mockResolvedValue()
+    const store = useUserStore()
+    // 'fr' 不在 ['en','zh'] 白名单 → 命中 user.ts:121-123 的 fallback 分支
+    await store.changeLocalLocale('fr')
+    expect(store.locale).toBe('en')
+    expect(setLocaleSpy).toHaveBeenCalledWith('en')
+    setLocaleSpy.mockRestore()
+  })
+
+  it('this.locale 与 setLocale 调用值一致（同步赋值断言）', async () => {
+    const nuxtApp = useNuxtApp()
+    const setLocaleSpy = vi.spyOn(nuxtApp.$i18n, 'setLocale').mockResolvedValue()
+    const store = useUserStore()
+    await store.changeLocalLocale('en')
+    // 源码 line 126-127：先 this.locale = locale，再 setLocale(locale) → 两者必然一致
+    expect(setLocaleSpy).toHaveBeenCalledWith(store.locale)
+    setLocaleSpy.mockRestore()
+  })
+})
