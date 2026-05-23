@@ -108,6 +108,114 @@ describe('客户端环境', () => {
       expect(requestModule.haveRequestToken()).toBe(false)
     })
   })
+
+  describe('request() 工厂', () => {
+    it('第二次调 request() 返回同一实例（单例缓存生效）', () => {
+      const r1 = requestModule.request()
+      const r2 = requestModule.request()
+      expect(r1).toBe(r2)
+    })
+
+    it('客户端实例化触发 FetchRequestMock 构造，捕获到 config', () => {
+      // 调用 request() 之前 lastConfig.value 已被 beforeEach 重置为 null
+      expect(lastConfig.value).toBeNull()
+      requestModule.request()
+      expect(lastConfig.value).not.toBeNull()
+      expect(lastConfig.value.baseUrl).toBe('https://api.test')
+    })
+
+    it('baseUrl 取自 useRuntimeConfig().public.DWEB_API_BASE_URL', () => {
+      requestModule.request()
+      expect(lastConfig.value.baseUrl).toBe(runtimeConfig.public.DWEB_API_BASE_URL)
+    })
+  })
+
+  describe('requestInterceptors', () => {
+    it('cookie 中存在 token → 注入 Authorization: Bearer <token>', async () => {
+      cookieGet.mockReturnValue('tk-1')
+      requestModule.request()
+      const result = await lastConfig.value.requestInterceptors({ url: '/x', headers: {} })
+      expect(result.headers.Authorization).toBe('Bearer tk-1')
+    })
+
+    it('cookie 中无 token → 不注入 Authorization', async () => {
+      // beforeEach 已将 cookieGet 设为返回 undefined
+      requestModule.request()
+      const result = await lastConfig.value.requestInterceptors({ url: '/x', headers: {} })
+      expect(result.headers).not.toHaveProperty('Authorization')
+    })
+
+    it('调用方传入的其它 header 字段被原样保留', async () => {
+      cookieGet.mockReturnValue('tk-2')
+      requestModule.request()
+      const result = await lastConfig.value.requestInterceptors({
+        url: '/x',
+        headers: { 'X-Custom': 'v1' }
+      })
+      expect(result.headers['X-Custom']).toBe('v1')
+      expect(result.headers.Authorization).toBe('Bearer tk-2')
+    })
+
+    it('调用方已提供 Authorization → 行为快照：调用方值优先（源码 spread 顺序决定）', async () => {
+      // 源码 request.ts:37-40：{ Authorization: `Bearer ${token}`, ...(options.headers ?? {}) }
+      // options.headers 在后展开，调用方传入的 Authorization 会覆盖 token 注入值
+      cookieGet.mockReturnValue('tk-from-cookie')
+      requestModule.request()
+      const result = await lastConfig.value.requestInterceptors({
+        url: '/x',
+        headers: { Authorization: 'Bearer caller-supplied' }
+      })
+      expect(result.headers.Authorization).toBe('Bearer caller-supplied')
+    })
+  })
+
+  describe('responseInterceptors', () => {
+    it('status 401 → 调 useAuth().clearAuth() 并 navigateTo("/login")，response 原样返回', async () => {
+      requestModule.request()
+      const response = { status: 401, data: null, message: '' }
+      const result = await lastConfig.value.responseInterceptors(response)
+      expect(clearAuth).toHaveBeenCalledTimes(1)
+      expect(navigateToMock).toHaveBeenCalledWith('/login')
+      // 401 分支结束后仍把 response 原样向下游传递（包含 401 status）
+      expect(result).toBe(response)
+      expect(result.status).toBe(401)
+    })
+
+    it('status 200 → 直接透传，不触发 clearAuth / navigateTo', async () => {
+      requestModule.request()
+      const response = { status: 200, data: { ok: true }, message: '' }
+      const result = await lastConfig.value.responseInterceptors(response)
+      expect(clearAuth).not.toHaveBeenCalled()
+      expect(navigateToMock).not.toHaveBeenCalled()
+      expect(result).toBe(response)
+    })
+  })
+
+  describe('errorInterceptors（客户端）', () => {
+    it('RequestError 且带 message → Toast 展示 error.message', async () => {
+      requestModule.request()
+      // §3.1 mock 用了 ...actual spread，这里 import 拿到的仍是真实 RequestError class，instanceof 判定有效
+      const { RequestError } = await import('@commons/utils/request')
+      const err = new RequestError({ message: 'biz error', name: 'BIZ', code: 1001 })
+      lastConfig.value.errorInterceptors(err)
+      expect(showToast).toHaveBeenCalledTimes(1)
+      const arg = showToast.mock.calls[0][0]
+      expect(arg.text).toBe('biz error')
+      // ToastType.Error 真实值见 layers/core/app/components/Toast/type.ts
+      expect(arg.type).toBe('error')
+    })
+
+    it('非 RequestError → Toast 展示 `${error}` 字符串化结果', async () => {
+      requestModule.request()
+      const err = new Error('plain error')
+      lastConfig.value.errorInterceptors(err)
+      expect(showToast).toHaveBeenCalledTimes(1)
+      const arg = showToast.mock.calls[0][0]
+      // `${new Error('plain error')}` === 'Error: plain error'
+      expect(arg.text).toBe(`${err}`)
+      expect(arg.type).toBe('error')
+    })
+  })
 })
 
 describe('服务端环境', () => {
