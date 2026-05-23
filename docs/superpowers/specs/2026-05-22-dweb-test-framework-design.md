@@ -466,6 +466,7 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 | --- | --- | --- | --- | --- |
 | 第一期（2026-05-23 达成） | 注释保留，不强制 | **仅对已落样板的 2 个具体文件**设单文件阈值（string.ts 90/85/90/90、useAuth.ts 80/70/90/80）；request.ts 第一期不设阈值 | 不设，仅观测 | 5 类样板用例落地后 |
 | **第二期 sprint 1（2026-05-23 达成）** | 注释保留 | 在第一期基础上启用 request.ts 单文件阈值 80/70/85/80（实测 100/93.33/100/100） | 不设，仅观测 | request.ts 23 用例完整覆盖后 |
+| **第二期 sprint 2（2026-05-23 达成）** | 注释保留 | 在 sprint 1 基础上启用 stores/user.ts 单文件阈值 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | user store 54 用例（36 sprint 2.1 纯逻辑 + 18 sprint 2.2 request 类/复合）覆盖后 |
 | 第二期目录级（待启用） | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70 | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
 | 第三期 | 80/75/80/80 | utils 95/90/95/95、composables 90/85/90/90 | 60/55/60/60 起步 | 全模块 + 主要页面集成测试覆盖稳定后 |
 
@@ -540,7 +541,17 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 - [x] commit 全英文 message，分 4 commits（task 1.1/1.2/1.3 + sprint 1.4 done）
 - [x] vi.doMock + vi.resetModules 模块隔离方案验证通过（**真切换 isServer**，无降级）
 
-### 9.4 失败处理
+### 9.4 第二期 sprint 2 验收点（2026-05-23 全部达成 — stores/user.ts 完整覆盖）
+
+- [x] 54 用例全过（sprint 2.1: 18 getter + 6 纯本地 action + 12 subscribe action = 36；sprint 2.2: 10 request 类 action + 5 复合 action + 3 changeLocalLocale = 18）
+- [x] user.ts 覆盖率 100/100/100/100（lines/branches/functions/statements），全维度满分远超阈值 80/70/85/80
+- [x] vitest.config.ts 启用 stores/user.ts 单文件阈值，`pnpm test:coverage` 退出码 0
+- [x] 全量 72 → 126 用例（72 + 54）通过，0 todo / 0 fail
+- [x] §7 渐进策略表 sprint 2 行回填
+- [x] commit 全英文 message，分 4 commits（sprint 2.1.1/2.1.2 + sprint 2.2.1/2.2.2）
+- [x] **新发现的架构约束**：`mockNuxtImport('useNuxtApp', ...)` 会破坏 setupNuxt 初始化（pinia payload-plugin 需要真 nuxtApp.skipHydrate），改用 `vi.spyOn(useNuxtApp().$i18n, 'setLocale')` 局部 spy 替代，已沉淀到 sprint 2.2 spec §3.2 + tests/README 后续可同步
+
+### 9.5 失败处理
 
 任一步失败：
 
