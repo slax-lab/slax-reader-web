@@ -112,6 +112,37 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 6.1（2026-05-24 启用）：utils 4 个轻量文件覆盖完整
+        // userRelative.ts 1 用例 → 实测 100/100/100/100
+        // zip.ts 5 用例 → 实测 100/80/100/100
+        // channel.ts 9 用例 → 实测 100/87.5/100/100（含 close listener）
+        // analytics.ts 7 用例 → 实测 100/95.83/100/100
+        // 阈值统一给定 80/70/85/80 留余量
+        'layers/core/app/utils/userRelative.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/utils/zip.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/utils/channel.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/utils/analytics.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }
