@@ -468,6 +468,7 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 | **第二期 sprint 1（2026-05-23 达成）** | 注释保留 | 在第一期基础上启用 request.ts 单文件阈值 80/70/85/80（实测 100/93.33/100/100） | 不设，仅观测 | request.ts 23 用例完整覆盖后 |
 | **第二期 sprint 2（2026-05-23 达成）** | 注释保留 | 在 sprint 1 基础上启用 stores/user.ts 单文件阈值 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | user store 54 用例（36 sprint 2.1 纯逻辑 + 18 sprint 2.2 request 类/复合）覆盖后 |
 | **第二期 sprint 3（2026-05-23 达成）** | 注释保留 | 在 sprint 2 基础上启用 utils/environment.ts 80/70/85/80（实测 100/94.44/100/100）+ DwebEnvironmentAdapter.ts 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | environment + adapter 19 用例覆盖后；首次用 codex review 4 轮自动审计 spec 文档 |
+| **第二期 sprint 4（2026-05-24 达成）** | 注释保留 | 在 sprint 3 基础上启用 utils/modal.ts 80/70/85/80（实测 100/100/100/100）+ Modal/index.ts 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | modalBootloader + 6 个 showXxxModal helper 共 20 用例覆盖后 |
 | 第二期目录级（待启用） | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70 | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
 | 第三期 | 80/75/80/80 | utils 95/90/95/95、composables 90/85/90/90 | 60/55/60/60 起步 | 全模块 + 主要页面集成测试覆盖稳定后 |
 
@@ -564,7 +565,20 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 - [x] commit 全英文 message
 - [x] **新增工具沉淀**：`.claude/test-framework/codex-review-loop.sh` + `.codex-review-loop.md` 文档，把 codex CLI 的 review 子命令做成多轮交互循环 helper。本 sprint 首次实战使用，4 轮 codex review 抓出 7 条意见全部成立、0 反驳后通过，验证 helper 可作为后续 sprint 的标准 spec 审查流程
 
-### 9.6 失败处理
+### 9.6 第二期 sprint 4 验收点（2026-05-24 全部达成 — utils/modal + Modal/index）
+
+- [x] 20 用例全过（modal 8 + Modal/index 12）
+- [x] modal.ts 覆盖率 100/100/100/100
+- [x] Modal/index.ts 覆盖率 100/100/100/100
+- [x] vitest.config.ts 启用两个单文件阈值，`pnpm test:coverage` 退出码 0
+- [x] 全量 145 → 165 用例通过，0 todo / 0 fail
+- [x] sprint 1-3 共 96 用例无回归
+- [x] §7 渐进策略表 sprint 4 行回填
+- [x] commit 全英文 message
+- [x] spec 文档过 codex review 3 轮全通过
+- [x] **新发现的架构约束**：`vi.mock('vue', { createApp })` 不能让 createApp 默认返回 undefined（setupNuxt 在 spec 加载时就调，会导致 `Object.defineProperty called on non-object`）。正确写法：vi.mock factory 内捕获 actual.createApp 到 hoisted ref，createAppMock 默认委派给 actual，用例用 `mockImplementationOnce(() => stub)` 注入受控 stub。已沉淀到 sprint 4 spec §3.1（含完整可复制写法）
+
+### 9.7 失败处理
 
 任一步失败：
 
