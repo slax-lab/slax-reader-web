@@ -101,6 +101,17 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 5（2026-05-24 启用）：useBookmarkRelative.ts 24 用例覆盖完整
+        // 实测 lines 98.24 / branches 92 / functions 86.66 / statements 98.38
+        // functions 仅 86.66 因 logAnalyzed / logChat 为占位空实现（spec §1.7 决议不补测）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/composables/useBookmarkRelative.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }

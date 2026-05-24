@@ -13,6 +13,8 @@
 // archived 是 'inbox' | 'archive' | 'later' 字符串字面量（不是 boolean）。fixture 字段值必须使用真实字面量。
 //
 // logAnalyzed / logChat 当前为占位空实现（{}），待实际实现后补用例。
+import { ref } from 'vue'
+
 import { type BookmarkBriefDetail, type BookmarkDetail, BookmarkParseStatus, type InlineBookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -38,13 +40,17 @@ const { analyticsLogMock } = vi.hoisted(() => ({
 mockNuxtImport('analyticsLog', () => analyticsLogMock)
 
 import {
+  type BookmarkArticleDetail,
   BookmarkType,
   isBookmarkBrief,
   isBookmarkDetail,
   isInlineBookmarkDetail,
   isShareBookmarkDetail,
   showFeedbackView,
-  useLogBookmark
+  useBookmarkArticleRelative,
+  useLogBookmark,
+  useWebBookmarkArticleRelative,
+  type WebBookmarkArticleDetail
 } from '~~/layers/core/app/composables/useBookmarkRelative'
 
 // 共用空 marks（type guard / showFeedbackView 都不读字段，只占位让类型通过）
@@ -234,5 +240,230 @@ describe('useLogBookmark', () => {
       id: 'share-xyz',
       mode: 'snapshot'
     })
+  })
+})
+
+// ---- task 2：useBookmarkArticleRelative / useWebBookmarkArticleRelative ----
+//
+// 这两个 composable 返回 Vue computed。spec 内通过 `.value` 强制求值，
+// 不依赖 nextTick / effectScope（无副作用，computed 在读取时同步求值）。
+//
+// fixture 字段必须使用接口真实字面量类型：
+//   - BookmarkDetail.starred: 'star' | 'unstar'，archived: 'inbox' | 'archive' | 'later'
+//   - BookmarkDetail.bookmark_id?: number（optional，用例 5 故意省略以触发 fallback）
+//   - 不允许 as any / @ts-ignore，仅在结构完整时用 as <Type> 窄化
+//
+// 顶层 mock 链路（userStoreMock / showFeedbackModalMock / analyticsLogMock）由 task 1 注册，
+// 嵌套 describe 各自重写 beforeEach 重置 + 重置默认返回值。
+
+const makeBookmarkDetail = (overrides: Partial<BookmarkDetail> = {}): BookmarkDetail =>
+  ({
+    bookmark_id: 1,
+    title: 't',
+    alias_title: 't',
+    host_url: 'h',
+    target_url: 'u',
+    content_icon: '',
+    content_cover: '',
+    content: '',
+    status: BookmarkParseStatus.SUCCESS,
+    user_id: 42,
+    archived: 'inbox',
+    starred: 'unstar',
+    marks: emptyMarks,
+    tags: [],
+    trashed_at: null,
+    type: 'article',
+    ...overrides
+  }) as BookmarkDetail
+
+const makeShareBookmarkDetail = (overrides: Partial<ShareBookmarkDetail> = {}): ShareBookmarkDetail =>
+  ({
+    byline: '',
+    content: '',
+    content_icon: '',
+    content_cover: '',
+    content_word_count: 0,
+    created_at: '',
+    description: '',
+    host_url: '',
+    published_at: '',
+    site_name: '',
+    target_url: '',
+    title: '',
+    share_info: { need_login: false, created_at: '', allow_action: true, share_code: 'x' },
+    marks: emptyMarks,
+    tags: [],
+    user_info: { nick_name: '', avatar: '', show_userinfo: true },
+    user_id: 50,
+    ...overrides
+  }) as ShareBookmarkDetail
+
+const makeBookmarkBrief = (overrides: Partial<BookmarkBriefDetail> = {}): BookmarkBriefDetail =>
+  ({
+    target_url: 'u',
+    created_at: new Date(),
+    updated_at: new Date(),
+    title: 't',
+    host_url: 'h',
+    site_name: 's',
+    content_icon: '',
+    content_cover: '',
+    content_word_count: 0,
+    description: '',
+    byline: '',
+    status: 'success',
+    published_at: new Date(),
+    marks: emptyMarks,
+    bookmark_id: 1,
+    alias_title: 't',
+    archived: 'inbox',
+    starred: 'unstar',
+    overview: '',
+    key_takeaways: [],
+    tags: [],
+    ...overrides
+  }) as BookmarkBriefDetail
+
+const makeInlineBookmarkDetail = (overrides: Partial<InlineBookmarkDetail> = {}): InlineBookmarkDetail =>
+  ({
+    title: 't',
+    target_url: 'u',
+    share_info: { need_login: false, created_at: '', allow_action: true, share_code: 'x' },
+    marks: emptyMarks,
+    user_info: { nick_name: '', avatar: '', show_userinfo: true },
+    owner_user_id: 200,
+    ...overrides
+  }) as InlineBookmarkDetail
+
+describe('useBookmarkArticleRelative', () => {
+  beforeEach(() => {
+    showFeedbackModalMock.mockReset()
+    analyticsLogMock.mockReset()
+    userStoreMock.mockReset().mockReturnValue({ userInfo: { userId: 100, email: 'tester@example.com' } })
+    window.location.href = 'http://example.test/article/123'
+  })
+
+  it('BookmarkDetail（带 bookmark_id）→ allowAction=true, bookmarkUserId=detail.user_id', () => {
+    const detail = ref<BookmarkArticleDetail>(makeBookmarkDetail({ user_id: 42 }))
+    const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(42)
+  })
+
+  it('ShareBookmarkDetail + share_info.allow_action=true → allowAction=true（无需 user_id 等于 userId）', () => {
+    const detail = ref<BookmarkArticleDetail>(
+      makeShareBookmarkDetail({
+        user_id: 999,
+        share_info: { need_login: false, created_at: '', allow_action: true, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(999)
+  })
+
+  it('ShareBookmarkDetail + allow_action=false + user_id=userId → allowAction=true', () => {
+    const detail = ref<BookmarkArticleDetail>(
+      makeShareBookmarkDetail({
+        user_id: 100,
+        share_info: { need_login: false, created_at: '', allow_action: false, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(100)
+  })
+
+  it('ShareBookmarkDetail + allow_action=false + user_id≠userId → allowAction=false', () => {
+    const detail = ref<BookmarkArticleDetail>(
+      makeShareBookmarkDetail({
+        user_id: 999,
+        share_info: { need_login: false, created_at: '', allow_action: false, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(false)
+    expect(bookmarkUserId.value).toBe(999)
+  })
+
+  it('缺 bookmark_id 的 BookmarkDetail（无 share_info）→ allowAction=false, bookmarkUserId=0（fallback 分支）', () => {
+    // bookmark_id?: number 是 optional，省略合法。isBookmarkDetail 返回 false，
+    // 且 detail 上没有 share_info → 落入两个 computed 的最末 fallback：allowAction=false, bookmarkUserId=0
+    const partial = makeBookmarkDetail({ user_id: 42 })
+    delete partial.bookmark_id
+    const detail = ref<BookmarkArticleDetail>(partial)
+    const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(false)
+    expect(bookmarkUserId.value).toBe(0)
+  })
+})
+
+describe('useWebBookmarkArticleRelative', () => {
+  beforeEach(() => {
+    showFeedbackModalMock.mockReset()
+    analyticsLogMock.mockReset()
+    userStoreMock.mockReset().mockReturnValue({ userInfo: { userId: 100, email: 'tester@example.com' } })
+    window.location.href = 'http://example.test/article/123'
+  })
+
+  it('detail=null → allowAction=false, bookmarkUserId=0', () => {
+    const detail = ref<WebBookmarkArticleDetail | null>(null)
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(false)
+    expect(bookmarkUserId.value).toBe(0)
+  })
+
+  it('BookmarkBrief + userInfo 存在 → allowAction=true, bookmarkUserId=userId(=100)', () => {
+    const detail = ref<WebBookmarkArticleDetail | null>(makeBookmarkBrief())
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(100)
+  })
+
+  it('BookmarkBrief + userInfo 不存在 → bookmarkUserId=0（fallback `userId || 0`）', () => {
+    // 一次性翻转 userStore：本用例两次 .value 读取均落入 userInfo=null 分支
+    userStoreMock.mockReset().mockReturnValue({ userInfo: null })
+    const detail = ref<WebBookmarkArticleDetail | null>(makeBookmarkBrief())
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    // allowAction 在 isBookmarkBrief 分支早返回 true，与 userInfo 无关
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(0)
+  })
+
+  it('InlineBookmarkDetail + allow_action=true → allowAction=true, bookmarkUserId=owner_user_id', () => {
+    const detail = ref<WebBookmarkArticleDetail | null>(
+      makeInlineBookmarkDetail({
+        owner_user_id: 200,
+        share_info: { need_login: false, created_at: '', allow_action: true, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(200)
+  })
+
+  it('InlineBookmarkDetail + allow_action=false + owner_user_id=userId → allowAction=true', () => {
+    const detail = ref<WebBookmarkArticleDetail | null>(
+      makeInlineBookmarkDetail({
+        owner_user_id: 100,
+        share_info: { need_login: false, created_at: '', allow_action: false, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(true)
+    expect(bookmarkUserId.value).toBe(100)
+  })
+
+  it('InlineBookmarkDetail + allow_action=false + owner_user_id≠userId → allowAction=false', () => {
+    const detail = ref<WebBookmarkArticleDetail | null>(
+      makeInlineBookmarkDetail({
+        owner_user_id: 200,
+        share_info: { need_login: false, created_at: '', allow_action: false, share_code: 'x' }
+      })
+    )
+    const { allowAction, bookmarkUserId } = useWebBookmarkArticleRelative(detail)
+    expect(allowAction.value).toBe(false)
+    expect(bookmarkUserId.value).toBe(200)
   })
 })
