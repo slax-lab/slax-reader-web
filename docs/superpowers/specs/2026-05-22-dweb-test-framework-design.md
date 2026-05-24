@@ -470,6 +470,7 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 | **第二期 sprint 3（2026-05-23 达成）** | 注释保留 | 在 sprint 2 基础上启用 utils/environment.ts 80/70/85/80（实测 100/94.44/100/100）+ DwebEnvironmentAdapter.ts 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | environment + adapter 19 用例覆盖后；首次用 codex review 4 轮自动审计 spec 文档 |
 | **第二期 sprint 4（2026-05-24 达成）** | 注释保留 | 在 sprint 3 基础上启用 utils/modal.ts 80/70/85/80（实测 100/100/100/100）+ Modal/index.ts 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | modalBootloader + 6 个 showXxxModal helper 共 20 用例覆盖后 |
 | **第二期 sprint 5（2026-05-24 达成）** | 注释保留 | 在 sprint 4 基础上启用 composables/useBookmarkRelative.ts 80/70/85/80（实测 98.24/92/86.66/98.38；functions 因 logAnalyzed/logChat 占位空实现未测，刚过阈值是合理的） | 不设，仅观测 | useBookmarkRelative 24 用例覆盖后（4 type guard + showFeedbackView + 2 composable + useLogBookmark） |
+| **第二期 sprint 6.1（2026-05-24 达成）** | 注释保留 | 在 sprint 5 基础上启用 4 个 utils 单文件阈值：userRelative.ts（100/100/100/100）+ zip.ts（100/80/100/100）+ channel.ts（100/87.5/100/100）+ analytics.ts（100/95.83/100/100），全 80/70/85/80。pwa.ts 因 useNuxtApp().$pwa configurable=false 不能 mock 推迟到第三期 | 不设，仅观测 | 4 个轻量 utils 共 22 用例覆盖后（codex review 6 轮抓 12 条意见全部成立） |
 | 第二期目录级（待启用） | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70 | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
 | 第三期 | 80/75/80/80 | utils 95/90/95/95、composables 90/85/90/90 | 60/55/60/60 起步 | 全模块 + 主要页面集成测试覆盖稳定后 |
 
@@ -590,7 +591,20 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 - [x] commit 全英文 message，分 2 commits（sprint 5.1 + 5.2）
 - [x] spec 文档过 codex review 3 轮全通过（4 条意见全部成立、0 反驳）
 
-### 9.8 失败处理
+### 9.8 第二期 sprint 6.1 验收点（2026-05-24 全部达成 — 4 个轻量 utils）
+
+- [x] 22 用例全过（userRelative 1 + zip 5 + channel 9 + analytics 7）
+- [x] 4 文件覆盖率全 ≥ 80/70/85/80：userRelative 100/100/100/100、zip 100/80/100/100、channel 100/87.5/100/100、analytics 100/95.83/100/100
+- [x] vitest.config.ts 启用 4 个单文件阈值，`pnpm test:coverage` 退出码 0
+- [x] 全量 189 → 211 用例（189 + 22）通过，0 todo / 0 fail
+- [x] sprint 1-5 共 165 用例无回归
+- [x] §7 渐进策略表 sprint 6.1 行回填
+- [x] commit 全英文 message，分 2 commits
+- [x] spec 文档过 codex review 6 轮全通过（**12 条意见全部成立、0 反驳** —— 创下 codex 抓取深度记录，覆盖 vitest/v8 计数细节、nuxt-test-utils 配置约束、JS 闭包 listener 累积等人工 review 极难发现的问题）
+- [x] **新沉淀**：channel.ts 的 close listener 累积问题（vi.resetModules 不清 window listener）→ 解决方案：spy 拦 addEventListener + 直接调 capturedCloseHandler；analytics.ts 的 useNuxtApp().$pwa configurable=false 限制 → 推迟 pwa.spec.ts 到第三期
+- [x] **意外收益**：analytics 用例 7 顺手覆盖 8 个 FIREBASE\_\* `|| ''` falsy 分支，把 branches 从 62.5% 推到 95.83%
+
+### 9.9 失败处理
 
 任一步失败：
 
