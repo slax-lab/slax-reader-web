@@ -471,6 +471,7 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 | **第二期 sprint 4（2026-05-24 达成）** | 注释保留 | 在 sprint 3 基础上启用 utils/modal.ts 80/70/85/80（实测 100/100/100/100）+ Modal/index.ts 80/70/85/80（实测 100/100/100/100） | 不设，仅观测 | modalBootloader + 6 个 showXxxModal helper 共 20 用例覆盖后 |
 | **第二期 sprint 5（2026-05-24 达成）** | 注释保留 | 在 sprint 4 基础上启用 composables/useBookmarkRelative.ts 80/70/85/80（实测 98.24/92/86.66/98.38；functions 因 logAnalyzed/logChat 占位空实现未测，刚过阈值是合理的） | 不设，仅观测 | useBookmarkRelative 24 用例覆盖后（4 type guard + showFeedbackView + 2 composable + useLogBookmark） |
 | **第二期 sprint 6.1（2026-05-24 达成）** | 注释保留 | 在 sprint 5 基础上启用 4 个 utils 单文件阈值：userRelative.ts（100/100/100/100）+ zip.ts（100/80/100/100）+ channel.ts（100/87.5/100/100）+ analytics.ts（100/95.83/100/100），全 80/70/85/80。pwa.ts 因 useNuxtApp().$pwa configurable=false 不能 mock 推迟到第三期 | 不设，仅观测 | 4 个轻量 utils 共 22 用例覆盖后（codex review 6 轮抓 12 条意见全部成立） |
+| **第二期 sprint 6.2（2026-05-24 达成）** | 注释保留 | 在 sprint 6.1 基础上启用 utils/chatbot.ts 单文件阈值（实测 92.66/85.36/100/92.52，含 ChatBot class 流式 SSE 处理），全 80/70/85/80 | 不设，仅观测 | ChatBot class 27 用例覆盖（PLAN P0 第 4 项核心；codex review 5 轮抓 13 条意见全部成立） |
 | 第二期目录级（待启用） | 70/65/70/70（启用） | 启用**目录级**：utils/** 90/85/90/90、composables/** 85/80/85/85、stores/** 90/85/90/90、components/** 70/65/70/70 | 不设，仅观测 | 高优先模块（见 §8）覆盖完成后 |
 | 第三期 | 80/75/80/80 | utils 95/90/95/95、composables 90/85/90/90 | 60/55/60/60 起步 | 全模块 + 主要页面集成测试覆盖稳定后 |
 
@@ -604,7 +605,20 @@ vi.mock('~~/layers/core/app/utils/request', () => ({
 - [x] **新沉淀**：channel.ts 的 close listener 累积问题（vi.resetModules 不清 window listener）→ 解决方案：spy 拦 addEventListener + 直接调 capturedCloseHandler；analytics.ts 的 useNuxtApp().$pwa configurable=false 限制 → 推迟 pwa.spec.ts 到第三期
 - [x] **意外收益**：analytics 用例 7 顺手覆盖 8 个 FIREBASE\_\* `|| ''` falsy 分支，把 branches 从 62.5% 推到 95.83%
 
-### 9.9 失败处理
+### 9.9 第二期 sprint 6.2 验收点（2026-05-24 全部达成 — utils/chatbot.ts ChatBot class，PLAN P0 第 4 项）
+
+- [x] 27 用例全过（constructor 3 + createMessages 5 + handleData 13 + 边界 6）
+- [x] chatbot.ts 覆盖率 92.66/85.36/100/92.52（functions 100%，全维度超阈值 80/70/85/80）
+- [x] vitest.config.ts 启用单文件阈值，`pnpm test:coverage` 退出码 0
+- [x] 全量 211 → 238 用例（211 + 27）通过，0 todo / 0 fail
+- [x] sprint 1-6.1 共 211 用例无回归
+- [x] §7 渐进策略表 sprint 6.2 行回填
+- [x] commit 全英文 message，分 2 commits（sprint 6.2.1 + 6.2.2）
+- [x] spec 文档过 codex review 5 轮全通过（**13 条意见全部成立、0 反驳** —— 抓出 hoisting TDZ 风险、SSE framing 不匹配、search failed 漏分支、chat 异步时机错、stream holder 跨用例污染等深度问题）
+- [x] **新沉淀**：(1) **真实 decoder 直接 import 不 mock** —— SSEDecoder/LineDecoder 是纯逻辑无副作用，stub 偏差容易引入假阳性；(2) **chat() resolve 时机是 subscriber 注册完成不是 done 路径完成** —— done 副作用必须由 subscriber('', true) 同步触发，不能 await chatPromise 等；(3) **真实 SSE 协议必须双换行 \n\n** —— SSEDecoder 收到空行才 emit ServerSentEvent，单 \n 不会触发 emit
+- [x] PLAN P0 第 4 项 ChatBot 链路核心已覆盖；剩余 P0：NotificationWorker（13 边）/ DwebBookmarkProvider + useBookmark（要 fixture）—— 推迟到第三期 e2e 一并处理
+
+### 9.10 失败处理
 
 任一步失败：
 
