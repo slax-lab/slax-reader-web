@@ -143,6 +143,17 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 6.2（2026-05-24 启用）：chatbot.ts 27 用例覆盖完整
+        // constructor 3 + createMessages 5 + handleData 13 + 边界 6
+        // 实测 lines 92.66 / branches 85.36 / functions 100 / statements 92.52
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/utils/chatbot.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }

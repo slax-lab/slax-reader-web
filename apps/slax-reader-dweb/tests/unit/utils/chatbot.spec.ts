@@ -49,7 +49,7 @@ vi.mock('@commons/utils/json', () => ({ partialParse: partialParseMock }))
 
 // 注意：不 mock @commons/utils/decoder（spec §3.2 决议直接用真实 LineDecoder + SSEDecoder）
 
-import { ChatBot, ChatParamsType } from '~~/layers/core/app/utils/chatbot'
+import { ChatBot, ChatParamsType, ChatResponseType } from '~~/layers/core/app/utils/chatbot'
 
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 
@@ -214,5 +214,503 @@ describe('ChatBot chat — createMessages 路径', () => {
         messages: [{ role: 'assistant', content: '请问这是什么？' }]
       }
     })
+  })
+})
+
+// 工具函数：按真实 SSE 协议构造 chunk（data: <json>\n\n 双换行结束）
+// SSEDecoder 收到空行才 emit ServerSentEvent —— 单换行 SSEDecoder 不 emit
+const sendChunk = (subscriber: (text: string, isDone: boolean) => void, payload: object) => {
+  subscriber(`data: ${JSON.stringify(payload)}\n\n`, false)
+}
+
+describe('chat — handleData 流式分支', () => {
+  // 用例 1：assistant + content → CONTENT callback
+  it('assistant + content → CONTENT callback', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: '你好' })
+    const subscriber = streamCallbackHolder.subscriber!
+    expect(subscriber).toBeTruthy()
+
+    sendChunk(subscriber, {
+      choices: [{ delta: [{ role: 'assistant', content: 'Hello!' }] }]
+    })
+
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.CONTENT,
+      data: { [ChatResponseType.CONTENT]: 'Hello!' }
+    })
+  })
+
+  // 用例 2：tool generateQuestion processing → STATUS_UPDATE
+  it('tool generateQuestion processing → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'generateQuestion', content: '["问题1"]' }],
+          status: 'processing'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'generateQuestion',
+          tips: '__T__util.chatbot.generate_question',
+          status: 'processing'
+        }
+      }
+    })
+  })
+
+  // 用例 3：tool generateQuestion finished_successfully → STATUS_UPDATE + FUNCTION（2 个 callback）
+  it('tool generateQuestion finished_successfully → STATUS_UPDATE + FUNCTION', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'generateQuestion', content: '["问题1","问题2"]' }],
+          status: 'finished_successfully'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(1, {
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'generateQuestion',
+          tips: '__T__util.chatbot.generate_question_finished',
+          status: 'finished'
+        }
+      }
+    })
+    expect(callback).toHaveBeenNthCalledWith(2, {
+      type: ChatResponseType.FUNCTION,
+      data: {
+        [ChatResponseType.FUNCTION]: { name: 'generateQuestion', args: ['问题1', '问题2'] }
+      }
+    })
+  })
+
+  // 用例 4：tool browser processing → STATUS_UPDATE
+  it('tool browser processing → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'browser', content: 'https://example.com' }],
+          status: 'processing'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'browser',
+          tips: 'https://example.com',
+          status: 'processing'
+        }
+      }
+    })
+  })
+
+  // 用例 5：tool browser finished_successfully → STATUS_UPDATE
+  it('tool browser finished_successfully → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'browser', content: '{}' }],
+          status: 'finished_successfully'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'browser',
+          tips: '__T__util.chatbot.browser_finished',
+          status: 'finished'
+        }
+      }
+    })
+  })
+
+  // 用例 6：tool browser finished_failed → STATUS_UPDATE
+  it('tool browser finished_failed → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'browser', content: '{}' }],
+          status: 'finished_failed'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'browser',
+          tips: '__T__util.chatbot.browser_finished',
+          status: 'failed'
+        }
+      }
+    })
+  })
+
+  // 用例 7：tool search processing → STATUS_UPDATE
+  it('tool search processing → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'search', content: 'keyword' }],
+          status: 'processing'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'search',
+          tips: 'keyword',
+          status: 'processing'
+        }
+      }
+    })
+  })
+
+  // 用例 8：tool search finished_successfully → STATUS_UPDATE + FUNCTION
+  it('tool search finished_successfully → STATUS_UPDATE + FUNCTION', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    const searchResults = [{ url: 'https://a.com', title: 'A', content: '内容', icon: 'a.ico' }]
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'search', content: JSON.stringify(searchResults) }],
+          status: 'finished_successfully'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(1, {
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'search',
+          tips: '__T__util.chatbot.search_finished',
+          status: 'finished'
+        }
+      }
+    })
+    expect(callback).toHaveBeenNthCalledWith(2, {
+      type: ChatResponseType.FUNCTION,
+      data: { [ChatResponseType.FUNCTION]: { name: 'search', args: searchResults } }
+    })
+  })
+
+  // 用例 9：tool search finished_failed → STATUS_UPDATE（codex 第 1 轮 P2 第 3 条修订）
+  // 源码 line 230-234：tips 复用 search_finished，status='finished'（与官方设计一致）
+  it('tool search finished_failed → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'search', content: '[]' }],
+          status: 'finished_failed'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'search',
+          tips: '__T__util.chatbot.search_finished',
+          status: 'finished'
+        }
+      }
+    })
+  })
+
+  // 用例 10：tool relatedQuestion finished_successfully → FUNCTION（不调 partialParse）
+  // 源码 line 179：if (args !== null && funcName !== 'relatedQuestion') 才调 partialParse
+  it('tool relatedQuestion finished_successfully → FUNCTION（不调 partialParse）', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'relatedQuestion', content: '"接下来想问什么？"' }],
+          status: 'finished_successfully'
+        }
+      ]
+    })
+
+    expect(partialParseMock).not.toHaveBeenCalled()
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.FUNCTION,
+      data: { [ChatResponseType.FUNCTION]: { name: 'relatedQuestion', args: '"接下来想问什么？"' } }
+    })
+  })
+
+  // 用例 11：tool searchBookmark processing → STATUS_UPDATE
+  it('tool searchBookmark processing → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'searchBookmark', content: '关键字' }],
+          status: 'processing'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'searchBookmark',
+          tips: '关键字',
+          status: 'processing'
+        }
+      }
+    })
+  })
+
+  // 用例 12：tool searchBookmark finished_successfully → STATUS_UPDATE + FUNCTION
+  it('tool searchBookmark finished_successfully → STATUS_UPDATE + FUNCTION', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'searchBookmark', content: '"BMResult"' }],
+          status: 'finished_successfully'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(1, {
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'searchBookmark',
+          tips: '__T__util.chatbot.search_bookmark_finished',
+          status: 'finished'
+        }
+      }
+    })
+    // partialParse 默认透传 JSON.parse('"BMResult"') === 'BMResult'
+    expect(callback).toHaveBeenNthCalledWith(2, {
+      type: ChatResponseType.FUNCTION,
+      data: { [ChatResponseType.FUNCTION]: { name: 'searchBookmark', args: 'BMResult' } }
+    })
+  })
+
+  // 用例 13：tool searchBookmark finished_failed → STATUS_UPDATE
+  it('tool searchBookmark finished_failed → STATUS_UPDATE', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, {
+      choices: [
+        {
+          delta: [{ role: 'tool', name: 'searchBookmark', content: '""' }],
+          status: 'finished_failed'
+        }
+      ]
+    })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({
+      type: ChatResponseType.STATUS_UPDATE,
+      data: {
+        [ChatResponseType.STATUS_UPDATE]: {
+          name: 'searchBookmark',
+          tips: '__T__util.chatbot.search_bookmark_failed',
+          status: 'failed'
+        }
+      }
+    })
+  })
+})
+
+describe('chat — 边界 + isChatting + destruct', () => {
+  // 用例 1：chat 开始时 isChatting=true，subscriber 触发 done 后 isChatting=false（断言两次状态）
+  it('chat 开始 isChatting=true，done 后 isChatting=false', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+
+    expect(bot.isChatting).toBe(false)
+
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    // chat() 内部调 updateChatStatus(true)
+    expect(bot.isChatting).toBe(true)
+
+    const subscriber = streamCallbackHolder.subscriber!
+    subscriber('', true)
+    // done 路径同步触发 updateChatStatus(false)
+    expect(bot.isChatting).toBe(false)
+  })
+
+  // 用例 2：chat 期间触发 chatStatusUpdateHandler（设 bot.chatStatusUpdateHandler = vi.fn()，断言被调 true→false）
+  it('chat 期间触发 chatStatusUpdateHandler（true→false）', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    const statusHandler = vi.fn()
+    bot.chatStatusUpdateHandler = statusHandler
+
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    expect(statusHandler).toHaveBeenNthCalledWith(1, true)
+
+    const subscriber = streamCallbackHolder.subscriber!
+    subscriber('', true)
+    expect(statusHandler).toHaveBeenNthCalledWith(2, false)
+    expect(statusHandler).toHaveBeenCalledTimes(2)
+  })
+
+  // 用例 3：handleData 收到 Error 实例 → STATUS_UPDATE 'error'
+  // 通过 done 路径残留行非 NOT_SUBSCRIPTION 的错误 JSON 触发（走 data.message 默认）
+  it('handleData 收到 Error → STATUS_UPDATE error（走默认 data.message）', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    // 残留行（无 \n）+ done 触发 flush；data.data 非 NOT_SUBSCRIPTION → 走 data.message 默认
+    const errorJson = JSON.stringify({ data: 'OTHER_ERROR', message: '其它错误', code: 500 })
+    subscriber(errorJson, false)
+    subscriber('', true)
+
+    expect(callback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ChatResponseType.STATUS_UPDATE,
+        data: { [ChatResponseType.STATUS_UPDATE]: { name: 'error', tips: '其它错误', status: 'failed' } }
+      })
+    )
+  })
+
+  // 用例 4：data.choices.length=0 → responseCallback 不被调
+  it('data.choices.length=0 → responseCallback 不被调', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    sendChunk(subscriber, { choices: [] })
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  // 用例 5：destruct() 后 responseCallback=undefined，后续 chunk 不调 callback
+  it('destruct() 后 responseCallback=undefined，后续 chunk 不调 callback', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    bot.destruct()
+    expect(bot.responseCallback).toBeUndefined()
+
+    sendChunk(subscriber, {
+      choices: [{ delta: [{ role: 'assistant', content: 'X' }] }]
+    })
+
+    expect(callback).not.toHaveBeenCalled()
+  })
+
+  // 用例 6：done 时 lineDecoder.flush 残留 + 错误 JSON 走 NOT_SUBSCRIPTION 错误映射
+  it('done 时 lineDecoder.flush 残留 + 错误 JSON 走 NOT_SUBSCRIPTION 错误映射', async () => {
+    const callback = vi.fn()
+    const bot = new ChatBot({ bookmarkId: 1 }, callback)
+    await bot.chat({ type: ChatParamsType.CONTENT, content: 'q' })
+    const subscriber = streamCallbackHolder.subscriber!
+
+    // 推一段不带 \n 的"残留"文本（buffer 留住）+ done 触发 flush
+    const errorJson = JSON.stringify({ data: 'NOT_SUBSCRIPTION', message: '需要订阅', code: 403 })
+    subscriber(errorJson, false)
+    subscriber('', true)
+
+    expect(callback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ChatResponseType.STATUS_UPDATE,
+        data: {
+          [ChatResponseType.STATUS_UPDATE]: {
+            name: 'error',
+            tips: '__T__util.chatbot.error_not_subscription',
+            status: 'failed'
+          }
+        }
+      })
+    )
   })
 })
