@@ -83,6 +83,24 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期 sprint 4（2026-05-24 启用）：modal.ts 8 用例覆盖完整
+        // 实测 100/100/100/100，阈值给定 80/70/85/80 留余量
+        'layers/core/app/utils/modal.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
+        // 第二期 sprint 4（2026-05-24 启用）：Modal/index.ts 12 用例覆盖完整
+        // 实测 100/100/100/100，阈值给定 80/70/85/80 留余量
+        'layers/core/app/components/Modal/index.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
         }
       }
     }
