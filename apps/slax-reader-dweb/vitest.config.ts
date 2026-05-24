@@ -26,7 +26,10 @@ export default defineVitestConfig({
         'layers/core/app/app.vue',
         'layers/core/app/error.vue',
         'layers/core/app/layouts/**',
-        'layers/core/app/plugins/**'
+        'layers/core/app/plugins/**',
+        // pwa.ts 因 useNuxtApp().$pwa configurable=false 不能 mock，sprint 6.1 决议推迟到第三期
+        // 启用 utils/** 目录级阈值时必须排除该文件，避免它的 0% 把目录均值拖到阈值以下
+        'layers/core/app/utils/pwa.ts'
         // 注意：layers/core/app/pages/** 不排除——页面承载主要业务逻辑（多个文件 400+ 行），
         // 必须纳入覆盖率分母。但第一/二期不为 pages 设局部门槛，仅观测。
       ],
@@ -154,6 +157,20 @@ export default defineVitestConfig({
           branches: 70,
           functions: 85,
           statements: 80
+        },
+
+        // 第二期收尾（2026-05-24 启用）：utils/** 目录级阈值
+        // 含 9 个已治理文件（pwa.ts 已 exclude，第三期补）：
+        //   string.ts / userRelative.ts / zip.ts / channel.ts / analytics.ts /
+        //   environment.ts / modal.ts / request.ts / chatbot.ts
+        // 实测目录级覆盖率应 ≥ 95% lines / ≥ 90% functions / ≥ 85% branches
+        // 阈值给定 90/85/90/90，作为新 utils 文件加入时的"承诺基线"——
+        // 任何新增 utils 文件如果不测会让目录均值低于阈值 → 强制提醒
+        'layers/core/app/utils/**': {
+          lines: 90,
+          branches: 85,
+          functions: 90,
+          statements: 90
         }
       }
     }
