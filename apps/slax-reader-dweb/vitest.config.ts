@@ -141,6 +141,18 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 1.4（2026-05-25 启用）：composables/bookmark/useCommon.ts 23 用例覆盖完整
+        // 实测 lines 98.87 / branches 81.48 / functions 100 / statements 98.86
+        // 含主 spec 22 用例（5 useTracking + 17 useResize）+ non-client 1 用例
+        // branches 81.48 因 line 78 `if (value === oldValue) return` 是死分支（vue ref 同值不触发 watcher，spec §5.3 决议容忍）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/composables/bookmark/useCommon.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第二期 sprint 6.1（2026-05-24 启用）：utils 4 个轻量文件覆盖完整
         // userRelative.ts 1 用例 → 实测 100/100/100/100
         // zip.ts 5 用例 → 实测 100/80/100/100
