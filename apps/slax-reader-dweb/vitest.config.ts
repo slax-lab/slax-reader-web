@@ -183,6 +183,24 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 4B Task 4.2（2026-05-25 启用）：pages/bookmarks/index.vue 50 用例完整集成覆盖
+        // 实测 lines 90.81 / branches 78.10 / functions 85.13 / statements 92.36
+        // 关键约束：
+        //  - useUserStore 全 vi.mock（mountWithApp 独立 Pinia 让 spyOn 失效）
+        //  - useNotification 显式 import → vi.mock；addChannelMessageHandler / useScroll 是 Nuxt auto-import → mockNuxtImport
+        //  - useScroll mockNuxtImport factory 不引 ref（TDZ），用 vi.hoisted plain { value: 0 }
+        //  - useRoute beforeEach 创建 reactive proxy；用例改 reactive proxy 触发 watch（修改原始对象绕过 Vue proxy）
+        //  - useInfiniteScroll mock 立即调 callback（Promise.resolve().then），驱动 onLoadMore
+        //  - 子组件 stub 必须设 name 字段（findComponent 命中）+ 渲染 named slots（v-slot:operates 等）
+        //  - useRouter mock 包 beforeEach/afterEach/beforeResolve/push/replace/back/forward（nuxt navigation-repaint 插件依赖）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/pages/bookmarks/index.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
