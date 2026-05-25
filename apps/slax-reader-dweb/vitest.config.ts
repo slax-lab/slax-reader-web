@@ -115,6 +115,17 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 2.2（2026-05-25 启用）：composables/useUserRelative.ts 5 用例覆盖完整
+        // 实测 lines 100 / branches 100 / functions 100 / statements 100
+        // useUserSubscribe 内 checkUserSubscribedIsExpired 占位实现总返 false（utils/userRelative.ts 已 100% 覆盖）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/composables/useUserRelative.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
