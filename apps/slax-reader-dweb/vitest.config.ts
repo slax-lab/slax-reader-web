@@ -217,17 +217,18 @@ export default defineVitestConfig({
         },
 
         // 第二期收尾（2026-05-24 启用）：utils/** 目录级阈值
-        // 含 9 个已治理文件（pwa.ts 已 exclude，第三期补）：
+        // 第三期 sprint 2.1（2026-05-25 升级）：pwa.ts 重构后纳入分母，含 10 个治理文件
         //   string.ts / userRelative.ts / zip.ts / channel.ts / analytics.ts /
-        //   environment.ts / modal.ts / request.ts / chatbot.ts
-        // 实测目录级覆盖率应 ≥ 95% lines / ≥ 90% functions / ≥ 85% branches
-        // 阈值给定 90/85/90/90，作为新 utils 文件加入时的"承诺基线"——
-        // 任何新增 utils 文件如果不测会让目录均值低于阈值 → 强制提醒
+        //   environment.ts / modal.ts / request.ts / chatbot.ts / pwa.ts
+        // 第三期 sprint 2.3（2026-05-25 升级）：从 90/85/90/90 升至 95/85/95/95
+        //   实测 97/88.84/100/96.93（lines/branches/functions/statements）
+        //   branches 88.84 暂保持 85（受 chatbot.ts 85.36 / channel.ts 87.5 / zip.ts 80 拖累，待补 branches 后单独升）
+        //   lines/functions/statements 升 5 点提升基线
         'layers/core/app/utils/**': {
-          lines: 90,
+          lines: 95,
           branches: 85,
-          functions: 90,
-          statements: 90
+          functions: 95,
+          statements: 95
         }
       }
     }
