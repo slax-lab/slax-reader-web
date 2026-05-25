@@ -1,15 +1,17 @@
 # slax-reader-dweb 测试指南
 
-测试体系按 .claude/test-framework/PLAN.md 设计。本目录已落 6 类 spec：
+测试体系按 .claude/test-framework/PLAN.md 设计。第三期 Sprint 0（2026-05-25）完成目录合并：原 `tests/components/` 并入 `tests/unit/components/`，三层简化为 unit / integration / e2e（第三期新增） / theme。
 
-| 目录                           | 用途                    | 测试类型                |
-| ------------------------------ | ----------------------- | ----------------------- |
-| `tests/unit/utils/`            | 纯函数                  | 单元                    |
-| `tests/unit/composables/`      | composable              | 单元                    |
-| `tests/unit/stores/`（第二期） | Pinia store             | 单元                    |
-| `tests/components/`            | Vue 组件交互            | 组件                    |
-| `tests/integration/`           | 多组件 + store + router | 页面集成（非 e2e）      |
-| `tests/theme/`                 | 主题与 iframe 注入      | 单元+组件混合（已存在） |
+| 目录                       | 用途                          | 测试类型               |
+| -------------------------- | ----------------------------- | ---------------------- |
+| `tests/unit/utils/`        | 纯函数                        | 单元                   |
+| `tests/unit/composables/`  | composable                    | 单元                   |
+| `tests/unit/stores/`       | Pinia store                   | 单元                   |
+| `tests/unit/components/`   | Vue 组件交互                  | 单元（含 ce.vue 单测） |
+| `tests/integration/`       | 多组件 + store + router       | 页面集成（非 e2e）     |
+| `tests/integration/pages/` | pages 集成（第三期 Sprint 4） | 页面集成               |
+| `tests/e2e/`               | 真实浏览器（第三期 Sprint 2） | Playwright             |
+| `tests/theme/`             | 主题与 iframe 注入            | 单元+组件混合（已有）  |
 
 ## 三件套基础设施
 
@@ -21,7 +23,7 @@
 ## 写新 spec 的标准流程
 
 1. **先 `Read` 被测源码全文**（强制纪律）
-2. 镜像源码路径建 spec 文件：`layers/core/app/utils/foo.ts` → `tests/unit/utils/foo.spec.ts`
+2. 镜像源码路径建 spec 文件：`layers/core/app/utils/foo.ts` → `tests/unit/utils/foo.spec.ts`；组件 `layers/core/app/components/Foo/Bar.vue` → `tests/unit/components/Foo/Bar.spec.ts`
 3. 引入 fixture 当数据、引入 mock 当桩
 4. `describe('xxx', () => { it('行为描述', ...) })`，禁止用例描述写成"测试 xxx 函数"
 5. 跑 `pnpm test`、再跑 `pnpm test:coverage` 看新增文件覆盖率
