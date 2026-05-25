@@ -139,6 +139,18 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 3.2（2026-05-25 启用）：components/Notification/UserNotification.vue 17 用例覆盖完整
+        // 实测 lines 87.5 / branches 73.58 / functions 95 / statements 87.23
+        // NotificationCell 子组件 stub 避免污染（spec §2.1 修订 1）
+        // 顶层 setup 块 if (notification.isSupportedNotification) 在每次 mount 触发，必须前置 mockUseNotification.mockReturnValue
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/components/Notification/UserNotification.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
