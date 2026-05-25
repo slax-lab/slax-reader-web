@@ -26,10 +26,8 @@ export default defineVitestConfig({
         'layers/core/app/app.vue',
         'layers/core/app/error.vue',
         'layers/core/app/layouts/**',
-        'layers/core/app/plugins/**',
-        // pwa.ts 因 useNuxtApp().$pwa configurable=false 不能 mock，sprint 6.1 决议推迟到第三期
-        // 启用 utils/** 目录级阈值时必须排除该文件，避免它的 0% 把目录均值拖到阈值以下
-        'layers/core/app/utils/pwa.ts'
+        'layers/core/app/plugins/**'
+        // 第三期 sprint 2.1（2026-05-25）：pwa.ts 已重构 pwaRuntime seam + 5 用例覆盖，从 exclude 移除
         // 注意：layers/core/app/pages/** 不排除——页面承载主要业务逻辑（多个文件 400+ 行），
         // 必须纳入覆盖率分母。但第一/二期不为 pages 设局部门槛，仅观测。
       ],
@@ -189,6 +187,18 @@ export default defineVitestConfig({
         // 实测 lines 92.66 / branches 85.36 / functions 100 / statements 92.52
         // 阈值给定 80/70/85/80 留余量
         'layers/core/app/utils/chatbot.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
+        // 第三期 sprint 2.1（2026-05-25 启用）：pwa.ts 重构 pwaRuntime seam + 5 用例覆盖
+        // 实测 lines 100 / branches 100 / functions 100 / statements 100
+        // 关键决议：useNuxtApp().$pwa.isPWAInstalled 是 configurable: false 不能 defineProperty
+        //         → 源码抽 pwaRuntime 对象（getInstalled 方法）让测试通过 vi.spyOn 替换属性查找
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/utils/pwa.ts': {
           lines: 80,
           branches: 70,
           functions: 85,
