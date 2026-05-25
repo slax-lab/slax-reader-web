@@ -128,6 +128,19 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 1.3（2026-05-25 启用）：composables/bookmark/useWebBookmark.ts 33 用例覆盖完整
+        // 实测 lines 100 / branches 92 / functions 100 / statements 100
+        // 含主 spec 32 用例（28 useWebBookmark + 3 useWebBookmarkDetail + 1 useStar）+ non-client 1 用例
+        // 关键约束：showAnalyzed/showChatbot 内 if (summariesExpanded.value) 同步 + panelType watch 异步
+        //         覆盖 logAnalyzed/logChat 分支必须调用前先同步设值（spec §5.5 修订 1）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/composables/bookmark/useWebBookmark.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第二期 sprint 6.1（2026-05-24 启用）：utils 4 个轻量文件覆盖完整
         // userRelative.ts 1 用例 → 实测 100/100/100/100
         // zip.ts 5 用例 → 实测 100/80/100/100
