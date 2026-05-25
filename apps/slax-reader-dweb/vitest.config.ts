@@ -151,6 +151,23 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 4A（2026-05-25 启用）：components/Chat/ChatBot.vue 49 用例完整非流式覆盖
+        // 实测 lines 84.19 / branches 72.96 / functions 95.45 / statements 83.66
+        // 流式 chat() / SSE 推迟第四期 e2e（spec §1.1 修订 7 决议）
+        // 关键约束：
+        //  - ChatBot/ChatResponseType/ChatParamsType 是 Nuxt auto-import → mockNuxtImport
+        //  - enum 值全大写：CONTENT/FUNCTION/STATUS_UPDATE / CONTENT/QUESTIONS/ASK
+        //  - capturedCallback payload key 大写（data.FUNCTION）
+        //  - 必须 mountWithApp（模板用 $t 需 i18n 插件）
+        //  - getComputedStyle 必须 spy（isDark / botSize 依赖）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/components/Chat/ChatBot.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
