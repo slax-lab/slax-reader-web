@@ -117,6 +117,17 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
+        // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
+        // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
+        // 阈值给定 80/70/85/80 留余量
+        'layers/core/app/composables/bookmark/useBookmark.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第二期 sprint 6.1（2026-05-24 启用）：utils 4 个轻量文件覆盖完整
         // userRelative.ts 1 用例 → 实测 100/100/100/100
         // zip.ts 5 用例 → 实测 100/80/100/100
