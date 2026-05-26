@@ -304,6 +304,37 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 4（2026-05-26 启用）：components/ 4 文件
+        //  - NavigateStyleButton.vue：7 用例，100/100/100/100（loading 短路 + clickable computed）
+        //  - Modal/LoginModal.vue：6 用例，100/100/100/100（GoogleLoginButton 透传 + close + after-leave dismiss）
+        //  - Modal/SnapshotStatusModal.vue：8 用例，100/100/100/100（dontRemindAgain v-model + confirm emit + after-leave）
+        //  - Modal/Feedback.vue：11 用例，97.91/96.29/100/97.95（feedback 空短路 + analyticsLog + UAParser 环境拼接 + email 路径）
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/NavigateStyleButton.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Modal/LoginModal.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Modal/SnapshotStatusModal.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Modal/Feedback.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
