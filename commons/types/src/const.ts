@@ -33,6 +33,7 @@ enum RESTMethodPath {
   TOKEN_REFRESH = '/v1/user/refresh',
   USER_INFO_ENABLE_SETTING = '/v1/user/setting/enable',
   USER_INFO_DISABLE_SETTING = '/v1/user/setting/disable',
+  DELETE_MY_ACCOUNT = '/v1/user/delete_my_account',
   CREATE_SUBSCRIPTION = '/v1/subscription/create_subscription',
   CREATE_ONCE_SUBSCRIPTION = '/v1/subscription/create_once',
   CANCEL_SUBSCRIPTION = '/v1/subscription/cancel',

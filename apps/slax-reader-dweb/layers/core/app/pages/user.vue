@@ -42,6 +42,7 @@
               </div>
             </div>
           </section>
+          <UserDeleteAccountSection v-if="userInfo" />
         </div>
         <UserPageSkeleton v-else key="skeleton" />
       </Transition>
@@ -53,6 +54,7 @@
 import NavigateStyleButton from '#layers/core/app/components/NavigateStyleButton.vue'
 import OptionsBar from '#layers/core/app/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/app/components/Tips/AILanguageTips.vue'
+import UserDeleteAccountSection from '#layers/core/app/components/UserDeleteAccountSection.vue'
 import UserImportSection from '#layers/core/app/components/UserImportSection.vue'
 import UserPageSkeleton from '#layers/core/app/components/UserPageSkeleton.vue'
 
