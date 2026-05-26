@@ -81,6 +81,7 @@ mockNuxtImport('useRouter', () => () => ({
   beforeEach: vi.fn(() => () => {}),
   afterEach: vi.fn(() => () => {}),
   beforeResolve: vi.fn(() => () => {}),
+  onError: vi.fn(() => () => {}),
   push: vi.fn(),
   replace: vi.fn(),
   back: vi.fn(),
