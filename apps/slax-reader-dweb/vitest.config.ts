@@ -458,6 +458,44 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 9（2026-05-26 启用）：components/ 5 文件
+        //  - Layouts/BookmarksLayout.vue：7 用例，95.23/87.5/100/95.45（6 named slot + isSmallScreen expose）
+        //  - Layouts/DetailLayout.vue：10 用例，92.85/88.88/100/92.85（contentXOffset transform + tips slot v-if + 双 expose）
+        //  - ThirdPartyImport/ImportProgressModal.vue：13 用例，100/100/100/100（status 4 分支 + platform 3 + 失败 Toast）
+        //  - CursorToast/CursorToast.vue：5 用例，100/100/100/100（自定义 duration + after-leave dismiss）
+        //  - ReleaseNote.vue：5 用例，100/75/100/100（6 timelines + handler 注册）
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/Layouts/BookmarksLayout.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Layouts/DetailLayout.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/ThirdPartyImport/ImportProgressModal.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/CursorToast/CursorToast.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/ReleaseNote.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
