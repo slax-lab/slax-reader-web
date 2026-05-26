@@ -78,7 +78,7 @@ const {
     mockGet,
     mockPost,
     mockRequest: vi.fn(() => ({ get: mockGet, post: mockPost })),
-    mockUseRoute: vi.fn(() => ({ params: { id: '1000001' }, query: {} })),
+    mockUseRoute: vi.fn(() => ({ params: { id: '1000001' }, query: {}, path: '/w/1000001', fullPath: '/w/1000001' })),
     mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT })),
     mockT,
     mockUseHead: vi.fn(),

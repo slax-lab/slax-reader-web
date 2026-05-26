@@ -64,7 +64,7 @@ const {
     mockGet,
     mockPost,
     mockNavigateTo: vi.fn(),
-    mockUseRoute: vi.fn(() => ({ params: { id: '1000001' }, query: {} })),
+    mockUseRoute: vi.fn(() => ({ params: { id: '1000001' }, query: {}, path: '/bookmarks/1000001', fullPath: '/bookmarks/1000001' })),
     mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT })),
     mockT,
     mockUseHead: vi.fn(),
@@ -192,7 +192,7 @@ describe('pages/bookmarks/[id].vue', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     capturedUseBookmarkOptions.value = null
-    mockUseRoute.mockReturnValue({ params: { id: '1000001' }, query: {} })
+    mockUseRoute.mockReturnValue({ params: { id: '1000001' }, query: {}, path: '/bookmarks/1000001', fullPath: '/bookmarks/1000001' })
     setupUseBookmarkReturn()
     mockGet.mockResolvedValue({ ...baseBookmarkDetail, status: 'success' })
   })

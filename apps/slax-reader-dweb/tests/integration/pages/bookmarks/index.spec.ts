@@ -48,7 +48,14 @@ const {
   const mockRequestPushPermission = vi.fn(() => Promise.resolve(true))
   return {
     mockGetUserInfo: vi.fn(() => Promise.resolve(undefined)),
-    mockUseRoute: vi.fn(),
+    mockUseRoute: vi.fn(() => ({
+      query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
+      params: {},
+      path: '/bookmarks',
+      fullPath: '/bookmarks',
+      path: '/bookmarks',
+      fullPath: '/bookmarks'
+    })),
     mockUseRouterGo: vi.fn(),
     mockNavigateTo: vi.fn(() => Promise.resolve()),
     mockRequest: vi.fn(() => ({ get: mockGet, post: mockPost })),
@@ -194,7 +201,9 @@ describe('pages/bookmarks/index.vue', () => {
     // 默认 useRoute reactive proxy（修订 2 P1 #1）
     const routeState = reactive({
       query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-      params: {}
+      params: {},
+      path: '/bookmarks',
+      fullPath: '/bookmarks'
     })
     mockUseRoute.mockReturnValue(routeState)
     mockGetUserInfo.mockResolvedValue(baseUser)
@@ -224,7 +233,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C3: route.query.filter="trashed" → isInTrash=true', async () => {
       const routeState = reactive({
         query: { filter: 'trashed', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
@@ -238,7 +249,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C4: filterStatus="highlights" + highlights=[] → isDataEmpty=true', async () => {
       const routeState = reactive({
         query: { filter: 'highlights', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -250,7 +263,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C5: filterStatus="topics" + filterTopicId=0 → isDataEmpty=false（特殊路径）', async () => {
       const routeState = reactive({
         query: { filter: 'topics', topic_id: '0', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -262,7 +277,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C6: filterStatus="collections" + filterCollectionId=0 → isDataEmpty=false', async () => {
       const routeState = reactive({
         query: { filter: 'collections', topic_id: '', topic_name: '', c_id: '0', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -283,7 +300,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C8: route.query.filter 变 → filterStatus 同步 + addLog 调用', async () => {
       const routeState = reactive({
         query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -298,7 +317,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C9: filterStatus 变化 → reloadList → 重新调 mockGet', async () => {
       const routeState = reactive({
         query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -369,7 +390,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C15: archive cancel=true + filterStatus="archive" → bookmark filter 移除', async () => {
       const routeState = reactive({
         query: { filter: 'archive', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
@@ -383,7 +406,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C16: star cancel=false + filterStatus="starred" → reloadList', async () => {
       const routeState = reactive({
         query: { filter: 'starred', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValue([{ ...baseBookmarkItem, id: 1 }])
@@ -399,7 +424,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C17: trashed=true + filterStatus="trashed" → bookmark filter', async () => {
       const routeState = reactive({
         query: { filter: 'trashed', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
@@ -436,7 +463,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C20: filterStatus="highlights" → queryHighlights mockGet(HIGHLIGHT_LIST)', async () => {
       const routeState = reactive({
         query: { filter: 'highlights', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mountIndexPage()
@@ -447,7 +476,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C21: filterStatus="notifications" page=1 → 同时 post(NOTIFICATION_MARK_READ_ALL)', async () => {
       const routeState = reactive({
         query: { filter: 'notifications', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValueOnce([{ id: 1 }])
@@ -467,7 +498,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C23: filterStatus="topics" + topicId=0 → resetBookmarks + ending=true 早退', async () => {
       const routeState = reactive({
         query: { filter: 'topics', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockClear()
@@ -482,7 +515,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C24: TagsHeader emit select-tag → selectTopic + navigateTo /bookmarks?filter=topics', async () => {
       const routeState = reactive({
         query: { filter: 'topics', topic_id: '0', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
@@ -496,7 +531,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C25: CollectionHeader emit select-collect → selectCollection + navigateTo', async () => {
       const routeState = reactive({
         query: { filter: 'collections', topic_id: '', topic_name: '', c_id: '0', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
@@ -640,7 +677,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C37: NotificationHeader emit back → notificationBack → useRouter().go(-1)', async () => {
       const routeState = reactive({
         query: { filter: 'notifications', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
@@ -690,7 +729,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C41: CollectionHeader emit code-update → filterCollectionCode 设置（inline arrow）', async () => {
       const routeState = reactive({
         query: { filter: 'collections', topic_id: '', topic_name: '', c_id: '5', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
@@ -725,7 +766,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C44: filterStatus="topics" + filterTopicId>0 + bookmarks 非空 → isDataEmpty=false (line 212 truthy分支)', async () => {
       const routeState = reactive({
         query: { filter: 'topics', topic_id: '5', topic_name: 'tech', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
@@ -766,7 +809,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C46: handleCellArchive id 存在 + filterStatus="archive" + archive=false → bookmark filter 移除（line 512）', async () => {
       const routeState = reactive({
         query: { filter: 'archive', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
-        params: {}
+        params: {},
+        path: '/bookmarks',
+        fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
       mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 7 }])
