@@ -1,6 +1,6 @@
 <template>
   <button class="apple-login-button" @click="loginClick">
-    <div class="i-logos:apple w-20px text-brand" />
+    <div class="i-logos:apple text-brand w-20px" />
     <span>{{ t('component.login_view.apple_login') }}</span>
   </button>
 </template>
