@@ -1,6 +1,6 @@
 <template>
   <button class="google-login-button" @click="loginClick">
-    <div class="i-logos:google-icon w-20px text-brand" />
+    <div class="i-logos:google-icon text-brand w-20px" />
     <span>{{ t('component.login_view.google_login') }}</span>
   </button>
 </template>

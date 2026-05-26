@@ -7,7 +7,7 @@
           <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
         </div>
         <div class="right">
-          <div class="i-svg-spinners:180-ring-with-bg text-txt-light size-16px text-card" v-if="!comment.markUid || comment.loading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-card size-16px" v-if="!comment.markUid || comment.loading"></div>
         </div>
       </div>
       <div class="comment-content">{{ comment.isDeleted ? t('component.article_selection.comment_deleted') : comment.comment }}</div>
@@ -22,7 +22,7 @@
               @click="commentDeleteClick(comment)"
             ></button>
           </template>
-          <div class="i-svg-spinners:180-ring-with-bg text-txt-light ml-10px text-body" v-else-if="comment.operateLoading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-body ml-10px" v-else-if="comment.operateLoading"></div>
         </div>
       </div>
     </div>
@@ -35,7 +35,7 @@
             <span class="parent-username">{{ childComment.reply?.username || '' }}: </span>
             <span class="comment-content-text">{{ childComment.comment }}</span>
             <div
-              class="i-svg-spinners:180-ring-with-bg text-txt-light ml-5px inline-block h-14px w-14px translate-y-2px text-meta line-height-22px"
+              class="i-svg-spinners:180-ring-with-bg text-txt-light text-meta ml-5px inline-block h-14px w-14px translate-y-2px line-height-22px"
               v-if="!childComment.markUid || childComment.loading"
             ></div>
           </div>

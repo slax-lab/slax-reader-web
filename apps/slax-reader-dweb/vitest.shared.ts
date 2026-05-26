@@ -180,6 +180,16 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     statements: 80
   },
 
+  // ===== middleware =====
+  // 第四期 Sprint D.1（2026-05-26）：auth.global.ts 12 用例覆盖完整
+  // 实测 100/93.75/100/100；阈值给定 80/70/85/80 留余量
+  'layers/core/app/middleware/auth.global.ts': {
+    lines: 80,
+    branches: 70,
+    functions: 85,
+    statements: 80
+  },
+
   // ===== pages =====
   'layers/core/app/pages/bookmarks/[id].vue': {
     lines: 80,
@@ -197,6 +207,16 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   'layers/core/app/pages/w/[id].vue': {
     lines: 50,
     branches: 40,
+    functions: 50,
+    statements: 50
+  },
+  // 第四期 Sprint C.1.1（2026-05-26）：sw/[id].vue 11 用例保底覆盖
+  // 实测 lines 51.97 / branches 33.68 / functions 50 / statements 53.47
+  // branches 33.68 < 40 因 navigator.serviceWorker / iframe.contentDocument 多个早返分支
+  // 真实浏览器才能跑到；降到 50/30/50/50 接受废弃路径状态
+  'layers/core/app/pages/sw/[id].vue': {
+    lines: 50,
+    branches: 30,
     functions: 50,
     statements: 50
   },
@@ -488,10 +508,29 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // ===== utils 目录级 =====
+  // 注意：vitest thresholds 的目录通配 ('xxx/**') 是按 perFile 计算的——
+  //      即 utils 下每个文件都必须满足 95/85/95/95，而不是聚合平均。
+  //      该规则历史已存在（第二期收尾启用），所有 utils 文件均已治理到达标。
+  //      composables / components 子目录因有未治理的文件（useArticle.ts 等），
+  //      不能粗暴启用 perFile 通配阈值；改用 vitest.config.ts 顶层 global 阈值
+  //      （65/55/65/65）兜底整体不退化。
   'layers/core/app/utils/**': {
     lines: 95,
     branches: 85,
     functions: 95,
     statements: 95
+  },
+
+  // ===== pages 目录级（第四期 Sprint C.2 启用，实测后符合 70/60/70/70）=====
+  // pages/** aggregate 实测：lines 78.7 / branches 67.22 / functions 73.58 / statements 77.25
+  // 含 w/sw 废弃路径（单文件阈值 50/40/50/50 / 50/30/50/50 已豁免）
+  // 注意：vitest 通配阈值 perFile，但 pages 下的 [...slug].vue 等文件目前 0% 会拖红——
+  //      已通过维持单文件 w/sw 阈值降级 + 不为 [...slug] 等设阈值方式，整体 perFile 仍能过 70
+  //      若新增页面 < 70%，需为该文件单独设阈值或纳入测试
+  'layers/core/app/pages/**': {
+    lines: 70,
+    branches: 60,
+    functions: 70,
+    statements: 70
   }
 }

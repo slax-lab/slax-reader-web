@@ -234,6 +234,8 @@ describe('components/BookmarkList/BookmarkCell', () => {
     })
 
     it('archiveBookmark 失败：showToast Error', async () => {
+      // 源码 archiveBookmark catch 块内调 console.log(e)，会污染 stderr；spy 静默
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       mockPost.mockRejectedValueOnce(new Error('boom'))
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
@@ -241,6 +243,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       await wrapper.find('.archieve').trigger('click')
       await flushPromises()
       expect(mockToastShowToast).toHaveBeenCalled()
+      consoleSpy.mockRestore()
     })
 
     it('clickDelete：调 TRASH_BOOKMARK + removeCell stroke + emit delete', async () => {
