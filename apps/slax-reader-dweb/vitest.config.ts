@@ -496,6 +496,38 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 10（2026-05-26 启用）：components/ 4 文件
+        //  - UserImportSection.vue：10 用例，94.54/81.81/90/94.54（chooseFile 注入 input + importThirdPartyData 多分支）
+        //  - CursorToast/index.ts：8 用例，89.74/76.92/75/89.74（onDismiss 回调依赖 Toast Transition.after-leave，happy-dom 不会真触发）
+        //  - ImagePreview/index.ts：5 用例，100/100/100/100（容器复用 + dismiss 链）
+        //  - Toast/index.ts：7 用例，89.74/76.92/75/89.74（同 CursorToast，after-leave 限制）
+        // 阈值：UserImportSection / ImagePreview 标准 80/70/85/80；
+        //      Toast/index.ts 与 CursorToast/index.ts 因 onDismiss 不可测 → functions 70
+        'layers/core/app/components/UserImportSection.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/ImagePreview/index.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Toast/index.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 70,
+          statements: 80
+        },
+        'layers/core/app/components/CursorToast/index.ts': {
+          lines: 80,
+          branches: 70,
+          functions: 70,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
