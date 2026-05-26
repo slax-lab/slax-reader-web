@@ -421,6 +421,43 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 8（2026-05-26 启用）：components/ 5 文件
+        //  - Toast/Toast.vue：7 用例，100/100/100/100（type 切换 + 2500ms 自动隐藏 + after-leave dismiss + onUnmounted）
+        //  - Layouts/SidebarLayout.vue：8 用例，100/100/100/100（v-model:show + animated/expanded class + mask click + width style）
+        //  - BookmarkList/BookmarkHighlightCell.vue：12 用例，100/94.73/100/100（mark/comment/reply 3 type + getContent 3 分支 + jumpToOriginal 3 source_type）
+        //  - Chat/QuestionMessage.vue：8 用例，100/88.88/100/100（v-html / clickable 短路）
+        //  - UserOperateIcon.vue：7 用例，94.11/83.33/75/94.11（onDeactivated 在 happy-dom 不会自动触发，functions 75% < 85，单独阈值 70）
+        'layers/core/app/components/Toast/Toast.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Layouts/SidebarLayout.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Chat/QuestionMessage.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/UserOperateIcon.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 70,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
