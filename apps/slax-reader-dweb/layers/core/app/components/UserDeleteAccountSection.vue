@@ -170,42 +170,47 @@ const performDelete = async () => {
 <style lang="scss" scoped>
 @use '#layers/core/styles/markdown/content.scss' as markdownContent;
 
+// 删除按钮警示橙 #FF6838 与 BookmarkCell 删除按钮一致，比 --slax-danger（#c44 红）偏暖；
+// 主题作者刻意区分"删除/警示"语义色，本组件沿用硬编码橙；其余颜色 / 时长 / 字号全部走 token。
 .user-delete-account-section {
-  --style: 'mt-60px pt-24px border-t-(1px solid #ecf0f5)';
+  --style: 'mt-60px pt-24px border-t-(1px solid border)';
 
   .info {
     --style: 'flex flex-wrap items-center gap-x-8px gap-y-4px';
 
     .description {
-      --style: text-(12px #999) line-height-18px;
+      --style: text-tag text-txt-light line-height-18px;
     }
 
     .delete-button {
-      --style: 'p-0 bg-transparent border-none text-(12px #999) line-height-18px underline underline-#ccc underline-offset-2 transition-colors duration-200 hover:(text-#FF6838 underline-#FF6838) active:(scale-102)';
+      --style: 'p-0 bg-transparent border-none text-tag text-txt-light line-height-18px underline underline-border underline-offset-2 transition-colors duration-normal hover:(text-#FF6838 underline-#FF6838) active:(scale-102)';
     }
   }
 }
 
 .delete-account-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
+    // 浮层遮罩半透明黑，跨主题保持不变（所有 modal 同款配方）
     --style: bg-#0f141999;
   }
 }
 
 .modal-content {
-  --style: bg-#fff rounded-2 select-text relative overflow-hidden flex flex-col;
+  --style: bg-surface-solid rounded-2 select-text relative overflow-hidden flex flex-col;
+  // modal 专属下投阴影，与 AddUrlTopModal 一致沿用硬编码规格
   box-shadow: 0px 20px 60px 0px #0000001a;
 
   .header {
-    --style: flex items-center justify-between px-24px py-20px border-b-(1px solid #ecf0f5);
+    --style: flex items-center justify-between px-24px py-20px border-b-(1px solid border);
 
     .modal-title {
-      --style: text-(18px #0f1419) line-height-25px font-600;
+      // 18px 不在 8 档内，按 task2 映射就近落 17px text-card
+      --style: text-card text-txt line-height-25px font-600;
     }
 
     .close {
-      --style: w-16px h-16px transition-opacity duration-200 hover: opacity-70 disabled: opacity-30;
+      --style: w-16px h-16px transition-opacity duration-normal hover: opacity-70 disabled: opacity-30;
       img {
         --style: w-full;
       }
@@ -213,18 +218,18 @@ const performDelete = async () => {
   }
 
   .footer {
-    --style: flex justify-end items-center gap-12px px-24px py-16px border-t-(1px solid #ecf0f5);
+    --style: flex justify-end items-center gap-12px px-24px py-16px border-t-(1px solid border);
 
     .btn-cancel {
-      --style: 'px-20px h-36px rounded-8px border-(1px solid #d9d9d9) bg-#fff text-(14px #333) font-500 transition-all duration-200 hover:(bg-#f5f5f5) disabled:(opacity-50 cursor-not-allowed)';
+      --style: 'px-20px h-36px rounded-8px border-(1px solid border) bg-surface-solid text-meta text-txt-muted font-500 transition-all duration-normal hover:(bg-accent-bg) disabled:(opacity-50 cursor-not-allowed)';
     }
 
     .btn-confirm {
-      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-(14px #fff) font-500 transition-all duration-200 hover:(bg-#e85a2e) disabled:(opacity-50 cursor-not-allowed)';
+      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-meta text-txt-btn font-500 transition-all duration-normal hover:(bg-#e85a2e) disabled:(opacity-50 cursor-not-allowed)';
     }
 
     .btn-confirm-final {
-      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-(14px #fff) font-500 transition-all duration-200 flex-center min-w-140px hover:(bg-#e85a2e) disabled:(opacity-80 cursor-not-allowed)';
+      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-meta text-txt-btn font-500 transition-all duration-normal flex-center min-w-140px hover:(bg-#e85a2e) disabled:(opacity-80 cursor-not-allowed)';
 
       .loading-inline {
         --style: flex items-center gap-8px;
@@ -253,7 +258,7 @@ const performDelete = async () => {
     --style: px-24px pt-24px;
 
     .modal-title {
-      --style: text-(18px #ff6838) line-height-25px font-600;
+      --style: text-card text-#ff6838 line-height-25px font-600;
     }
   }
 
@@ -261,7 +266,7 @@ const performDelete = async () => {
     --style: px-24px pt-12px pb-24px;
 
     p {
-      --style: text-(14px #4d4d4d) line-height-22px;
+      --style: text-meta text-txt-muted line-height-22px;
     }
   }
 }
@@ -273,7 +278,7 @@ const performDelete = async () => {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-spring;
 }
 
 .opacity-leave-to,
@@ -283,6 +288,6 @@ const performDelete = async () => {
 
 .opacity-enter-active,
 .opacity-leave-active {
-  --style: transition-opacity duration-150 ease;
+  --style: transition-opacity duration-fast ease;
 }
 </style>
