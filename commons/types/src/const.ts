@@ -33,9 +33,7 @@ enum RESTMethodPath {
   TOKEN_REFRESH = '/v1/user/refresh',
   USER_INFO_ENABLE_SETTING = '/v1/user/setting/enable',
   USER_INFO_DISABLE_SETTING = '/v1/user/setting/disable',
-  CREATE_SUBSCRIPTION = '/v1/subscription/create_subscription',
-  CREATE_ONCE_SUBSCRIPTION = '/v1/subscription/create_once',
-  CANCEL_SUBSCRIPTION = '/v1/subscription/cancel',
+  DELETE_MY_ACCOUNT = '/v1/user/delete_my_account',
   ADD_MARK = '/v1/mark/create',
   DELETE_MARK = '/v1/mark/delete',
   CREATE_BOOKMARK_SHARE = '/v1/share/create',
@@ -61,17 +59,7 @@ enum RESTMethodPath {
   GET_UNREAD_COUNT = '/v1/user/unread_count',
   NOTIFICATION_LIST = '/v1/user/notifications',
   NOTIFICATION_MARK_READ_ALL = '/v1/user/read_notifications',
-  NOTIFICATION_MARK_READ = '/v1/user/read_notification',
-  STRIPE_CONNECT = '/v1/user/setting/stripe_connect',
-  STRIPE_CONNECT_LOGIN = '/v1/user/setting/stripe_login',
-  COLLECT_OWNER_SHARE_SETTING = '/v1/collection/setting',
-  COLLECT_INFO = '/v1/collection',
-  COLLECT_SUBSCRIBE = '/v1/collection/subscribe',
-  COLLECT_SUBSCRIBED = '/v1/collection/subscribed',
-  COLLECT_UNSUBSCRIBE = '/v1/collection/unsubscribe',
-  COLLECT_DELETE_SUBSCRIBE = '/v1/collection/delete_subscribe',
-  COLLECT_SUBSCRIBED_LIST = '/v1/collection/subscribed_list',
-  COLLECT_BOOKMARK_DETAIL = '/v1/collection/bookmark'
+  NOTIFICATION_MARK_READ = '/v1/user/read_notification'
 }
 
 enum LocalStorageKey {
