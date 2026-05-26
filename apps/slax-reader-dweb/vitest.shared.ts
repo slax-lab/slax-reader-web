@@ -44,21 +44,27 @@ export const sharedExcludeBase = [
  */
 export const phase4ExcludeAdditions = [
   // 11 phase5 推迟项
-  'layers/core/app/components/AISummaries.vue',
-  'layers/core/app/components/Article/Selection/modal.ts',
-  'layers/core/app/components/Markdown/MarkMindMap.vue',
+  // 第五期 Sprint C.3（2026-05-26）：AISummaries.vue 已治理（核心活路径），移出 exclude
+  // 'layers/core/app/components/AISummaries.vue',
+  // 第五期 Sprint A.1（2026-05-26）：modal.ts 已治理，移出 exclude
+  // 'layers/core/app/components/Article/Selection/modal.ts',
+  // 第五期 Sprint C.2（2026-05-26）：MarkMindMap.vue 已治理，移出 exclude
+  // 'layers/core/app/components/Markdown/MarkMindMap.vue',
   'layers/core/app/components/Article/Selection/ArticleSelectionPanel.ce.vue',
-  'layers/core/app/components/Article/BookmarkArticle.vue',
-  'layers/core/app/components/Article/Selection/DwebArticleSelection.ts',
-  'layers/core/app/components/ImagePreview/ImagePreview.vue',
+  // 第五期 Sprint B.1（2026-05-26）：BookmarkArticle.vue 已治理，移出 exclude
+  // 'layers/core/app/components/Article/BookmarkArticle.vue',
+  // 第五期 Sprint A.2（2026-05-26）：DwebArticleSelection.ts 已治理，移出 exclude
+  // 'layers/core/app/components/Article/Selection/DwebArticleSelection.ts',
+  // 第五期 Sprint D.1（2026-05-26）：ImagePreview.vue 已治理，移出 exclude
+  // 'layers/core/app/components/ImagePreview/ImagePreview.vue',
   'layers/core/app/components/Article/Selection/ArticleCommentInput.ce.vue',
   'layers/core/app/components/Article/Selection/ArticleCommentCell.ce.vue',
   'layers/core/app/components/Article/Selection/ArticleSelectionMenus.ce.vue',
-  'layers/core/app/components/Markdown/MarkdownText.vue',
+  // 第五期 Sprint C.1（2026-05-26）：MarkdownText.vue 已治理，移出 exclude
+  // 'layers/core/app/components/Markdown/MarkdownText.vue',
   // 1 废弃专属
-  'layers/core/app/components/RawWebPanel.vue',
-  // 1 死代码
-  'layers/core/app/components/Article/Selection/ArticleCommentsView.vue'
+  'layers/core/app/components/RawWebPanel.vue'
+  // 第五期 Sprint 0（2026-05-26）：ArticleCommentsView.vue 已删除（0 引用死代码），移出 exclude
 ]
 
 /**
@@ -227,6 +233,70 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     branches: 70,
     functions: 85,
     statements: 80
+  },
+  // 第五期 Sprint A.1（2026-05-26）：modal.ts 26 用例覆盖完整
+  // 实测 lines 88.18 / branches 70.05 / functions 100 / statements 88.14
+  'layers/core/app/components/Article/Selection/modal.ts': {
+    lines: 80,
+    branches: 70,
+    functions: 85,
+    statements: 80
+  },
+  // 第五期 Sprint A.2（2026-05-26）：DwebArticleSelection.ts 16 用例覆盖完整
+  // 实测 lines 90 / branches 66.66 / functions 90.9 / statements 84.61
+  // branches 66.66 略低于 70，给 60 留缓冲（getMarkPathItems 内 image/text 二分支 + null 早返多个）
+  'layers/core/app/components/Article/Selection/DwebArticleSelection.ts': {
+    lines: 80,
+    branches: 60,
+    functions: 85,
+    statements: 80
+  },
+  // 第五期 Sprint B.1（2026-05-26）：BookmarkArticle.vue 21 用例覆盖完整
+  // 实测 lines 79.03 / branches 64.44 / functions 66.66 / statements 76.33
+  // 该文件是 page-style 集成入口，jumpToHighLight / collection / handleDrawMark.share
+  // 等多个分支需要更多桩配置才能跑到；阈值给 70/55/65/70 标定当前活路径覆盖
+  'layers/core/app/components/Article/BookmarkArticle.vue': {
+    lines: 70,
+    branches: 55,
+    functions: 65,
+    statements: 70
+  },
+  // 第五期 Sprint C.1（2026-05-26）：MarkdownText.vue 8 用例覆盖完整
+  // 实测 lines 100 / branches 75 / functions 100 / statements 100
+  'layers/core/app/components/Markdown/MarkdownText.vue': {
+    lines: 80,
+    branches: 70,
+    functions: 85,
+    statements: 80
+  },
+  // 第五期 Sprint C.2（2026-05-26）：MarkMindMap.vue 12 用例覆盖
+  // 实测 lines 55.38 / branches 32.91 / functions 57.14 / statements 55.44
+  // 该组件深度依赖 SVG 渲染 + Markmap d3 力学计算 + 全屏 API + 第三方下载链路；
+  // happy-dom 无法跑通；阈值给 50/30/55/50 标定活路径覆盖，剩余分支 phase6 再做 e2e
+  'layers/core/app/components/Markdown/MarkMindMap.vue': {
+    lines: 50,
+    branches: 30,
+    functions: 55,
+    statements: 50
+  },
+  // 第五期 Sprint C.3（2026-05-26）：AISummaries.vue 14 用例覆盖核心活路径
+  // 实测 lines 52.3 / branches 41.29 / functions 56.52 / statements 52.7
+  // 869 行大组件，剩余分支为 findTextInWeb / queryAnchorAlikeQuote 等复杂路径，phase6 再 e2e
+  'layers/core/app/components/AISummaries.vue': {
+    lines: 50,
+    branches: 35,
+    functions: 55,
+    statements: 50
+  },
+  // 第五期 Sprint D.1（2026-05-26）：ImagePreview.vue 16 用例覆盖
+  // 实测 lines 35.89 / branches 25.64 / functions 33.33 / statements 35.89
+  // 大量分支锁在 Transition handleEnter / handleLeave / setTimeout 链，happy-dom 不触发 enter/leave
+  // 阈值给 35/20/30/35 标定活路径覆盖；剩余 phase6 e2e
+  'layers/core/app/components/ImagePreview/ImagePreview.vue': {
+    lines: 35,
+    branches: 20,
+    functions: 30,
+    statements: 35
   },
   'layers/core/app/components/Modal/index.ts': {
     lines: 80,

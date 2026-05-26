@@ -16,11 +16,12 @@ export default defineVitestConfig({
       exclude: [...sharedExcludeBase, ...phase4ExcludeAdditions],
       thresholds: {
         // global 阈值（thresholds 顶层 lines/branches/functions/statements）
-        // exclude 后整体覆盖底线；实测 90.38/79.73/88.98/89.75，给定 65/55/65/65 留足余量
-        lines: 65,
-        branches: 55,
-        functions: 65,
-        statements: 65,
+        // exclude 后整体覆盖底线；第四期实测 90.38/79.73/88.98/89.75，给定 65/55/65/65 留缓冲
+        // 第五期收尾（2026-05-26）：exclude 由 13 降至 5，分母扩大；阈值升至 70/60/70/70
+        lines: 70,
+        branches: 60,
+        functions: 70,
+        statements: 70,
         ...sharedThresholdsByFile
       }
     }

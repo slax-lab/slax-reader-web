@@ -81,7 +81,13 @@ happy-dom 不可测路径的常用 seam 改造（第四期已落地实例）：
 | `onDeactivated` 仅 KeepAlive 切换触发 | 在 spec 包 `<KeepAlive><Comp v-if="show" /></KeepAlive>`，`setProps({show:false})` | UserOperateIcon.spec.ts |
 | `v-element-hover="state => isShow=state"` 内联 arrow 不触发 | 源码抽具名 `onHover`，spec 调 `setupState.onHover(true)` | AILanguageTips.vue + spec |
 | `<Transition @after-leave>` 不真触发 | 源码抽 cleanup seam（buildXxxCleanup 闭包），spec mock 子组件立即 emit dismiss | Toast/index.ts + spec |
-| `customElements.define` 重复注册 | mock CEComponents 时 factory 内只注册一次（`if (!customElements.get(name))`） | processors/video.spec.ts |
-| `vi.mock` factory hoist 引用错误 | 把 stub class 定义在 factory 内，副作用通过 `globalThis.__xxx` 中转 | photo-swipe.processor.spec.ts |
+| `customElements.define` 重复注册 | mock CEComponents 时 factory 内只注册一次（`if (!customElements.get(name))`） | processors/video.spec.ts、modal.ts 顶层 guard |
+| `vi.mock` factory hoist 引用错误 | 把 stub class 定义在 factory 内，副作用通过 `globalThis.__xxx` 中转，或用 `vi.hoisted({ ... })` 提前声明 | photo-swipe.processor.spec.ts、BookmarkArticle.spec.ts |
 | `useAsyncData` 模板自动 unwrap | mock 必须返回 `{data: ref(...)}`（vue ref），不能裸 `{data:{value:...}}` | privacy.spec.ts |
 | Async setup 组件 mount | 用 Suspense 包裹：`<Suspense><Comp /></Suspense>` + flushPromises | privacy.spec.ts / terms.spec.ts |
+| `vi.fn().mockImplementation(() => obj)` 不能作 constructor | mock 链中需要 `new XxxClass()` 的 export 必须用 `class XxxClass {}` 风格 | BookmarkArticle.spec.ts MarkModal/DwebArticleSelection mock |
+| 模板渲染 `useFoo().title`，mock 返 plain `{value: 'x'}` 失败 | mock 实现内部 `import { ref } from 'vue'` 包装 | BookmarkArticle.spec.ts useArticleDetail mock |
+| `setupState.xxx.value = newVal` TypeError | runtime 已 unwrap；改测模板/事件触发或用别的入口 | ImagePreview.spec.ts、MarkMindMap.spec.ts |
+| `defineCustomElement` mock 不能 `customElements.define` 注册 | happy-dom 不允许同 class 多 name；让源码顶层 guard 自己注册 | modal.spec.ts |
+| `request().stream(...)` 流式协议 mock | mock 返 callBack 函数；`callBack(handler:(text,isDone)=>void)` | AISummaries.spec.ts |
+| `protected override` 方法 setTimeout(0) 内分支 | spec `vi.useFakeTimers() + await vi.runAllTimersAsync()`；捕获 modal.showMenus 入参主动调三回调（callback/positionCallback/noActionCallback） | DwebArticleSelection.spec.ts |

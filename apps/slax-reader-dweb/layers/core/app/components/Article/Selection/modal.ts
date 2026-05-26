@@ -25,8 +25,13 @@ const ArticleSelectionMenusElement = defineCustomElement(ArticleSelectionMenus)
 const ArticleSelectionPanelElement = defineCustomElement(ArticleSelectionPanel)
 
 if (isClient) {
-  customElements.define('article-seletion-menus', ArticleSelectionMenusElement)
-  customElements.define('article-seletion-panel', ArticleSelectionPanelElement)
+  // 第五期 Sprint A.0：加 guard 防 spec vi.resetModules + 不同 alias 重复 import 时 Custom Element 重复注册抛 NotSupportedError
+  if (!customElements.get('article-seletion-menus')) {
+    customElements.define('article-seletion-menus', ArticleSelectionMenusElement)
+  }
+  if (!customElements.get('article-seletion-panel')) {
+    customElements.define('article-seletion-panel', ArticleSelectionPanelElement)
+  }
 }
 
 const menusKey = `slax-reader-article-selection-menus-container`
