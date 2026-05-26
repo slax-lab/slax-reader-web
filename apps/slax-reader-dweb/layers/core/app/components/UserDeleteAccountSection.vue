@@ -91,7 +91,10 @@ const noticePage = computed(() => {
 const ensureNoticeContent = async () => {
   if (noticeLoaded.value) return
   try {
-    const [zh, en] = await Promise.all([queryCollection('open_docs_zh').path('/delete-account-notice').first(), queryCollection('open_docs_en').path('/delete-account-notice').first()])
+    const [zh, en] = await Promise.all([
+      queryCollection('open_docs_zh').path('/delete-account-notice').first(),
+      queryCollection('open_docs_en').path('/delete-account-notice').first()
+    ])
     zhPage.value = zh
     enPage.value = en
   } catch (e) {
