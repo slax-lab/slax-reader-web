@@ -377,12 +377,12 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     statements: 80
   },
 
-  // sprint 5 batch 7（AILanguageTips 阈值偏低，待 Sprint B.2 升级）
+  // sprint 5 batch 7（第四期 Sprint B.2：AILanguageTips functions 50→85，源码抽具名 onHover）
   'layers/core/app/components/Tips/AILanguageTips.vue': {
-    lines: 70,
+    lines: 80,
     branches: 70,
-    functions: 50,
-    statements: 70
+    functions: 85,
+    statements: 80
   },
   'layers/core/app/components/Tips/ShareBubbleTips.vue': {
     lines: 80,
@@ -397,7 +397,7 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     statements: 80
   },
 
-  // sprint 5 batch 8（UserOperateIcon functions 70 待 Sprint B.1 升级）
+  // sprint 5 batch 8（第四期 Sprint B.1：UserOperateIcon functions 70→85，KeepAlive deactivate 测试覆盖）
   'layers/core/app/components/Toast/Toast.vue': {
     lines: 80,
     branches: 70,
@@ -425,7 +425,7 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   'layers/core/app/components/UserOperateIcon.vue': {
     lines: 80,
     branches: 70,
-    functions: 70,
+    functions: 85,
     statements: 80
   },
 
@@ -461,7 +461,7 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     statements: 80
   },
 
-  // sprint 5 batch 10（Toast/index.ts + CursorToast/index.ts functions 70 待 Sprint B.3 升级）
+  // sprint 5 batch 10（第四期 Sprint B.3：Toast/index.ts + CursorToast/index.ts functions 70→85，dismissCleanup seam）
   'layers/core/app/components/UserImportSection.vue': {
     lines: 80,
     branches: 70,
@@ -477,13 +477,13 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   'layers/core/app/components/Toast/index.ts': {
     lines: 80,
     branches: 70,
-    functions: 70,
+    functions: 85,
     statements: 80
   },
   'layers/core/app/components/CursorToast/index.ts': {
     lines: 80,
     branches: 70,
-    functions: 70,
+    functions: 85,
     statements: 80
   },
 

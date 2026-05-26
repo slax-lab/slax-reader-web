@@ -1,12 +1,6 @@
 <template>
   <div class="ai-language-tips">
-    <button
-      v-element-hover="
-        state => {
-          isShowBubble = state
-        }
-      "
-    >
+    <button v-element-hover="onHover">
       <img src="@images/button-tiny-faq-outline.png" />
     </button>
     <Transition name="opacity">
@@ -21,6 +15,13 @@
 import { vElementHover } from '@vueuse/components'
 
 const isShowBubble = ref(false)
+
+// 第四期 Sprint B.2：抽出具名 onHover 替代内联回调
+// Why：v-element-hover 内联回调在 happy-dom 不可达 + v8 functions 覆盖把 inline 算成独立函数，
+//      导致 functions 覆盖只到 50%。具名后 spec 可直接调 setupState.onHover(true/false) 驱动。
+const onHover = (state: boolean) => {
+  isShowBubble.value = state
+}
 </script>
 
 <style lang="scss" scoped>

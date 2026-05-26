@@ -45,6 +45,9 @@
       "SG": "Singapore",
       "US": "United States"
     },
+    "error": {
+      "network": "Network error, please try again later"
+    },
     "operate": {
       "add": "Add",
       "archive": "Archive",

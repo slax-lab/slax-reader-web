@@ -3,7 +3,7 @@
 // useElementHover 决定 isHovered（happy-dom 不真实触发，通过 setupState 直接驱动）
 // infoClick → navigateTo('/user')
 // logoutClick → auth.clearAuth() + navigateTo('/login', { replace: true })
-import { ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import UserOperateIcon from '~~/layers/core/app/components/UserOperateIcon.vue'
 
@@ -78,12 +78,26 @@ describe('UserOperateIcon', () => {
     expect(mockNavigateTo).toHaveBeenCalledWith('/login', { replace: true })
   })
 
-  it('onDeactivated → isHovered 重置 false（通过 setupState 触发）', async () => {
+  it('onDeactivated → isHovered 重置 false（KeepAlive 切换触发）', async () => {
+    // 第四期 Sprint B.1：构造 KeepAlive + v-if 切换，触发 deactivate hook
     const hoverRef = ref(true)
     mockUseElementHover.mockReturnValueOnce(hoverRef)
-    const wrapper = mountWithApp(UserOperateIcon)
-    // 触发 onDeactivated 较难（需 KeepAlive 切换）；这里仅确保函数存在 + hoverRef 可写
-    expect(wrapper.exists()).toBe(true)
+
+    const Host = defineComponent({
+      components: { UserOperateIcon },
+      props: { show: { type: Boolean, default: true } },
+      template: `
+        <KeepAlive>
+          <UserOperateIcon v-if="show" />
+        </KeepAlive>
+      `
+    })
+
+    const wrapper = mountWithApp(Host, { props: { show: true } })
+    expect(hoverRef.value).toBe(true)
+    // 切走 → KeepAlive 缓存子组件，触发 onDeactivated
+    await wrapper.setProps({ show: false })
+    expect(hoverRef.value).toBe(false)
   })
 
   it('userInfo.picture 缺失 → fallback 到 default avatar', () => {

@@ -74,3 +74,69 @@ describe('Toast/index showToast 工厂', () => {
     expect(container.children.length).toBe(2)
   })
 })
+
+// 第四期 Sprint B.3：dismissCleanup seam 单独 describe（重新 import + mock Toast 立即 dismiss）
+// Why：Toast.vue 内 <Transition> after-leave 在 happy-dom 不真触发，无法走 dismissCleanup 链。
+//      对 Toast.vue 做 mock 让其在 onMounted 时立即 emit('dismiss') 走源码 cleanup。
+// How：vi.doMock + 动态 import，仅在本 describe 生效。
+describe('Toast/index Sprint B.3：dismissCleanup seam', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.doUnmock('~~/layers/core/app/components/Toast/Toast.vue')
+    document.body.innerHTML = ''
+  })
+
+  it('onDismiss 触发：unmount + textToast 移除 + 单 toast 时容器整体移除', async () => {
+    vi.doMock('~~/layers/core/app/components/Toast/Toast.vue', () => ({
+      default: {
+        name: 'ToastStub',
+        props: ['text', 'type'],
+        emits: ['dismiss'],
+        setup(_props: unknown, { emit }: { emit: (event: string) => void }) {
+          // mount 后立即 emit dismiss，等价 transition after-leave
+          Promise.resolve().then(() => emit('dismiss'))
+          return () => null
+        }
+      }
+    }))
+    const Module = (await import('~~/layers/core/app/components/Toast/index.ts')).default
+    Module.showToast({ text: 'X' })
+    // 等 microtask 完成
+    await Promise.resolve()
+    await Promise.resolve()
+    // cleanup 已运行，整个容器被移除
+    expect(document.querySelector('.toast.toast-start')).toBeNull()
+  })
+
+  it('onDismiss 触发：多 toast 时仅移除自身 textToast，容器保留', async () => {
+    let dismissEmitter: (() => void) | null = null
+    vi.doMock('~~/layers/core/app/components/Toast/Toast.vue', () => ({
+      default: {
+        name: 'ToastStub',
+        props: ['text', 'type'],
+        emits: ['dismiss'],
+        setup(_props: unknown, { emit }: { emit: (event: string) => void }) {
+          // 第一个 mount 暂存 emit 让外部触发；其它 mount 不 emit
+          if (!dismissEmitter) {
+            dismissEmitter = () => emit('dismiss')
+          }
+          return () => null
+        }
+      }
+    }))
+    const Module = (await import('~~/layers/core/app/components/Toast/index.ts')).default
+    Module.showToast({ text: 'A' })
+    Module.showToast({ text: 'B' })
+    const container = document.querySelector('.toast.toast-start') as HTMLElement
+    expect(container.children.length).toBe(2)
+    // 触发第一个 toast dismiss
+    dismissEmitter?.()
+    await Promise.resolve()
+    expect(container.children.length).toBe(1)
+    expect(document.querySelector('.toast.toast-start')).not.toBeNull()
+  })
+})

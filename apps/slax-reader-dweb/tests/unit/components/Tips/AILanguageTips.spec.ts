@@ -1,6 +1,6 @@
 // Tips/AILanguageTips 组件单测
 // 极简：一个 button + bubble，hover 触发 isShowBubble
-// 用 v-element-hover 指令；happy-dom 下不会真触发 hover state，只能验证渲染结构 + 通过 setupState 直接驱动
+// 第四期 Sprint B.2：源码已抽具名 onHover 替代内联回调，spec 通过 setupState.onHover 直接驱动
 import AILanguageTips from '~~/layers/core/app/components/Tips/AILanguageTips.vue'
 
 import { mountWithApp } from '~~/tests/setup/mount'
@@ -30,12 +30,23 @@ describe('Tips/AILanguageTips', () => {
     expect(wrapper.find('.bubble-container span').text().length).toBeGreaterThan(0)
   })
 
-  it('isShowBubble=true → bubble-container v-show 显示（直接驱动 setupState 模拟 hover state）', async () => {
+  it('onHover(true) → isShowBubble=true → bubble-container v-show 显示', async () => {
     const wrapper = mountWithApp(AILanguageTips)
-    const setup: any = (wrapper.vm as any).$.setupState
-    setup.isShowBubble = true
+    const setup = (wrapper.vm as unknown as { $: { setupState: { onHover: (state: boolean) => void } } }).$.setupState
+    setup.onHover(true)
     await wrapper.vm.$nextTick()
     const bubble = wrapper.find('.bubble-container')
     expect(bubble.attributes('style') || '').not.toContain('display: none')
+  })
+
+  it('onHover(false) → isShowBubble=false → bubble-container v-show 隐藏', async () => {
+    const wrapper = mountWithApp(AILanguageTips)
+    const setup = (wrapper.vm as unknown as { $: { setupState: { onHover: (state: boolean) => void } } }).$.setupState
+    setup.onHover(true)
+    await wrapper.vm.$nextTick()
+    setup.onHover(false)
+    await wrapper.vm.$nextTick()
+    const bubble = wrapper.find('.bubble-container')
+    expect(bubble.attributes('style') || '').toContain('display: none')
   })
 })

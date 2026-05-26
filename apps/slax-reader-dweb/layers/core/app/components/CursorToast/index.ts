@@ -4,6 +4,16 @@ import CursorToast from './CursorToast.vue'
 
 import Toast from '#layers/core/app/components/Toast'
 
+// 第四期 Sprint B.3：抽 dismissCleanup seam（同 Toast/index.ts 同因）
+const buildDismissCleanup = (app: ReturnType<typeof createApp>, textToast: HTMLElement, toastElement: HTMLElement) => () => {
+  app.unmount()
+  textToast.remove()
+
+  if (Array(...toastElement.children).length === 0) {
+    toastElement.remove()
+  }
+}
+
 const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer?: HTMLElement; duration?: number }) => {
   const { text, trackDom, baseContainer, duration } = options
   const parent = baseContainer || document.body
@@ -24,18 +34,15 @@ const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer
   const textToast = document.createElement('div')
   toastElement.appendChild(textToast)
 
+  let dismissCleanup: (() => void) | null = null
+
   const app = createApp(CursorToast, {
     text,
     duration,
-    onDismiss: () => {
-      app.unmount()
-      textToast.remove()
-
-      if (Array(...toastElement.children).length === 0) {
-        toastElement.remove()
-      }
-    }
+    onDismiss: () => dismissCleanup?.()
   })
+
+  dismissCleanup = buildDismissCleanup(app, textToast, toastElement)
 
   app.mount(textToast)
 

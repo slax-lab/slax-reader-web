@@ -107,3 +107,46 @@ describe('CursorToast/index showToast 工厂', () => {
     expect(parent.querySelector('.cursor-toast-container')).not.toBeNull()
   })
 })
+
+// 第四期 Sprint B.3：dismissCleanup seam
+describe('CursorToast/index Sprint B.3：dismissCleanup seam', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    document.body.innerHTML = ''
+    document.body.style.position = ''
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.doUnmock('~~/layers/core/app/components/CursorToast/CursorToast.vue')
+    document.body.innerHTML = ''
+    document.body.style.position = ''
+  })
+
+  it('onDismiss 触发：unmount + textToast 移除 + 单 toast 时容器整体移除', async () => {
+    vi.doMock('~~/layers/core/app/components/CursorToast/CursorToast.vue', () => ({
+      default: {
+        name: 'CursorToastStub',
+        props: ['text', 'duration'],
+        emits: ['dismiss'],
+        setup(_props: unknown, { emit }: { emit: (event: string) => void }) {
+          Promise.resolve().then(() => emit('dismiss'))
+          return () => null
+        }
+      }
+    }))
+    const Module = (await import('~~/layers/core/app/components/CursorToast/index.ts')).default
+    const parent = document.createElement('div')
+    parent.style.position = 'relative'
+    document.body.appendChild(parent)
+    // window.getComputedStyle 在 happy-dom 不返回 position；spy 覆盖
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({ position: 'relative' } as unknown as CSSStyleDeclaration)
+    const trackDom = document.createElement('div')
+    parent.appendChild(trackDom)
+
+    Module.showToast({ text: 'X', trackDom, baseContainer: parent })
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(parent.querySelector('.cursor-toast-container')).toBeNull()
+  })
+})
