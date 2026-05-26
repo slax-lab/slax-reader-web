@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:coverage:raw": "vitest run --coverage --config vitest.raw.config.ts",
     "lint:fix": "eslint .  --fix",
     "update:nuxt": "pnpm nuxt prepare",
     "update:utils": "pnpm install @commons/utils",

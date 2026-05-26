@@ -9,6 +9,7 @@
     "test:dweb": "pnpm --F @apps/slax-reader-dweb test",
     "test:dweb:watch": "pnpm --F @apps/slax-reader-dweb test:watch",
     "test:dweb:coverage": "pnpm --F @apps/slax-reader-dweb test:coverage",
+    "test:dweb:coverage:raw": "pnpm --F @apps/slax-reader-dweb test:coverage:raw",
     "prepare": "husky",
     "dev": "tsx scripts/start.script.ts",
     "dev:extensions": "pnpm --F @apps/slax-reader-extensions run dev",
