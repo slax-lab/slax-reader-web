@@ -249,6 +249,37 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 2（2026-05-26 启用）：components/ 中型 4 文件全 100% 覆盖
+        //  - QuickStart.vue：5 用例，100/100/100/100（install button window.open）
+        //  - InputBar.vue：12 用例，100/100/100/100（v-model:text + Enter onKeyDown + focus expose）
+        //  - BookmarkList/SearchTopModal.vue：6 用例，100/100/100/100（show watch + topModalClick + analyticsLog 异常分支）
+        //  - BookmarkList/SearchHeader.vue：12 用例，100/88.88/100/100（onMounted+watch defaultSearchText+pwaOpen+vector tag）
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/QuickStart.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/InputBar.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/SearchTopModal.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/SearchHeader.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
