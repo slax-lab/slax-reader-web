@@ -52,8 +52,6 @@ const {
       query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
       params: {},
       path: '/bookmarks',
-      fullPath: '/bookmarks',
-      path: '/bookmarks',
       fullPath: '/bookmarks'
     })),
     mockUseRouterGo: vi.fn(),
