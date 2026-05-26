@@ -111,7 +111,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/contact', '/sitemap.xml', '/robots.txt'],
+      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/contact', '/sitemap.xml', '/robots.txt', '/how-do-i-delete-my-account', '/delete-account-notice'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -138,7 +138,7 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: true; prerender: false }>
       ),
-      ...['/privacy', '/terms'].reduce(
+      ...['/privacy', '/terms', '/how-do-i-delete-my-account', '/delete-account-notice'].reduce(
         (rules, route) => {
           rules[route] = { ssr: false, prerender: false }
           return rules
