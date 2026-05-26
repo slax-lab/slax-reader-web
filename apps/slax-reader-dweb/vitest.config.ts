@@ -280,6 +280,30 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 3（2026-05-26 启用）：components/ 中大型 3 文件
+        //  - AppHeader.vue：14 用例，96.55/96.42/91.66/96.55（mobile sidebar + analyticsLog pathname）
+        //  - Modal/EditName.vue：10 用例，90.24/88.88/90.9/90.24（useScrollLock vi.mock 绕开 happy-dom 限制）
+        //  - BookmarkList/AddUrlTopModal.vue：8 用例，96.77/100/87.5/96.77（addUrlButtonEnable computed 全分支）
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/AppHeader.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Modal/EditName.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/AddUrlTopModal.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
