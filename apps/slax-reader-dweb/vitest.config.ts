@@ -201,6 +201,23 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 4B Task 4.4（2026-05-26 启用）：pages/w/[id].vue 16 用例集成覆盖
+        // 实测 lines 61.39 / branches 44.23 / functions 56.75 / statements 62.66
+        // **关键约束 — 阈值低于其它 pages 的根因**：
+        //  - 本页核心是 iframe + Service Worker liveproxy（150 行 setup 中 iframe / SW 占 ~60 行）
+        //  - happy-dom 无原生 SW，iframe.contentDocument body innerText 不真实，injectInlineScript / highlightMarks
+        //    依赖真实浏览器才能跑通；这部分行 v8 算未覆盖
+        //  - 通过 vi.stubGlobal 替换 navigator.serviceWorker + iframe load 立即触发，能覆盖到 register/postMessage 路径
+        //    但 iframe.contentDocument.querySelector 等真实 DOM 行为无法 stub
+        //  - 这部分覆盖缺口 = 第四期 e2e 兜底（phase4-todo 已登记）
+        // 阈值给定 50/40/50/50 留余量（实测 61/44/56/62）
+        'layers/core/app/pages/w/[id].vue': {
+          lines: 50,
+          branches: 40,
+          functions: 50,
+          statements: 50
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
