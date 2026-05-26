@@ -335,6 +335,37 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 5（2026-05-26 启用）：components/ 4 文件
+        //  - AppFooter.vue：5 用例，100/100/100/100（纯静态链接）
+        //  - GoogleLoginButton.vue：5 用例，100/100/100/100（useAuth + analyticsLog + expose login）
+        //  - AppleLoginButton.vue：5 用例，100/100/100/100（同 Google 但 method=apple）
+        //  - BookmarkList/TagsHeader.vue：20 用例，97.77/90.16/96/96.87（saveTag composition + edit/delete callback）
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/AppFooter.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/GoogleLoginButton.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/AppleLoginButton.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/TagsHeader.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
