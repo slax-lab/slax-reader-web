@@ -218,6 +218,37 @@ export default defineVitestConfig({
           statements: 50
         },
 
+        // 第三期 sprint 5（2026-05-26 启用）：components/ 批量 unit 治理 4 个高 ROI 文件
+        //  - CopyButton.vue：纯 i18n 文案 + svg，2 用例 100/100/100/100
+        //  - DotsMenu.vue：bubble 切换 + actions emit + outsideClick，6 用例 100/100/100/100
+        //  - OptionsBar.vue：v-model:index + watch + closePopup，9 用例 96/90/100/96
+        //  - BookmarkList/TabsSidebar.vue：trash 按钮 + getAllButtons expose，6 用例 100/92/86/97
+        // 阈值统一 80/70/85/80
+        'layers/core/app/components/CopyButton.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/DotsMenu.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/OptionsBar.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/BookmarkList/TabsSidebar.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
