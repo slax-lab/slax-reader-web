@@ -35,36 +35,94 @@ export const sharedExcludeBase = [
 ]
 
 /**
- * 第四期 Sprint 0 新增 exclude（13 项）：
- * - 11 phase5 推迟项（SSE 流式 / Custom Element / iframe DOM / 第三方库等 happy-dom 不可测）
- * - 1 废弃路径专属组件（RawWebPanel.vue，仅 w/sw 用）
- * - 1 死代码（ArticleCommentsView.vue，全 repo 无 import）
+ * Phase 6 e2e-only 推迟项 + 占位/纯导出文件（第五期收尾确认）
  *
- * 仅在主 config 使用；raw config 不剔除以监控全量 overall。
+ * **主跑 + raw 跑都 exclude**：以下文件都从 coverage 视图剔除，让 test:coverage
+ * 报告在 phase6 完成前不再出现"白色（0%）/ 红色（< 50%）"噪声。
+ *
+ * vitest `include` 限制只跑 `**\/*.spec.ts`，所以这些源码文件本来就不会被 vitest
+ * 主动"测试"；exclude 仅控制 coverage 报告的展示与阈值参与。
+ *
+ * ## 第一类：必须 e2e（真实浏览器才能测）
+ *
+ * Selection 链 / Custom Element / Twitter / Photoswipe / Selection API 等都依赖
+ * happy-dom 不支持的浏览器 API；raw overall 也不该把它们计入分母——否则会被一组
+ * 永远 0% 的文件持续拉低，失去"基线不退化"含义。
+ *
+ * 注意：以下 CEComponents 已被 processor specs 间接测到，**不**列入 exclude：
+ *   - WechatVideoInfo.ce.vue（被 wechat-video.processor.spec 测，覆盖 90.9%）
+ *   - UnsupportedVideo.ce.vue（被 video.processor.spec 测）
+ *   - TweetFooterInfo.ce.vue（被 tweet.processor.spec 测，覆盖 60%）
+ *
+ * ## 第二类：占位 / 纯导出 / SSR 专属（无可测可执行代码）
+ *
+ * - 空模板存根：HomepagePlanSection / CollectionHeader / UserPageSkeleton
+ * - 类型 / 聚合导出文件：Chat/type.ts、bookmark/type.ts、adapters/index.ts、processors/index.ts
+ * - SSR 渲染专用：OgImage/Share.satori.vue（satori 服务端调用，运行时不在浏览器）
+ *
+ * ## 第三类：静态营销页 / OAuth 入口（phase6 一并 e2e 冒烟）
+ *
+ * - pages/auth.vue / login.vue：OAuth 回调与入口
+ * - pages/contact.vue / download.vue / guide.vue / user.vue：静态营销 / 用户设置页
+ * - pages/index/[lang].vue：首页 lang 路由
+ * - pages/s/[id].vue：share 详情页（与 w/sw 同档，含 425 行 iframe + SW 链路）
+ * - pages/[...slug].vue：404 fallback
+ *
+ * 详细登记见 .claude/test-framework/phase6-todo.md。
  */
 export const phase4ExcludeAdditions = [
-  // 11 phase5 推迟项
-  // 第五期 Sprint C.3（2026-05-26）：AISummaries.vue 已治理（核心活路径），移出 exclude
-  // 'layers/core/app/components/AISummaries.vue',
-  // 第五期 Sprint A.1（2026-05-26）：modal.ts 已治理，移出 exclude
-  // 'layers/core/app/components/Article/Selection/modal.ts',
-  // 第五期 Sprint C.2（2026-05-26）：MarkMindMap.vue 已治理，移出 exclude
-  // 'layers/core/app/components/Markdown/MarkMindMap.vue',
+  // === Selection 链 4 个 Custom Element（panel/menus/cell/input）—— 必须真实 Selection API
   'layers/core/app/components/Article/Selection/ArticleSelectionPanel.ce.vue',
-  // 第五期 Sprint B.1（2026-05-26）：BookmarkArticle.vue 已治理，移出 exclude
-  // 'layers/core/app/components/Article/BookmarkArticle.vue',
-  // 第五期 Sprint A.2（2026-05-26）：DwebArticleSelection.ts 已治理，移出 exclude
-  // 'layers/core/app/components/Article/Selection/DwebArticleSelection.ts',
-  // 第五期 Sprint D.1（2026-05-26）：ImagePreview.vue 已治理，移出 exclude
-  // 'layers/core/app/components/ImagePreview/ImagePreview.vue',
-  'layers/core/app/components/Article/Selection/ArticleCommentInput.ce.vue',
-  'layers/core/app/components/Article/Selection/ArticleCommentCell.ce.vue',
   'layers/core/app/components/Article/Selection/ArticleSelectionMenus.ce.vue',
-  // 第五期 Sprint C.1（2026-05-26）：MarkdownText.vue 已治理，移出 exclude
-  // 'layers/core/app/components/Markdown/MarkdownText.vue',
-  // 1 废弃专属
-  'layers/core/app/components/RawWebPanel.vue'
-  // 第五期 Sprint 0（2026-05-26）：ArticleCommentsView.vue 已删除（0 引用死代码），移出 exclude
+  'layers/core/app/components/Article/Selection/ArticleCommentCell.ce.vue',
+  'layers/core/app/components/Article/Selection/ArticleCommentInput.ce.vue',
+
+  // === CEComponents 3 个嵌入 Custom Element —— processor 链未触达，必须 e2e
+  // PhotoSwiperDots：滚动指示器 ce，依赖 IntersectionObserver + scroll behavior
+  'layers/core/app/components/Article/CEComponents/PhotoSwiperDots.ce.vue',
+  // TweetUserInfo / TweetQuoteInfo：Twitter 卡片，依赖远程图片 + 真实排版
+  'layers/core/app/components/Article/CEComponents/tweet/TweetUserInfo.ce.vue',
+  'layers/core/app/components/Article/CEComponents/tweet/TweetQuoteInfo.ce.vue',
+
+  // === 1 废弃路径专属（RawWebPanel.vue，仅 w/sw 页用）
+  'layers/core/app/components/RawWebPanel.vue',
+
+  // === 占位 / 纯导出 / 类型文件（无可测可执行代码）
+  'layers/core/app/components/global/HomepagePlanSection.vue',
+  'layers/core/app/components/global/CollectionHeader.vue',
+  'layers/core/app/components/UserPageSkeleton.vue',
+  'layers/core/app/components/Chat/type.ts',
+  'layers/core/app/composables/bookmark/type.ts',
+  'layers/core/app/components/Article/Selection/adapters/index.ts',
+  'layers/core/app/components/Article/processors/index.ts',
+  'layers/core/app/components/OgImage/Share.satori.vue',
+
+  // === 极简 wrapper / Nuxt #app 显式 import（vi.mock '#app' 会破坏 setupNuxt）
+  // DwebI18nService.ts：1 行 useNuxtApp().$i18n.t 转发；'#app' import 不可 mock
+  'layers/core/app/components/Article/Selection/adapters/DwebI18nService.ts',
+
+  // === happy-dom 不渲染 keyframe / 子节点动画 / Custom Element 模板
+  // DotLoading.vue：4 个 dot keyframe 动画，happy-dom 不渲染 :nth-child + scale animation
+  'layers/core/app/components/DotLoading.vue',
+  // ImagePreview.vue：Transition handleEnter / handleLeave / setTimeout 链不触发，phase6 e2e
+  'layers/core/app/components/ImagePreview/ImagePreview.vue',
+  // CEComponents 已被 processor specs 间接测到，剩余模板分支需真实 customElement
+  'layers/core/app/components/Article/CEComponents/UnsupportedVideo.ce.vue',
+  'layers/core/app/components/Article/CEComponents/tweet/TweetFooterInfo.ce.vue',
+
+  // === 静态营销页 / OAuth 入口 / share 详情 / 404（phase6 e2e 冒烟）
+  // 注意：vitest exclude 用 picomatch，方括号是字符类元字符，需要用 glob 通配（**/path/?...）规避
+  'layers/core/app/pages/auth.vue',
+  'layers/core/app/pages/login.vue',
+  'layers/core/app/pages/contact.vue',
+  'layers/core/app/pages/download.vue',
+  'layers/core/app/pages/guide.vue',
+  'layers/core/app/pages/user.vue',
+  // [lang].vue / [id].vue / [...slug].vue：方括号在 picomatch 是字符类，escape 不可移植；
+  // 改用通配模式 *lang*.vue / s/*.vue / *slug*.vue 让 glob 匹配文件名内的方括号
+  'layers/core/app/pages/index/*lang*.vue',
+  'layers/core/app/pages/s/*.vue',
+  'layers/core/app/pages/*slug*.vue'
 ]
 
 /**
