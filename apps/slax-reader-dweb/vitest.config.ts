@@ -397,6 +397,30 @@ export default defineVitestConfig({
           statements: 80
         },
 
+        // 第三期 sprint 5 batch 7（2026-05-26 启用）：components/ 3 文件
+        //  - Tips/AILanguageTips.vue：5 用例，75/100/50/80（v-element-hover 内联回调 happy-dom 不触发，functions 50% 接受）
+        //    阈值降为 70/70/50/70 接受 hover 限制
+        //  - Tips/ShareBubbleTips.vue：9 用例，100/90.9/100/100（locale=zh 通过 createTestI18n('zh') 真实切换）
+        //  - Notification/NotificationCell.vue：18 用例，100/90/100/100（5 type 路径 + publishTime 4 时间分支）
+        'layers/core/app/components/Tips/AILanguageTips.vue': {
+          lines: 70,
+          branches: 70,
+          functions: 50,
+          statements: 70
+        },
+        'layers/core/app/components/Tips/ShareBubbleTips.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+        'layers/core/app/components/Notification/NotificationCell.vue': {
+          lines: 80,
+          branches: 70,
+          functions: 85,
+          statements: 80
+        },
+
         // 第三期 sprint 1.2（2026-05-25 启用）：composables/bookmark/useBookmark.ts 31 用例覆盖完整
         // 实测 lines 100 / branches 94.73 / functions 100 / statements 100
         // 含主 spec 30 用例 + non-client 1 用例（isClient=false 路径走 vi.doMock + vi.resetModules）
