@@ -103,10 +103,7 @@
                   :pending-quote="pendingQuote"
                   :active-info-id="activeInfoId"
                   @sent="onCommentSent"
-                  @cancel-reply="
-                    pendingSelection = null
-                    pendingQuote = null
-                  "
+                  @cancel-reply="onCancelReply"
                 />
               </div>
             </ClientOnly>
@@ -216,6 +213,11 @@ const onCommentReply = (comment: { markUid: string }) => {
 
 const onCommentSent = (infoId: string) => {
   focusByInfoId(infoId)
+}
+
+const onCancelReply = () => {
+  pendingSelection.value = null
+  pendingQuote.value = null
 }
 
 const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
