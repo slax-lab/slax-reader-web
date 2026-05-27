@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockUseNotification, mockRegisterWorker, mockOnMessage, mockSendMessage, mockRequestPushPermission, mockRequest, mockGet, mockUseDebounceFn, mockIsSafari } = vi.hoisted(
   () => {
-    const mockGet = vi.fn(() => Promise.resolve([]))
+    const mockGet = vi.fn((): Promise<unknown> => Promise.resolve([]))
     return {
       mockUseNotification: vi.fn(),
       mockRegisterWorker: vi.fn(() => Promise.resolve(null)),

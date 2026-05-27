@@ -61,7 +61,7 @@ beforeEach(() => {
   partialParseMock.mockReset().mockImplementation((s: string) => JSON.parse(s))
 
   // sprint 2.2 范式：useNuxtApp().$i18n.t 局部 spy；afterEach 的 vi.restoreAllMocks 自动还原
-  vi.spyOn(useNuxtApp().$i18n, 't').mockImplementation((key: string) => `__T__${key}`)
+  vi.spyOn(useNuxtApp().$i18n, 't').mockImplementation(((key: string) => `__T__${key}`) as never)
 })
 
 afterEach(() => {

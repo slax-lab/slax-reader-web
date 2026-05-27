@@ -4,6 +4,7 @@
 // 注意：DwebI18nService 不在此 spec — 它显式 from '#app' import useNuxtApp，
 //       vi.mock('#app') 会破坏 setupNuxt 内部依赖；该文件 1 行 t() 转发，列 phase6
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ToastType } from '@slax-reader/selection/adapters'
 import { DwebBookmarkProvider } from '~~/layers/core/app/components/Article/Selection/adapters/DwebBookmarkProvider'
 import { DwebHttpClient } from '~~/layers/core/app/components/Article/Selection/adapters/DwebHttpClient'
 import { DwebToastService } from '~~/layers/core/app/components/Article/Selection/adapters/DwebToastService'
@@ -20,7 +21,9 @@ const { mockToastShowToast, mockCursorToastShowToast, mockUseNuxtApp, mockUseUse
       mockToastShowToast: vi.fn(),
       mockCursorToastShowToast: vi.fn(),
       mockUseNuxtApp: vi.fn(() => ({ $i18n: { t: (k: string) => `i18n:${k}` } })),
-      mockUseUserStore: vi.fn(() => ({ userInfo: { userId: 1, name: 'N', email: 'e@x.com', picture: 'p.png' } })),
+      mockUseUserStore: vi.fn(() => ({
+        userInfo: { userId: 1, name: 'N', email: 'e@x.com', picture: 'p.png' } as { userId: number; name: string; email: string; picture: string } | null
+      })),
       mockGet,
       mockPost,
       mockPut,
@@ -96,25 +99,25 @@ describe('Selection/adapters', () => {
   describe('DwebToastService', () => {
     it('showToast：success → Toast.Success', () => {
       const svc = new DwebToastService()
-      svc.showToast({ text: 'ok', type: 'success' })
+      svc.showToast({ text: 'ok', type: ToastType.Success })
       expect(mockToastShowToast).toHaveBeenCalled()
     })
 
     it('showToast：error → Toast.Error', () => {
       const svc = new DwebToastService()
-      svc.showToast({ text: 'no', type: 'error' })
+      svc.showToast({ text: 'no', type: ToastType.Error })
       expect(mockToastShowToast).toHaveBeenCalled()
     })
 
     it('showToast：warning → Toast.Normal', () => {
       const svc = new DwebToastService()
-      svc.showToast({ text: 'w', type: 'warning' })
+      svc.showToast({ text: 'w', type: ToastType.Warning })
       expect(mockToastShowToast).toHaveBeenCalled()
     })
 
     it('showToast：info → Toast.Normal', () => {
       const svc = new DwebToastService()
-      svc.showToast({ text: 'i', type: 'info' })
+      svc.showToast({ text: 'i', type: ToastType.Info })
       expect(mockToastShowToast).toHaveBeenCalled()
     })
 

@@ -135,7 +135,7 @@ describe('CursorToast/index Sprint B.3：dismissCleanup seam', () => {
         }
       }
     }))
-    const Module = (await import('~~/layers/core/app/components/CursorToast/index.ts')).default
+    const Module = (await import('~~/layers/core/app/components/CursorToast/index')).default
     const parent = document.createElement('div')
     parent.style.position = 'relative'
     document.body.appendChild(parent)

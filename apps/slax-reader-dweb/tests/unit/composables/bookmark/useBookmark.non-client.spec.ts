@@ -73,7 +73,7 @@ describe('useBookmark — isClient=false', () => {
       typeOptions: vi.fn(() => ({ type: 'normal' as const, bmId: 1000001 })),
       initialRequestTask: undefined,
       initialTasksCompleted: undefined
-    }
+    } as unknown as Parameters<typeof useBookmark>[0]
 
     const result = useBookmark(options)
     // 主断言：non-client 路径 useScroll 未调用（走 ref(0) 兜底）

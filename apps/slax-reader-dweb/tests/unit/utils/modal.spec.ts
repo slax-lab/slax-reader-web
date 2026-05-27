@@ -164,7 +164,7 @@ describe('modalBootloader', () => {
       // body 应有一个新 div，但没有 modal_component_undefined className
       const allDivs = document.body.querySelectorAll('div')
       expect(allDivs.length).toBe(1)
-      const created = allDivs[0]
+      const created = allDivs[0]!
       expect(created.classList.length).toBe(0)
       // z-index 仍写入
       expect(created.style.getPropertyValue('z-index')).toBe('100')
@@ -194,7 +194,7 @@ describe('modalBootloader', () => {
       expect(createHeadMock).toHaveBeenCalledTimes(1)
       expect(stub.use).toHaveBeenCalledTimes(1)
       // use 的入参是 createHead() 返回的 plugin
-      const plugin = createHeadMock.mock.results[0].value
+      const plugin = createHeadMock.mock.results[0]!.value
       expect(stub.use).toHaveBeenCalledWith(plugin)
       expect(stub.mount).toHaveBeenCalledTimes(1)
       expect(result).toBe(stub)

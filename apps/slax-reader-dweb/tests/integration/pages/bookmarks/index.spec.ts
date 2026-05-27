@@ -47,7 +47,7 @@ const {
   const mockT = vi.fn((key: string, params?: any) => (params ? `${key}__${JSON.stringify(params)}` : key))
   const mockRequestPushPermission = vi.fn(() => Promise.resolve(true))
   return {
-    mockGetUserInfo: vi.fn(() => Promise.resolve(undefined)),
+    mockGetUserInfo: vi.fn((..._args: unknown[]): Promise<unknown> => Promise.resolve(undefined)),
     mockUseRoute: vi.fn(() => ({
       query: { filter: 'inbox', topic_id: '', topic_name: '', c_id: '', c_code: '', c_name: '' },
       params: {},

@@ -514,7 +514,7 @@ describe('pages/bookmarks/[id].vue', () => {
       await flushPromises()
       const dots = wrapper.findComponent({ name: 'DotsMenu' })
       await dots.vm.$emit('action', { id: 'edit_title' })
-      const lastCallArgs = mockShowEditNameModal.mock.calls[0][0]
+      const lastCallArgs = mockShowEditNameModal.mock.calls[0]![0]
       lastCallArgs.callback('New Alias')
       // alias_title 被修改（断言通过 detail 反应性）
       await nextTick()

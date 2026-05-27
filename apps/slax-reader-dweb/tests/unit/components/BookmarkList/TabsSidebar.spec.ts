@@ -42,7 +42,7 @@ describe('TabsSidebar', () => {
       const events = wrapper.emitted('changeTab')
       expect(events).toBeTruthy()
       // inboxClick 签名 (type, index?) → 不传 index 时 emit 带 undefined
-      expect(events![0][0]).toBe('trashed')
+      expect(events![0]![0]).toBe('trashed')
     })
   })
 

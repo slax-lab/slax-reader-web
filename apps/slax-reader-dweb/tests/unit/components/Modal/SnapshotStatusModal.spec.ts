@@ -94,7 +94,7 @@ describe('Modal/SnapshotStatusModal', () => {
       props: { status: BookmarkParseStatus.PENDING, title: 'T', content: 'C' }
     })
     const transitions = wrapper.findAllComponents({ name: 'Transition' })
-    transitions[0].vm.$emit('after-leave')
+    transitions[0]!.vm.$emit('after-leave')
     expect(wrapper.emitted('dismiss')).toBeTruthy()
   })
 })

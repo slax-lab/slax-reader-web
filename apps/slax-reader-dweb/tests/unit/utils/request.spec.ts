@@ -199,7 +199,7 @@ describe('客户端环境', () => {
       const err = new RequestError({ message: 'biz error', name: 'BIZ', code: 1001 })
       lastConfig.value.errorInterceptors(err)
       expect(showToast).toHaveBeenCalledTimes(1)
-      const arg = showToast.mock.calls[0][0]
+      const arg = showToast.mock.calls[0]![0]
       expect(arg.text).toBe('biz error')
       // ToastType.Error 真实值见 layers/core/app/components/Toast/type.ts
       expect(arg.type).toBe('error')
@@ -210,7 +210,7 @@ describe('客户端环境', () => {
       const err = new Error('plain error')
       lastConfig.value.errorInterceptors(err)
       expect(showToast).toHaveBeenCalledTimes(1)
-      const arg = showToast.mock.calls[0][0]
+      const arg = showToast.mock.calls[0]![0]
       // `${new Error('plain error')}` === 'Error: plain error'
       expect(arg.text).toBe(`${err}`)
       expect(arg.type).toBe('error')
@@ -293,7 +293,7 @@ describe('服务端环境', () => {
         query: { a: '1', b: '2' }
       })
       expect(fetchSpy).toHaveBeenCalledTimes(1)
-      const calledUrl = fetchSpy.mock.calls[0][0]
+      const calledUrl = fetchSpy.mock.calls[0]![0]
       // baseUrl 来自 runtimeConfig.public.DWEB_API_BASE_URL = 'https://api.test'
       expect(calledUrl).toBe('https://api.test/path?a=1&b=2')
     })
@@ -307,7 +307,7 @@ describe('服务端环境', () => {
         body: file
       })
       expect(fetchSpy).toHaveBeenCalledTimes(1)
-      const options = fetchSpy.mock.calls[0][1]
+      const options = fetchSpy.mock.calls[0]![1]
       expect(options.body).toBe(file)
     })
 
@@ -320,7 +320,7 @@ describe('服务端环境', () => {
         body: payload
       })
       expect(fetchSpy).toHaveBeenCalledTimes(1)
-      const options = fetchSpy.mock.calls[0][1]
+      const options = fetchSpy.mock.calls[0]![1]
       expect(options.body).toBe(JSON.stringify(payload))
     })
   })

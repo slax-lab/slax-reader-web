@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockUseI18n, mockT, mockPost, mockRequest } = vi.hoisted(() => {
   const mockT = vi.fn((k: string) => `i18n:${k}`)
-  const mockPost = vi.fn(async () => ({ ok: true }))
+  const mockPost = vi.fn(async (): Promise<unknown> => ({ ok: true }))
   return {
     mockUseI18n: vi.fn(() => ({ t: mockT, locale: { value: 'en' } })),
     mockT,

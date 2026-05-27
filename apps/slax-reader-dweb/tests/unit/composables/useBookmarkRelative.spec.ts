@@ -212,7 +212,7 @@ describe('showFeedbackView', () => {
     showFeedbackView({ type: BookmarkType.Normal, title: 't', bmId: 7 }, 'other')
 
     expect(showFeedbackModalMock).toHaveBeenCalledTimes(1)
-    expect(showFeedbackModalMock.mock.calls[0][0]).toMatchObject({
+    expect(showFeedbackModalMock.mock.calls[0]![0]).toMatchObject({
       email: '',
       href: 'http://example.test/article/123'
     })

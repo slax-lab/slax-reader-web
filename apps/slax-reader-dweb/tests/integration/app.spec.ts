@@ -8,7 +8,7 @@
 //   - useRuntimeConfig 如要 mock 必须保留 app.baseURL，否则 setupNuxt router plugin 报错
 import App from '#layers/core/app/app.vue'
 
-import { renderSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime'
 import { fireEvent, screen, waitFor } from '@testing-library/vue'
 import { createTestI18n } from '~~/tests/setup/i18n'
 import { createTestPinia } from '~~/tests/setup/pinia'
@@ -56,7 +56,7 @@ describe('/ 路由集成', () => {
 
     await waitFor(() => {
       expect(navigateToMock).toHaveBeenCalled()
-      const arg = navigateToMock.mock.calls[0][0]
+      const arg = navigateToMock.mock.calls[0]?.[0]
       expect(arg).toContain('/bookmarks')
       expect(arg).toContain('from=homepage')
     })

@@ -16,8 +16,8 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockRequest, mockGet, mockPost, mockShowEditTagModal, mockToastShowToast } = vi.hoisted(() => {
-  const mockGet = vi.fn(() => Promise.resolve([]))
-  const mockPost = vi.fn(() => Promise.resolve({ id: 99, show_name: 'NewTag', display: true }))
+  const mockGet = vi.fn((): Promise<unknown> => Promise.resolve([]))
+  const mockPost = vi.fn((): Promise<unknown> => Promise.resolve({ id: 99, show_name: 'NewTag', display: true }))
   return {
     mockGet,
     mockPost,
@@ -246,7 +246,7 @@ describe('TagsHeader', () => {
       await flushPromises()
       await wrapper.find('.tag-operate button').trigger('click')
       // 拿到 showEditTagModal 调用参数 → 触发 callback
-      const callArgs = mockShowEditTagModal.mock.calls[0][0]
+      const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.callback(7, 'newname')
       await flushPromises()
       // 验证 tag.show_name 已更新
@@ -259,7 +259,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-operate button').trigger('click')
-      const callArgs = mockShowEditTagModal.mock.calls[0][0]
+      const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.callback(99, 'newname')
       await flushPromises()
       const cell = wrapper.find('.tag-cell .tag-name')
@@ -274,8 +274,8 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       const editBtns = wrapper.findAll('.tag-operate button')
-      await editBtns[0].trigger('click')
-      const callArgs = mockShowEditTagModal.mock.calls[0][0]
+      await editBtns[0]!.trigger('click')
+      const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.deleteCallback(7)
       await flushPromises()
       const cells = wrapper.findAll('.tag-cell .tag-name')
@@ -289,7 +289,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-operate button').trigger('click')
-      const callArgs = mockShowEditTagModal.mock.calls[0][0]
+      const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.deleteCallback(99)
       await flushPromises()
       const cells = wrapper.findAll('.tag-cell .tag-name')

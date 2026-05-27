@@ -16,7 +16,7 @@ describe('BookmarkPanel', () => {
       const buttons = wrapper.findAll('button')
       expect(buttons.length).toBe(1)
       // page.bookmarks_detail.chat = "Chat"
-      expect(buttons[0].text()).toContain('Chat')
+      expect(buttons[0]!.text()).toContain('Chat')
     })
 
     it('types=[ARCHIVE, TOP] 渲染两个按钮且文案分别含 "Archive" / "Top"', () => {

@@ -15,7 +15,7 @@ const { mockRequest, mockUploadFile, mockUnzipGetFile, mockToastShowToast } = vi
   return {
     mockUploadFile,
     mockRequest: vi.fn(() => ({ uploadFile: mockUploadFile })),
-    mockUnzipGetFile: vi.fn(() => Promise.resolve([])),
+    mockUnzipGetFile: vi.fn((): Promise<File[]> => Promise.resolve([])),
     mockToastShowToast: vi.fn()
   }
 })
@@ -89,15 +89,15 @@ describe('UserImportSection', () => {
   it('omnivore button action → chooseFile 注入 input[type=file]', async () => {
     const wrapper = mountSection()
     const buttons = wrapper.findAllComponents({ name: 'NavigateStyleButton' })
-    await buttons[0].vm.$emit('action')
-    expect(buttons[0].exists()).toBe(true)
+    await buttons[0]!.vm.$emit('action')
+    expect(buttons[0]!.exists()).toBe(true)
   })
 
   it('pocket button action → chooseFile("pocket")', async () => {
     const wrapper = mountSection()
     const buttons = wrapper.findAllComponents({ name: 'NavigateStyleButton' })
-    await buttons[1].vm.$emit('action')
-    expect(buttons[1].exists()).toBe(true)
+    await buttons[1]!.vm.$emit('action')
+    expect(buttons[1]!.exists()).toBe(true)
   })
 
   it('importThirdPartyData omnivore + 解压成功 → 走 unzipGetFile + uploadFile', async () => {

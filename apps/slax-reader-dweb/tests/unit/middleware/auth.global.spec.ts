@@ -69,7 +69,7 @@ function makeRoute(partial: Partial<RouteLoc> = {}): RouteLoc {
 
 async function runMiddleware(to: RouteLoc, from: RouteLoc) {
   // 重新 import 让 mockIsServer 生效（isServer 在模块顶层即被读，但 getter 形式可动态返回）
-  const mod = await import('~~/layers/core/app/middleware/auth.global.ts')
+  const mod = await import('~~/layers/core/app/middleware/auth.global')
   return mod.default(to as never, from as never)
 }
 

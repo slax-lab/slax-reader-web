@@ -5,6 +5,7 @@
 
 import { nextTick, ref } from 'vue'
 
+import type { UserInfo } from '@commons/types/interface'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { baseUser } from '~~/tests/fixtures/user'
 import { createPinia, setActivePinia } from 'pinia'
@@ -77,16 +78,17 @@ vi.mock('~~/layers/core/app/composables/bookmark/useCommon', () => ({
 import { useBookmark } from '~~/layers/core/app/composables/bookmark/useBookmark'
 import { useUserStore } from '~~/layers/core/app/stores/user'
 
-const makeOptions = () => ({
-  detailLayout: ref({ isSmallScreen: vi.fn(() => false), contentWidth: vi.fn(() => 800) }) as any,
-  summariesSidebar: ref({ contentWidth: vi.fn(() => 200) }) as any,
-  botSidebar: ref({ contentWidth: vi.fn(() => 200) }) as any,
-  bookmarkDetail: ref<HTMLDivElement | undefined>(undefined),
-  chatbot: ref({ addQuoteData: vi.fn() }) as any,
-  typeOptions: vi.fn(() => ({ type: 'normal' as const, bmId: 1000001 })),
-  initialRequestTask: undefined as (() => Promise<void>) | undefined,
-  initialTasksCompleted: undefined as (() => void) | undefined
-})
+const makeOptions = () =>
+  ({
+    detailLayout: ref({ isSmallScreen: vi.fn(() => false), contentWidth: vi.fn(() => 800) }) as any,
+    summariesSidebar: ref({ contentWidth: vi.fn(() => 200) }) as any,
+    botSidebar: ref({ contentWidth: vi.fn(() => 200) }) as any,
+    bookmarkDetail: ref<HTMLDivElement | undefined>(undefined),
+    chatbot: ref({ addQuoteData: vi.fn() }) as any,
+    typeOptions: vi.fn(() => ({ type: 'normal' as const, bmId: 1000001 })),
+    initialRequestTask: undefined as (() => Promise<void>) | undefined,
+    initialTasksCompleted: undefined as (() => void) | undefined
+  }) as unknown as Parameters<typeof useBookmark>[0]
 
 describe('useBookmark', () => {
   beforeEach(() => {
@@ -181,7 +183,7 @@ describe('useBookmark', () => {
     it('C5: 默认 feedbackType="parse_error" → 调 showFeedbackView(options, "parse_error")', () => {
       const options = makeOptions()
       const typeOpts = { type: 'normal' as const, bmId: 1000001 }
-      options.typeOptions.mockReturnValue(typeOpts)
+      ;(options.typeOptions as ReturnType<typeof vi.fn>).mockReturnValue(typeOpts)
       const result = useBookmark(options)
       result.showFeedback()
       expect(mockShowFeedbackView).toHaveBeenCalledWith(typeOpts, 'parse_error')
@@ -364,7 +366,7 @@ describe('useBookmark', () => {
     it('C26: isLogin=false → getUserInfo 不调', async () => {
       mockHaveRequestToken.mockReturnValue(false)
       const store = useUserStore()
-      const spy = vi.spyOn(store, 'getUserInfo').mockResolvedValue(undefined)
+      const spy = vi.spyOn(store, 'getUserInfo').mockResolvedValue(undefined as unknown as UserInfo)
       useBookmark(makeOptions())
       await Promise.resolve()
       await Promise.resolve()

@@ -83,7 +83,7 @@ describe('ImageProcessor', () => {
     expect(img.getAttribute('style')).toContain('height: auto')
 
     expect(img.onclick).not.toBeNull()
-    img.onclick!.call(img, new MouseEvent('click'))
+    img.onclick!.call(img, new MouseEvent('click') as unknown as PointerEvent)
     expect(ctx.callbacks.screenLockUpdate).toHaveBeenCalledWith(true)
     expect(ctx.callbacks.showImagePreview).toHaveBeenCalledTimes(1)
 

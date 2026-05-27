@@ -15,7 +15,7 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockRequest, mockPost, mockToastShowToast } = vi.hoisted(() => {
-  const mockPost = vi.fn(() => Promise.resolve({ ok: true }))
+  const mockPost = vi.fn((): Promise<{ ok: boolean } | null> => Promise.resolve({ ok: true }))
   return {
     mockPost,
     mockRequest: vi.fn(() => ({ post: mockPost })),
@@ -138,7 +138,7 @@ describe('Modal/EditTag', () => {
   it('Transition after-leave → emit dismiss', () => {
     const wrapper = mountWithApp(EditTag, { props: { tagId: 5 } })
     const transitions = wrapper.findAllComponents({ name: 'Transition' })
-    transitions[0].vm.$emit('after-leave')
+    transitions[0]!.vm.$emit('after-leave')
     expect(wrapper.emitted('dismiss')).toBeTruthy()
   })
 

@@ -12,6 +12,7 @@
 // 注意：mockNuxtImport 是 macro，被 transform 成 vi.mock 后 hoist 到文件顶部，
 // 此时跨文件 import binding 仍在 TDZ，因此 mockPost/mockRequest 必须来自同文件的
 // vi.hoisted，不能从 tests/mocks/request.ts import。
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import useAuth from '~~/layers/core/app/composables/useAuth'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -86,7 +87,7 @@ describe('useAuth', () => {
       expect(window.location.href).toContain('https://accounts.google.com/o/oauth2/v2/auth')
       expect(window.location.href).toContain('client_id=g-client-id')
       expect(window.location.href).toContain('redirect_uri=')
-      const state = decodeURIComponent(window.location.href.split('state=')[1])
+      const state = decodeURIComponent(window.location.href.split('state=')[1] ?? '')
       const stateObj = JSON.parse(state)
       expect(stateObj.platform).toBe('google')
       expect(stateObj.target).toBe('/home')
@@ -99,7 +100,7 @@ describe('useAuth', () => {
       await useAuth().requestAppleAuth({ redirect: '/back', affCode: 'aff2' })
       expect(window.location.href).toContain('https://appleid.apple.com/auth/authorize')
       expect(window.location.href).toContain('client_id=a-client-id')
-      const state = decodeURIComponent(window.location.href.split('state=')[1])
+      const state = decodeURIComponent(window.location.href.split('state=')[1] ?? '')
       expect(JSON.parse(state).platform).toBe('apple')
     })
   })
@@ -122,7 +123,7 @@ describe('useAuth', () => {
     it('platformType=apple 时使用 apple client_id', async () => {
       mockPost.mockResolvedValueOnce({ token: 'tok-apple' })
       await useAuth().grantAuth('code-2', 'https://auth.test/auth', 'aff4', 'apple')
-      const call = mockPost.mock.calls[0][0]
+      const call = mockPost.mock.calls[0]![0]
       expect(call.body.client_id).toBe('a-client-id')
       expect(call.body.type).toBe('apple')
     })

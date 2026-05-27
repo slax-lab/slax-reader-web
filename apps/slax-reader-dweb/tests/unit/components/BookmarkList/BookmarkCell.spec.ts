@@ -6,6 +6,7 @@ import { reactive } from 'vue'
 
 import BookmarkCell from '~~/layers/core/app/components/BookmarkList/BookmarkCell.vue'
 
+import { BookmarkParseStatus } from '@commons/types/interface'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { baseBookmarkItem, makeBookmarkItem } from '~~/tests/fixtures/bookmark'
@@ -137,7 +138,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
 
     it('status≠success：clickHref 而非 clickCache', async () => {
       const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
-      const bm = makeBookmarkItem({ status: 'failed' })
+      const bm = makeBookmarkItem({ status: BookmarkParseStatus.FAILED })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       await wrapper.find('.title').trigger('click')
       expect(openSpy).toHaveBeenCalled()
@@ -167,7 +168,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
 
   describe('clickCache + showSnapshotStatusModal', () => {
     it('status=failed + reminder 未禁用：弹 modal', async () => {
-      const bm = makeBookmarkItem({ status: 'failed' })
+      const bm = makeBookmarkItem({ status: BookmarkParseStatus.FAILED })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       // 走 cache 路径需通过其他入口；这里直接 click snapshot 按钮
       await wrapper.find('.snapshot').trigger('click')
@@ -185,7 +186,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('status=failed + reminder 已禁用：直接 clickHref 不弹', async () => {
       const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
       localStorage.setItem('snapshot_reminder_disabled_failed', 'true')
-      const bm = makeBookmarkItem({ status: 'failed' })
+      const bm = makeBookmarkItem({ status: BookmarkParseStatus.FAILED })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       await wrapper.find('.snapshot').trigger('click')
       expect(mockShowSnapshot).not.toHaveBeenCalled()

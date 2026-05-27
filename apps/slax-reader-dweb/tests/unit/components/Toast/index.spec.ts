@@ -103,7 +103,7 @@ describe('Toast/index Sprint B.3：dismissCleanup seam', () => {
         }
       }
     }))
-    const Module = (await import('~~/layers/core/app/components/Toast/index.ts')).default
+    const Module = (await import('~~/layers/core/app/components/Toast/index')).default
     Module.showToast({ text: 'X' })
     // 等 microtask 完成
     await Promise.resolve()
@@ -128,13 +128,13 @@ describe('Toast/index Sprint B.3：dismissCleanup seam', () => {
         }
       }
     }))
-    const Module = (await import('~~/layers/core/app/components/Toast/index.ts')).default
+    const Module = (await import('~~/layers/core/app/components/Toast/index')).default
     Module.showToast({ text: 'A' })
     Module.showToast({ text: 'B' })
     const container = document.querySelector('.toast.toast-start') as HTMLElement
     expect(container.children.length).toBe(2)
     // 触发第一个 toast dismiss
-    dismissEmitter?.()
+    ;(dismissEmitter as (() => void) | null)?.()
     await Promise.resolve()
     expect(container.children.length).toBe(1)
     expect(document.querySelector('.toast.toast-start')).not.toBeNull()

@@ -35,7 +35,7 @@ const mockManager = {
 }
 
 const mockRenderer = {
-  getAllTextNodes: vi.fn(() => []),
+  getAllTextNodes: vi.fn((): Node[] => []),
   transferNodeInfos: vi.fn(),
   addImageMark: vi.fn(),
   addMark: vi.fn()
@@ -242,7 +242,7 @@ describe('DwebArticleSelection', () => {
       // getMarkPathItems 内部用 monitorDom.querySelector(selector) 找 baseElement，
       // 给 monitorDom 一个 mock querySelector 返回 p
       ;(config.monitorDom as unknown as { querySelector: (sel: string) => unknown }).querySelector = vi.fn(() => p)
-      mockRenderer.getAllTextNodes.mockReturnValue([p.firstChild])
+      mockRenderer.getAllTextNodes.mockReturnValue([p.firstChild!])
 
       const inst = new DwebArticleSelection(config, buildDeps(), modal)
       const event = new MouseEvent('mouseup')
@@ -377,7 +377,7 @@ describe('DwebArticleSelection', () => {
       })
       mockManager.checkMarkSourceIsSame.mockReturnValue(false)
       ;(config.monitorDom as unknown as { querySelector: (sel: string) => unknown }).querySelector = vi.fn(() => p)
-      mockRenderer.getAllTextNodes.mockReturnValue([p.firstChild])
+      mockRenderer.getAllTextNodes.mockReturnValue([p.firstChild!])
       // 让 selectContent 一开始就有一个 text item
       mockManager.selectContent.value = [{ type: 'text', text: 'pre', src: '' }]
 
@@ -385,7 +385,7 @@ describe('DwebArticleSelection', () => {
       ;(inst as unknown as { handleMouseUp: (e: MouseEvent) => void }).handleMouseUp(new MouseEvent('mouseup'))
       await vi.runAllTimersAsync()
       // 第一个 'a' 与 last('pre') 合并为 'prea'，第二个 'b' 与新 last 合并为 'preab'
-      expect(mockManager.selectContent.value[0]?.text).toBe('preab')
+      expect((mockManager.selectContent.value[0] as { text: string } | undefined)?.text).toBe('preab')
     })
   })
 })

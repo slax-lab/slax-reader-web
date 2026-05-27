@@ -138,7 +138,7 @@ describe('Modal/Feedback', () => {
   it('Transition after-leave → emit dismiss', async () => {
     const wrapper = mountWithApp(Feedback, { props: { reportType: 'x' } })
     const transitions = wrapper.findAllComponents({ name: 'Transition' })
-    transitions[0].vm.$emit('after-leave')
+    transitions[0]!.vm.$emit('after-leave')
     expect(wrapper.emitted('dismiss')).toBeTruthy()
   })
 })

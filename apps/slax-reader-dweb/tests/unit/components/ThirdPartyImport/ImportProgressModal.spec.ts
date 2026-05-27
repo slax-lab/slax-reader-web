@@ -11,7 +11,7 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockRequest, mockGet, mockToastShowToast } = vi.hoisted(() => {
-  const mockGet = vi.fn(() => Promise.resolve([]))
+  const mockGet = vi.fn((): Promise<unknown> => Promise.resolve([]))
   return {
     mockGet,
     mockRequest: vi.fn(() => ({ get: mockGet })),

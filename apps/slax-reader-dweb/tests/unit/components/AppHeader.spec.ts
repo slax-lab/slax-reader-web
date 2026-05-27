@@ -54,7 +54,7 @@ describe('AppHeader', () => {
     it('navLink external=true → target="_blank"', () => {
       const wrapper = mountWithApp(AppHeader)
       const links = wrapper.findAll('.nav-links a.link.hover')
-      expect(links[2].attributes('target')).toBe('_blank')
+      expect(links[2]!.attributes('target')).toBe('_blank')
     })
 
     it('btn-github 渲染 + 含 GitHub url', () => {
@@ -129,7 +129,7 @@ describe('AppHeader', () => {
       await wrapper.find('button.hamburger-btn').trigger('click')
       const mobileLinks = wrapper.findAll('.mobile-nav-links a.mobile-link')
       expect(mobileLinks.length).toBe(3)
-      await mobileLinks[0].trigger('click')
+      await mobileLinks[0]!.trigger('click')
       const sidebar = wrapper.find('.mobile-sidebar')
       expect(sidebar.attributes('style') || '').toContain('display: none')
     })

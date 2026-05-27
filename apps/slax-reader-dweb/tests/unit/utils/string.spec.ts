@@ -1,6 +1,6 @@
 // 测 urlBase64ToUint8Array：base64url → Uint8Array 解码
 // 覆盖点：标准转换、padding 补齐、特殊字符替换、空字符串、返回类型
-import { urlBase64ToUint8Array } from '~~/layers/core/app/utils/string.ts'
+import { urlBase64ToUint8Array } from '~~/layers/core/app/utils/string'
 
 import { describe, expect, it } from 'vitest'
 

@@ -32,9 +32,9 @@ describe('ReleaseNote', () => {
   it('第一个 .timeline-content 添加 active class（index === 0）', () => {
     const wrapper = mountWithApp(ReleaseNote)
     const contents = wrapper.findAll('.timeline-content')
-    expect(contents[0].classes()).toContain('active')
+    expect(contents[0]!.classes()).toContain('active')
     if (contents.length > 1) {
-      expect(contents[1].classes()).not.toContain('active')
+      expect(contents[1]!.classes()).not.toContain('active')
     }
   })
 

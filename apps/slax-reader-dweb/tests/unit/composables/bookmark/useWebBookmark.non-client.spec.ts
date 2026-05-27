@@ -54,7 +54,7 @@ describe('useWebBookmark — isClient=false', () => {
     useWebBookmark({
       chatbot: ref({ addQuoteData: vi.fn() }) as any,
       typeOptions: vi.fn(() => ({ type: 'normal' as const, bmId: 1000001 }))
-    })
+    } as unknown as Parameters<typeof useWebBookmark>[0])
     await Promise.resolve()
     expect(spy).not.toHaveBeenCalled()
   })

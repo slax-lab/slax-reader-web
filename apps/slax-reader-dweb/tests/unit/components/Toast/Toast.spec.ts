@@ -54,7 +54,7 @@ describe('Toast/Toast', () => {
   it('Transition after-leave → emit dismiss', () => {
     const wrapper = mount(Toast, { props: { type: ToastType.Success, text: 'X' } })
     const transitions = wrapper.findAllComponents({ name: 'Transition' })
-    transitions[0].vm.$emit('after-leave')
+    transitions[0]!.vm.$emit('after-leave')
     expect(wrapper.emitted('dismiss')).toBeTruthy()
   })
 

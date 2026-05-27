@@ -54,7 +54,7 @@ describe('ThemeSwitcher 组件', () => {
     await wrapper.vm.$nextTick()
 
     // 按 ThemeSwitcher 内 themes 数组顺序：light / dark / eink / system
-    await buttons[1].trigger('click')
+    await buttons[1]!.trigger('click')
     expect(cm.preference).toBe('dark')
   })
 
@@ -69,10 +69,10 @@ describe('ThemeSwitcher 组件', () => {
     cm.preference = 'eink'
     await wrapper.vm.$nextTick()
 
-    expect(buttons[2].classes()).toContain('active')
-    expect(buttons[2].attributes('aria-pressed')).toBe('true')
-    expect(buttons[0].classes()).not.toContain('active')
-    expect(buttons[0].attributes('aria-pressed')).toBe('false')
+    expect(buttons[2]!.classes()).toContain('active')
+    expect(buttons[2]!.attributes('aria-pressed')).toBe('true')
+    expect(buttons[0]!.classes()).not.toContain('active')
+    expect(buttons[0]!.attributes('aria-pressed')).toBe('false')
   })
 
   it('文案非空（无论 nuxt 默认 locale 是 en 或 zh，按钮都应有文案）', async () => {

@@ -66,14 +66,14 @@ describe('UserOperateIcon', () => {
   it('点击 第一个 .operate → infoClick → navigateTo("/user")', async () => {
     const wrapper = mountWithApp(UserOperateIcon)
     const operates = wrapper.findAll('.operate')
-    await operates[0].trigger('click')
+    await operates[0]!.trigger('click')
     expect(mockNavigateTo).toHaveBeenCalledWith('/user')
   })
 
   it('点击 第二个 .operate → logoutClick → auth.clearAuth() + navigateTo("/login", { replace: true })', async () => {
     const wrapper = mountWithApp(UserOperateIcon)
     const operates = wrapper.findAll('.operate')
-    await operates[1].trigger('click')
+    await operates[1]!.trigger('click')
     expect(mockClearAuth).toHaveBeenCalled()
     expect(mockNavigateTo).toHaveBeenCalledWith('/login', { replace: true })
   })

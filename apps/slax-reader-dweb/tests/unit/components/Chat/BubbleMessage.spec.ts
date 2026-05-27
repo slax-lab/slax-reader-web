@@ -10,7 +10,7 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockCopyText, mockShowToast, mockPwaOpen } = vi.hoisted(() => ({
-  mockCopyText: vi.fn(() => Promise.resolve()),
+  mockCopyText: vi.fn((..._args: unknown[]) => Promise.resolve()),
   mockShowToast: vi.fn(),
   mockPwaOpen: vi.fn()
 }))

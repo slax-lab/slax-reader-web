@@ -62,7 +62,7 @@ describe('Modal/LoginModal', () => {
   it('Transition after-leave → emit dismiss', async () => {
     const wrapper = mountWithApp(LoginModal, { props: { redirect: '/foo' } })
     const transitions = wrapper.findAllComponents({ name: 'Transition' })
-    transitions[0].vm.$emit('after-leave')
+    transitions[0]!.vm.$emit('after-leave')
     expect(wrapper.emitted('dismiss')).toBeTruthy()
   })
 })

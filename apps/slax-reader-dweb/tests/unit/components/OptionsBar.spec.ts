@@ -49,7 +49,7 @@ describe('OptionsBar', () => {
       const wrapper = mountWithApp(OptionsBar, { props: { options: defaultOptions } })
       await wrapper.find('.bar-container').trigger('click')
       const wrappers = wrapper.findAll('.option-wrapper')
-      await wrappers[1].trigger('click')
+      await wrappers[1]!.trigger('click')
       const events = wrapper.emitted('optionSelected')
       expect(events).toBeTruthy()
       expect(events![0]).toEqual([1])
@@ -60,7 +60,7 @@ describe('OptionsBar', () => {
       const wrapper = mountWithApp(OptionsBar, { props: { options: defaultOptions, defaultSelectedIndex: 1 } })
       await wrapper.find('.bar-container').trigger('click')
       const wrappers = wrapper.findAll('.option-wrapper')
-      await wrappers[1].trigger('click')
+      await wrappers[1]!.trigger('click')
       expect(wrapper.emitted('optionSelected')).toBeUndefined()
       // showOptions 仍被设为 false
       const container = wrapper.find('.options-container')

@@ -30,8 +30,8 @@ describe('DotsMenu', () => {
     it('每项 .operate 渲染 action.name', () => {
       const wrapper = mountWithApp(DotsMenu, { props: { actions: defaultActions } })
       const operates = wrapper.findAll('.operate span')
-      expect(operates[0].text()).toBe('Edit')
-      expect(operates[1].text()).toBe('Delete')
+      expect(operates[0]!.text()).toBe('Edit')
+      expect(operates[1]!.text()).toBe('Delete')
     })
   })
 
@@ -56,7 +56,7 @@ describe('DotsMenu', () => {
       const wrapper = mountWithApp(DotsMenu, { props: { actions: defaultActions } })
       await wrapper.find('button.menu').trigger('click')
       const operates = wrapper.findAll('.operate')
-      await operates[0].trigger('click')
+      await operates[0]!.trigger('click')
       const events = wrapper.emitted('action')
       expect(events).toBeTruthy()
       expect(events![0]).toEqual([{ id: 'edit', name: 'Edit' }])
@@ -66,7 +66,7 @@ describe('DotsMenu', () => {
       const wrapper = mountWithApp(DotsMenu, { props: { actions: defaultActions } })
       await wrapper.find('button.menu').trigger('click')
       const operates = wrapper.findAll('.operate')
-      await operates[1].trigger('click')
+      await operates[1]!.trigger('click')
       const events = wrapper.emitted('action')
       expect(events![0]).toEqual([{ id: 'delete', name: 'Delete' }])
     })
