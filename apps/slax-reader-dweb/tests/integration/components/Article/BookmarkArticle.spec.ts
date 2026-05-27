@@ -244,13 +244,10 @@ describe('Article/BookmarkArticle', () => {
     it('mount → 渲染 .bookmark-article + title + byline + date + url 按钮', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       expect(wrapper.find('.bookmark-article').exists()).toBe(true)
-      expect(wrapper.find('.title .text').text()).toBe('Test Title')
-      const descTexts = wrapper.findAll('.desc .text')
-      expect(descTexts[0]!.text()).toBe('Author')
-      expect(descTexts[1]!.text()).toBe('2026-01-01')
-      // .desc 内 button：含 .star 按钮 + url 按钮，url 是最后一个
-      const descButtons = wrapper.findAll('.desc button')
-      expect(descButtons[descButtons.length - 1]!.text()).toBe('https://example.com/article')
+      expect(wrapper.find('.article-title').text()).toBe('Test Title')
+      expect(wrapper.find('.article-author').text()).toBe('Author')
+      expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-url').text()).toBe('https://example.com/article')
     })
 
     it('article-detail v-html 渲染 detail.content 并补 lazy loading', () => {
@@ -262,24 +259,23 @@ describe('Article/BookmarkArticle', () => {
       expect(html).toContain('loading="lazy"')
     })
 
-    it('allowStarred=false：不渲染 star 按钮', () => {
+    it('allowStarred=false：不渲染 star 按钮（star 已移至 BottomToolbar，BookmarkArticle 内不含 .star）', () => {
       mockArticleDetailReturn.allowStarredRef.value = false
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       expect(wrapper.find('.star').exists()).toBe(false)
     })
 
-    it('isStarred=true：star 按钮带 enabled 类', () => {
+    it('isStarred=true：BookmarkArticle 内不含 .star（star 已移至 BottomToolbar）', () => {
       mockArticleDetailReturn.isStarredRef.value = true
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail({ starred: 'star' }) }, global: { stubs } })
-      expect(wrapper.find('.star').classes()).toContain('enabled')
+      // star 按钮已移至 SnapshotBottomToolbar，BookmarkArticle 内不应存在 .star
+      expect(wrapper.find('.star').exists()).toBe(false)
     })
 
-    it('detail.byline 为空：不渲染作者 text', () => {
+    it('detail.byline 为空：不渲染 .article-author', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail({ byline: '' }) }, global: { stubs } })
-      const texts = wrapper.findAll('.desc .text')
-      // 仅日期一个 text 节点
-      expect(texts.length).toBe(1)
-      expect(texts[0]!.text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-author').exists()).toBe(false)
+      expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
     })
   })
 
@@ -317,7 +313,7 @@ describe('Article/BookmarkArticle', () => {
         props: { detail: buildDetail({ published_at: '2025-12-31T00:00:00.000Z', created_at: '2024-01-01T00:00:00.000Z' }) },
         global: { stubs }
       })
-      expect(wrapper.findAll('.desc .text')[1]!.text()).toBe('2025-12-31')
+      expect(wrapper.find('.article-date').text()).toBe('2025-12-31')
     })
 
     it('published_at 缺失：fallback 到 created_at', () => {
@@ -325,7 +321,7 @@ describe('Article/BookmarkArticle', () => {
         props: { detail: buildDetail({ published_at: undefined, created_at: '2024-06-15T00:00:00.000Z' }) },
         global: { stubs }
       })
-      expect(wrapper.findAll('.desc .text')[1]!.text()).toBe('2024-06-15')
+      expect(wrapper.find('.article-date').text()).toBe('2024-06-15')
     })
 
     it('两个日期都缺：返回 "--"', () => {
@@ -333,7 +329,7 @@ describe('Article/BookmarkArticle', () => {
         props: { detail: buildDetail({ published_at: undefined, created_at: undefined }) },
         global: { stubs }
       })
-      expect(wrapper.findAll('.desc .text')[1]!.text()).toBe('--')
+      expect(wrapper.find('.article-date').text()).toBe('--')
     })
   })
 
@@ -341,47 +337,26 @@ describe('Article/BookmarkArticle', () => {
     it('websiteClick：window.open(urlString)', async () => {
       const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      const descButtons = wrapper.findAll('.desc button')
-      await descButtons[descButtons.length - 1]!.trigger('click')
+      await wrapper.find('.article-url').trigger('click')
       expect(openSpy).toHaveBeenCalledWith('https://example.com/article')
     })
 
-    it('starBookmark 成功：调 updateStarred + postChannelMessage + CursorToast.showToast + emit bookmarkUpdate', async () => {
+    it('starBookmark：star 按钮已移至 SnapshotBottomToolbar，BookmarkArticle 内不含 .star', async () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      await wrapper.find('.star').trigger('click')
-      await flushPromises()
-      expect(mockArticleDetailReturn.updateStarred).toHaveBeenCalledWith(true)
-      expect(mockPostChannelMessage).toHaveBeenCalledWith('star', { id: 1, cancel: false })
-      expect(mockCursorToastShowToast).toHaveBeenCalled()
-      expect(wrapper.emitted('bookmarkUpdate')).toHaveLength(1)
+      expect(wrapper.find('.star').exists()).toBe(false)
     })
 
-    it('starBookmark 失败：showToast Error', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockArticleDetailReturn.updateStarred = vi.fn(async () => {
-        throw new Error('boom')
-      })
-      const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      await wrapper.find('.star').trigger('click')
-      await flushPromises()
-      expect(mockToastShowToast).toHaveBeenCalled()
-      consoleSpy.mockRestore()
-    })
-
-    it('bookmarkId 缺失：starBookmark 短路', async () => {
+    it('bookmarkId 缺失：starBookmark 短路（star 已移至 BottomToolbar，此测试验证 updateStarred 未被调用）', async () => {
       mockArticleDetailReturn.bookmarkId = undefined as never
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      await wrapper.find('.star').trigger('click')
-      await flushPromises()
+      expect(wrapper.find('.star').exists()).toBe(false)
       expect(mockArticleDetailReturn.updateStarred).not.toHaveBeenCalled()
     })
 
-    it('updateStarred 缺失：starBookmark 短路', async () => {
+    it('updateStarred 缺失：starBookmark 短路（star 已移至 BottomToolbar）', async () => {
       mockArticleDetailReturn.updateStarred = undefined as never
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      await wrapper.find('.star').trigger('click')
-      await flushPromises()
-      // 没有 updateStarred，不调 postChannelMessage
+      expect(wrapper.find('.star').exists()).toBe(false)
       expect(mockPostChannelMessage).not.toHaveBeenCalled()
     })
   })

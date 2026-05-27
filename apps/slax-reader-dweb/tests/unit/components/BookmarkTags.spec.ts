@@ -56,15 +56,15 @@ describe('components/BookmarkTags', () => {
     it('readonly=false：每个 tag 渲染删除按钮 + 顶部 add 按钮', () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: baseTags, bookmarkId: 7 } })
       expect(wrapper.findAll('.tag')).toHaveLength(2)
-      expect(wrapper.findAll('.tag button')).toHaveLength(2)
-      expect(wrapper.find('.operate .add').exists()).toBe(true)
+      expect(wrapper.findAll('.tag-remove')).toHaveLength(2)
+      expect(wrapper.find('.tag-add-wrap .tag-add').exists()).toBe(true)
     })
 
     it('readonly=true：tag 内不渲染删除按钮 + 不渲染 add 按钮', () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: baseTags, readonly: true } })
       expect(wrapper.findAll('.tag')).toHaveLength(2)
-      expect(wrapper.findAll('.tag button')).toHaveLength(0)
-      expect(wrapper.find('.operate').exists()).toBe(false)
+      expect(wrapper.findAll('.tag-remove')).toHaveLength(0)
+      expect(wrapper.find('.tag-add-wrap').exists()).toBe(false)
     })
 
     it('props.tags 变化：watch 同步 bookmarkTags', async () => {
@@ -78,7 +78,7 @@ describe('components/BookmarkTags', () => {
   describe('删除标签', () => {
     it('deleteBookmarkTag：调 request.post + splice 列表', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.findAll('.tag button')[0]!.trigger('click')
+      await wrapper.findAll('.tag-remove')[0]!.trigger('click')
       expect(mockPost).toHaveBeenCalledTimes(1)
       const call = mockPost.mock.calls[0]![0] as { url: string; body: { bookmark_id: number; tag_id: number } }
       expect(call.url).toBe('/v1/bookmark/del_tag')
@@ -89,7 +89,7 @@ describe('components/BookmarkTags', () => {
 
     it('deleteBookmarkTag：bookmarkId 缺失短路不调 post', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags] } })
-      await wrapper.findAll('.tag button')[0]!.trigger('click')
+      await wrapper.findAll('.tag-remove')[0]!.trigger('click')
       expect(mockPost).not.toHaveBeenCalled()
       expect(wrapper.findAll('.tag')).toHaveLength(2)
     })
@@ -98,7 +98,7 @@ describe('components/BookmarkTags', () => {
   describe('打开搜索面板 + searchingTags', () => {
     it('点击 add：isAddingTag=true，调 request.get 拉 TAG_LIST', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       expect(mockGet).toHaveBeenCalledTimes(1)
       expect(mockGet.mock.calls[0]![0]).toEqual({ url: '/v1/tag/list' })
@@ -106,7 +106,7 @@ describe('components/BookmarkTags', () => {
 
     it('searchResultTags：默认过滤已绑定的 tag，仅展示新增候选', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       const tags = wrapper.findAll('.search-tag')
       // baseTags 含 1/2，过滤后剩 3/4
@@ -117,7 +117,7 @@ describe('components/BookmarkTags', () => {
 
     it('searchResultTags：searchText 进一步过滤名称包含 ai 的候选', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       const input = wrapper.find('input')
       await input.setValue('ai')
@@ -135,8 +135,8 @@ describe('components/BookmarkTags', () => {
           })
       )
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       // 第二次切回 false 但 isAddingLoading 仍 true
       expect(mockGet).toHaveBeenCalledTimes(1)
       resolveGet([])
@@ -147,7 +147,7 @@ describe('components/BookmarkTags', () => {
   describe('addBookmarkTag', () => {
     async function openPanel() {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       return wrapper
     }
@@ -174,7 +174,7 @@ describe('components/BookmarkTags', () => {
     it('addBookmarkTag：bookmarkId 缺失早返不调 post', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags] } })
       // 没有 add 按钮（readonly false 但 bookmarkId 缺失下 add 仍渲染）；强制打开 panel：
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       // 因 mockGet 给 4 项，过滤后还剩 design/ai-tools 2 项
       expect(wrapper.findAll('.search-tag').length).toBeGreaterThan(0)
@@ -188,7 +188,7 @@ describe('components/BookmarkTags', () => {
   describe('Enter 键提交', () => {
     async function openPanel() {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       return wrapper
     }
@@ -231,7 +231,7 @@ describe('components/BookmarkTags', () => {
       const input = wrapper.find('input')
       await input.setValue('design')
       // 关闭 panel（v-on-click-outside 在测试里难触发，改 stopPropagation）
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       mockPost.mockClear()
       await input.trigger('keydown', { key: 'Enter' })
@@ -243,10 +243,10 @@ describe('components/BookmarkTags', () => {
   describe('addingTagClick stopPropagation', () => {
     it('多次点击切换 isAddingTag', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       expect(isPanelHidden(wrapper)).toBe(false)
-      await wrapper.find('.operate .add').trigger('click')
+      await wrapper.find('.tag-add-wrap .tag-add').trigger('click')
       await flushPromises()
       expect(isPanelHidden(wrapper)).toBe(true)
     })
