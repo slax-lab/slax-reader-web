@@ -25,15 +25,22 @@
           </ClientOnly>
         </template>
         <template v-slot:header>
-          <div class="header">
-            <div class="left">
+          <SnapshotTopBar>
+            <template #left>
               <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
               <ClientOnly><ProIcon /></ClientOnly>
-            </div>
-            <ClientOnly>
-              <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-            </ClientOnly>
-          </div>
+            </template>
+            <template #theme-switcher>
+              <ClientOnly><ThemeSwitcher /></ClientOnly>
+            </template>
+            <template #right>
+              <ClientOnly>
+                <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+              </ClientOnly>
+              <SnapshotSharePopover />
+              <SnapshotMoreMenu :actions="moreMenuActions" @action="moreMenuClick" />
+            </template>
+          </SnapshotTopBar>
         </template>
         <template v-slot:detail>
           <BookmarkArticle
@@ -85,10 +92,14 @@ import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
 import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
+import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
+import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotSharePopover from '#layers/core/app/components/Snapshot/SnapshotSharePopover.vue'
+import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
 
 import { formatDate } from '@commons/utils/date'
@@ -132,6 +143,8 @@ const shareText = computed(() => {
 const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
   return [BookmarkPanelType.AI, BookmarkPanelType.CHATBOT, BookmarkPanelType.TOP, BookmarkPanelType.FEEDBACK]
 })
+
+const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
 
 const defineSeo = () => {
   if (!detail.value) {
@@ -371,6 +384,12 @@ const panelClick = (type: BookmarkPanelType) => {
       break
   }
 }
+
+const moreMenuClick = (action: MoreMenuAction) => {
+  if (action.id === 'feedback') {
+    showFeedback()
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -388,19 +407,9 @@ const panelClick = (type: BookmarkPanelType) => {
     }
   }
 
-  .header {
-    --style: h-full flex justify-between items-center;
-
-    .left {
-      --style: flex items-center justify-start;
-      .app-name {
-        --style: text-(body #16b998) font-bold line-height-22px;
-      }
-
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-    }
+  .app-name {
+    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    color: var(--slax-text);
   }
 
   .login {

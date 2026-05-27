@@ -177,6 +177,18 @@ const baseStubs = {
     props: ['types']
   },
   DotsMenu: { name: 'DotsMenu', template: '<div class="dots-menu" />', emits: ['action'], props: ['actions'] },
+  SnapshotTopBar: {
+    name: 'SnapshotTopBar',
+    template: '<div class="snapshot-topbar"><slot name="left" /><slot name="theme-switcher" /><slot name="right" /></div>'
+  },
+  SnapshotMoreMenu: {
+    name: 'SnapshotMoreMenu',
+    template: '<div class="snapshot-more-menu" />',
+    emits: ['action'],
+    props: ['actions']
+  },
+  SnapshotSharePopover: { name: 'SnapshotSharePopover', template: '<div class="snapshot-share-popover" />' },
+  ThemeSwitcher: { name: 'ThemeSwitcher', template: '<div class="theme-switcher" />' },
   ProIcon: true,
   ShareBubbleTips: { name: 'ShareBubbleTips', template: '<div class="share-bubble"><slot /></div>' },
   TopTips: { name: 'TopTips', template: '<div class="top-tips" />', emits: ['clickButton'] },
@@ -384,9 +396,9 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      // 通过 DotsMenu emit action.trash
-      const dotsMenu = wrapper.findComponent({ name: 'DotsMenu' })
-      await dotsMenu.vm.$emit('action', { id: 'trash' })
+      // 通过 SnapshotMoreMenu emit action.trash
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'trash' })
       await flushPromises()
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/bookmark/trash' }))
       expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ event: 'bookmark_delete' }))
@@ -497,8 +509,8 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const dots = wrapper.findComponent({ name: 'DotsMenu' })
-      await dots.vm.$emit('action', { id: 'edit_title' })
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'edit_title' })
       expect(mockShowEditNameModal).toHaveBeenCalledWith(
         expect.objectContaining({
           bookmarkId: expect.any(Number),
@@ -512,8 +524,8 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const dots = wrapper.findComponent({ name: 'DotsMenu' })
-      await dots.vm.$emit('action', { id: 'edit_title' })
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'edit_title' })
       const lastCallArgs = mockShowEditNameModal.mock.calls[0]![0]
       lastCallArgs.callback('New Alias')
       // alias_title 被修改（断言通过 detail 反应性）
@@ -572,7 +584,7 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const shareBtn = wrapper.find('.share')
+      const shareBtn = wrapper.find('.topbar-share-btn')
       await shareBtn.trigger('click')
       expect(mockShowShareConfigModal).toHaveBeenCalledWith(
         expect.objectContaining({

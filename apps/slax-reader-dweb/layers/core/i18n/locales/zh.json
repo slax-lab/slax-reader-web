@@ -57,17 +57,20 @@
       "comment": "评论",
       "confirm": "确定",
       "copy": "复制",
+      "copy_link": "复制链接",
       "delete": "删除",
       "delete_line": "删除划线",
       "download": "下载",
       "edit": "修改",
       "edit_title": "修改标题",
+      "feedback": "反馈",
       "forward": "转发",
       "like": "点赞",
       "line": "划线",
       "loading": "加载中...",
       "login": "登录",
       "menu_trash": "移出收藏",
+      "more": "更多",
       "off": "已关闭",
       "on": "已开启",
       "payment": {
@@ -84,6 +87,7 @@
       "save": "保存",
       "search": "搜索",
       "share": "分享",
+      "share_twitter": "分享到 X",
       "snapshot": "快照",
       "submit": "提交",
       "subscribe": "订阅",
@@ -631,7 +635,8 @@
     "share_detail": {
       "share_text": "{user} 分享于 {date}",
       "transfer_save": "转存",
-      "transfered_save": "已转存"
+      "transfered_save": "已转存",
+      "marks_visible": "划线评论可见"
     },
     "slug": {
       "back_home": "回到首页",

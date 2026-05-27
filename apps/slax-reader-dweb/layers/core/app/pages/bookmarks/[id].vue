@@ -15,20 +15,31 @@
           />
         </template>
         <template v-slot:header>
-          <div class="header">
-            <div class="left">
+          <SnapshotTopBar>
+            <template #left>
               <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
               <ClientOnly><ProIcon /></ClientOnly>
-            </div>
-            <div class="right" v-if="!isTrashedBookmark && !isInvalidBookmark">
-              <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-              <ShareBubbleTips>
-                <button class="share" @click="shareUrl"></button>
-              </ShareBubbleTips>
-              <DotsMenu v-if="!menuLoading" :actions="menuActions" @action="menuClick" />
-              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
-            </div>
-          </div>
+            </template>
+            <template #theme-switcher>
+              <ClientOnly><ThemeSwitcher /></ClientOnly>
+            </template>
+            <template #right>
+              <template v-if="!isTrashedBookmark && !isInvalidBookmark">
+                <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+                <button class="topbar-share-btn" :title="$t('common.operate.share')" @click="shareUrl">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
+                    <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5" />
+                    <line x1="4.89" y1="6.93" x2="11.11" y2="3.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="4.89" y1="9.07" x2="11.11" y2="12.07" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <SnapshotMoreMenu v-if="!menuLoading" :actions="moreMenuActions" @action="moreMenuClick" />
+                <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
+              </template>
+            </template>
+          </SnapshotTopBar>
         </template>
         <template v-if="detail" v-slot:detail>
           <div class="detail">
@@ -95,11 +106,12 @@ import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
 import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
-import DotsMenu, { type DotsMenuActionItem } from '#layers/core/app/components/DotsMenu.vue'
+import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
-import ShareBubbleTips from '#layers/core/app/components/Tips/ShareBubbleTips.vue'
+import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
 
 import { formatDate } from '@commons/utils/date'
@@ -131,9 +143,11 @@ const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isInvalidBookmark = ref(false)
 
 const menuLoading = ref(false)
-const menuActions = ref<DotsMenuActionItem[]>([
-  { id: 'edit_title', name: t('common.operate.edit_title') },
-  { id: 'trash', name: t('common.operate.menu_trash') }
+
+const moreMenuActions = computed<MoreMenuAction[]>(() => [
+  { id: 'edit_title', label: t('common.operate.edit_title') },
+  { id: 'feedback', label: t('common.operate.feedback') },
+  { id: 'trash', label: t('common.operate.menu_trash'), danger: true }
 ])
 
 const isTrashedBookmark = computed(() => {
@@ -353,14 +367,13 @@ const findQuote = (quote: QuoteData) => {
   bookmarkArticle.value?.findQuote(quote)
 }
 
-const menuClick = async (action: DotsMenuActionItem) => {
+const moreMenuClick = async (action: MoreMenuAction) => {
   const { id } = action
   if (id === 'edit_title') {
     const bookmark = detail.value
     if (!bookmark) {
       return
     }
-
     showEditNameModal({
       bookmarkId: bookmark.bookmark_id || 0,
       name: bookmark.title,
@@ -369,6 +382,8 @@ const menuClick = async (action: DotsMenuActionItem) => {
         bookmark.alias_title = name
       }
     })
+  } else if (id === 'feedback') {
+    showFeedback()
   } else if (id === 'trash') {
     menuLoading.value = true
     await trashBookmark(true)
@@ -408,31 +423,19 @@ const panelClick = (type: BookmarkPanelType) => {
 
   --style: w-full relative flex justify-center items-start bg-surface-solid;
 
-  .header {
-    --style: h-full flex justify-between items-center;
+  .app-name {
+    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    color: var(--slax-text);
+  }
 
-    .left {
-      --style: flex items-center justify-start;
-      .app-name {
-        --style: text-(body #16b998) font-bold line-height-22px;
-      }
+  .topbar-share-btn {
+    --style: 'w-28px h-28px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast';
+    color: var(--slax-text-light);
+    background: transparent;
 
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-    }
-
-    .right {
-      --style: pr-20px flex-center;
-
-      & > *:not(:first-child) {
-        --style: ml-16px;
-      }
-
-      .share {
-        --style: 'w-16px h-16px hover:(scale-105) active:(scale-110) bg-cover';
-        background-image: url('@images/tiny-share-icon.png');
-      }
+    &:hover {
+      color: var(--slax-text);
+      background: var(--slax-accent-bg);
     }
   }
 

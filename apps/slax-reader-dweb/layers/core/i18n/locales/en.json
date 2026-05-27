@@ -57,17 +57,20 @@
       "comment": "Comment",
       "confirm": "Confirm",
       "copy": "Copy",
+      "copy_link": "Copy Link",
       "delete": "Delete",
       "delete_line": "Clear",
       "download": "Download",
       "edit": "Edit",
       "edit_title": "Edit title",
+      "feedback": "Feedback",
       "forward": "Forward",
       "like": "Like",
       "line": "Highlight",
       "loading": "Loading...",
       "login": "Login",
       "menu_trash": "Trash",
+      "more": "More",
       "off": "OFF",
       "on": "ON",
       "payment": {
@@ -84,6 +87,7 @@
       "save": "Save",
       "search": "Search",
       "share": "Share",
+      "share_twitter": "Share on X",
       "snapshot": "Snapshot",
       "submit": "Submit",
       "subscribe": "Subscribe",
@@ -631,7 +635,8 @@
     "share_detail": {
       "share_text": "{user} shared on {date}",
       "transfer_save": "Collect Link",
-      "transfered_save": "Collected"
+      "transfered_save": "Collected",
+      "marks_visible": "Show highlights"
     },
     "slug": {
       "back_home": "Go back home",
