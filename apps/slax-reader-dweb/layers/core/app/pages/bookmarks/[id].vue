@@ -155,7 +155,6 @@ const loading = ref(false)
 
 const bmId = Number(router.params.id)
 const detail = ref<BookmarkDetail>()
-const convienceArchiving = ref(false)
 
 // 从 detail 派生加星状态（供 BottomToolbar 消费）
 // 用空对象兜底，避免 useArticleDetail 内 isBookmarkDetail 对 undefined 执行 'in' 操作符报错
@@ -333,7 +332,11 @@ const {
   },
   initialTasksCompleted: () => {
     nextTick(() => {
-      setTimeout(() => {}, 0)
+      // 桌面态默认打开 comment tab（snapshot.md §4.3）
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+      if (!isMobile) {
+        activePanel.value = 'comment'
+      }
     })
   }
 })
@@ -426,15 +429,9 @@ const archiveBookmark = async (isCancel: boolean) => {
 }
 
 const convienceArchiveClick = async () => {
-  if (convienceArchiving.value) {
-    return
-  }
-
-  convienceArchiving.value = true
   await archiveBookmark(false)
   setTimeout(() => {
     navigateTo('/bookmarks')
-    convienceArchiving.value = false
   }, 1000)
 }
 
@@ -481,27 +478,8 @@ const moreMenuClick = async (action: MoreMenuAction) => {
   }
 }
 
-const panelClick = (type: BookmarkPanelType) => {
-  switch (type) {
-    case BookmarkPanelType.AI:
-      showAnalyzed()
-      break
-    case BookmarkPanelType.CHATBOT:
-      showChatbot()
-      break
-    case BookmarkPanelType.ARCHIVE:
-      archiveBookmark(false)
-      break
-    case BookmarkPanelType.UNARCHIVE:
-      archiveBookmark(true)
-      break
-    case BookmarkPanelType.TOP:
-      backToTop()
-      break
-    case BookmarkPanelType.FEEDBACK:
-      showFeedback()
-      break
-  }
+const panelClick = (_type: BookmarkPanelType) => {
+  // Phase 3 后由 SnapshotRightEdgeToolbar + SnapshotBottomToolbar 接管，此函数保留供 spec stub 兼容
 }
 </script>
 
@@ -528,33 +506,10 @@ const panelClick = (type: BookmarkPanelType) => {
       background: var(--slax-accent-bg);
     }
   }
+}
 
-  .archive {
-    --style: 'flex-center pb-60px max-md:(flex) md:(hidden)';
-    button {
-      --style: relative w-200px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center cursor-auto;
-
-      &:not(:has(.archive-loading)) {
-        --style: 'hover:(opacity-90 scale-105) transition-all duration-normal cursor-pointer';
-      }
-
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-
-      img {
-        --style: w-20px h-20px;
-      }
-
-      span {
-        --style: text-(meta txt) font-bold line-height-18px;
-      }
-
-      .archive-loading {
-        --style: flex-center text-slate absolute inset-0;
-      }
-    }
-  }
+.comment-panel-wrap {
+  --style: h-full flex flex-col overflow-hidden;
 }
 
 .status {

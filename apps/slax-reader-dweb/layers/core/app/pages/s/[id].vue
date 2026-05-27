@@ -373,7 +373,11 @@ const {
     }
 
     nextTick(() => {
-      setTimeout(() => {}, 0)
+      // 桌面态默认打开 comment tab（snapshot.md §4.3）
+      const isMobile = window.innerWidth <= 768
+      if (!isMobile) {
+        activePanel.value = 'comment'
+      }
     })
   }
 })
@@ -462,6 +466,10 @@ const moreMenuClick = (action: MoreMenuAction) => {
   .login {
     --style: flex-center mt-0 pb-170px;
   }
+}
+
+.comment-panel-wrap {
+  --style: h-full flex flex-col overflow-hidden;
 }
 
 .status {
