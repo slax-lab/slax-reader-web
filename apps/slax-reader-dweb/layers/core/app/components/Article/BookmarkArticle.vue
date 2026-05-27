@@ -102,8 +102,8 @@ const articleStyle = computed(() => {
   return ArticleStyle.Default
 })
 
-let articleSelection: DwebArticleSelection | null = null
-
+// shallowRef：ArticleSelection 实例自身管理内部响应性，不需要深响应代理
+const articleSelectionRef = shallowRef<DwebArticleSelection | null>(null)
 watch(
   () => props.marks,
   value => {
@@ -142,7 +142,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   try {
-    articleSelection?.closeMonitor()
+    articleSelectionRef.value?.closeMonitor()
     extraListeners.forEach(listener => listener())
   } finally {
   }
@@ -224,7 +224,7 @@ const handleHTML = async () => {
 }
 
 const handleDrawMark = async () => {
-  if (!articleSelection && bookmarkArticle.value && articleDetail.value) {
+  if (!articleSelectionRef.value && bookmarkArticle.value && articleDetail.value) {
     const config = {
       shareCode: shareCode || '',
       bookmarkId: bookmarkId || 0,
@@ -264,22 +264,22 @@ const handleDrawMark = async () => {
 
     const modal = new MarkModal(config)
 
-    articleSelection = new DwebArticleSelection(config, dependencies, modal)
+    articleSelectionRef.value = new DwebArticleSelection(config, dependencies, modal)
   }
 
-  if (!articleSelection) {
+  if (!articleSelectionRef.value) {
     return
   }
 
   const promise = []
   if ('marks' in detail.value) {
-    promise.push(articleSelection?.drawMark(detail.value.marks))
+    promise.push(articleSelectionRef.value?.drawMark(detail.value.marks))
   } else if (props.marks) {
-    promise.push(articleSelection?.drawMark(props.marks))
+    promise.push(articleSelectionRef.value?.drawMark(props.marks))
   }
 
-  if (promise.length > 0 && !articleSelection.isMonitoring) {
-    articleSelection?.startMonitor()
+  if (promise.length > 0 && !articleSelectionRef.value.isMonitoring) {
+    articleSelectionRef.value?.startMonitor()
   }
 
   await Promise.all(promise).then(() => {
@@ -313,11 +313,12 @@ const starBookmark = async (event: MouseEvent, isStar: boolean) => {
 }
 
 const findQuote = (quote: QuoteData) => {
-  articleSelection?.findQuote(quote)
+  articleSelectionRef.value?.findQuote(quote)
 }
 
 defineExpose({
-  findQuote
+  findQuote,
+  articleSelection: articleSelectionRef
 })
 </script>
 

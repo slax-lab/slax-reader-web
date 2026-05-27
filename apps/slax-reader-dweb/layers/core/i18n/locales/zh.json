@@ -451,7 +451,17 @@
       "trash_bookmark_restore": "移回 Inbox",
       "trash_bookmark_tips": "书签于 { date } 被放入废纸篓. 7天后将会被删除.",
       "shared_via": "分享自",
-      "try_free": "免费试用"
+      "try_free": "免费试用",
+      "comment_all": "评论全文",
+      "comments": "评论",
+      "no_comments": "暂无评论",
+      "just_now": "刚刚",
+      "minutes_ago": "{n} 分钟前",
+      "hours_ago": "{n} 小时前",
+      "reply_to": "回复",
+      "cancel_quote": "取消引用",
+      "comment_placeholder": "写下你的想法...",
+      "send_hint": "Enter 发送 · Shift+Enter 换行"
     },
     "bookmarks_index": {
       "Trash": "回收站",

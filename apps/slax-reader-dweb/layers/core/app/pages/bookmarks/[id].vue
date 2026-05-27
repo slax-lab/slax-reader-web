@@ -75,7 +75,23 @@
             <ChatBot v-if="!isSubscriptionExpired" ref="chatbot" :bookmarkId="bmId" :is-appeared="activePanel === 'chat'" @dismiss="activePanel = null" @find-quote="findQuote" />
           </template>
           <template #comment>
-            <!-- Phase 5 接入评论面板 -->
+            <ClientOnly>
+              <div class="comment-panel-wrap">
+                <SnapshotCommentList :infos="commentInfos" :active-info-id="activeInfoId" :allow-action="true" @card-click="onCommentCardClick" @reply="onCommentReply" />
+                <SnapshotCommentComposer
+                  :allow-action="true"
+                  :article-selection="bookmarkArticleSelection"
+                  :pending-selection="pendingSelection"
+                  :pending-quote="pendingQuote"
+                  :active-info-id="activeInfoId"
+                  @sent="onCommentSent"
+                  @cancel-reply="
+                    pendingSelection = null
+                    pendingQuote = null
+                  "
+                />
+              </div>
+            </ClientOnly>
           </template>
         </SnapshotSidePanel>
       </template>
@@ -114,6 +130,8 @@ import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDe
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
+import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
 import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
 import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
@@ -129,6 +147,7 @@ import { showEditNameModal, showShareConfigModal } from '#layers/core/app/compon
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
+import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
 
 const { t } = useI18n()
 const router = useRoute()
@@ -146,6 +165,12 @@ const { isStarred, allowStarred, updateStarred } = useArticleDetail(detailForArt
 const bookmarkArticle = ref<typeof BookmarkArticle>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isInvalidBookmark = ref(false)
+
+// 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）
+// Vue proxyRefs 自动解包：bookmarkArticle.value?.articleSelection 直接是 DwebArticleSelection | null
+const bookmarkArticleSelection = computed(() => bookmarkArticle.value?.articleSelection ?? null)
+
+const commentInfos = computed(() => bookmarkArticleSelection.value?.markItemInfos?.value ?? [])
 
 const menuLoading = ref(false)
 
@@ -183,6 +208,31 @@ watch(activePanel, val => {
   if (val === 'ai') showAnalyzed()
   else if (val === 'chat') showChatbot()
 })
+
+// Phase 5：评论面板联动（必须在 activePanel 声明之后）
+const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
+  activePanel,
+  articleSelection: bookmarkArticleSelection
+})
+
+const onCommentCardClick = (infoId: string) => {
+  flashMarkByInfoId(infoId)
+}
+
+const onCommentReply = (comment: { markUid: string }) => {
+  const infos = bookmarkArticleSelection.value?.markItemInfos?.value ?? []
+  for (const info of infos) {
+    const found = info.comments.some(c => c.markUid === comment.markUid || c.children?.some(ch => ch.markUid === comment.markUid))
+    if (found) {
+      activeInfoId.value = info.id
+      break
+    }
+  }
+}
+
+const onCommentSent = (infoId: string) => {
+  focusByInfoId(infoId)
+}
 
 // SVG icon 字符串
 const archiveIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v2H2V4zm1 3h10v7H3V7zm3 2v3m2-3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`

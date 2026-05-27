@@ -265,7 +265,8 @@ describe('DwebArticleSelection', () => {
       expect(typeof args.noActionCallback).toBe('function')
     })
 
-    it('positionCallback：保存 menusY，后续 comment 分支会传给 showPanel', async () => {
+    it('positionCallback：保存 menusY，后续 comment 分支（inline 模式）派发 slax:open-comment-panel 事件', async () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const { modal, inst } = setupAndTrigger()
       await vi.runAllTimersAsync()
       const args = modal.showMenus.mock.calls[0]![0] as { positionCallback: (pos: { x: number; y: number }) => void; callback: (type: string, e: MouseEvent) => void }
@@ -274,7 +275,9 @@ describe('DwebArticleSelection', () => {
       // 准备 currentInfo（comment 路径需要 currentInfo）
       mockManager.currentMarkItemInfo.value = { id: '', source: [], comments: [], stroke: [] }
       args.callback('comment', new MouseEvent('click'))
-      expect(mockManager.showPanel).toHaveBeenCalledWith({ fallbackYOffset: 88 })
+      // inline 模式：派发事件，不调 manager.showPanel
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'slax:open-comment-panel' }))
+      expect(mockManager.showPanel).not.toHaveBeenCalled()
       void inst
     })
 
@@ -309,13 +312,15 @@ describe('DwebArticleSelection', () => {
       expect((inst as unknown as { clearSelection: ReturnType<typeof vi.fn> }).clearSelection).toHaveBeenCalled()
     })
 
-    it('callback type=comment：分配 uuid + 调 manager.showPanel；不调 clearSelection', async () => {
+    it('callback type=comment：inline 模式派发 slax:open-comment-panel 事件；不调 clearSelection', async () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const { modal, inst } = setupAndTrigger()
       await vi.runAllTimersAsync()
       const args = modal.showMenus.mock.calls[0]![0] as { callback: (type: string, e: MouseEvent) => void }
       mockManager.currentMarkItemInfo.value = { id: '', source: [], comments: [], stroke: [] }
       args.callback('comment', new MouseEvent('click'))
-      expect(mockManager.showPanel).toHaveBeenCalled()
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'slax:open-comment-panel' }))
+      expect(mockManager.showPanel).not.toHaveBeenCalled()
       expect((inst as unknown as { clearSelection: ReturnType<typeof vi.fn> }).clearSelection).not.toHaveBeenCalled()
     })
 

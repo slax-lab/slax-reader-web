@@ -227,7 +227,6 @@ export class MarkModal extends Base implements IMarkModal {
     })
   }
 
-  // TODO: 这里的逻辑需要优化
   showPanel = (options: {
     info: MarkItemInfo
     fallbackYOffset: number
@@ -240,6 +239,17 @@ export class MarkModal extends Base implements IMarkModal {
     const { info, actionCallback, commentDeleteCallback, dismissCallback } = options
     const { containerDom, allowAction, ownerUserId } = this.config
     if (!containerDom) {
+      return
+    }
+
+    // inline 模式（非 iframe）：派发事件给 Vue 宿主的 SnapshotSidePanel 消费
+    const isInline = !this.config.iframe
+    if (isInline) {
+      window.dispatchEvent(
+        new CustomEvent('slax:open-comment-panel', {
+          detail: { kind: 'existing', infoId: info.id, info }
+        })
+      )
       return
     }
 

@@ -87,7 +87,29 @@
             />
           </template>
           <template #comment>
-            <!-- Phase 5 接入评论面板 -->
+            <ClientOnly>
+              <div class="comment-panel-wrap">
+                <SnapshotCommentList
+                  :infos="commentInfos"
+                  :active-info-id="activeInfoId"
+                  :allow-action="!!detail?.share_info?.allow_action"
+                  @card-click="onCommentCardClick"
+                  @reply="onCommentReply"
+                />
+                <SnapshotCommentComposer
+                  :allow-action="!!detail?.share_info?.allow_action"
+                  :article-selection="bookmarkArticleSelection"
+                  :pending-selection="pendingSelection"
+                  :pending-quote="pendingQuote"
+                  :active-info-id="activeInfoId"
+                  @sent="onCommentSent"
+                  @cancel-reply="
+                    pendingSelection = null
+                    pendingQuote = null
+                  "
+                />
+              </div>
+            </ClientOnly>
           </template>
         </SnapshotSidePanel>
       </template>
@@ -114,6 +136,8 @@ import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDe
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
+import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
 import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
 import SnapshotSharePopover from '#layers/core/app/components/Snapshot/SnapshotSharePopover.vue'
@@ -129,6 +153,7 @@ import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commo
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
+import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
 
 const { t } = useI18n()
 const router = useRoute()
@@ -143,6 +168,11 @@ const marks = ref<MarkDetail>()
 
 const bookmarkArticle = ref<InstanceType<typeof BookmarkArticle>>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
+
+// 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）
+const bookmarkArticleSelection = computed(() => bookmarkArticle.value?.articleSelection ?? null)
+
+const commentInfos = computed(() => bookmarkArticleSelection.value?.markItemInfos?.value ?? [])
 
 const isShowTransferButton = ref<boolean>()
 
@@ -162,6 +192,31 @@ watch(activePanel, val => {
   if (val === 'ai') showAnalyzed()
   else if (val === 'chat') showChatbot()
 })
+
+// Phase 5：评论面板联动（必须在 activePanel 声明之后）
+const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
+  activePanel,
+  articleSelection: bookmarkArticleSelection
+})
+
+const onCommentCardClick = (infoId: string) => {
+  flashMarkByInfoId(infoId)
+}
+
+const onCommentReply = (comment: { markUid: string }) => {
+  const infos = bookmarkArticleSelection.value?.markItemInfos?.value ?? []
+  for (const info of infos) {
+    const found = info.comments.some(c => c.markUid === comment.markUid || c.children?.some(ch => ch.markUid === comment.markUid))
+    if (found) {
+      activeInfoId.value = info.id
+      break
+    }
+  }
+}
+
+const onCommentSent = (infoId: string) => {
+  focusByInfoId(infoId)
+}
 
 const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 

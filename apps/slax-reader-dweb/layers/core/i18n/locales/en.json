@@ -451,7 +451,17 @@
       "trash_bookmark_restore": "Restore to Inbox",
       "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days.",
       "shared_via": "Shared via",
-      "try_free": "Try free"
+      "try_free": "Try free",
+      "comment_all": "Comment on article",
+      "comments": "Comments",
+      "no_comments": "No comments yet",
+      "just_now": "Just now",
+      "minutes_ago": "{n} min ago",
+      "hours_ago": "{n} hr ago",
+      "reply_to": "Reply to",
+      "cancel_quote": "Cancel quote",
+      "comment_placeholder": "Write your thoughts...",
+      "send_hint": "Enter to send · Shift+Enter for newline"
     },
     "bookmarks_index": {
       "Trash": "Trash",
