@@ -27,13 +27,8 @@ export const useBookmark = (options: BookmarkOptions) => {
   const redirectHref = useRequestURL().href
   const { isSubscriptionExpired, checkSubscriptionExpired, updateSubscribeStatus } = useUserSubscribe()
 
-  const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail, chatbot, typeOptions } = options
-  const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize({
-    detailLayout,
-    summariesSidebar,
-    botSidebar,
-    bookmarkDetail
-  })
+  const { chatbot, typeOptions } = options
+  const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize(options)
 
   const feedbackType = ref('parse_error')
   const showFeedback = () => {
@@ -95,7 +90,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   }
 
   const navigateToText = () => {
-    if (detailLayout.value?.isSmallScreen()) {
+    if (options.detailLayout?.value?.isSmallScreen()) {
       summariesExpanded.value = false
     }
   }

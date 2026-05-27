@@ -59,7 +59,6 @@ export const useResize = (options: CommonBookmarkOptions) => {
   const { tracking, isLocked } = useTracking()
 
   const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail } = options
-
   const isNeedResized = ref(false) // 标记页面是否符合要调整布局的条件
   const resizeAnimated = ref(false) // 标记页面调整是否需要动画
   const summariesExpanded = ref(false) // 标记摘要是否展开

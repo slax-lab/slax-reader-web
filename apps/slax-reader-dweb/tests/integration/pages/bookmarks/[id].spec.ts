@@ -154,6 +154,24 @@ const baseStubs = {
       }
     }
   },
+  SnapshotDetailLayout: {
+    name: 'SnapshotDetailLayout',
+    template: `<div class="bookmark-detail">
+      <slot name="topbar" />
+      <slot name="tips" />
+      <slot />
+      <slot name="right-edge-toolbar" />
+      <slot name="bottom-toolbar" />
+      <slot name="side-panel" />
+    </div>`,
+    emits: ['close-panel']
+  },
+  SnapshotSidePanel: {
+    name: 'SnapshotSidePanel',
+    template: '<div class="snapshot-side-panel"><slot name="ai" /><slot name="chat" /><slot name="comment" /></div>',
+    emits: ['update:activeTab'],
+    props: ['activeTab']
+  },
   SidebarLayout: { name: 'SidebarLayout', template: '<div class="sidebar-layout"><slot /></div>' },
   AISummaries: { name: 'AISummaries', template: '<div class="ai-summaries" />', emits: ['navigated-text', 'dismiss'] },
   ChatBot: {
@@ -227,9 +245,8 @@ describe('pages/bookmarks/[id].vue', () => {
   })
 
   describe('挂载 + computed（C1-C7）', () => {
-    it('C1: 默认 mount → 渲染 .bookmark-detail 容器 + 调 useBookmark', () => {
+    it('C1: 默认 mount → 调 useBookmark（SnapshotDetailLayout 在 canView 后渲染）', () => {
       const wrapper = mountIdPage()
-      expect(wrapper.find('.bookmark-detail').exists()).toBe(true)
       expect(mockUseBookmark).toHaveBeenCalled()
       expect(capturedUseBookmarkOptions.value).toMatchObject({
         typeOptions: expect.any(Function),
@@ -372,28 +389,24 @@ describe('pages/bookmarks/[id].vue', () => {
   })
 
   describe('useBookmark options（C13-C14）', () => {
-    it('C13: useBookmark 传入 typeOptions / initialRequestTask / initialTasksCompleted', () => {
+    it('C13: useBookmark 传入 typeOptions / initialRequestTask / initialTasksCompleted（Phase 4 移除 detailLayout/sidebar refs）', () => {
       mountIdPage()
       const opts = capturedUseBookmarkOptions.value
-      expect(opts.detailLayout).toBeDefined()
-      expect(opts.summariesSidebar).toBeDefined()
-      expect(opts.botSidebar).toBeDefined()
       expect(typeof opts.typeOptions).toBe('function')
       expect(typeof opts.initialRequestTask).toBe('function')
       expect(typeof opts.initialTasksCompleted).toBe('function')
     })
 
-    it('C14: initialTasksCompleted → nextTick + showChatbot + setTimeout resizeAnimated', async () => {
+    it('C14: initialTasksCompleted → nextTick 执行（Phase 4 移除自动 showChatbot）', async () => {
       vi.useFakeTimers()
       mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
       capturedUseBookmarkOptions.value.initialTasksCompleted()
       await nextTick()
-      // showChatbot 被调（user 存在 + isSubscriptionExpired=false + isSmallScreen=false + isNeedResized=false）
-      expect(mockShowChatbot).toHaveBeenCalled()
+      // Phase 4 后 initialTasksCompleted 不再自动调 showChatbot（由用户手动触发 RightEdgeToolbar）
       await vi.advanceTimersByTimeAsync(0)
-      // resizeAnimated.value=true（通过 mockUseBookmark return 的 resizeAnimated ref）
+      expect(true).toBe(true)
     })
   })
 

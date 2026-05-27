@@ -1,71 +1,86 @@
 <template>
   <div>
-    <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
-      <DetailLayout v-if="canView || isInvalidBookmark" ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
-        <template v-slot:panel>
-          <SnapshotRightEdgeToolbar v-if="canView" v-model="activePanel" :panel-open="!!(summariesExpanded || botExpanded)" />
-        </template>
-        <template v-if="!!isTrashedBookmark" v-slot:tips>
-          <TopTips
-            :isShow="!!isTrashedBookmark"
-            :tipsText="$t('page.bookmarks_detail.trash_bookmark_tips', { date: bookmarkTrashDate })"
-            :buttonText="$t('page.bookmarks_detail.trash_bookmark_restore')"
-            :background-color="'#FCF4E8'"
-            @clickButton="trashBookmark(false)"
-          />
-        </template>
-        <template v-slot:header>
-          <SnapshotTopBar>
-            <template #left>
-              <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
-              <ClientOnly><ProIcon /></ClientOnly>
+    <SnapshotDetailLayout v-if="canView || isInvalidBookmark" ref="snapshotLayout" class="bookmark-detail" @close-panel="activePanel = null">
+      <template #topbar>
+        <SnapshotTopBar>
+          <template #left>
+            <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
+            <ClientOnly><ProIcon /></ClientOnly>
+          </template>
+          <template #theme-switcher>
+            <ClientOnly><ThemeSwitcher /></ClientOnly>
+          </template>
+          <template #right>
+            <template v-if="!isTrashedBookmark && !isInvalidBookmark">
+              <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+              <button class="topbar-share-btn" :title="$t('common.operate.share')" @click="shareUrl">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5" />
+                  <line x1="4.89" y1="6.93" x2="11.11" y2="3.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  <line x1="4.89" y1="9.07" x2="11.11" y2="12.07" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </button>
+              <SnapshotMoreMenu v-if="!menuLoading" :actions="moreMenuActions" @action="moreMenuClick" />
+              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
             </template>
-            <template #theme-switcher>
-              <ClientOnly><ThemeSwitcher /></ClientOnly>
-            </template>
-            <template #right>
-              <template v-if="!isTrashedBookmark && !isInvalidBookmark">
-                <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-                <button class="topbar-share-btn" :title="$t('common.operate.share')" @click="shareUrl">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5" />
-                    <circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
-                    <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5" />
-                    <line x1="4.89" y1="6.93" x2="11.11" y2="3.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    <line x1="4.89" y1="9.07" x2="11.11" y2="12.07" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  </svg>
-                </button>
-                <SnapshotMoreMenu v-if="!menuLoading" :actions="moreMenuActions" @action="moreMenuClick" />
-                <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
-              </template>
-            </template>
-          </SnapshotTopBar>
-        </template>
-        <template v-if="detail" v-slot:detail>
-          <div class="detail">
-            <BookmarkArticle ref="bookmarkArticle" :detail="detail" @screen-lock-update="screenLockUpdate" @bookmark-update="bookmarkUpdate" @chat-bot-quote="chatBotQuote" />
-          </div>
-        </template>
-      </DetailLayout>
-      <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
-      <template v-if="canView">
-        <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <ClientOnly>
-            <AISummaries
-              v-if="bmId"
-              :bookmarkId="bmId"
-              :is-appeared="summariesExpanded"
-              :content-selector="'.bookmark-detail .detail'"
-              @navigated-text="navigateToText"
-              @dismiss="summariesExpanded = false"
-            />
-          </ClientOnly>
-        </SidebarLayout>
-        <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
-          <ChatBot ref="chatbot" :bookmarkId="bmId" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
-        </SidebarLayout>
+          </template>
+        </SnapshotTopBar>
       </template>
-    </div>
+
+      <template #tips>
+        <TopTips
+          v-if="!!isTrashedBookmark"
+          :isShow="!!isTrashedBookmark"
+          :tipsText="$t('page.bookmarks_detail.trash_bookmark_tips', { date: bookmarkTrashDate })"
+          :buttonText="$t('page.bookmarks_detail.trash_bookmark_restore')"
+          :background-color="'#FCF4E8'"
+          @clickButton="trashBookmark(false)"
+        />
+      </template>
+
+      <BookmarkArticle
+        v-if="detail && canView"
+        ref="bookmarkArticle"
+        :detail="detail"
+        @screen-lock-update="screenLockUpdate"
+        @bookmark-update="bookmarkUpdate"
+        @chat-bot-quote="chatBotQuote"
+      />
+
+      <template #right-edge-toolbar>
+        <SnapshotRightEdgeToolbar v-if="canView" v-model="activePanel" :panel-open="activePanel !== null" />
+      </template>
+
+      <template #bottom-toolbar>
+        <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
+      </template>
+
+      <template #side-panel>
+        <SnapshotSidePanel v-if="canView" :active-tab="activePanel" @update:active-tab="activePanel = $event">
+          <template #ai>
+            <ClientOnly>
+              <AISummaries
+                v-if="bmId"
+                :bookmarkId="bmId"
+                :is-appeared="activePanel === 'ai'"
+                :content-selector="'.bookmark-detail .detail'"
+                @navigated-text="navigateToText"
+                @dismiss="activePanel = null"
+              />
+            </ClientOnly>
+          </template>
+          <template #chat>
+            <ChatBot v-if="!isSubscriptionExpired" ref="chatbot" :bookmarkId="bmId" :is-appeared="activePanel === 'chat'" @dismiss="activePanel = null" @find-quote="findQuote" />
+          </template>
+          <template #comment>
+            <!-- Phase 5 接入评论面板 -->
+          </template>
+        </SnapshotSidePanel>
+      </template>
+    </SnapshotDetailLayout>
+
     <ClientOnly>
       <div class="status" v-if="!canView || isInvalidBookmark">
         <div class="loading" v-if="loading">
@@ -95,8 +110,8 @@ import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
-import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
-import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
+import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
+import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
@@ -109,8 +124,6 @@ import { RequestError } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkDetail, BookmarkParseStatus, type EmptyBookmarkResp } from '@commons/types/interface'
-import { vResizeObserver } from '@vueuse/components'
-import { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showEditNameModal, showShareConfigModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
@@ -120,10 +133,6 @@ import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
-
-const detailLayout = ref<InstanceType<typeof DetailLayout>>()
-const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
-const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
 
 const bmId = Number(router.params.id)
 const detail = ref<BookmarkDetail>()
@@ -135,7 +144,6 @@ const detailForArticle = computed(() => (detail.value ?? {}) as BookmarkArticleD
 const { isStarred, allowStarred, updateStarred } = useArticleDetail(detailForArticle)
 
 const bookmarkArticle = ref<typeof BookmarkArticle>()
-const bookmarkDetail = ref<HTMLDivElement>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 const isInvalidBookmark = ref(false)
 
@@ -252,12 +260,6 @@ const loadBookmark = async () => {
 const {
   user,
   isSubscriptionExpired,
-  resizeAnimated,
-  summariesExpanded,
-  botExpanded,
-  contentXOffset,
-  isNeedResized,
-  onResizeObserver,
   showAnalyzed,
   showChatbot,
   chatBotQuote,
@@ -268,10 +270,6 @@ const {
   navigateToBookmarks,
   navigateToText
 } = useBookmark({
-  detailLayout,
-  summariesSidebar,
-  botSidebar,
-  bookmarkDetail,
   chatbot,
   typeOptions: () => {
     return {
@@ -285,13 +283,7 @@ const {
   },
   initialTasksCompleted: () => {
     nextTick(() => {
-      if (!isSubscriptionExpired.value && user.value && !detailLayout.value?.isSmallScreen() && !isNeedResized.value) {
-        showChatbot()
-      }
-
-      setTimeout(() => {
-        resizeAnimated.value = true
-      }, 0)
+      setTimeout(() => {}, 0)
     })
   }
 })

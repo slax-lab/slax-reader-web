@@ -1,82 +1,98 @@
 <template>
   <div>
-    <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
-      <DetailLayout ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
-        <template v-slot:panel>
-          <SnapshotRightEdgeToolbar v-if="detail" v-model="activePanel" :panel-open="!!(summariesExpanded || botExpanded)" />
-        </template>
-        <template v-slot:tips>
-          <ClientOnly>
-            <TopTips
-              v-show="detail"
-              :is-show="true"
-              :button-enabled="isShowTransferButton"
-              :tipsText="shareText"
-              :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
-              :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
-              :background-color="'#EDF8F2'"
-              @clickButton="transferSaveClick"
-            >
-              <template #left>
-                <img class="user-icon" v-if="!detail?.user_info?.avatar" src="@images/user-default-avatar.png" alt="" />
-                <img class="user-icon" v-else :src="detail.user_info.avatar" alt="" />
-              </template>
-            </TopTips>
-          </ClientOnly>
-        </template>
-        <template v-slot:header>
-          <SnapshotTopBar>
+    <SnapshotDetailLayout class="bookmark-detail" @close-panel="activePanel = null">
+      <template #topbar>
+        <SnapshotTopBar>
+          <template #left>
+            <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
+            <ClientOnly><ProIcon /></ClientOnly>
+          </template>
+          <template #theme-switcher>
+            <ClientOnly><ThemeSwitcher /></ClientOnly>
+          </template>
+          <template #right>
+            <ClientOnly>
+              <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
+            </ClientOnly>
+            <SnapshotSharePopover />
+            <SnapshotMoreMenu :actions="moreMenuActions" @action="moreMenuClick" />
+          </template>
+        </SnapshotTopBar>
+      </template>
+
+      <template #tips>
+        <ClientOnly>
+          <TopTips
+            v-show="detail"
+            :is-show="true"
+            :button-enabled="isShowTransferButton"
+            :tipsText="shareText"
+            :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
+            :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
+            :background-color="'#EDF8F2'"
+            @clickButton="transferSaveClick"
+          >
             <template #left>
-              <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-              <ClientOnly><ProIcon /></ClientOnly>
+              <img class="user-icon" v-if="!detail?.user_info?.avatar" src="@images/user-default-avatar.png" alt="" />
+              <img class="user-icon" v-else :src="detail.user_info.avatar" alt="" />
             </template>
-            <template #theme-switcher>
-              <ClientOnly><ThemeSwitcher /></ClientOnly>
-            </template>
-            <template #right>
-              <ClientOnly>
-                <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-              </ClientOnly>
-              <SnapshotSharePopover />
-              <SnapshotMoreMenu :actions="moreMenuActions" @action="moreMenuClick" />
-            </template>
-          </SnapshotTopBar>
-        </template>
-        <template v-slot:detail>
-          <BookmarkArticle
-            v-if="detail"
-            ref="bookmarkArticle"
-            :detail="detail"
-            :marks="marks"
-            @screen-lock-update="screenLockUpdate"
-            @bookmark-update="bookmarkUpdate"
-            @chat-bot-quote="chatBotQuote"
-          />
-          <ClientOnly>
-            <div class="login">
-              <GoogleLoginButton ref="googleLoginBtn" v-if="!user" :redirect="redirectHref" />
-            </div>
-          </ClientOnly>
-        </template>
-      </DetailLayout>
-      <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
+          </TopTips>
+        </ClientOnly>
+      </template>
+
+      <BookmarkArticle
+        v-if="detail"
+        ref="bookmarkArticle"
+        :detail="detail"
+        :marks="marks"
+        @screen-lock-update="screenLockUpdate"
+        @bookmark-update="bookmarkUpdate"
+        @chat-bot-quote="chatBotQuote"
+      />
       <ClientOnly>
-        <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <ClientOnly>
-            <AISummaries
-              :share-code="shareCode"
-              :is-appeared="summariesExpanded"
-              :content-selector="'.bookmark-detail .detail'"
-              @navigated-text="navigateToText"
-              @dismiss="summariesExpanded = false"
-            />
-          </ClientOnly>
-        </SidebarLayout>
-        <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
-          <ChatBot ref="chatbot" :share-code="shareCode" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
-        </SidebarLayout>
+        <div class="login">
+          <GoogleLoginButton ref="googleLoginBtn" v-if="!user" :redirect="redirectHref" />
+        </div>
       </ClientOnly>
-    </div>
+
+      <template #right-edge-toolbar>
+        <SnapshotRightEdgeToolbar v-if="detail" v-model="activePanel" :panel-open="activePanel !== null" />
+      </template>
+
+      <template #bottom-toolbar>
+        <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
+      </template>
+
+      <template #side-panel>
+        <SnapshotSidePanel v-if="detail" :active-tab="activePanel" @update:active-tab="activePanel = $event">
+          <template #ai>
+            <ClientOnly>
+              <AISummaries
+                :share-code="shareCode"
+                :is-appeared="activePanel === 'ai'"
+                :content-selector="'.bookmark-detail .detail'"
+                @navigated-text="navigateToText"
+                @dismiss="activePanel = null"
+              />
+            </ClientOnly>
+          </template>
+          <template #chat>
+            <ChatBot
+              v-if="!isSubscriptionExpired"
+              ref="chatbot"
+              :share-code="shareCode"
+              :is-appeared="activePanel === 'chat'"
+              @dismiss="activePanel = null"
+              @find-quote="findQuote"
+            />
+          </template>
+          <template #comment>
+            <!-- Phase 5 接入评论面板 -->
+          </template>
+        </SnapshotSidePanel>
+      </template>
+    </SnapshotDetailLayout>
+
     <ClientOnly>
       <div class="status" v-if="loading">
         <div class="loading" v-if="loading">
@@ -94,8 +110,8 @@ import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
-import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
-import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
+import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
+import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
@@ -110,8 +126,6 @@ import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
-import { vResizeObserver } from '@vueuse/components'
-import { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
@@ -121,9 +135,6 @@ const router = useRoute()
 const loading = ref(false)
 
 const config = useRuntimeConfig().public
-const detailLayout = ref<InstanceType<typeof DetailLayout>>()
-const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
-const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
 
 const googleLoginBtn = ref<InstanceType<typeof GoogleLoginButton>>()
 const shareCode = String(router.params.id)
@@ -131,7 +142,6 @@ const detail = ref<ShareBookmarkDetail>()
 const marks = ref<MarkDetail>()
 
 const bookmarkArticle = ref<InstanceType<typeof BookmarkArticle>>()
-const bookmarkDetail = ref<HTMLDivElement>()
 const chatbot = ref<InstanceType<typeof ChatBot>>()
 
 const isShowTransferButton = ref<boolean>()
@@ -276,12 +286,6 @@ const {
   user,
   isSubscriptionExpired,
   redirectHref,
-  resizeAnimated,
-  summariesExpanded,
-  botExpanded,
-  contentXOffset,
-  isNeedResized,
-  onResizeObserver,
   showAnalyzed,
   showChatbot,
   chatBotQuote,
@@ -293,10 +297,6 @@ const {
   navigateToBookmarks,
   navigateToText
 } = useBookmark({
-  detailLayout,
-  summariesSidebar,
-  botSidebar,
-  bookmarkDetail,
   chatbot,
   typeOptions: () => {
     return {
@@ -318,13 +318,7 @@ const {
     }
 
     nextTick(() => {
-      if (!isSubscriptionExpired.value && user.value && !detailLayout.value?.isSmallScreen() && !isNeedResized.value) {
-        showChatbot()
-      }
-
-      setTimeout(() => {
-        resizeAnimated.value = true
-      }, 0)
+      setTimeout(() => {}, 0)
     })
   }
 })
