@@ -3,7 +3,7 @@
     <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
       <DetailLayout v-if="canView || isInvalidBookmark" ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
         <template v-slot:panel>
-          <BookmarkPanel v-show="canView" :types="bookmarkPanelTypes" @panelClick="panelClick" />
+          <SnapshotRightEdgeToolbar v-if="canView" v-model="activePanel" :panel-open="!!(summariesExpanded || botExpanded)" />
         </template>
         <template v-if="!!isTrashedBookmark" v-slot:tips>
           <TopTips
@@ -44,21 +44,10 @@
         <template v-if="detail" v-slot:detail>
           <div class="detail">
             <BookmarkArticle ref="bookmarkArticle" :detail="detail" @screen-lock-update="screenLockUpdate" @bookmark-update="bookmarkUpdate" @chat-bot-quote="chatBotQuote" />
-            <div class="archive" v-if="!isArchieved">
-              <button @click="convienceArchiveClick">
-                <template v-if="!convienceArchiving">
-                  <img src="@images/panel-item-archive.png" alt="" /> <span>{{ $t('common.operate.archive') }}</span>
-                </template>
-                <template v-else>
-                  <div class="archive-loading">
-                    <div class="i-svg-spinners:90-ring text-brand"></div>
-                  </div>
-                </template>
-              </button>
-            </div>
           </div>
         </template>
       </DetailLayout>
+      <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
       <template v-if="canView">
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
           <ClientOnly>
@@ -104,13 +93,14 @@
 <script lang="ts" setup>
 import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
+import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
 import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
 
@@ -120,9 +110,11 @@ import { RequestError } from '@commons/utils/request'
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkDetail, BookmarkParseStatus, type EmptyBookmarkResp } from '@commons/types/interface'
 import { vResizeObserver } from '@vueuse/components'
+import { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showEditNameModal, showShareConfigModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 
 const { t } = useI18n()
@@ -136,6 +128,11 @@ const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
 const bmId = Number(router.params.id)
 const detail = ref<BookmarkDetail>()
 const convienceArchiving = ref(false)
+
+// 从 detail 派生加星状态（供 BottomToolbar 消费）
+// 用空对象兜底，避免 useArticleDetail 内 isBookmarkDetail 对 undefined 执行 'in' 操作符报错
+const detailForArticle = computed(() => (detail.value ?? {}) as BookmarkArticleDetail)
+const { isStarred, allowStarred, updateStarred } = useArticleDetail(detailForArticle)
 
 const bookmarkArticle = ref<typeof BookmarkArticle>()
 const bookmarkDetail = ref<HTMLDivElement>()
@@ -170,15 +167,51 @@ const isArchieved = computed(() => {
   return !(!detail.value || detail.value?.archived === 'inbox')
 })
 
-const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
-  return [
-    BookmarkPanelType.AI,
-    BookmarkPanelType.CHATBOT,
-    ...(isTrashedBookmark.value ? [] : [!isArchieved.value ? BookmarkPanelType.ARCHIVE : BookmarkPanelType.UNARCHIVE]),
-    BookmarkPanelType.TOP,
-    BookmarkPanelType.FEEDBACK
-  ]
+// Phase 3：activePanel 替代旧 bookmarkPanelTypes + panelClick 双状态
+const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+
+// RightEdgeToolbar 切换时触发对应面板
+watch(activePanel, val => {
+  if (val === 'ai') showAnalyzed()
+  else if (val === 'chat') showChatbot()
 })
+
+// SVG icon 字符串
+const archiveIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v2H2V4zm1 3h10v7H3V7zm3 2v3m2-3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+const starIconOff = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4H14l-3.5 2.5 1.5 4L8 10l-4 2.5 1.5-4L2 6h4.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>`
+const starIconOn = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4H14l-3.5 2.5 1.5 4L8 10l-4 2.5 1.5-4L2 6h4.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="currentColor"/></svg>`
+const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+
+const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [
+  {
+    id: 'archive',
+    icon: archiveIcon,
+    label: isArchieved.value ? t('common.operate.unarchive') : t('common.operate.archive'),
+    visible: !isTrashedBookmark.value
+  },
+  {
+    id: 'star',
+    icon: isStarred.value ? starIconOn : starIconOff,
+    label: isStarred.value ? t('common.tips.unstar_success') : t('common.tips.star_success'),
+    active: isStarred.value,
+    visible: allowStarred.value
+  },
+  {
+    id: 'top',
+    icon: topIcon,
+    label: t('common.operate.top')
+  }
+])
+
+const bottomToolbarAction = async (action: BottomToolbarAction) => {
+  if (action.id === 'archive') {
+    await archiveBookmark(isArchieved.value)
+  } else if (action.id === 'star') {
+    await starBookmark(!isStarred.value)
+  } else if (action.id === 'top') {
+    backToTop()
+  }
+}
 
 const loadBookmark = async () => {
   if (loading.value) {
@@ -365,6 +398,21 @@ const convienceArchiveClick = async () => {
 
 const findQuote = (quote: QuoteData) => {
   bookmarkArticle.value?.findQuote(quote)
+}
+
+const starBookmark = async (isStar: boolean) => {
+  if (!updateStarred) return
+  try {
+    await updateStarred(isStar)
+    postChannelMessage('star', { id: bmId, cancel: !isStar })
+    Toast.showToast({
+      text: t(!isStar ? 'common.tips.unstar_success' : 'common.tips.star_success'),
+      type: ToastType.Success
+    })
+  } catch (e) {
+    console.log(e)
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+  }
 }
 
 const moreMenuClick = async (action: MoreMenuAction) => {

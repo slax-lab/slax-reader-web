@@ -3,7 +3,7 @@
     <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
       <DetailLayout ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
         <template v-slot:panel>
-          <BookmarkPanel v-show="detail" :types="bookmarkPanelTypes" @panelClick="panelClick" />
+          <SnapshotRightEdgeToolbar v-if="detail" v-model="activePanel" :panel-open="!!(summariesExpanded || botExpanded)" />
         </template>
         <template v-slot:tips>
           <ClientOnly>
@@ -59,6 +59,7 @@
           </ClientOnly>
         </template>
       </DetailLayout>
+      <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
       <ClientOnly>
         <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
           <ClientOnly>
@@ -90,14 +91,15 @@
 <script lang="ts" setup>
 import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
 import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
+import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
 import SnapshotSharePopover from '#layers/core/app/components/Snapshot/SnapshotSharePopover.vue'
 import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
@@ -109,6 +111,7 @@ import { extractHTMLTextContent } from '@commons/utils/parse'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
 import { vResizeObserver } from '@vueuse/components'
+import { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
@@ -140,11 +143,23 @@ const shareText = computed(() => {
   })
 })
 
-const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
-  return [BookmarkPanelType.AI, BookmarkPanelType.CHATBOT, BookmarkPanelType.TOP, BookmarkPanelType.FEEDBACK]
+const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
+
+// Phase 3：activePanel + BottomToolbar（s 页仅 top 按钮）
+const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+
+watch(activePanel, val => {
+  if (val === 'ai') showAnalyzed()
+  else if (val === 'chat') showChatbot()
 })
 
-const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
+const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+
+const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [{ id: 'top', icon: topIcon, label: t('common.operate.top') }])
+
+const bottomToolbarAction = (action: BottomToolbarAction) => {
+  if (action.id === 'top') backToTop()
+}
 
 const defineSeo = () => {
   if (!detail.value) {
@@ -366,23 +381,6 @@ const transferSaveClick = () => {
         type: ToastType.Success
       })
     })
-}
-
-const panelClick = (type: BookmarkPanelType) => {
-  switch (type) {
-    case BookmarkPanelType.AI:
-      showAnalyzed()
-      break
-    case BookmarkPanelType.CHATBOT:
-      showChatbot()
-      break
-    case BookmarkPanelType.TOP:
-      backToTop()
-      break
-    case BookmarkPanelType.FEEDBACK:
-      showFeedback()
-      break
-  }
 }
 
 const moreMenuClick = (action: MoreMenuAction) => {
