@@ -50,14 +50,18 @@ export default defineConfig(
           shell: 'var(--slax-shell-w)',
           content: 'var(--slax-content-w)',
           'content-min': 'var(--slax-content-min-w)',
-          'side-panel': 'var(--slax-side-panel-w)'
+          'side-panel': 'var(--slax-side-panel-w)',
+          'side-panel-min': 'var(--slax-side-panel-min-w)',
+          'side-panel-max': 'var(--slax-side-panel-max-w)'
         },
         maxWidth: {
           shell: 'var(--slax-shell-w)',
-          content: 'var(--slax-content-w)'
+          content: 'var(--slax-content-w)',
+          'side-panel-max': 'var(--slax-side-panel-max-w)'
         },
         minWidth: {
-          content: 'var(--slax-content-min-w)'
+          content: 'var(--slax-content-min-w)',
+          'side-panel-min': 'var(--slax-side-panel-min-w)'
         },
         height: {
           header: 'var(--slax-header-height)'

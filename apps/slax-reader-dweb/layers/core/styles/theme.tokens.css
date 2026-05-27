@@ -52,6 +52,10 @@
   --slax-content-w: 820px;
   --slax-content-min-w: 640px;
   --slax-side-panel-w: 440px;
+  --slax-side-panel-min-w: 380px;
+  --slax-side-panel-max-w: 680px;
+  /* JS 动态写入完整有效推距，CSS 消费方用 * -0.5 做中心点修正 */
+  --slax-push-amount: 0px;
 
   /* 顶栏高度三档（来源：design-system §5.1）：
    *   --slax-header-h-list:     列表页 / error / guide / [...slug] / 营销页等默认场景
