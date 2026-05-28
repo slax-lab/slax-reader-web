@@ -34,14 +34,13 @@ const logoClick = () => {
 <style lang="scss" scoped>
 .slug {
   --style: w-full flex flex-col items-center overflow-hidden select-none;
-  --header-height: 44px;
 
   .responsive-width {
     --style: pl-128px;
   }
 
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
 
     .header-container {
       --style: flex items-center;
@@ -71,7 +70,7 @@ const logoClick = () => {
   }
 
   .content {
-    --style: w-full pt-[var(--header-height)] pb-68px h-screen flex-center -translate-y-25px;
+    --style: w-full pt-[var(--slax-header-height)] pb-68px h-screen flex-center -translate-y-25px;
     .slug-container {
       --style: flex-center flex-col;
 
@@ -80,11 +79,11 @@ const logoClick = () => {
       }
 
       span {
-        --style: mt-16px text-(14px #999) line-height-20px;
+        --style: mt-16px text-(meta #999) line-height-20px;
       }
 
       button {
-        --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+        --style: 'mt-100px w-274px h-48px text-(meta #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
       }
     }
   }

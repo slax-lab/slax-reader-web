@@ -13,7 +13,7 @@
               :button-enabled="isShowTransferButton"
               :tipsText="shareText"
               :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
-              :buttonTextColor="isShowTransferButton ? '#5490C2' : '#999999'"
+              :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
               :background-color="'#EDF8F2'"
               @clickButton="transferSaveClick"
             >
@@ -375,10 +375,14 @@ const panelClick = (type: BookmarkPanelType) => {
 
 <style lang="scss" scoped>
 .bookmark-detail {
-  --style: w-full min-h-screen relative flex justify-center items-start bg-#fcfcfc;
+  // 公开快照页归在 snapshot 档（design-system §5.1：52px），
+  // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
+  --slax-header-height: var(--slax-header-h-snapshot);
+
+  --style: w-full min-h-screen relative flex justify-center items-start bg-surface-solid;
 
   .user-icon {
-    --style: 'rounded-full border-(1px #ffffff solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-250 hover:scale-102 active:scale-105';
+    --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-normal hover:scale-102 active:scale-105';
     img {
       --style: absolute w-full h-full top-0 left-0 object-contain;
     }
@@ -390,7 +394,7 @@ const panelClick = (type: BookmarkPanelType) => {
     .left {
       --style: flex items-center justify-start;
       .app-name {
-        --style: text-(16px #16b998) font-bold line-height-22px;
+        --style: text-(body #16b998) font-bold line-height-22px;
       }
 
       & > * {
@@ -416,6 +420,6 @@ const panelClick = (type: BookmarkPanelType) => {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  --style: bg-#fcfcfc;
+  --style: bg-surface-solid;
 }
 </style>

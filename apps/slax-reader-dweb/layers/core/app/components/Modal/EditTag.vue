@@ -21,6 +21,7 @@
           <button @click="submitTagName">{{ t('common.operate.save') }}</button>
         </div>
         <Transition name="opacity">
+          <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
             <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
           </div>
@@ -150,23 +151,24 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .edit-tag-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
 
 button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
+  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
 
   .header {
     --style: flex justify-between items-center;
     span {
-      --style: text-(13px #999999) line-height-18px;
+      --style: text-(aux txt-light) line-height-18px;
     }
 
     button {
@@ -180,11 +182,11 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     textarea {
-      --style: w-full h-60px rounded-2 border-(1px solid #3333330d) text-(15px #0f1419) bg-#fcfcfc line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-60px rounded-2 border-(1px solid #3333330d) text-(meta txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(15px #999999);
+        --style: text-(meta txt-light);
       }
     }
   }
@@ -197,9 +199,11 @@ button {
     }
 
     button:not(.delete) {
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+      // #16B998 品牌绿（slax 主色）保存按钮底色，保留
+      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
 
       &:hover {
+        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
         --style: bg-#14a689;
       }
 
@@ -217,6 +221,6 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

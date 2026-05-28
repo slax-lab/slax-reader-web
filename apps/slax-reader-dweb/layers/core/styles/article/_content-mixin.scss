@@ -18,22 +18,24 @@
 
   /* 引用类 */
   blockquote {
-    --style: border-l-(3px solid #33333314) pl-3 text-(#33333399) line-height-24px;
+    // text-#33333399 (60% 半透明黑) 与 token --slax-text-muted 不完全对应，保留 inline 引用
+    --style: border-l-(3px solid border) pl-3 text-(#33333399) line-height-24px;
   }
 
   /* 表格类 */
   table {
-    --style: '!w-full border-separate border border-spacing-5px border-(1px solid #33333314)';
+    --style: '!w-full border-separate border border-spacing-5px border-(1px solid border)';
   }
 
   th,
   tr,
   td {
-    --style: text-align-left border-(1px solid #33333314);
+    --style: text-align-left border-(1px solid border);
   }
 
   /* 链接类 */
   a {
+    // text-#5490C2 第三方蓝色锚点（twitter/anchor 同源），保留
     --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
   }
 
@@ -48,12 +50,13 @@
   }
 
   img {
-    --style: max-w-full h-auto bg-#f5f5f3 object-contain;
+    --style: max-w-full h-auto bg-surface object-contain;
     & + img {
       --style: '!mt-10px';
     }
 
     &.slax-image-loading {
+      // from-#f5f5f3 to-#99999950 图片加载灰渐变占位，保留
       --style: bg-gradient-to-br from-#f5f5f3 to-#99999950;
       background-size: 400% 400%;
       animation: imageLoading 3s ease infinite;
@@ -90,14 +93,14 @@
 
   /* 标题类 */
   h1 {
-    --style: text-24px line-height-36px font-bold;
+    --style: text-h2 line-height-36px font-bold;
   }
 
   h2,
   h3,
   h4,
   h5 {
-    --style: text-20px line-height-30px font-semibold;
+    --style: text-brand line-height-30px font-semibold;
   }
 
   /* 列表类 */
@@ -113,7 +116,7 @@
     }
 
     & > li::before {
-      --style: 'content-empty !absolute bg-#333333 w-4px h-4px rounded-full top-11px -left-20px';
+      --style: 'content-empty !absolute bg-txt w-4px h-4px rounded-full top-11px -left-20px';
     }
   }
 

@@ -29,7 +29,8 @@
           <BubbleMessage :message="bufferMessage" />
         </div>
         <div class="loading" v-if="isChatting">
-          <DotLoading indicate-color="#3333333d" />
+          <!-- indicate-color 走 DotLoading prop，使用 CSS var 兼容 token 切换 -->
+          <DotLoading indicate-color="var(--slax-text-light)" />
         </div>
       </div>
     </div>
@@ -788,16 +789,14 @@ defineExpose({
 
 <style lang="scss" scoped>
 .chat-bot {
-  --style: w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4;
-  --style: 'bg-#fcfcfc dark:bg-#262626';
+  --style: w-full h-full flex flex-col justify-stretch items-center overflow-hidden rounded-4 bg-surface-solid;
 
   .dark-trigger {
     --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
   }
 
   .chat-header {
-    --style: w-full pt-20px px-16px flex justify-between items-center relative;
-    --style: 'h-54px pb-10px dark:(h-70px pb-25px)';
+    --style: 'w-full pt-20px px-16px flex justify-between items-center relative h-54px pb-10px dark:(h-70px pb-25px)';
 
     .chat-title {
       --style: flex items-center select-none;
@@ -807,12 +806,12 @@ defineExpose({
       }
 
       span {
-        --style: ml-8px text-(13px #999) line-height-18px;
+        --style: ml-8px text-(aux txt-light) line-height-18px;
       }
     }
 
     .close {
-      --style: 'w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
       img {
         --style: w-full select-none;
       }
@@ -820,8 +819,8 @@ defineExpose({
 
     &:before,
     &:after {
-      --style: content-empty absolute left-16px right-16px h-1px;
-      --style: 'bg-transparent dark:bg-#FFFFFF0F';
+      // dark 模式专属装饰条（half-transparent white），light 下不显示，保留
+      --style: 'content-empty absolute left-16px right-16px h-1px bg-transparent dark:bg-#FFFFFF0F';
     }
 
     &:before {
@@ -834,13 +833,11 @@ defineExpose({
   }
 
   .messages-container {
-    --style: relative flex-1 w-full h-full px-4px overflow-hidden;
-    --style: 'dark:pt-15px';
+    --style: 'relative flex-1 w-full h-full px-4px overflow-hidden dark:pt-15px';
 
     &::before,
     &::after {
-      --style: z-2 content-empty absolute h-10px w-full left-0 to-transprent;
-      --style: 'from-#fcfcfc dark:from-#262626';
+      --style: z-2 content-empty absolute h-10px w-full left-0 to-transprent from-surface-solid;
     }
 
     &::before {
@@ -876,12 +873,10 @@ defineExpose({
   .bottom-container {
     --style: w-full;
     .quote-container {
-      --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid);
-      --style: 'border-t-#ecf0f5 dark:border-t-#ffffff0f';
+      --style: px-12px pt-16px pb-8px flex items-center justify-between border-t-(1px solid) border-t-border;
 
       .quote {
-        --style: pl-8px border-l-(2px solid) line-clamp-2 text-15px break-all;
-        --style: 'border-l-#0f141914 text-#0f141999 dark:border-l-#ffffff14 dark:(text-#ffffff66)';
+        --style: pl-8px border-l-(2px solid) line-clamp-2 text-meta break-all border-l-border text-txt-muted;
 
         i.img {
           --style: w-13px h-13px inline-block bg-contain mr-4px translate-y-2px;
@@ -893,7 +888,7 @@ defineExpose({
       }
 
       button {
-        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-250;
+        --style: ml-16px shrink-0 w-16px h-16px bg-contain transition-transform duration-normal;
         &:hover {
           --style: scale-105;
         }
@@ -906,28 +901,28 @@ defineExpose({
 
     .input-container {
       --style: w-full p-12px rounded-1 overflow-hidden;
-      --style: 'dark:bg-#262626FF';
+      // dark 下 input-container 自身额外填充背景，由 token surface-solid 接管即可
+      --style: 'dark:bg-surface-solid';
 
       .textarea-wrapper {
-        --style: w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-250;
-        --style: 'border-#ecf0f5 dark:(border-#1f1f1fff bg-#1f1f1fff)';
+        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-normal border-border dark:bg-surface-solid';
 
         &.focus {
+          // #16b99899 当前品牌绿半透明聚焦边框，保留
           --style: border-(1px solid #16b99899);
         }
 
         textarea {
-          --style: w-full min-h-22px max-h-88px h-22px resize-none text-15px line-height-22px bg-transparent;
-          --style: 'text-#333 dark:text-#ffffffe6';
+          --style: w-full min-h-22px max-h-88px h-22px resize-none text-meta line-height-22px bg-transparent text-txt;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-15px line-height-21px;
+            --style: text-meta line-height-21px;
           }
         }
 
         button {
-          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-250;
+          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-normal;
 
           &.disabled {
             --style: opacity-50 cursor-auto;

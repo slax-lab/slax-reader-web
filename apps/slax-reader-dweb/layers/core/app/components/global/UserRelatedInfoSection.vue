@@ -56,7 +56,7 @@ const bindTelegram = async () => {
 section {
   --style: 'mt-48px not-first:mt-60px';
   .title {
-    --style: font-600 text-(24px #0f1419) line-height-33px text-left select-none;
+    --style: font-600 text-(h2 #0f1419) line-height-33px text-left select-none;
   }
 
   .info {

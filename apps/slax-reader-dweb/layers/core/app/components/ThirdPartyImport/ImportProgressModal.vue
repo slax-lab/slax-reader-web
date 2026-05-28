@@ -111,11 +111,11 @@ getImportProgressData()
   --style: flex justify-between items-center px-24px py-16px border-b-(1px solid #eee);
 
   h3 {
-    --style: text-(18px #333) font-600 m-0;
+    --style: text-(card txt) font-600 m-0;
   }
 
   .close-btn {
-    --style: text-24px text-#666 bg-transparent border-none cursor-pointer hover: text-#333;
+    --style: 'text-h2 text-txt-muted bg-transparent border-none cursor-pointer hover:text-txt';
   }
 }
 
@@ -134,11 +134,11 @@ getImportProgressData()
     gap: 16px;
 
     &.header {
-      --style: text-(14px #666) font-500 bg-#f8f9fa mb-8px;
+      --style: text-(meta txt-muted) font-500 bg-surface mb-8px;
     }
 
     &:not(.header) {
-      --style: text-(14px #333) hover: bg-#f8f9fa transition-colors duration-200;
+      --style: 'text-(meta txt) hover:bg-surface transition-colors duration-200';
     }
   }
 
@@ -152,18 +152,22 @@ getImportProgressData()
 
   .status {
     span {
-      --style: px-8px py-2px rounded-full text-12px;
+      --style: px-8px py-2px rounded-full text-tag;
 
       &.status-success {
+        // bg-#e6f4ea text-#1e8e3e 成功状态浅绿底深绿字，保留
         --style: bg-#e6f4ea text-#1e8e3e;
       }
       &.status-pending {
+        // bg-#fef7e0 text-#f2994a 等待状态浅黄底橙字，保留
         --style: bg-#fef7e0 text-#f2994a;
       }
       &.status-failed {
+        // bg-#fce8e8 text-#eb5757 失败状态浅红底红字，保留
         --style: bg-#fce8e8 text-#eb5757;
       }
       &.status-processing {
+        // bg-#e6f4ea text-#006aff 处理中状态浅绿底蓝字，保留
         --style: bg-#e6f4ea text-#006aff;
       }
     }

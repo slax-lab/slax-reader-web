@@ -24,23 +24,23 @@
   .tweet-user-info {
     --style: '!ml-10px relative z-1 flex-1 min-w-0';
     .name {
-      --style: 'font-bold !text-(16px #eee) drop-shadow-(sm white)';
+      --style: 'font-bold !text-(body #eee) drop-shadow-(sm white)';
     }
 
     .description {
-      --style: '!text-(16px #fff)';
+      --style: '!text-(body #fff)';
     }
 
     .additional-info {
       --style: mt-5px;
 
       & > * {
-        --style: text-(16px #fff);
+        --style: text-(body #fff);
       }
     }
 
     .followers-following > * {
-      --style: '!text-(16px #fff)';
+      --style: '!text-(body #fff)';
     }
     .followers-following span:not(:first-child) {
       --style: '!ml-10px';
@@ -55,7 +55,7 @@
 
   .quote-tweet-container {
     --style: mt-28px relative border-(1px solid #e1e8ed) rounded-8px p-15px;
-    --style: 'hover:bg-#f5f8fa transition-colors duration-250';
+    --style: 'hover:bg-#f5f8fa transition-colors duration-normal';
 
     .quote-tweet {
       --style: '!mt-0';
@@ -68,7 +68,7 @@
         }
 
         .quote-title {
-          --style: 'font-bold !text-(14px #333)';
+          --style: 'font-bold !text-(meta #333)';
         }
 
         img + .quote-title {
@@ -77,7 +77,7 @@
       }
 
       .quote-description {
-        --style: mt-10px text-(14px #555);
+        --style: mt-10px text-(meta #555);
       }
 
       .quote-media {

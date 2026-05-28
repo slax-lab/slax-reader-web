@@ -1,6 +1,6 @@
 <template>
   <button class="apple-login-button" @click="loginClick">
-    <div class="i-logos:apple w-20px text-20px" />
+    <div class="i-logos:apple text-brand w-20px" />
     <span>{{ t('component.login_view.apple_login') }}</span>
   </button>
 </template>
@@ -47,13 +47,13 @@ defineExpose({
 
 <style lang="scss" scoped>
 .apple-login-button {
-  --style: 'w-300px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+  --style: 'w-300px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
   & > * {
     --style: 'not-first:ml-8px';
   }
 
   span {
-    --style: text-(15px #1f1f1f) font-bold line-height-18px;
+    --style: text-(meta txt) font-bold line-height-18px;
   }
 }
 </style>

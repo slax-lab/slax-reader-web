@@ -105,11 +105,11 @@ const t = (text: string) => {
       --style: ml-16px flex flex-col;
 
       .username {
-        --style: text-(18px #0f1419) line-height-25px font-600;
+        --style: text-(card txt) line-height-25px font-600;
       }
 
       .screen-name {
-        --style: mt-2px text-(14px #999) line-height-20px;
+        --style: mt-2px text-(meta txt-light) line-height-20px;
       }
     }
   }
@@ -122,16 +122,16 @@ const t = (text: string) => {
       --style: flex flex-col;
 
       span {
-        --style: text-(18px #0f1419) line-height-25px font-600;
+        --style: text-(card txt) line-height-25px font-600;
       }
 
       span + span {
-        --style: mt-2px text-(14px #999) line-height-20px;
+        --style: mt-2px text-(meta txt-light) line-height-20px;
       }
     }
 
     .seperator {
-      --style: w-1px h-36px bg-#0f141914 mx-32px;
+      --style: w-1px h-36px bg-border mx-32px;
     }
   }
 
@@ -141,16 +141,16 @@ const t = (text: string) => {
       --style: 'relative pl-12px flex whitespace-pre not-first:(mt-8px)';
 
       &::before {
-        --style: content-empty absolute bg-#333 w-4px h-4px rounded-full top-8px left-0;
+        --style: content-empty absolute bg-txt w-4px h-4px rounded-full top-8px left-0;
       }
 
       span,
       a {
-        --style: text-14px line-height-20px;
+        --style: text-meta line-height-20px;
       }
 
       span {
-        --style: text-#333;
+        --style: text-txt;
       }
 
       a {
@@ -160,22 +160,22 @@ const t = (text: string) => {
   }
 
   .description-info {
-    --style: text-(14px #333) line-height-20px mt-14px;
+    --style: text-(meta txt) line-height-20px mt-14px;
   }
 
   .tail-info {
     --style: mt-30px flex items-center;
 
     span {
-      --style: text-(14px #999) line-height-20px;
+      --style: text-(meta txt-light) line-height-20px;
     }
 
     .seperator {
-      --style: w-1px h-10px bg-#d6d6d6 mx-32px mx-10px;
+      --style: w-1px h-10px bg-border mx-32px mx-10px;
     }
 
     a {
-      --style: text-(14px #5490c2) line-height-20px underline-none decoration-none;
+      --style: text-(meta #5490c2) line-height-20px underline-none decoration-none;
     }
   }
 }

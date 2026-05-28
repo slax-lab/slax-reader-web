@@ -7,7 +7,7 @@
           <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
         </div>
         <div class="right">
-          <div class="i-svg-spinners:180-ring-with-bg size-16px text-18px text-#999" v-if="!comment.markUid || comment.loading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-card size-16px" v-if="!comment.markUid || comment.loading"></div>
         </div>
       </div>
       <div class="comment-content">{{ comment.isDeleted ? t('component.article_selection.comment_deleted') : comment.comment }}</div>
@@ -15,17 +15,14 @@
         <span class="date">{{ showCreateTime(comment) }}</span>
         <div class="operates" v-if="comment.markUid && !comment.loading">
           <template v-if="!comment.operateLoading">
-            <button
-              class="reply bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/comment:!opacity-100"
-              @click="replyComment(comment)"
-            ></button>
+            <button class="reply group-hover/comment:!opacity-100" @click="replyComment(comment)"></button>
             <button
               class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/comment:!opacity-100"
               v-if="canDeleteComment(comment)"
               @click="commentDeleteClick(comment)"
             ></button>
           </template>
-          <div class="i-svg-spinners:180-ring-with-bg ml-10px text-16px text-#999" v-else-if="comment.operateLoading"></div>
+          <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-body ml-10px" v-else-if="comment.operateLoading"></div>
         </div>
       </div>
     </div>
@@ -38,7 +35,7 @@
             <span class="parent-username">{{ childComment.reply?.username || '' }}: </span>
             <span class="comment-content-text">{{ childComment.comment }}</span>
             <div
-              class="i-svg-spinners:180-ring-with-bg ml-5px inline-block h-14px w-14px translate-y-2px text-14px text-#999 line-height-22px"
+              class="i-svg-spinners:180-ring-with-bg text-txt-light text-meta ml-5px inline-block h-14px w-14px translate-y-2px line-height-22px"
               v-if="!childComment.markUid || childComment.loading"
             ></div>
           </div>
@@ -46,17 +43,14 @@
             <span class="date">{{ showCreateTime(comment) }}</span>
             <div class="operates" v-if="childComment.markUid && !childComment.loading">
               <template v-if="!childComment.operateLoading">
-                <button
-                  class="bg-[url('@images/tiny-comment-icon.png')] dark:bg-[url('@images/tiny-comment-icon-dark.png')] group-hover/child:!opacity-100"
-                  @click="replyComment(childComment)"
-                ></button>
+                <button class="reply-child group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
                 <button
                   class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/child:!opacity-100"
                   v-if="!childComment.isDeleted && canDeleteComment(childComment)"
                   @click="commentDeleteClick(childComment)"
                 ></button>
               </template>
-              <div class="i-svg-spinners:180-ring-with-bg text-16px text-#999" v-else-if="childComment.operateLoading"></div>
+              <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-body" v-else-if="childComment.operateLoading"></div>
             </div>
           </div>
           <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
@@ -152,9 +146,16 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
 <style lang="scss" scoped>
 @use '#layers/core/styles/global.scss' as *;
 
+// 本组件消费的 token（无 dark prop，全靠宿主 data-slax-theme 切换）：
+//   --slax-surface-solid, --slax-text, --slax-text-light, --slax-border
+// 其余 (#99999933 蓝灰半透明分隔线) 保留。
+//
+// reply / reply-child 资源切图（双 PNG）：
+//   shadow DOM 不能匹配 [data-slax-theme] / :host-context()，故 light/dark 切图依赖
+//   父级 ArticleSelectionPanel 的 dark prop（在其 scoped 内 `.dark` 容器 cascade 至此）。
+
 .article-comment-cell {
-  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px';
-  --style: 'bg-#fff dark:bg-#333333FF';
+  --style: 'px-16px pt-16px pb-20px rounded-8px not-first:mt-8px bg-surface-solid';
 
   .comment-header {
     --style: flex justify-between items-center;
@@ -166,8 +167,7 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
       }
 
       span {
-        --style: ml-8px text-(13px) line-height-18px;
-        --style: 'text-#999 dark:text-#ffffff66';
+        --style: ml-8px text-(aux) line-height-18px text-txt-light;
       }
     }
 
@@ -181,48 +181,50 @@ const postComment = (comment: MarkCommentInfo, replyComment: string) => {
   }
 
   .comment-content {
-    --style: text-(16px) line-height-24px whitespace-pre-line;
-    --style: 'text-#333 dark:text-#ffffffcc';
+    --style: text-(body) line-height-24px whitespace-pre-line text-txt;
   }
 
   .comment-footer {
     --style: mt-4px flex items-center justify-between;
 
     .date {
-      --style: text-(13px) line-height-18px select-none;
-      --style: 'text-#999 dark:text-#999999ff';
+      --style: text-(aux) line-height-18px select-none text-txt-light;
     }
 
     .operates {
       --style: flex-center;
       button {
-        --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-250';
+        --style: 'w-16px h-16px opacity-0 bg-contain not-first:(ml-10px) hover:(scale-105) active:(scale-110) transition-all duration-normal';
+      }
+
+      .reply,
+      .reply-child {
+        background-image: url('@images/tiny-comment-icon.png');
       }
     }
   }
 
   .child-comments {
+    // #99999933 蓝灰半透明左竖线，与 token border 调性不完全一致，保留
     --style: mt-16px pl-12px border-l-(2px solid #99999933);
 
     .child-comment {
-      --style: 'not-first:(mt-13px) text-14px line-height-20px';
+      --style: 'not-first:(mt-13px) text-meta line-height-20px';
 
       .child-comment-content {
-        --style: text-(14px) line-height-22px whitespace-pre-line;
+        --style: text-(meta) line-height-22px whitespace-pre-line;
 
         .child-username,
         .parent-username {
-          --style: select-none;
-          --style: 'text-#999 dark:text-#FFFFFF66';
+          --style: select-none text-txt-light;
         }
 
         .reply-text {
-          --style: select-none;
-          --style: 'text-#333 dark:text-#FFFFFFCC';
+          --style: select-none text-txt;
         }
 
         .comment-content-text {
-          --style: 'text-#333 dark:text-#FFFFFFCC';
+          --style: text-txt;
         }
       }
     }

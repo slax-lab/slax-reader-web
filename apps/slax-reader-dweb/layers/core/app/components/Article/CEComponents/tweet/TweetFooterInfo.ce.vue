@@ -24,6 +24,6 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .tweet-footer-info {
-  --style: mt-16px text-(14px #999) line-height-20px select-none;
+  --style: mt-16px text-(meta txt-light) line-height-20px select-none;
 }
 </style>

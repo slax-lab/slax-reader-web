@@ -75,24 +75,25 @@ const onAfterLeave = () => {
 
 <style lang="scss" scoped>
 .snapshot-status-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
 
 button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 }
 
 .modal-content {
-  --style: bg-#f5f5f3 rounded-2 p-24px w-480px select-none mb-10;
+  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10;
   position: relative;
 
   .header {
     --style: flex justify-between items-center;
     span {
-      --style: text-(16px #333333) line-height-22px font-medium;
+      --style: text-(body txt) line-height-22px font-medium;
     }
 
     button {
@@ -106,7 +107,7 @@ button {
   .content {
     --style: mt-20px;
     .message {
-      --style: text-(14px #666666) line-height-20px;
+      --style: text-(meta txt-muted) line-height-20px;
     }
   }
 
@@ -121,7 +122,7 @@ button {
       }
 
       .checkbox-label {
-        --style: text-(13px #666666) line-height-18px cursor-pointer;
+        --style: text-(aux txt-muted) line-height-18px cursor-pointer;
       }
     }
 
@@ -129,9 +130,11 @@ button {
       --style: flex justify-end;
 
       button.primary {
-        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+        // #16B998 品牌绿（slax 主色）确认按钮底色，保留
+        --style: flex-center px-24px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
 
         &:hover {
+          // #14a689 品牌绿（slax 主色）按钮悬停态，保留
           --style: bg-#14a689;
         }
 
@@ -150,6 +153,6 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

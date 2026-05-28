@@ -42,6 +42,7 @@ const { data: page } = await useAsyncData(
 
 .terms {
   main {
+    // bg-#fcffff 文档页冷白底（带极淡蓝绿调），保留
     --style: py-40px px-20px bg-#fcffff flex-center;
 
     .terms-wrapper {

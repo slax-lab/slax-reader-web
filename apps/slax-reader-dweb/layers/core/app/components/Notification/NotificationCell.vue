@@ -136,10 +136,10 @@ const handleClick = (): void => {
 
 <style lang="scss" scoped>
 .notification-cell {
-  --style: 'rounded-8px cursor-pointer transition-all duration-250 !active:(scale-102) select-none';
+  --style: 'rounded-8px cursor-pointer transition-all duration-normal !active:(scale-102) select-none';
 
   &.normal {
-    --style: 'bg-#F5F5F3 px-24px py-16px not-first:(mt-10px) hover:(scale-101)';
+    --style: 'bg-surface px-24px py-16px not-first:(mt-10px) hover:(scale-101)';
     .notification-header {
       --style: flex items-center justify-between;
 
@@ -151,16 +151,17 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-8px text-(12px #999) line-height-17px;
+          --style: ml-8px text-(tag txt-light) line-height-17px;
 
           &.highlighted {
+            // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
             --style: text-#F6AF69;
           }
         }
       }
 
       .right {
-        --style: ml-8px text-(12px #999) line-height-17px shrink-0;
+        --style: ml-8px text-(tag txt-light) line-height-17px shrink-0;
       }
     }
 
@@ -168,7 +169,7 @@ const handleClick = (): void => {
       --style: mt-12px;
       .comment {
         .comment-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-2;
+          --style: text-(body txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -180,23 +181,24 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-1;
+          --style: text-(body txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {
+            // bg-#d6d6d6 引用左侧分隔短线（中性浅灰，与 token border 不同语义），保留
             --style: content-empty absolute left-0 top-1/2 w-2px h-21px bg-#d6d6d6 -translate-y-1/2;
           }
         }
@@ -214,18 +216,18 @@ const handleClick = (): void => {
         }
 
         span {
-          --style: ml-4px text-(14px #333 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+          --style: ml-4px text-(meta txt ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
         }
       }
 
       button {
-        --style: 'ml-auto px-10px shrink-0 text-(14px #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'ml-auto px-10px shrink-0 text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-normal';
       }
     }
   }
 
   &.simple {
-    --style: 'py-16px px-14px hover:(bg-#F5F5F3)';
+    --style: 'py-16px px-14px hover:(bg-surface)';
     .notification-header {
       --style: flex justify-between items-start;
       .left {
@@ -234,16 +236,17 @@ const handleClick = (): void => {
           --style: w-24px h-24px rounded-full;
         }
         span {
-          --style: ml-16px text-(13px #999) line-height-18px;
+          --style: ml-16px text-(aux txt-light) line-height-18px;
 
           &.highlighted {
+            // #F6AF69 通知高亮橙（与 mark 高亮同源的强调色），保留
             --style: text-#F6AF69;
           }
         }
       }
 
       .right {
-        --style: text-(13px #999) line-height-18px shrink-0;
+        --style: text-(aux txt-light) line-height-18px shrink-0;
       }
     }
 
@@ -252,7 +255,7 @@ const handleClick = (): void => {
 
       .comment {
         .comment-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-2;
+          --style: text-(body txt) line-heigh-24px line-clamp-2;
         }
 
         .link {
@@ -264,23 +267,24 @@ const handleClick = (): void => {
           }
 
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
         }
       }
 
       .reply {
         .reply-text {
-          --style: text-(16px #333) line-heigh-24px line-clamp-1;
+          --style: text-(body txt) line-heigh-24px line-clamp-1;
         }
 
         .reply-comment {
           --style: pl-10px relative mt-9px flex;
           span {
-            --style: ml-4px text-(14px #999 ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
+            --style: ml-4px text-(meta txt-light ellipsis) line-height-22px whitespace-nowrap overflow-hidden;
           }
 
           &::after {
+            // bg-#d6d6d6 引用左侧分隔短线（中性浅灰，与 token border 不同语义），保留
             --style: content-empty absolute left-0 top-1/2 w-2px h-21px bg-#d6d6d6 -translate-y-1/2;
           }
         }

@@ -39,8 +39,9 @@ const onAfterLeave = () => {
 
 <style lang="scss" scoped>
 .cursor-toast {
+  // bg-#0b0a23 深蓝紫底反色 toast 专属底色，保留
   --style: select-none max-w-md min-w-140px flex-center rounded-6px bg-#0b0a23 flex-wrap whitespace-break-spaces text-center color-white overflow-hidden text-ellipsis py-6px
-    px-16px text-(14px) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
+    px-16px text-(meta) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
 
   span {
     --style: w-full max-h-10 overflow-hidden text-ellipsis whitespace-nowrap;
@@ -62,6 +63,6 @@ const onAfterLeave = () => {
 
 .cursor-toast-enter-active,
 .cursor-toast-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

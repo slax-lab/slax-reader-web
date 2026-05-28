@@ -84,9 +84,10 @@ defineExpose({
   }
 
   button {
-    --style: 'py-8px px-16px rounded-full text-(14px #999999) line-height-20px font-medium text-align-left transition-transform duration-250 max-md:(text-align-center px-24px) flex items-center';
+    --style: 'py-8px px-16px rounded-full text-(meta txt-light) line-height-20px font-medium text-align-left transition-transform duration-normal max-md:(text-align-center px-24px) flex items-center';
 
     &.highlighted {
+      // #16B998 / #16b9980f 是当前品牌绿 + 6% 半透明背景，激活态保留
       --style: 'text-#16B998 bg-#16b9980f max-md:(bg-transparent)';
     }
 
@@ -95,7 +96,7 @@ defineExpose({
     }
 
     span {
-      --style: inline-block transition-all duration-250 inline-flex items-center;
+      --style: inline-block transition-all duration-normal inline-flex items-center;
     }
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="top-tips" v-show="isShow" :style="{ background: backgroundColor ? backgroundColor : '#fff' }">
+  <div class="top-tips" v-show="isShow" :style="{ background: backgroundColor ? backgroundColor : 'txt-btn' }">
     <div class="tips responsive-width">
       <slot name="left"></slot>
       <span class="flex-1">{{ tipsText }}</span>
@@ -49,18 +49,18 @@ defineEmits(['clickButton'])
     --style: w-full flex items-center line-height-20px;
 
     * {
-      --style: text-(14px);
+      --style: text-(meta);
     }
 
     span {
-      --style: text-(#333 ellipsis) whitespace-nowrap overflow-hidden;
+      --style: text-(txt ellipsis) whitespace-nowrap overflow-hidden;
     }
 
     button {
       --style: cursor-auto;
 
       &.enabled {
-        --style: 'cursor-pointer underline underline-#5490C2 transition-transfrom duration-250 hover:(scale-105) active:(scale-110)';
+        --style: 'cursor-pointer underline underline-#5490C2 transition-transfrom duration-normal hover:(scale-105) active:(scale-110)';
       }
     }
 

@@ -1,5 +1,11 @@
 {
   "common": {
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "eink": "E-ink",
+      "system": "System"
+    },
     "app": {
       "name": "Slax Reader",
       "seo_title": "Slax Reader: Read Smarter, Save Forever. Your AI read-it-later app for deep insights.",
@@ -38,6 +44,9 @@
       "SE": "Sweden",
       "SG": "Singapore",
       "US": "United States"
+    },
+    "error": {
+      "network": "Network error, please try again later"
     },
     "operate": {
       "add": "Add",

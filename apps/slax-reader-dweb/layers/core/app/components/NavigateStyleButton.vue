@@ -5,7 +5,7 @@
     </div>
     <Transition name="opacity">
       <div class="loading" v-show="loading">
-        <div class="i-svg-spinners:90-ring text-24px color-#5490c2"></div>
+        <div class="i-svg-spinners:90-ring text-h2 color-#5490c2"></div>
       </div>
     </Transition>
   </button>
@@ -40,16 +40,17 @@ const buttonClick = () => {
 
 <style lang="scss" scoped>
 .navigate-style-button {
-  --style: relative bg-#fcfcfc px-12px py-13px rounded-8px border-(1px solid #a8b1cd3d) overflow-hidden;
+  --style: relative bg-surface-solid px-12px py-13px rounded-8px border-(1px solid #a8b1cd3d) overflow-hidden;
 
   &.clickable {
-    --style: 'transition-all duration-250 hover:(scale-105 bg-#fafafa) active:(scale-110)';
+    // bg-#fafafa 通用浅灰 hover 底色，保留
+    --style: 'transition-all duration-normal hover:(scale-105 bg-#fafafa) active:(scale-110)';
   }
 
   .content {
     --style: flex-center;
     span {
-      --style: text-(16px #5490c2) line-height-22px font-600;
+      --style: text-(body #5490c2) line-height-22px font-600;
     }
 
     img {
@@ -58,7 +59,7 @@ const buttonClick = () => {
   }
 
   .loading {
-    --style: absolute inset-0 flex-center bg-#fcfcfc;
+    --style: absolute inset-0 flex-center bg-surface-solid;
   }
 }
 </style>

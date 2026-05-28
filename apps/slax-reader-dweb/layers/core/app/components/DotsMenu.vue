@@ -63,18 +63,19 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
   .operates-container {
     --style: absolute z-100 top-full -right-20px mt-8px;
     .operates {
-      --style: min-w-100px p-4px bg-#fff rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden;
+      --style: min-w-100px p-4px bg-surface-solid rounded-8px border-(1px #3333330d solid) flex flex-col justify-center cursor-pointer overflow-hidden;
       box-shadow: 0px 20px 60px 0px #0000001a;
 
       .operate {
         --style: px-20px py-10px flex justify-center items-center rounded-8px cursor-pointer;
 
         &:has(span) {
+          // bg-#3333330a 深色 hover 半透叠加，保留
           --style: 'transition-bg ease-in-out duration-300 hover:(bg-#3333330a)';
         }
 
         span {
-          --style: text-(13px #333) line-height-18px font-500 whitespace-nowrap;
+          --style: text-(aux txt) line-height-18px font-500 whitespace-nowrap;
         }
       }
     }
@@ -88,6 +89,6 @@ const actionClick = (e: Event, action: DotsMenuActionItem) => {
 
 .operates-enter-active,
 .operates-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

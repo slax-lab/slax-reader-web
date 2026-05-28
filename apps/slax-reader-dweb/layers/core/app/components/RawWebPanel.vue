@@ -149,13 +149,15 @@ const feedbackClick = () => {
 }
 
 .sidecontent-wrapper {
+  // bg-#262626 侧边栏专属深底（与全局主题正交的暗色面板），保留
   --style: w-0 h-full bg-#262626 z-2;
   --style: 'max-md:(absolute right-0) md:(relative)';
 
   .drag {
-    --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-250;
+    --style: absolute top-0 left-0 w-10px h-full z-2 cursor-ew-resize transition-colors duration-normal;
 
     &:hover {
+      // bg-#ffffff04 暗底拖拽条悬停高光（白色 1.5% 透明），与暗色面板配套，保留
       --style: bg-#ffffff04;
     }
   }
@@ -178,7 +180,7 @@ const feedbackClick = () => {
         }
 
         button {
-          --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+          --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
         }
 
         .close {
@@ -203,6 +205,7 @@ const feedbackClick = () => {
           --style: relative w-full h-56px;
 
           button {
+            // bg-#262626 暗色面板按钮底色，与外层 sidecontent 同源，保留
             --style: absolute top-0 right-0 size-full bg-#262626 flex items-center flex-nowrap overflow-hidden;
 
             .icon-wrapper {
@@ -211,7 +214,7 @@ const feedbackClick = () => {
               .icon {
                 --style: relative size-full;
                 img {
-                  --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+                  --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-normal object-contain select-none;
                 }
 
                 .normal {
@@ -257,9 +260,11 @@ const feedbackClick = () => {
 
 .raw-web-panel {
   .web-sidebar {
+    // bg-#262626 暗色侧栏面板底（与全局 token 正交），保留
     --style: z-1 absolute right-0px top-1/2 -translate-y-1/2 w-52px py-6px px-4px bg-#262626 rounded-(lt-8px lb-8px);
 
     &::before {
+      // bg-#262626 与 web-sidebar 同源的边缘延伸条，保留
       --style: content-empty absolute left-full top-0 w-10px h-full bg-#262626;
     }
 
@@ -267,8 +272,9 @@ const feedbackClick = () => {
       --style: relative size-44px;
 
       button {
+        // bg-#262626 暗色侧栏按钮底（与 web-sidebar 同源），保留
         --style: absolute top-0 right-0 max-w-44px h-44px p-4px pr-8px bg-#262626 rounded-(lt-8px lb-8px) flex items-center flex-nowrap overflow-hidden whitespace-nowrap
-          transition-max-width duration-250;
+          transition-max-width duration-normal;
 
         .icon-wrapper {
           --style: border-(1px solid #ffffff14) rounded-6px shrink-0;
@@ -276,7 +282,7 @@ const feedbackClick = () => {
           .icon {
             --style: relative size-36px;
             img {
-              --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-250 object-contain select-none;
+              --style: absolute size-24px left-1/2 top-1/2 -translate-1/2 transition-opacity duration-normal object-contain select-none;
             }
 
             .normal {
@@ -308,7 +314,7 @@ const feedbackClick = () => {
         }
 
         span {
-          --style: ml-8px text-(13px #ffffff99) line-height-18px shrink-0;
+          --style: ml-8px text-(aux #ffffff99) line-height-18px shrink-0;
         }
       }
     }
@@ -322,6 +328,6 @@ const feedbackClick = () => {
 
 .sidecontent-enter-active,
 .sidecontent-leave-active {
-  --style: transition-width duration-250 ease-in-out;
+  --style: transition-width duration-normal ease-in-out;
 }
 </style>

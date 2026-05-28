@@ -17,7 +17,7 @@
       </button>
       <Transition name="opacity">
         <div class="loading-content" v-show="loading">
-          <i class="i-svg-spinners:90-ring text-30px color-#fff"></i>
+          <i class="i-svg-spinners:90-ring text-txt-btn text-display"></i>
         </div>
       </Transition>
     </div>
@@ -90,29 +90,31 @@ defineExpose({
   --style: w-full rounded-8px h-48px flex overflow-hidden relative;
 
   input {
-    --style: min-w-0 rounded-l-8px flex-1 border-(1px solid #ecf0f5) border-r-none pt-13px px-16px pb-14px text-(15px #333) line-height-21px;
+    --style: min-w-0 rounded-l-8px flex-1 border-(1px solid #ecf0f5) border-r-none pt-13px px-16px pb-14px text-(meta txt) line-height-21px;
     &::placeholder,
     &::-webkit-input-placeholder {
-      --style: text-(15px #999) line-height-21px;
+      --style: text-(meta txt-light) line-height-21px;
     }
   }
 
   .operate {
-    --style: 'relative bg-#16B998 hover:(bg-#14A698) transition-all duration-250';
+    // bg-#16B998 品牌绿主按钮 + #14A698 hover 暗一档，保留
+    --style: 'relative bg-#16B998 hover:(bg-#14A698) transition-all duration-normal';
 
     &.loading,
     &.disabled {
+      // bg-#ccc 通用禁用灰，保留
       --style: 'bg-#ccc';
     }
 
     button {
-      --style: 'shrink-0 h-full pl-16px pr-20px text-(ellipsis) md:(min-w-100px) active:(scale-105) whitespace-nowrap overflow-hidden flex-center transition-all duration-250';
+      --style: 'shrink-0 h-full pl-16px pr-20px text-(ellipsis) md:(min-w-100px) active:(scale-105) whitespace-nowrap overflow-hidden flex-center transition-all duration-normal';
       img {
         --style: w-24px h-24px;
       }
 
       span {
-        --style: 'text-(18px #fff) line-height-25px max-md:(hidden)';
+        --style: 'text-(card txt-btn) line-height-25px max-md:(hidden)';
       }
 
       img + span {

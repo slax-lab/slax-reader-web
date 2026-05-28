@@ -26,7 +26,7 @@
                 <button class="share" @click="shareUrl"></button>
               </ShareBubbleTips>
               <DotsMenu v-if="!menuLoading" :actions="menuActions" @action="menuClick" />
-              <div v-else class="i-svg-spinners:90-ring w-1em text-#333333"></div>
+              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
             </div>
           </div>
         </template>
@@ -40,7 +40,7 @@
                 </template>
                 <template v-else>
                   <div class="archive-loading">
-                    <div class="i-svg-spinners:90-ring text-20px"></div>
+                    <div class="i-svg-spinners:90-ring text-brand"></div>
                   </div>
                 </template>
               </button>
@@ -77,9 +77,9 @@
         </div>
         <div class="invalid" v-else-if="isInvalidBookmark">
           <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-          <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-          <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-          <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
+          <span class="text-txt text-brand mt-30px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+          <span class="text-txt text-body mt-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+          <span class="text-txt text-meta mt-8px line-height-20px">{{ $t('common.tips.access_unavailable.bookmark_footer') }}</span>
         </div>
         <div class="processing" v-else-if="detail?.status === 'pending'">
           <div class="i-svg-spinners:clock mt-1px w-1em"></div>
@@ -402,7 +402,11 @@ const panelClick = (type: BookmarkPanelType) => {
 
 <style lang="scss" scoped>
 .bookmark-detail {
-  --style: w-full relative flex justify-center items-start bg-#fcfcfc;
+  // 阅读详情页归在 snapshot 档（design-system §5.1：52px），
+  // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
+  --slax-header-height: var(--slax-header-h-snapshot);
+
+  --style: w-full relative flex justify-center items-start bg-surface-solid;
 
   .header {
     --style: h-full flex justify-between items-center;
@@ -410,7 +414,7 @@ const panelClick = (type: BookmarkPanelType) => {
     .left {
       --style: flex items-center justify-start;
       .app-name {
-        --style: text-(16px #16b998) font-bold line-height-22px;
+        --style: text-(body #16b998) font-bold line-height-22px;
       }
 
       & > * {
@@ -438,7 +442,7 @@ const panelClick = (type: BookmarkPanelType) => {
       --style: relative w-200px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center cursor-auto;
 
       &:not(:has(.archive-loading)) {
-        --style: 'hover:(opacity-90 scale-105) transition-all duration-250 cursor-pointer';
+        --style: 'hover:(opacity-90 scale-105) transition-all duration-normal cursor-pointer';
       }
 
       & > * {
@@ -450,7 +454,7 @@ const panelClick = (type: BookmarkPanelType) => {
       }
 
       span {
-        --style: text-(15px #1f1f1f) font-bold line-height-18px;
+        --style: text-(meta txt) font-bold line-height-18px;
       }
 
       .archive-loading {
@@ -479,6 +483,6 @@ const panelClick = (type: BookmarkPanelType) => {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  --style: bg-#fcfcfc;
+  --style: bg-surface-solid;
 }
 </style>

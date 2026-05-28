@@ -24,15 +24,17 @@ defineProps<{
     --style: bg-white rounded-8px p-24px w-400px;
 
     .progress-container {
+      // bg-#eee 进度条灰底通用色，保留
       --style: w-full h-4px bg-#eee rounded-full overflow-hidden;
 
       .progress-bar {
+        // bg-#16b998 进度条品牌绿填充，保留
         --style: h-full bg-#16b998 transition-all duration-300;
       }
     }
 
     .text {
-      --style: mt-16px text-center text-(14px #333);
+      --style: mt-16px text-center text-(meta txt);
     }
   }
 }

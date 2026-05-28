@@ -44,8 +44,7 @@ const questionClick = () => {
 
 <style lang="scss" scoped>
 .question-message {
-  --style: relative w-398px min-h-48px rounded-8px border-(1px solid) py-13px pl-16px pr-19px flex items-center justify-between select-none;
-  --style: 'bg-#fff border-#99999933 dark:(bg-#1F1F1FFF border-#ffffff0a)';
+  --style: relative w-398px min-h-48px rounded-8px border-(1px solid) py-13px pl-16px pr-19px flex items-center justify-between select-none bg-surface-solid border-border;
 
   .dark-trigger {
     --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
@@ -56,17 +55,15 @@ const questionClick = () => {
   }
 
   .text {
-    --style: text-(15px) line-height-22px font-500;
-    --style: 'text-#333 dark:text-#ffffffcc';
+    --style: text-(meta) line-height-22px font-500 text-txt;
 
     &:deep(*) {
-      --style: text-(15px) line-height-22px font-500 list-none;
-      --style: 'text-#333 dark:text-#ffffffcc';
+      --style: text-(meta) line-height-22px font-500 list-none text-txt;
     }
   }
 
   i {
-    --style: w-16px h-16px bg-contain transition-transform duration-250;
+    --style: w-16px h-16px bg-contain transition-transform duration-normal;
   }
 }
 </style>

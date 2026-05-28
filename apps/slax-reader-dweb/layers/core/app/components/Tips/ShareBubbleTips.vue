@@ -105,14 +105,14 @@ const onResizeObserver = (entries: unknown | ReadonlyArray<ResizeObserverEntry>)
       --style: relative z-2 mt-10px flex items-center pl-16px pr-12px py-9px whitespace-nowrap shadow-[0px_30px_60px_0px_#00000014];
 
       .bubble-title {
-        --style: text-(15px #fff) line-height-21px font-500;
+        --style: text-(meta txt-btn) line-height-21px font-500;
         &.zh {
           --style: font-400;
         }
       }
 
       .close {
-        --style: 'ml-10px w-16px h-16px flex-center hover:(scale-110 opacity-90) active:(scale-110) transition-all duration-250';
+        --style: 'ml-10px w-16px h-16px flex-center hover:(scale-110 opacity-90) active:(scale-110) transition-all duration-normal';
         .close-img {
           --style: w-full select-none;
         }

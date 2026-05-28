@@ -51,11 +51,7 @@
                 @input="handleInput"
               >
               </textarea>
-              <button
-                :class="{ disabled: !sendable }"
-                class="bg-[url('@images/button-tiny-send.png')] dark:bg-[url('@images/button-tiny-send-dark.png')]"
-                @click="sendMessage"
-              ></button>
+              <button class="send-button" :class="{ disabled: !sendable }" @click="sendMessage"></button>
             </div>
           </div>
         </Transition>
@@ -451,9 +447,12 @@ defineExpose({
 <style lang="scss" scoped>
 @use '#layers/core/styles/global.scss' as *;
 
+// 本组件消费的 token（dark prop override 需全覆盖）：
+//   --slax-surface, --slax-surface-solid, --slax-text, --slax-text-light, --slax-text-muted
+// 其余颜色 (#a8b1cd33 蓝灰辅助、#ecf0f5 浅蓝灰边框、#0000000a 阴影规格) 保持 inline。
+
 .article-selection-comment {
-  --style: w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a];
-  --style: 'bg-#f5f5f3 dark:bg-#262626';
+  --style: w-400px max-w-screen px-16px pt-20px pb-16px rounded-16px border-(1px solid #a8b1cd33) shadow-[0px_20px_40px_0px_#0000000a] bg-surface;
 
   .draggable {
     --style: absolute top-0 left-0 w-full h-20px cursor-grab z-0;
@@ -462,12 +461,11 @@ defineExpose({
   .header {
     --style: relative text-align-center min-h-11px;
     span {
-      --style: text-(16px) line-height-16px font-600;
-      --style: 'text-#333 dark:text-#ffffff66';
+      --style: text-(body) line-height-16px font-600 text-txt-light;
     }
 
     .close {
-      --style: 'absolute right-4px top-1/2 -translate-y-1/2 w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+      --style: 'absolute right-4px top-1/2 -translate-y-1/2 w-16px h-16px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
       img {
         --style: w-full select-none;
       }
@@ -475,14 +473,13 @@ defineExpose({
   }
 
   .menus {
-    --style: mt-22px p-4px rounded-8px flex items-center;
-    --style: 'bg-#fcfcfc dark:bg-#333333';
+    --style: mt-22px p-4px rounded-8px flex items-center bg-surface-solid;
 
     .menu {
-      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-250';
+      --style: 'px-0 py-10px rounded-6px cursor-pointer flex-1 flex flex-col items-center active:(scale-105) transition-all duration-normal';
 
       &:hover {
-        --style: 'bg-#f5f5f3 dark:bg-#262626';
+        --style: bg-surface;
       }
 
       img {
@@ -490,8 +487,7 @@ defineExpose({
       }
 
       span {
-        --style: mt-6px text-(13px) line-height-18px;
-        --style: 'text-#999 dark:text-#ffffff66';
+        --style: mt-6px text-(aux) line-height-18px text-txt-light;
       }
     }
   }
@@ -499,22 +495,21 @@ defineExpose({
   .comment-input {
     --style: mt-10px max-h-300px overflow-hidden;
     .comment-input-wrapper {
-      --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between;
-      --style: 'bg-#fff border-#ecf0f5 dark:(bg-#1a1a1aff border-#1a1a1aff)';
+      // #ecf0f5 浅蓝灰输入框边框（辅助色），保留
+      --style: pl-16px pt-16px pr-20px pb-14px w-full relative border-(1px solid #ecf0f5) rounded-8px flex flex-col justify-between bg-surface-solid;
 
       textarea {
-        --style: resize-none min-h-40px max-h-200px text-(16px) line-height-24px bg-transparent;
-        --style: 'text-#333 dark:text-#ffffffcc';
+        --style: resize-none min-h-40px max-h-200px text-(body) line-height-24px bg-transparent text-txt;
 
         &::placeholder,
         &::-webkit-input-placeholder {
-          --style: text-(16px) line-height-24px;
-          --style: 'text-#999 dark:text-#ffffff66';
+          --style: text-(body) line-height-24px text-txt-light;
         }
       }
 
-      button {
-        --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-250;
+      button.send-button {
+        --style: mt-10px self-end w-20px h-20px bg-contain transition-transform duration-normal;
+        background-image: url('@images/button-tiny-send.png');
 
         &.disabled {
           --style: opacity-50 cursor-auto;
@@ -546,8 +541,7 @@ defineExpose({
 
       &::before,
       &::after {
-        --style: z-2 content-empty absolute h-6px w-full left-0 to-transprent;
-        --style: 'from-#F5F5F3 dark:from-#262626';
+        --style: z-2 content-empty absolute h-6px w-full left-0 to-transprent from-surface;
       }
 
       &::before {
@@ -588,13 +582,43 @@ textarea.shake {
 
 .input-enter-active,
 .input-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
+}
+
+// dark prop：iframe 浮层场景强制深色（与全站主题正交）。
+// 完整覆盖本组件 scoped 内消费的全部 token；CSS 自定义属性默认 inherit，
+// 子元素 .article-selection-comment / .menus / .comment-input-wrapper / textarea / 等
+// 通过 cascade 自动拿到 override。
+.dark {
+  --slax-surface: rgba(30, 27, 24, 0.75);
+  --slax-surface-solid: #1e1b18;
+  --slax-text: #e8e2d8;
+  --slax-text-light: #6a5f52;
+  --slax-text-muted: #9a8e7f;
+
+  // 资源切图（双 PNG）：CSS 变量无法承载 url() 的 dark 切换语义在 shadow DOM 内的稳定路径，
+  // 故在 .dark 容器内显式覆盖：
+  //   - panel 本组件 .send-button（comment-input-wrapper > button）
+  //   - 子组件 ArticleCommentInput .send-button（:deep 穿透）
+  //   - 子组件 ArticleCommentCell .reply / .reply-child（:deep 穿透）
+  .send-button {
+    background-image: url('@images/button-tiny-send-dark.png');
+  }
+
+  :deep(.send-button) {
+    background-image: url('@images/button-tiny-send-dark.png');
+  }
+
+  :deep(.reply),
+  :deep(.reply-child) {
+    background-image: url('@images/tiny-comment-icon-dark.png');
+  }
 }
 </style>
 
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 .article-selection-panel-container {
-  --style: transition-all duration-250;
+  --style: transition-all duration-normal;
 }
 </style>

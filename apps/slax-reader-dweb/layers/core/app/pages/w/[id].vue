@@ -67,9 +67,9 @@
             </div>
             <div class="invalid" v-else-if="isInvalidBookmark">
               <img class="w-236px object-contain -translate-x-20px" src="@images/invalid-bookmark-icon.png" alt="" />
-              <span class="mt-30px text-20px text-#1F1F1F font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
-              <span class="mt-16px text-16px text-#333 line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
-              <span class="text-#1F1F1F) mt-8px text-14px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
+              <span class="text-txt text-brand mt-30px font-600 line-height-28px">{{ $t('common.tips.access_unavailable.title') }}</span>
+              <span class="text-txt text-body mt-16px line-height-22px">{{ $t('common.tips.access_unavailable.desc') }}</span>
+              <span class="text-txt text-meta mt-8px line-height-20px">{{ $t('common.tips.access_unavailable.web_footer') }}</span>
             </div>
             <div class="refresh" v-else-if="isNeedRefresh">
               <span>{{ $t('common.tips.fetch_error') }}</span>
@@ -132,6 +132,8 @@ const canView = computed(() => {
 const { title, allowAction, bookmarkUserId } = useWebBookmarkDetail(bookmarkBriefInfo)
 
 const { injectCssToIframe } = useIframeStyles(iframeRef, markCss)
+// 同步主站主题到 iframe（注入 theme.tokens.css + data-slax-theme），与 markCss 注入并存
+useIframeTheme(iframeRef)
 
 const { progress, start, finish, clear } = useLoadingIndicator({
   duration: 5000,
@@ -386,10 +388,14 @@ const {
 
 <style lang="scss" scoped>
 .raw-web {
+  // 快照页桌面顶栏切到 snapshot 档（design-system §5.1：52px），
+  // 通过 override --slax-header-height 让本页所有 var(--slax-header-height) / h-header 都拿到 52
+  --slax-header-height: var(--slax-header-h-snapshot);
+
   --style: relative w-full h-100vh flex flex-col;
 
   .header {
-    --style: 'absolute top-0 left-0 w-full h-[var(--header-height)] z-10 p-0 flex items-center shrink-0 justify-between select-none bg-#f5f5f3';
+    --style: 'absolute top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center shrink-0 justify-between select-none bg-surface';
 
     .left {
       --style: ml-40px h-full flex items-center relative;
@@ -420,7 +426,7 @@ const {
   }
 
   .content-wrapper {
-    --style: 'relative w-full h-full pt-[var(--header-height)] flex justify-between items-center';
+    --style: 'relative w-full h-full pt-[var(--slax-header-height)] flex justify-between items-center';
     .iframe-wrapper {
       --style: size-full border-none;
 
@@ -449,11 +455,11 @@ const {
 
       .refresh {
         span {
-          --style: mt-16px text-(14px #999) line-height-20px;
+          --style: mt-16px text-(meta txt-light) line-height-20px;
         }
 
         button {
-          --style: 'mt-100px w-274px h-48px text-(15px #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-250';
+          --style: 'mt-100px w-274px h-48px text-(meta txt) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
         }
       }
     }
@@ -464,6 +470,6 @@ const {
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 html {
-  background-color: #f5f5f3;
+  background-color: var(--slax-surface);
 }
 </style>

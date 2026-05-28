@@ -37,13 +37,15 @@ const onAfterLeave = () => {
 <style lang="scss" scoped>
 .text-toast {
   --style: select-none max-w-md min-w-140px flex-center rounded-6px bg-black bg-opacity-50 flex-wrap whitespace-break-spaces text-center color-white overflow-hidden text-ellipsis
-    py-6px px-16px text-(14px) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
+    py-6px px-16px text-(meta) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
 
   &.success {
+    // #16b998 品牌绿边框/文字 + #E7FAF6 浅绿底，成功 toast，保留
     --style: border-(1px solid #16b998) bg-#E7FAF6 text-(#16b998);
   }
 
   &.error {
+    // #f4c982 浅橙边框 + #FFF6E7 黄底 + #f19943 橙文，错误 toast，保留
     --style: border-(1px solid #f4c982) bg-#FFF6E7 text-(#f19943);
   }
 
@@ -67,7 +69,7 @@ const onAfterLeave = () => {
 
 .toast-enter-active,
 .toast-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>
 

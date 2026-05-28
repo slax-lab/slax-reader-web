@@ -19,7 +19,7 @@
         </div>
         <Transition name="loading">
           <div class="loading" v-show="loading">
-            <div class="i-svg-spinners:90-ring text-24px color-#16b998"></div>
+            <div class="i-svg-spinners:90-ring text-h2 color-#16b998"></div>
           </div>
         </Transition>
         <div class="empty" v-if="notifications.length === 0">
@@ -236,11 +236,12 @@ if (notification.isSupportedNotification) {
   }
 
   .dot {
+    // bg-#f6af69 通知未读橙色提示点，保留
     --style: absolute top-0 right-0 w-5px h-5px rounded-full bg-#f6af69;
   }
 
   .notification-bubble {
-    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-#fff border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-250';
+    --style: 'absolute top-full rounded-16px mt-10px z-10 bg-surface-solid border-(1px solid #ecf0f5) shadow-[0px_30px_60px_0px_#0000000a] transition-all duration-normal';
 
     width: v-bind(bubbleWidth);
     left: v-bind(leftOffset);
@@ -249,15 +250,15 @@ if (notification.isSupportedNotification) {
       --style: px-24px h-56px border-b-(1px solid #ecf0f5) flex justify-between items-center;
 
       span {
-        --style: text-(14px #333) font-600 line-height-20px;
+        --style: text-(meta txt) font-600 line-height-20px;
       }
 
       .check-all {
-        --style: 'text-(14px #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-250';
+        --style: 'text-(meta #5490c2) line-height-20px hover:(scale-102) active:(scale-105) transition-all duration-normal';
       }
 
       .close {
-        --style: 'md:(hidden) ml-10px -mr-16px w-32px h-32px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+        --style: 'md:(hidden) ml-10px -mr-16px w-32px h-32px flex-center hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 
         img {
           --style: w-16px h-auto;
@@ -277,7 +278,7 @@ if (notification.isSupportedNotification) {
       }
 
       span {
-        --style: mt-24px text-(14px #999) line-height-22px;
+        --style: mt-24px text-(meta txt-light) line-height-22px;
       }
     }
 

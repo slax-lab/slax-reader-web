@@ -129,23 +129,24 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 
 <style lang="scss" scoped>
 .feedback-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-250;
+  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
+    // #0f141999 通用 UI 蒙层（深灰半透），保留
     --style: bg-#0f141999;
   }
 }
 
 button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-250';
+  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
 }
 
 .modal-content {
-  --style: relative bg-#f5f5f3 rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
+  --style: relative bg-surface rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
 
   .header {
     --style: relative z-1 flex justify-between items-center;
     span {
-      --style: text-(13px #999999) line-height-18px;
+      --style: text-(aux txt-light) line-height-18px;
     }
 
     button {
@@ -159,7 +160,7 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
-      --style: 'w-full text-(14px ellipsis #333333) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
+      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
     }
 
     .link {
@@ -175,11 +176,11 @@ button {
     }
 
     textarea {
-      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(15px #0f1419) bg-#fcfcfc line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(meta txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
 
       &::placeholder,
       &::-webkit-input-placeholder {
-        --style: text-(15px #999999);
+        --style: text-(meta txt-light);
       }
     }
   }
@@ -191,7 +192,7 @@ button {
       --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer;
 
       button {
-        --style: shrink-0 border-(1px solid #3333331a) bg-#fcfcfc w-12px h-12px rounded-3px transition-transform duration-250;
+        --style: shrink-0 border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-normal;
 
         &.selected {
           --style: 'bg-center bg-[length:7px_6px] border-1';
@@ -208,18 +209,21 @@ button {
       }
 
       span {
-        --style: ml-5px text-(#333 14px) line-height-22px overflow-hidden text-ellipsis;
+        --style: ml-5px text-(txt 14px) line-height-22px overflow-hidden text-ellipsis;
       }
     }
 
     .submit {
-      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+      // #16B998 品牌绿（slax 主色）提交按钮底色，保留
+      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
 
       &.disabled {
+        // #ccc 通用 UI 灰禁用底色，保留
         --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';
       }
 
       &:not(.disabled):hover {
+        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
         --style: bg-#14a689;
       }
 
@@ -230,6 +234,7 @@ button {
   }
 
   .loading {
+    // #ffffff40 反色体系浅白加载遮罩，保留
     --style: absolute inset-0 bg-#ffffff40 flex-center;
   }
 }
@@ -241,6 +246,6 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-250 ease-in-out;
+  --style: transition-all duration-normal ease-in-out;
 }
 </style>

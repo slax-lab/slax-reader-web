@@ -253,41 +253,43 @@ const compositionend = () => {
       }
 
       .tag-add {
-        --style: 'py-10px px-16px rounded-6px bg-#a28d6414 flex-1 flex items-center cursor-pointer transition-colors duration-250 hover:bg-#a28d6430';
+        // bg-#a28d6414 / #a28d6430 tags 金黄系按钮底（褐金 8% / 19% 透明），保留
+        --style: 'py-10px px-16px rounded-6px bg-#a28d6414 flex-1 flex items-center cursor-pointer transition-colors duration-normal hover:bg-#a28d6430';
         span {
-          --style: ml-12px text-(15px #a28d64) line-height-16px;
+          --style: ml-12px text-(meta #a28d64) line-height-16px;
         }
       }
 
       .tag-input {
-        --style: border-(1px solid #f4c982) rounded-6px p-0 flex-1 flex items-center justify-between cursor-pointer transition-all duration-250;
+        --style: border-(1px solid #f4c982) rounded-6px p-0 flex-1 flex items-center justify-between cursor-pointer transition-all duration-normal;
 
         input {
-          --style: flex-1 min-w-0 px-16px py-10px text-(15px #a28d64) line-height-16px font-500 bg-transparent;
+          --style: flex-1 min-w-0 px-16px py-10px text-(meta #a28d64) line-height-16px font-500 bg-transparent;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-(15px #a28d64) font-400;
+            --style: text-(meta #a28d64) font-400;
           }
         }
 
         .seperator {
-          --style: w-1px h-14px bg-#0f141914 shrink-0;
+          --style: w-1px h-14px bg-border shrink-0;
         }
 
         button {
-          --style: 'shrink-0 px-12px text-(15px #a28d64) font-500 line-height-16px h-full transition-transfrom duration-250 hover:scale-105 active:scale-110';
+          --style: 'shrink-0 px-12px text-(meta #a28d64) font-500 line-height-16px h-full transition-transfrom duration-normal hover:scale-105 active:scale-110';
         }
       }
 
       .tag-cell {
-        --style: border-(1px solid #e4d6ba) rounded-6px px-16px py-10px flex-1 flex items-center justify-between cursor-pointer transition-all duration-250 overflow-hidden;
+        --style: border-(1px solid #e4d6ba) rounded-6px px-16px py-10px flex-1 flex items-center justify-between cursor-pointer transition-all duration-normal overflow-hidden;
 
         span {
-          --style: text-(15px #a28d64) line-height-16px text-ellipsis overflow-hidden whitespace-nowrap;
+          --style: text-(meta #a28d64) line-height-16px text-ellipsis overflow-hidden whitespace-nowrap;
         }
 
         &:has(.ai) {
+          // #e4d6ba4d / #333333ad tags 金黄 AI 标签弱化边框 + 黑色 68% 文字，保留
           --style: border-#e4d6ba4d;
           span {
             --style: text-#333333ad;
@@ -305,9 +307,9 @@ const compositionend = () => {
       }
 
       .tag-operate {
-        --style: ml-16px shrink-0 rounded-full flex-center select-none transition-opacity duration-250 opacity-0;
+        --style: ml-16px shrink-0 rounded-full flex-center select-none transition-opacity duration-normal opacity-0;
         button {
-          --style: 'rounded-full w-30px h-30px border-(1px solid #e4d6ba) flex-center transition-transform duration-250 not-first:ml-5px';
+          --style: 'rounded-full w-30px h-30px border-(1px solid #e4d6ba) flex-center transition-transform duration-normal not-first:ml-5px';
 
           &:hover {
             --style: scale-110;
@@ -327,7 +329,7 @@ const compositionend = () => {
       --style: 'flex items-center max-md:(justify-center)';
 
       span {
-        --style: ml-10px text-(15px #a28d64);
+        --style: ml-10px text-(meta #a28d64);
       }
     }
   }
@@ -342,7 +344,7 @@ const compositionend = () => {
       }
 
       span {
-        --style: ml-14px text-(#333 16px) line-height-20px font-500;
+        --style: ml-14px text-(txt 16px) line-height-20px font-500;
       }
     }
   }

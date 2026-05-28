@@ -123,7 +123,7 @@ const pocketClick = () => {
 section {
   --style: 'mt-48px not-first:mt-60px';
   .title {
-    --style: font-600 text-(24px #0f1419) line-height-33px text-left select-none;
+    --style: font-600 text-(h2 txt) line-height-33px text-left select-none;
   }
 
   .info {
@@ -134,7 +134,7 @@ section {
         --style: whitespace-pre-line;
 
         p {
-          --style: text-(14px #333) line-height-22px;
+          --style: text-(meta txt) line-height-22px;
         }
       }
 
@@ -146,7 +146,7 @@ section {
         }
 
         button.inline {
-          --style: 'text-(14px #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-250 hover:(scale-102) active:(scale-105)';
+          --style: 'text-(meta #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-normal hover:(scale-102) active:(scale-105)';
         }
       }
     }

@@ -28,7 +28,7 @@ const back = () => {
   }
 
   span {
-    --style: ml-14px text-(#333 16px) line-height-20px font-500;
+    --style: ml-14px text-(txt 16px) line-height-20px font-500;
   }
 }
 </style>

@@ -104,7 +104,7 @@ const handler = () => {
 
   &::before,
   &::after {
-    --style: z-12 content-empty absolute w-10px h-full top-0 from-#fcfcfc to-transprent;
+    --style: z-12 content-empty absolute w-10px h-full top-0 from-surface-solid to-transprent;
   }
 
   &::before {
@@ -128,6 +128,7 @@ const handler = () => {
       scroll-snap-align: center;
 
       &:before {
+        // bg-#ECECEC 时间轴主轨浅灰（与 token border 不同语义，专属时间轴色），保留
         --style: content-empty absolute top-0px left-0 right-0 h-2px bg-#ECECEC -translate-y-1/2;
       }
 
@@ -137,6 +138,7 @@ const handler = () => {
         }
 
         &:after {
+          // bg-#ECECEC 时间轴起始箭头浅灰（与主轨同源），保留
           --style: content-empty absolute left-0 top-0 w-18px h-12px bg-#ECECEC -translate-y-1/2;
 
           clip-path: polygon(0 50%, 100% 0, 72% 50%, 100% 100%); /* 定义箭头形状 */
@@ -144,13 +146,13 @@ const handler = () => {
       }
 
       .timeline-content {
-        --style: relative min-w-342px pt-32px px-24px transition-opacity duration-250;
+        --style: relative min-w-342px pt-32px px-24px transition-opacity duration-normal;
 
         h1 {
-          --style: relative px-28px text-(#333 18px) line-height-25px;
+          --style: relative px-28px text-(txt 18px) line-height-25px;
 
           &::after {
-            --style: content-empty absolute rounded-full top-1/2 -translate-y-1/2 left-0 w-16px h-16px bg-#fff border-(4px solid #a8b1cd80);
+            --style: content-empty absolute rounded-full top-1/2 -translate-y-1/2 left-0 w-16px h-16px bg-surface-solid border-(4px solid #a8b1cd80);
           }
         }
 
@@ -158,14 +160,14 @@ const handler = () => {
           --style: mt-24px;
 
           li {
-            --style: 'px-28px relative text-(15px #999) line-height-21px not-first:(mt-8px)';
+            --style: 'px-28px relative text-(meta txt-light) line-height-21px not-first:(mt-8px)';
 
             &::marker {
               --style: content-none hidden;
             }
 
             &:before {
-              --style: absolute top-8px left-5px w-4px h-4px bg-#999 content-empty rounded;
+              --style: absolute top-8px left-5px w-4px h-4px bg-txt-light content-empty rounded;
             }
           }
         }
@@ -175,16 +177,17 @@ const handler = () => {
             --style: text-(#16b998 18px);
 
             &::after {
+              // border-#16b998 active 时间节点品牌绿描边（slax 主色，与全局主题正交），保留
               --style: border-#16b998;
             }
           }
 
           ul {
             li {
-              --style: text-(15px #333);
+              --style: text-(meta txt);
 
               &:before {
-                --style: bg-#333;
+                --style: bg-txt;
               }
             }
           }

@@ -204,7 +204,7 @@ const localeSelect = (index: number) => {
 
 <style lang="scss" scoped>
 .user-info {
-  --style: w-full relative flex justify-center items-start bg-#fcfcfc pb-88px;
+  --style: w-full relative flex justify-center items-start pb-88px;
 
   .content {
     --style: 'relative min-h-screen flex-1 max-md:(pb-10 !w-full) transition-transform duration-200';
@@ -212,7 +212,7 @@ const localeSelect = (index: number) => {
       --style: h-11 border-b-(1px solid #ecf0f5) flex justify-between items-center;
 
       .app-name {
-        --style: text-(16px #16b998) font-bold line-height-22px;
+        --style: text-(body #16b998) font-bold line-height-22px;
       }
     }
 
@@ -229,7 +229,7 @@ const localeSelect = (index: number) => {
           --style: mt-24px flex items-center justify-start;
 
           .title {
-            --style: text-(14px #333) line-height-20px mr-16px;
+            --style: text-(meta #333) line-height-20px mr-16px;
           }
 
           // eslint-disable-next-line vue-scoped-css/no-unused-selector
@@ -241,7 +241,7 @@ const localeSelect = (index: number) => {
       section {
         --style: 'not-first:mt-60px';
         .title {
-          --style: font-600 text-(24px #0f1419) line-height-33px text-left select-none;
+          --style: font-600 text-(h2 #0f1419) line-height-33px text-left select-none;
         }
 
         .info {
@@ -259,11 +259,11 @@ const localeSelect = (index: number) => {
                 --style: ml-24px flex flex-col;
 
                 .username {
-                  --style: text-(18px #0f1419) line-height-25px font-600;
+                  --style: text-(card #0f1419) line-height-25px font-600;
                 }
 
                 .email {
-                  --style: mt-4px text-(14px #999) line-height-20px;
+                  --style: mt-4px text-(meta #999) line-height-20px;
                 }
               }
             }
