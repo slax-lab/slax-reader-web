@@ -18,22 +18,18 @@
 
     <nav class="side-panel-tabs">
       <button class="side-panel-close" :title="$t('common.operate.cancel')" @click="$emit('update:activeTab', null)">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-          <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18">
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="tab-btn"
-        :class="{ active: activeTab === tab.id }"
-        :title="tab.label"
-        @click="$emit('update:activeTab', activeTab === tab.id ? null : tab.id)"
-      >
-        <span class="tab-icon" v-html="tab.icon" />
-        <span class="tab-label">{{ tab.label }}</span>
-      </button>
+      <div class="side-panel-tabs-group">
+        <template v-for="(tab, idx) in tabs" :key="tab.id">
+          <div v-if="idx > 0" class="panel-tab-sep" />
+          <button class="side-panel-tab" :class="{ active: activeTab === tab.id }" :title="tab.label" @click="$emit('update:activeTab', activeTab === tab.id ? null : tab.id)">
+            <span class="tab-icon" v-html="tab.icon" />
+          </button>
+        </template>
+      </div>
     </nav>
   </aside>
 </template>
@@ -56,31 +52,36 @@ const { panelWidth, isDragging, startDrag } = useSnapshotLayout()
 const tabs: { id: TabId; label: string; icon: string }[] = [
   {
     id: 'ai',
-    label: 'AI',
-    icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L9.5 6H14L10.5 8.5L12 12.5L8 10L4 12.5L5.5 8.5L2 6H6.5L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>`
+    label: 'AI 解析',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2l.5 4 4 .5-4 .5-.5 4-.5-4-4-.5 4-.5z"/><path d="M15 12l.5 3 3 .5-3 .5-.5 3-.5-3-3-.5 3-.5z"/></svg>`
   },
   {
     id: 'chat',
     label: 'Chat',
-    icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3C2 2.45 2.45 2 3 2H13C13.55 2 14 2.45 14 3V10C14 10.55 13.55 11 13 11H5L2 14V3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>`
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>`
   },
   {
     id: 'comment',
     label: '评论',
-    icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4H13M3 7H10M3 10H8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
   }
 ]
 </script>
 
 <style lang="scss" scoped>
 .side-panel {
-  --style: fixed top-0 right-0 h-screen z-30 flex;
+  --style: fixed right-0 bottom-0 z-30 flex;
+  top: var(--slax-header-h-snapshot);
   min-width: var(--slax-side-panel-min-w);
   max-width: var(--slax-side-panel-max-w);
   transform: translateX(100%);
   transition: transform 0.3s var(--slax-ease-spring);
   background: var(--slax-surface-solid);
   border-left: 1px solid var(--slax-border);
+
+  @media (max-width: 768px) {
+    top: var(--slax-header-h-mobile);
+  }
 
   &.open {
     transform: translateX(0);
@@ -92,11 +93,30 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
 }
 
 .side-panel-resize {
-  --style: absolute left-0 top-0 h-full w-4px cursor-col-resize z-10;
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  cursor: col-resize;
+  z-index: 10;
 
-  &:hover {
-    background: var(--slax-accent-soft);
-    opacity: 0.4;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 32px;
+    background: var(--slax-border);
+    border-radius: 1px;
+    opacity: 1;
+    transition: background 0.15s;
+  }
+
+  &:hover::after {
+    background: var(--slax-text-light);
   }
 }
 
@@ -109,28 +129,57 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
 }
 
 .side-panel-tabs {
-  --style: flex-none w-44px flex flex-col items-center pt-12px gap-4px border-l-(1px solid border);
+  width: 44px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--slax-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  height: 100%;
+  position: relative;
   background: var(--slax-surface);
 }
 
 .side-panel-close {
-  --style: 'w-32px h-32px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast mb-8px';
-  color: var(--slax-text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
   background: transparent;
+  cursor: pointer;
+  color: var(--slax-text-light);
+  transition: color 0.15s;
 
   &:hover {
-    background: var(--slax-accent-bg);
     color: var(--slax-text);
   }
 }
 
-.tab-btn {
-  --style: 'w-36px flex flex-col items-center gap-4px py-10px rounded-sm cursor-pointer transition-colors duration-fast';
-  color: var(--slax-text-light);
+.side-panel-tabs-group {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.side-panel-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
   background: transparent;
+  cursor: pointer;
+  color: var(--slax-text-light);
+  transition: color 0.15s;
 
   &:hover {
-    background: var(--slax-accent-bg);
     color: var(--slax-text);
   }
 
@@ -140,17 +189,23 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
   }
 
   .tab-icon {
-    --style: 'w-16px h-16px flex items-center justify-center';
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     :deep(svg) {
-      --style: w-full h-full;
+      width: 20px;
+      height: 20px;
     }
   }
+}
 
-  .tab-label {
-    font-size: 10px;
-    line-height: 1;
-  }
+.panel-tab-sep {
+  width: 20px;
+  height: 1px;
+  background: var(--slax-border);
 }
 
 // H5：全屏宽度

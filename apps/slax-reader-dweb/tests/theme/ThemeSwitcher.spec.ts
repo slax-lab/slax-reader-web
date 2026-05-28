@@ -57,7 +57,7 @@ describe('ThemeSwitcher 组件', () => {
     expect(cm.preference).toBe('dark')
   })
 
-  it('active class + aria-pressed 跟随 preference', async () => {
+  it('active class + aria-pressed 跟随 colorMode.value', async () => {
     const wrapper = setup()
     await new Promise(r => setTimeout(r, 0))
 

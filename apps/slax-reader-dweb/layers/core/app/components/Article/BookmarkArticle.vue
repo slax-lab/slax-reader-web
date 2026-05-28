@@ -7,7 +7,6 @@
       <div class="article-info">
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
-        <button class="article-url" @click="websiteClick">{{ urlString }}</button>
       </div>
       <BookmarkTags class="article-tags" :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
     </header>
@@ -288,12 +287,12 @@ const handleDrawMark = async () => {
 }
 
 const starBookmark = async (event: MouseEvent, isStar: boolean) => {
-  if (!bookmarkId || !updateStarred) {
+  if (!bookmarkId || !updateStarred.value) {
     return
   }
 
   try {
-    await updateStarred(isStar)
+    await updateStarred.value(isStar)
 
     postChannelMessage('star', { id: bookmarkId, cancel: !isStar })
 
@@ -326,12 +325,14 @@ defineExpose({
 .bookmark-article.snapshot {
   --style: relative;
   // 正文容器宽度与 padding（snapshot §2.2）
+  // padding-top: 76px 是从页面顶部算的，已有 52px header padding，故此处只需 24px
   width: var(--slax-content-w);
   max-width: 100%;
-  padding: 76px 24px 0;
+  padding: 24px 24px 0;
 
   @media (max-width: 768px) {
-    padding: 64px 16px 0;
+    // H5: 64px - 48px header = 16px
+    padding: 16px 16px 0;
   }
 
   // 清零旧 DetailLayout .detail-container mt-32px 叠加
@@ -341,12 +342,14 @@ defineExpose({
 }
 
 .article-header {
-  --style: flex flex-col gap-12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .article-divider {
-  --style: w-full h-1px;
+  height: 1px;
   background: var(--slax-border);
+  margin: 20px 0 24px;
 }
 
 .article-title {
@@ -356,38 +359,45 @@ defineExpose({
   line-height: 1.4;
   letter-spacing: -0.02em;
   color: var(--slax-text);
-  --style: m-0;
+  margin: 0 0 20px;
+  border-radius: 4px;
+  outline: none;
+  transition: box-shadow 0.15s;
+
+  &[contenteditable='true'] {
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--slax-accent) 50%, transparent);
+    padding: 2px 6px;
+    margin-left: -6px;
+    cursor: text;
+  }
 }
 
 .article-info {
-  --style: flex items-center flex-wrap gap-x-12px gap-y-4px;
+  --style: flex items-center flex-wrap gap-x-16px gap-y-4px;
 
   .article-author {
-    font-size: var(--slax-fs-meta);
+    font-size: 14px;
     color: var(--slax-text-muted);
+    font-weight: 400;
   }
 
   .article-date {
-    font-size: var(--slax-fs-aux);
+    font-size: 13px;
     font-weight: 300;
-    color: var(--slax-text-light);
-  }
-
-  .article-url {
-    --style: 'text-aux cursor-pointer hover:underline overflow-hidden whitespace-nowrap text-ellipsis max-w-200px';
     color: var(--slax-text-light);
   }
 }
 
 .article-tags {
-  --style: mt-4px;
+  margin-top: 20px;
+  padding-bottom: 8px;
 }
 
 // .article-body 是 snapshot 样式钩子，叠加在 .article-detail 上（不替换）
 .article-detail.article-body {
   // 清零旧 mt-24px，由容器 padding 控制间距
   margin-top: 0 !important;
-  padding-top: 32px;
+  padding-top: 28px;
 
   *::selection {
     --style: 'bg-#ffd99933';
@@ -424,6 +434,20 @@ defineExpose({
       font-weight: 300;
       color: var(--slax-text-light);
       text-align: center;
+    }
+  }
+
+  &:deep(slax-mark.hl-flash) {
+    text-decoration-color: var(--slax-accent);
+    animation: hl-flash 5s ease-out;
+  }
+
+  @keyframes hl-flash {
+    0% {
+      background: color-mix(in srgb, var(--slax-accent) 22%, transparent);
+    }
+    100% {
+      background: var(--slax-accent-bg);
     }
   }
 

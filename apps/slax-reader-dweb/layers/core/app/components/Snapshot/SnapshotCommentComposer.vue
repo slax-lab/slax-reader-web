@@ -1,34 +1,36 @@
 <template>
-  <div v-if="allowAction !== false" class="comment-composer">
-    <!-- 引用条（replying 状态） -->
-    <div v-if="pendingQuote" class="composer-quote">
-      <span class="quote-preview">{{ quotePreview }}</span>
-      <button class="quote-cancel" :title="$t('page.bookmarks_detail.cancel_quote')" @click="cancelReply">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-          <line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+  <!-- 无引用时隐藏整个 composer -->
+  <div v-if="allowAction !== false && hasTarget" class="comment-composer" :class="{ replying: !!replyInfo }">
+    <!-- 引用条：@用户名：内容 -->
+    <div v-if="replyInfo" class="comment-composer-quote">
+      <div class="comment-composer-quote-body">
+        <span v-if="replyInfo.username" class="comment-composer-quote-author">@{{ replyInfo.username }}：</span>{{ replyInfo.content }}
+      </div>
+      <button class="comment-composer-quote-clear" :title="$t('page.bookmarks_detail.cancel_quote')" @click="cancelReply">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
     </div>
 
-    <div class="composer-input-row">
-      <textarea
-        ref="textareaRef"
-        v-model="inputText"
-        class="composer-textarea"
-        :placeholder="$t('page.bookmarks_detail.comment_placeholder')"
-        :disabled="sending"
-        rows="1"
-        @keydown.enter.exact.prevent="handleSend"
-        @keydown.enter.shift.exact="() => {}"
-        @input="autoResize"
-      />
-      <button class="composer-send" :disabled="!inputText.trim() || sending" @click="handleSend">
+    <textarea
+      ref="textareaRef"
+      v-model="inputText"
+      class="comment-composer-textarea"
+      :placeholder="$t('page.bookmarks_detail.comment_placeholder')"
+      :disabled="sending"
+      rows="2"
+      @keydown.enter.exact.prevent="handleSend"
+      @keydown.enter.shift.exact="() => {}"
+      @input="autoResize"
+    />
+    <div class="comment-composer-actions">
+      <span class="comment-composer-hint">{{ $t('page.bookmarks_detail.send_hint') }}</span>
+      <button class="comment-composer-send" :disabled="!inputText.trim() || sending" @click="handleSend">
         <div v-if="sending" class="i-svg-spinners:90-ring w-14px" />
-        <span v-else>{{ $t('common.operate.submit') }}</span>
+        <span v-else>{{ $t('common.operate.send') }}</span>
       </button>
     </div>
-    <p class="composer-hint">{{ $t('page.bookmarks_detail.send_hint') }}</p>
   </div>
 </template>
 
@@ -46,6 +48,7 @@ const props = defineProps<{
   pendingSelection: MarkItemInfo | null
   pendingQuote: QuoteData | null
   activeInfoId: string | null
+  infos?: MarkItemInfo[]
 }>()
 
 const emits = defineEmits<{
@@ -59,12 +62,60 @@ const textareaRef = ref<HTMLTextAreaElement>()
 const inputText = ref('')
 const sending = ref(false)
 
-const quotePreview = computed(() => {
-  if (!props.pendingQuote) return ''
-  const texts = props.pendingQuote.data.filter(d => d.type === 'text').map(d => d.content)
-  const full = texts.join('')
-  return full.length > 60 ? full.slice(0, 60) + '…' : full
+// 是否有回复目标（有则显示 composer，无则隐藏）
+const hasTarget = computed(() => !!props.pendingSelection || !!props.activeInfoId)
+
+// 组装引用信息：@用户名：内容
+const replyInfo = computed((): { username: string; content: string } | null => {
+  // 新选区：从 pendingQuote 取划线文本（无用户名，只显示内容）
+  if (props.pendingSelection && props.pendingQuote) {
+    const texts = props.pendingQuote.data.filter(d => d.type === 'text').map(d => d.content)
+    const content = texts.join('').slice(0, 80)
+    if (content) return { username: '', content }
+    return null
+  }
+
+  // 点击已有划线/评论
+  if (props.activeInfoId && props.infos) {
+    const info = props.infos.find(i => i.id === props.activeInfoId)
+    if (!info) return null
+
+    const mainComment = info.comments[0]
+    if (mainComment) {
+      // 有评论：显示 @用户名：评论内容
+      const content = mainComment.comment?.slice(0, 80) ?? ''
+      return { username: mainComment.username, content }
+    }
+
+    // 纯划线：显示划线文本（从 quoteText 取，通过 DOM 查询）
+    const quoteText = getQuoteTextFromInfo(info)
+    if (quoteText) return { username: '', content: quoteText.slice(0, 80) }
+    return null
+  }
+
+  return null
 })
+
+const getQuoteTextFromInfo = (info: MarkItemInfo): string => {
+  // 优先用 approx.exact（服务端存储的精确文本，不依赖 DOM）
+  if (info.approx?.exact) return info.approx.exact
+
+  if (!info.source.length) return ''
+  const textItems = info.source.filter(s => s.type === 'text')
+  if (!textItems.length) return ''
+  try {
+    return textItems
+      .map(item => {
+        const el = document.querySelector(item.path)
+        if (!el) return ''
+        const text = el.textContent || ''
+        return text.slice(item.start ?? 0, item.end ?? text.length)
+      })
+      .join('')
+  } catch {
+    return ''
+  }
+}
 
 const cancelReply = () => {
   emits('cancel-reply')
@@ -74,13 +125,12 @@ const autoResize = () => {
   const el = textareaRef.value
   if (!el) return
   el.style.height = 'auto'
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  el.style.height = Math.min(el.scrollHeight, 200) + 'px'
 }
 
 const handleSend = async () => {
   if (!inputText.value.trim() || sending.value) return
 
-  // 未登录时弹登录 modal
   if (!userStore.userInfo) {
     showLoginModal({ redirect: location.href })
     return
@@ -95,19 +145,15 @@ const handleSend = async () => {
     let info: MarkItemInfo
 
     if (props.pendingSelection) {
-      // 优先级 1：有新选区
       info = props.pendingSelection
     } else if (props.activeInfoId) {
-      // 优先级 2：点击已有划线
       const existing = props.articleSelection.markItemInfos?.value?.find(i => i.id === props.activeInfoId)
       if (existing) {
         info = existing
       } else {
-        // 退化为全文评论
         info = { id: getUUID(), source: [], comments: [], stroke: [], approx: undefined }
       }
     } else {
-      // 优先级 3：全文评论
       info = { id: getUUID(), source: [], comments: [], stroke: [], approx: undefined }
     }
 
@@ -134,76 +180,134 @@ const handleSend = async () => {
 
 <style lang="scss" scoped>
 .comment-composer {
-  --style: flex-none border-t-(1px solid border) px-16px py-12px flex flex-col gap-8px;
-  position: sticky;
-  bottom: 0;
-  background: var(--slax-surface-solid);
-}
+  flex-shrink: 0;
+  border-top: 1px solid var(--slax-border);
+  padding: 14px 24px 24px;
+  box-shadow: 0 -8px 16px -8px color-mix(in srgb, var(--slax-accent) 6%, transparent);
+  background: var(--slax-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 
-.composer-quote {
-  --style: flex items-center justify-between gap-8px px-10px py-6px rounded-sm;
-  background: var(--slax-accent-bg);
-  border-left: 2px solid var(--slax-accent-soft);
-
-  .quote-preview {
-    font-size: var(--slax-fs-tag);
-    color: var(--slax-text-muted);
-    font-style: italic;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    flex: 1;
+  &:focus-within {
+    border-top-color: color-mix(in srgb, var(--slax-accent) 35%, transparent);
+    box-shadow: 0 -8px 16px -8px color-mix(in srgb, var(--slax-accent) 10%, transparent);
   }
 
-  .quote-cancel {
-    --style: 'flex-none w-16px h-16px flex items-center justify-center cursor-pointer';
-    color: var(--slax-text-light);
-    background: transparent;
+  .comment-composer-quote {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 10px 7px 11px;
+    background: var(--slax-accent-bg);
+    border-left: 3px solid var(--slax-accent);
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--slax-text-muted);
 
-    &:hover {
-      color: var(--slax-danger);
+    .comment-composer-quote-body {
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .comment-composer-quote-author {
+      color: var(--slax-accent);
+      font-weight: 500;
+      margin-right: 2px;
+    }
+
+    .comment-composer-quote-clear {
+      width: 18px;
+      height: 18px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: var(--slax-text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 4px;
+      transition: all 0.15s;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      &:hover {
+        color: var(--slax-text);
+        background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
+      }
     }
   }
-}
 
-.composer-input-row {
-  --style: flex items-end gap-8px;
-}
-
-.composer-textarea {
-  --style: flex-1 resize-none rounded-sm px-10px py-8px text-aux outline-none transition-colors duration-fast;
-  min-height: 36px;
-  max-height: 120px;
-  background: var(--slax-surface);
-  border: 1px solid var(--slax-border);
-  color: var(--slax-text);
-
-  &:focus {
-    border-color: var(--slax-accent-soft);
+  &.replying .comment-composer-quote {
+    display: flex;
   }
 
-  &::placeholder {
-    color: var(--slax-text-light);
+  .comment-composer-textarea {
+    width: 100%;
+    min-height: 40px;
+    max-height: 200px;
+    resize: none;
+    border: none;
+    background: transparent;
+    color: var(--slax-text);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.6;
+    outline: none;
+
+    &::placeholder {
+      color: var(--slax-text-light);
+    }
   }
-}
 
-.composer-send {
-  --style: 'flex-none px-12px py-8px rounded-sm text-aux font-500 cursor-pointer transition-colors duration-fast';
-  background: var(--slax-accent);
-  color: white;
+  .comment-composer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    .comment-composer-hint {
+      font-size: 12px;
+      color: var(--slax-text-light);
+      font-weight: 300;
+    }
+
+    .comment-composer-send {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--slax-accent);
+      color: white;
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      &:not(:disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-accent) 20%, transparent);
+      }
+    }
   }
-
-  &:not(:disabled):hover {
-    opacity: 0.9;
-  }
-}
-
-.composer-hint {
-  font-size: var(--slax-fs-tag);
-  color: var(--slax-text-light);
 }
 </style>

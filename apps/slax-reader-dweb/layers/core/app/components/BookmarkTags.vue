@@ -105,7 +105,7 @@ watch(
       const rect = add.value?.getBoundingClientRect()
       if (eleRect && rect && searchList.value) {
         const yOffset = rect.bottom - eleRect.top + 10
-        const xOffset = Math.min(rect.left - eleRect.left, eleRect.width - 200)
+        const xOffset = rect.left - eleRect.left
         searchList.value.style.top = `${yOffset}px`
         searchList.value.style.left = `${xOffset}px`
       }
@@ -190,27 +190,49 @@ const addingTagClick = (e: MouseEvent) => {
 }
 
 .tag {
-  --style: 'group relative inline-flex items-center gap-6px px-10px py-2px rounded-sm transition-all duration-fast';
-  background: var(--slax-accent-bg);
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 13px;
   color: var(--slax-text-muted);
-  font-size: var(--slax-fs-tag);
-  border: 1px solid transparent;
-
-  &:hover {
-    border-color: var(--slax-accent-soft);
-  }
+  background: transparent;
+  border: 1px solid var(--slax-border);
+  border-radius: 6px;
+  cursor: default;
+  transition: all 0.15s;
 
   .tag-name {
     --style: 'max-w-150px overflow-hidden whitespace-nowrap text-ellipsis';
   }
 
   .tag-remove {
-    --style: 'flex-none flex items-center justify-center w-14px h-14px rounded-full cursor-pointer transition-colors duration-fast opacity-0 group-hover:opacity-100';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    border: none;
+    background: none;
+    cursor: pointer;
     color: var(--slax-text-light);
+    border-radius: 3px;
+    transition: all 0.15s;
+    border-left: 1px solid var(--slax-border);
+    opacity: 0;
+    width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
 
-    &:hover {
-      color: var(--slax-danger);
-    }
+  &:hover .tag-remove {
+    opacity: 1;
+    width: 14px;
+    margin-left: 6px;
+    padding-left: 6px;
+  }
+
+  .tag-remove:hover {
+    color: var(--slax-accent);
   }
 }
 
@@ -218,19 +240,28 @@ const addingTagClick = (e: MouseEvent) => {
   --style: flex-center h-24px;
 }
 
-.tag-add-wrap {
-  --style: relative;
-}
-
 .tag-add {
-  --style: 'w-24px h-24px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border: 1px dashed var(--slax-border);
-  color: var(--slax-text-light);
   background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--slax-text-light);
+  transition: all 0.15s;
 
   &:hover {
     border-color: var(--slax-accent);
     color: var(--slax-accent);
+    background: var(--slax-accent-bg);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
@@ -280,12 +311,18 @@ const addingTagClick = (e: MouseEvent) => {
 
 .cell-leave-to,
 .cell-enter-from {
-  --style: 'opacity-0 !max-w-0 !py-2px !mr-0px';
+  opacity: 0;
+  max-width: 0;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-right: 0;
+  overflow: hidden;
 }
 
 .cell-enter-active,
 .cell-leave-active {
-  --style: transition-all duration-normal ease-in-out;
+  transition: all 0.25s ease-in-out;
+  overflow: hidden;
 }
 
 .opacity-enter-from,

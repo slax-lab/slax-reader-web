@@ -519,30 +519,21 @@ describe('pages/bookmarks/[id].vue', () => {
   })
 
   describe('menuClick（C23-C24）', () => {
-    it('C23: action.id="edit_title" → showEditNameModal + callback 修改 alias_title', async () => {
+    it('C23: action.id="edit_title" → 不再调用 showEditNameModal（改为 contenteditable 内联编辑）', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
       const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
       await moreMenu.vm.$emit('action', { id: 'edit_title' })
-      expect(mockShowEditNameModal).toHaveBeenCalledWith(
-        expect.objectContaining({
-          bookmarkId: expect.any(Number),
-          name: expect.any(String),
-          callback: expect.any(Function)
-        })
-      )
+      expect(mockShowEditNameModal).not.toHaveBeenCalled()
     })
 
-    it('C24: edit_title callback 修改 alias_title', async () => {
+    it('C24: action.id="edit_title" 触发后不报错', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
       const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
       await moreMenu.vm.$emit('action', { id: 'edit_title' })
-      const lastCallArgs = mockShowEditNameModal.mock.calls[0]![0]
-      lastCallArgs.callback('New Alias')
-      // alias_title 被修改（断言通过 detail 反应性）
       await nextTick()
       expect(true).toBe(true)
     })

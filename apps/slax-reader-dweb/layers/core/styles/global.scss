@@ -42,7 +42,9 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%);
+  background:
+    radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%),
+    radial-gradient(at 50% 80%, var(--slax-grad-c) 0%, transparent 40%);
 }
 
 // Nuxt 渲染入口与默认布局：放在渐变层之上

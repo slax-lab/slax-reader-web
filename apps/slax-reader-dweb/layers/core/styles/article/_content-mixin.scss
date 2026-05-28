@@ -18,8 +18,8 @@
 
   /* 引用类 */
   blockquote {
-    // text-#33333399 (60% 半透明黑) 与 token --slax-text-muted 不完全对应，保留 inline 引用
-    --style: border-l-(3px solid border) pl-3 text-(#33333399) line-height-24px;
+    --style: border-l-(3px solid border) pl-3 line-height-24px;
+    color: var(--slax-text-muted);
   }
 
   /* 表格类 */
@@ -70,11 +70,14 @@
 
   /* 代码块类 */
   pre {
-    --style: p-4 max-w-full bg-gray-200 rounded text-left whitespace-pre-wrap;
+    --style: p-4 max-w-full rounded text-left whitespace-pre-wrap;
+    background: var(--slax-surface);
+    border: 1px solid var(--slax-border);
     font-family: 'Courier New', Courier, monospace !important;
 
     code {
       --style: max-w-full block whitespace-pre;
+      background: transparent;
       font-family: 'Courier New', Courier, monospace !important;
 
       * {
@@ -88,7 +91,13 @@
   }
 
   code {
-    --style: text-left bg-gray-200;
+    --style: text-left;
+    background: var(--slax-surface);
+    border: 1px solid var(--slax-border);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 0.9em;
+    color: var(--slax-text-muted);
   }
 
   /* 标题类 */

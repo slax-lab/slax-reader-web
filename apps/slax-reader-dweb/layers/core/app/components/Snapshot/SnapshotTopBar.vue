@@ -29,9 +29,6 @@
 
 .topbar-inner {
   --style: h-full max-w-shell mx-auto px-24px flex items-center justify-between;
-  // 随 SidePanel 推移时跟随正文做中心点位移
-  transform: translateX(calc(var(--slax-push-amount, 0px) * -0.5));
-  transition: transform var(--slax-dur-normal);
 }
 
 .topbar-left {

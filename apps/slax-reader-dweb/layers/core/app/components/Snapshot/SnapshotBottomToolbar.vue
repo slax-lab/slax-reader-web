@@ -61,51 +61,73 @@ const isNarrow = computed(() => windowWidth.value <= 600)
 
 <style lang="scss" scoped>
 .bottom-toolbar {
-  --style: fixed bottom-24px left-1/2 -translate-x-1/2 z-40 flex items-center;
-  // 随 SidePanel 推移时跟随正文做中心点位移
-  transform: translateX(calc(-50% + calc(var(--slax-push-amount, 0px) * -0.5)));
-  transition: transform var(--slax-dur-normal);
-  background: var(--slax-surface-solid);
-  backdrop-filter: var(--slax-blur);
-  border: 1px solid var(--slax-border);
-  border-radius: var(--slax-radius);
-  box-shadow: var(--slax-shadow-warm);
-  padding: 6px 8px;
+  position: fixed;
+  bottom: 24px;
+  left: calc(50% - var(--slax-push-amount, 0px) / 2);
+  transform: translateX(-50%);
+  transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
   gap: 2px;
-}
+  padding: 6px;
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--slax-shadow-warm);
+  z-index: 20;
 
-.toolbar-sep {
-  --style: w-1px h-20px mx-4px flex-none;
-  background: var(--slax-border);
-}
-
-.toolbar-btn {
-  --style: 'flex items-center gap-6px px-10px py-8px rounded-sm cursor-pointer transition-colors duration-fast';
-  color: var(--slax-text-muted);
-  background: transparent;
-  font-size: var(--slax-fs-aux);
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--slax-accent-bg);
-    color: var(--slax-text);
+  .toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--slax-border);
+    margin: 0 4px;
+    flex-shrink: 0;
   }
 
-  &.active {
-    color: var(--slax-accent);
-  }
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    border: none;
+    border-radius: var(--slax-radius-sm);
+    cursor: pointer;
+    color: var(--slax-text-muted);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
 
-  .btn-icon {
-    --style: 'flex-none w-16px h-16px flex items-center justify-center';
+    &:hover {
+      background: var(--slax-accent-bg);
+      color: var(--slax-text);
+    }
 
-    :deep(svg) {
-      --style: w-full h-full;
+    &.active {
+      color: var(--slax-accent);
+    }
+
+    .btn-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      :deep(svg) {
+        width: 18px;
+        height: 18px;
+      }
     }
   }
-}
 
-// H5 ≤600px 只显图标
-.bottom-toolbar.h5-mode .btn-label {
-  display: none;
+  // H5 ≤600px 只显图标
+  &.h5-mode .btn-label {
+    display: none;
+  }
 }
 </style>

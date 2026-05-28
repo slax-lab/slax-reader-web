@@ -241,13 +241,12 @@ afterEach(() => {
 
 describe('Article/BookmarkArticle', () => {
   describe('渲染', () => {
-    it('mount → 渲染 .bookmark-article + title + byline + date + url 按钮', () => {
+    it('mount → 渲染 .bookmark-article + title + byline + date', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       expect(wrapper.find('.bookmark-article').exists()).toBe(true)
       expect(wrapper.find('.article-title').text()).toBe('Test Title')
       expect(wrapper.find('.article-author').text()).toBe('Author')
       expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
-      expect(wrapper.find('.article-url').text()).toBe('https://example.com/article')
     })
 
     it('article-detail v-html 渲染 detail.content 并补 lazy loading', () => {
@@ -334,11 +333,9 @@ describe('Article/BookmarkArticle', () => {
   })
 
   describe('交互', () => {
-    it('websiteClick：window.open(urlString)', async () => {
-      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+    it('websiteClick：article-url 已移至 SnapshotArticleSource，BookmarkArticle 内不含 .article-url 按钮', async () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
-      await wrapper.find('.article-url').trigger('click')
-      expect(openSpy).toHaveBeenCalledWith('https://example.com/article')
+      expect(wrapper.find('.article-url').exists()).toBe(false)
     })
 
     it('starBookmark：star 按钮已移至 SnapshotBottomToolbar，BookmarkArticle 内不含 .star', async () => {

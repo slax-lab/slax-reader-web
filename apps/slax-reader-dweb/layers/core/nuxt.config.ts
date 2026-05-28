@@ -48,7 +48,7 @@ export default defineNuxtConfig({
   //   - dataValue: 'slax-theme' 让 data 属性名是 data-slax-theme，避开 daisyUI / Tailwind dark mode 等公网 data-theme 命名空间冲突
   //   - storageKey: 'slax-color-mode' 使用项目私有 localStorage key
   colorMode: {
-    preference: 'system',
+    preference: 'light',
     fallback: 'light',
     classSuffix: '',
     dataValue: 'slax-theme',

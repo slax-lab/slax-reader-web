@@ -5,15 +5,11 @@
         <SnapshotTopBar>
           <template #left>
             <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-            <ClientOnly><ProIcon /></ClientOnly>
           </template>
           <template #theme-switcher>
             <ClientOnly><ThemeSwitcher /></ClientOnly>
           </template>
           <template #right>
-            <ClientOnly>
-              <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-            </ClientOnly>
             <SnapshotSharePopover />
             <SnapshotMoreMenu :actions="moreMenuActions" @action="moreMenuClick" />
           </template>
@@ -60,7 +56,7 @@
       </template>
 
       <template #bottom-toolbar>
-        <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
+        <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
       </template>
 
       <template #side-panel>
@@ -93,8 +89,10 @@
                   :infos="commentInfos"
                   :active-info-id="activeInfoId"
                   :allow-action="!!detail?.share_info?.allow_action"
+                  :user-list="marks?.user_list"
                   @card-click="onCommentCardClick"
                   @reply="onCommentReply"
+                  @reply-stroke="onReplyStroke"
                 />
                 <SnapshotCommentComposer
                   :allow-action="!!detail?.share_info?.allow_action"
@@ -102,6 +100,7 @@
                   :pending-selection="pendingSelection"
                   :pending-quote="pendingQuote"
                   :active-info-id="activeInfoId"
+                  :infos="commentInfos"
                   @sent="onCommentSent"
                   @cancel-reply="onCancelReply"
                 />
@@ -131,7 +130,6 @@ import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -151,6 +149,7 @@ import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
+import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
 const { t } = useI18n()
 const router = useRoute()
@@ -185,7 +184,10 @@ const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', labe
 // Phase 3：activePanel + BottomToolbar（s 页仅 top 按钮）
 const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
 
+// 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
+const { panelOpen } = useSnapshotLayout()
 watch(activePanel, val => {
+  panelOpen.value = val !== null
   if (val === 'ai') showAnalyzed()
   else if (val === 'chat') showChatbot()
 })
@@ -211,6 +213,10 @@ const onCommentReply = (comment: { markUid: string }) => {
   }
 }
 
+const onReplyStroke = (infoId: string) => {
+  activeInfoId.value = infoId
+}
+
 const onCommentSent = (infoId: string) => {
   focusByInfoId(infoId)
 }
@@ -218,9 +224,10 @@ const onCommentSent = (infoId: string) => {
 const onCancelReply = () => {
   pendingSelection.value = null
   pendingQuote.value = null
+  activeInfoId.value = null
 }
 
-const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`
 
 const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [{ id: 'top', icon: topIcon, label: t('common.operate.top') }])
 
@@ -451,7 +458,7 @@ const moreMenuClick = (action: MoreMenuAction) => {
   // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
   --slax-header-height: var(--slax-header-h-snapshot);
 
-  --style: w-full min-h-screen relative flex justify-center items-start bg-surface-solid;
+  --style: w-full min-h-screen relative flex justify-center items-start;
 
   .user-icon {
     --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-normal hover:scale-102 active:scale-105';

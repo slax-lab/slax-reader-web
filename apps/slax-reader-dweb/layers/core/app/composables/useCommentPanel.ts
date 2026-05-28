@@ -56,8 +56,10 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
     const mark = document.querySelector(`slax-mark[data-uuid="${infoId}"]`) as HTMLElement
     if (!mark) return
     mark.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    mark.classList.remove('hl-flash')
+    void mark.offsetWidth // 强制重排，确保动画重新触发
     mark.classList.add('hl-flash')
-    setTimeout(() => mark.classList.remove('hl-flash'), 1200)
+    setTimeout(() => mark.classList.remove('hl-flash'), 5000)
   }
 
   // 监听 slax:open-comment-panel 事件

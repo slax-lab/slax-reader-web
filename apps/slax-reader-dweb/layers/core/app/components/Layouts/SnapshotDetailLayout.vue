@@ -12,7 +12,6 @@
     <slot name="right-edge-toolbar" />
     <slot name="bottom-toolbar" />
     <slot name="side-panel" />
-    <div v-if="isH5 && panelOpen" class="side-panel-overlay" @click="$emit('close-panel')" />
   </div>
 </template>
 
@@ -25,27 +24,35 @@ defineEmits<{
 
 const { isH5, layoutMode, pushAmount, panelOpen } = useSnapshotLayout()
 
+// H5 打开面板时锁定 body 滚动
+if (import.meta.client) {
+  watch(
+    () => isH5.value && panelOpen.value,
+    locked => {
+      document.body.style.overflow = locked ? 'hidden' : ''
+    }
+  )
+  onUnmounted(() => {
+    document.body.style.overflow = ''
+  })
+}
+
 defineExpose({ isH5, layoutMode, pushAmount, panelOpen })
 </script>
 
 <style lang="scss" scoped>
 .snapshot-detail-layout {
-  --style: w-full min-h-screen relative flex flex-col items-center bg-surface-solid;
+  --style: w-full min-h-screen relative;
+  padding-right: var(--slax-push-amount, 0px);
+  transition: padding-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .snapshot-content {
   --style: w-full flex flex-col items-center;
-  // 顶栏高度偏移（snapshot 档 52px）
   padding-top: var(--slax-header-h-snapshot);
 
   @media (max-width: 768px) {
     padding-top: var(--slax-header-h-mobile);
   }
-}
-
-.side-panel-overlay {
-  --style: fixed inset-0 z-30;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
 }
 </style>

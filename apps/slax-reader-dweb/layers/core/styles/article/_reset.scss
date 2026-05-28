@@ -85,7 +85,8 @@
   canvas,
   video,
   audio {
-    --style: 'break-words m-0 text-body line-height-28px text-justify text-(#333333)';
+    --style: 'break-words m-0 text-body line-height-28px text-justify';
+    color: var(--slax-text);
   }
 
   * {

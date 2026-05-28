@@ -1,47 +1,53 @@
 <template>
-  <div class="comment-card" :class="{ 'is-active': isActive }" :data-comment-info-id="infoId" @click="$emit('card-click', infoId)">
-    <!-- 引用块（source 非空时显示） -->
-    <div v-if="hasSource" class="comment-quote">
-      <span class="quote-text">{{ quoteText }}</span>
-    </div>
-    <div v-else class="comment-scope-badge">{{ $t('page.bookmarks_detail.comment_all') }}</div>
+  <article class="comment-item" :class="{ 'is-active': isActive, 'comment-item-article': !hasSource }" :data-comment-info-id="infoId" @click="$emit('card-click', infoId)">
+    <!-- 主评论（取 comments[0]） -->
+    <template v-if="mainComment">
+      <!-- 引用块 -->
+      <blockquote v-if="hasSource" class="comment-quote">{{ quoteText }}</blockquote>
+      <span v-else class="comment-scope-badge">{{ $t('page.bookmarks_detail.comment_all') }}</span>
 
-    <!-- 评论列表 -->
-    <div class="comment-list">
-      <div v-for="comment in comments" :key="comment.markUid" class="comment-item">
-        <img class="comment-avatar" :src="comment.avatar || defaultAvatar" :alt="comment.username" />
-        <div class="comment-body">
+      <!-- 评论正文 -->
+      <p v-if="mainComment.comment" class="comment-reply">{{ mainComment.comment }}</p>
+
+      <div class="comment-meta">
+        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
+          {{ $t('common.operate.reply') }}
+        </button>
+        <span>
+          <span class="comment-author">{{ mainComment.username }}</span>
+          <template v-if="mainComment.createdAt"> · {{ formatRelativeTime(mainComment.createdAt) }}</template>
+        </span>
+      </div>
+
+      <!-- 子评论 -->
+      <div v-if="mainComment.children?.length" class="comment-sub-list" @click.stop>
+        <div v-for="child in mainComment.children" :key="child.markUid" class="comment-sub">
+          <p class="comment-sub-text">{{ child.comment }}</p>
           <div class="comment-meta">
-            <span class="comment-username">{{ comment.username }}</span>
-            <time class="comment-time">{{ formatRelativeTime(comment.createdAt) }}</time>
-          </div>
-          <div v-if="comment.reply" class="comment-reply-to">{{ $t('page.bookmarks_detail.reply_to') }} @{{ comment.reply.username }}</div>
-          <p class="comment-text">{{ comment.comment }}</p>
-          <button v-if="allowAction" class="comment-reply-btn" @click.stop="$emit('reply', comment)">
-            {{ $t('common.operate.reply') }}
-          </button>
-
-          <!-- 子评论 -->
-          <div v-if="comment.children?.length" class="comment-sub-list">
-            <div v-for="child in comment.children" :key="child.markUid" class="comment-item comment-sub">
-              <img class="comment-avatar" :src="child.avatar || defaultAvatar" :alt="child.username" />
-              <div class="comment-body">
-                <div class="comment-meta">
-                  <span class="comment-username">{{ child.username }}</span>
-                  <time class="comment-time">{{ formatRelativeTime(child.createdAt) }}</time>
-                </div>
-                <div v-if="child.reply" class="comment-reply-to">{{ $t('page.bookmarks_detail.reply_to') }} @{{ child.reply.username }}</div>
-                <p class="comment-text">{{ child.comment }}</p>
-                <button v-if="allowAction" class="comment-reply-btn" @click.stop="$emit('reply', child)">
-                  {{ $t('common.operate.reply') }}
-                </button>
-              </div>
-            </div>
+            <span>
+              <span class="comment-author">{{ child.username }}</span>
+              <template v-if="child.createdAt"> · {{ formatRelativeTime(child.createdAt) }}</template>
+            </span>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+
+    <!-- 仅有引用无评论（纯划线） -->
+    <template v-else>
+      <blockquote v-if="hasSource" class="comment-quote">{{ quoteText }}</blockquote>
+      <span v-else class="comment-scope-badge">{{ $t('page.bookmarks_detail.comment_all') }}</span>
+      <div class="comment-meta">
+        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
+          {{ $t('common.operate.reply') }}
+        </button>
+        <span v-if="strokeUser">
+          <span class="comment-author">{{ strokeUser.username }}</span>
+          <template v-if="strokeUser.createdAt"> · {{ formatRelativeTime(strokeUser.createdAt) }}</template>
+        </span>
+      </div>
+    </template>
+  </article>
 </template>
 
 <script lang="ts" setup>
@@ -54,18 +60,20 @@ const props = defineProps<{
   isActive?: boolean
   allowAction?: boolean
   quoteText?: string
+  strokeUser?: { username: string; avatar?: string; createdAt?: Date | string }
 }>()
 
 defineEmits<{
   'card-click': [infoId: string]
   reply: [comment: MarkCommentInfo]
+  'reply-stroke': []
 }>()
 
-const defaultAvatar = '/images/user-default-avatar.png'
-
 const hasSource = computed(() => props.source.length > 0)
+const mainComment = computed(() => props.comments[0] ?? null)
 
-const formatRelativeTime = (date: Date | string) => {
+const formatRelativeTime = (date: Date | string | undefined) => {
+  if (!date) return ''
   const d = date instanceof Date ? date : new Date(date)
   const diff = Date.now() - d.getTime()
   const minutes = Math.floor(diff / 60000)
@@ -78,95 +86,137 @@ const formatRelativeTime = (date: Date | string) => {
 </script>
 
 <style lang="scss" scoped>
-.comment-card {
-  --style: 'px-16px py-12px border-b-(1px solid border) cursor-pointer transition-colors duration-fast';
-
-  &:hover {
-    background: var(--slax-accent-bg);
-  }
-
-  &.is-active {
-    animation: comment-flash 1.2s ease-out;
-  }
-}
-
 @keyframes comment-flash {
   0% {
     background: var(--slax-accent-bg);
+    border-color: var(--slax-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--slax-accent) 12%, transparent);
   }
   100% {
-    background: transparent;
+    background: var(--slax-surface);
+    border-color: var(--slax-border);
+    box-shadow: none;
   }
-}
-
-.comment-quote {
-  --style: 'mb-8px px-10px py-6px rounded-sm text-aux line-clamp-3';
-  border-left: 2px solid var(--slax-accent-soft);
-  color: var(--slax-text-muted);
-  font-style: italic;
-}
-
-.comment-scope-badge {
-  --style: 'mb-8px inline-flex px-8px py-2px rounded-full text-tag';
-  background: var(--slax-accent-bg);
-  color: var(--slax-accent);
-}
-
-.comment-list {
-  --style: flex flex-col gap-10px;
 }
 
 .comment-item {
-  --style: flex gap-8px;
-
-  &.comment-sub {
-    --style: ml-28px mt-6px;
-  }
-}
-
-.comment-avatar {
-  --style: flex-none w-22px h-22px rounded-full object-cover;
-}
-
-.comment-body {
-  --style: flex-1 min-w-0;
-}
-
-.comment-meta {
-  --style: flex items-center gap-8px mb-2px;
-}
-
-.comment-username {
-  font-size: var(--slax-fs-tag);
-  font-weight: 500;
-  color: var(--slax-text);
-}
-
-.comment-time {
-  font-size: var(--slax-fs-tag);
-  color: var(--slax-text-light);
-}
-
-.comment-reply-to {
-  font-size: var(--slax-fs-tag);
-  color: var(--slax-text-light);
-  margin-bottom: 2px;
-}
-
-.comment-text {
-  font-size: var(--slax-fs-aux);
-  color: var(--slax-text);
-  line-height: 1.6;
-  word-break: break-word;
-}
-
-.comment-reply-btn {
-  --style: 'mt-4px text-tag cursor-pointer transition-colors duration-fast';
-  color: var(--slax-text-light);
-  background: transparent;
+  padding: 12px 14px;
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius-sm);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+  cursor: pointer;
+  transition: all 0.2s;
 
   &:hover {
+    border-color: color-mix(in srgb, var(--slax-accent) 25%, transparent);
+    box-shadow:
+      0 2px 8px color-mix(in srgb, var(--slax-accent) 5%, transparent),
+      inset 0 1px 0 var(--slax-inset-hi);
+    transform: translateY(-1px);
+  }
+
+  &.comment-item-article {
+    cursor: default;
+
+    &:hover {
+      transform: none;
+    }
+
+    .comment-reply {
+      margin-top: 0;
+    }
+  }
+
+  &.is-active {
+    animation: comment-flash 5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .comment-scope-badge {
+    font-size: 12px;
+    padding: 1px 8px;
+    background: var(--slax-accent-bg);
     color: var(--slax-accent);
+    border-radius: 10px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .comment-quote {
+    margin: 0;
+    padding: 7px 10px 7px 11px;
+    border-left: 3px solid var(--slax-accent);
+    background: var(--slax-accent-bg);
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--slax-text-muted);
+  }
+
+  .comment-reply {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--slax-text);
+  }
+
+  .comment-meta {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--slax-text-light);
+    font-weight: 300;
+
+    .comment-author {
+      color: var(--slax-text-muted);
+      font-weight: 500;
+    }
+
+    .comment-reply-trigger {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      font-size: 12px;
+      color: var(--slax-accent);
+      cursor: pointer;
+      opacity: 0.75;
+      transition: opacity 0.15s;
+
+      &:hover {
+        opacity: 1;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+    }
+  }
+
+  .comment-sub-list {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--slax-border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .comment-sub {
+      padding-left: 10px;
+      border-left: 2px solid var(--slax-accent-bg);
+
+      .comment-sub-text {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--slax-text);
+        margin: 0 0 4px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    }
   }
 }
 </style>

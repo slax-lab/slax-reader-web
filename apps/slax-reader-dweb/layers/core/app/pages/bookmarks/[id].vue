@@ -5,21 +5,18 @@
         <SnapshotTopBar>
           <template #left>
             <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
-            <ClientOnly><ProIcon /></ClientOnly>
           </template>
           <template #theme-switcher>
             <ClientOnly><ThemeSwitcher /></ClientOnly>
           </template>
           <template #right>
             <template v-if="!isTrashedBookmark && !isInvalidBookmark">
-              <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
               <button class="topbar-share-btn" :title="$t('common.operate.share')" @click="shareUrl">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5" />
-                  <circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
-                  <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5" />
-                  <line x1="4.89" y1="6.93" x2="11.11" y2="3.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  <line x1="4.89" y1="9.07" x2="11.11" y2="12.07" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
                 </svg>
               </button>
               <SnapshotMoreMenu v-if="!menuLoading" :actions="moreMenuActions" @action="moreMenuClick" />
@@ -54,7 +51,7 @@
       </template>
 
       <template #bottom-toolbar>
-        <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" />
+        <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
       </template>
 
       <template #side-panel>
@@ -77,13 +74,22 @@
           <template #comment>
             <ClientOnly>
               <div class="comment-panel-wrap">
-                <SnapshotCommentList :infos="commentInfos" :active-info-id="activeInfoId" :allow-action="true" @card-click="onCommentCardClick" @reply="onCommentReply" />
+                <SnapshotCommentList
+                  :infos="commentInfos"
+                  :active-info-id="activeInfoId"
+                  :allow-action="true"
+                  :user-list="detail?.marks?.user_list"
+                  @card-click="onCommentCardClick"
+                  @reply="onCommentReply"
+                  @reply-stroke="onReplyStroke"
+                />
                 <SnapshotCommentComposer
                   :allow-action="true"
                   :article-selection="bookmarkArticleSelection"
                   :pending-selection="pendingSelection"
                   :pending-quote="pendingQuote"
                   :active-info-id="activeInfoId"
+                  :infos="commentInfos"
                   @sent="onCommentSent"
                   @cancel-reply="onCancelReply"
                 />
@@ -125,7 +131,6 @@ import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -145,6 +150,7 @@ import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
+import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
 const { t } = useI18n()
 const router = useRoute()
@@ -171,9 +177,16 @@ const commentInfos = computed(() => bookmarkArticleSelection.value?.markItemInfo
 const menuLoading = ref(false)
 
 const moreMenuActions = computed<MoreMenuAction[]>(() => [
-  { id: 'edit_title', label: t('common.operate.edit_title') },
-  { id: 'feedback', label: t('common.operate.feedback') },
-  { id: 'trash', label: t('common.operate.menu_trash'), danger: true }
+  {
+    id: 'edit_title',
+    label: t('common.operate.edit_title'),
+    icon: `<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>`
+  },
+  {
+    id: 'feedback',
+    label: t('common.operate.feedback'),
+    icon: `<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>`
+  }
 ])
 
 const isTrashedBookmark = computed(() => {
@@ -199,8 +212,10 @@ const isArchieved = computed(() => {
 // Phase 3：activePanel 替代旧 bookmarkPanelTypes + panelClick 双状态
 const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
 
-// RightEdgeToolbar 切换时触发对应面板
+// 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
+const { panelOpen } = useSnapshotLayout()
 watch(activePanel, val => {
+  panelOpen.value = val !== null
   if (val === 'ai') showAnalyzed()
   else if (val === 'chat') showChatbot()
 })
@@ -226,6 +241,10 @@ const onCommentReply = (comment: { markUid: string }) => {
   }
 }
 
+const onReplyStroke = (infoId: string) => {
+  activeInfoId.value = infoId
+}
+
 const onCommentSent = (infoId: string) => {
   focusByInfoId(infoId)
 }
@@ -233,32 +252,28 @@ const onCommentSent = (infoId: string) => {
 const onCancelReply = () => {
   pendingSelection.value = null
   pendingQuote.value = null
+  activeInfoId.value = null
 }
 
 // SVG icon 字符串
-const archiveIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v2H2V4zm1 3h10v7H3V7zm3 2v3m2-3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-const starIconOff = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4H14l-3.5 2.5 1.5 4L8 10l-4 2.5 1.5-4L2 6h4.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>`
-const starIconOn = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4H14l-3.5 2.5 1.5 4L8 10l-4 2.5 1.5-4L2 6h4.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="currentColor"/></svg>`
-const topIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+const archiveIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>`
+const starIconOff = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`
 
 const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [
   {
     id: 'archive',
     icon: archiveIcon,
-    label: isArchieved.value ? t('common.operate.unarchive') : t('common.operate.archive'),
+    label: t('common.operate.archive'),
+    active: isArchieved.value,
     visible: !isTrashedBookmark.value
   },
   {
     id: 'star',
-    icon: isStarred.value ? starIconOn : starIconOff,
-    label: isStarred.value ? t('common.tips.unstar_success') : t('common.tips.star_success'),
+    icon: starIconOff,
+    label: t('common.operate.star'),
     active: isStarred.value,
     visible: allowStarred.value
-  },
-  {
-    id: 'top',
-    icon: topIcon,
-    label: t('common.operate.top')
   }
 ])
 
@@ -442,9 +457,9 @@ const findQuote = (quote: QuoteData) => {
 }
 
 const starBookmark = async (isStar: boolean) => {
-  if (!updateStarred) return
+  if (!updateStarred.value) return
   try {
-    await updateStarred(isStar)
+    await updateStarred.value(isStar)
     postChannelMessage('star', { id: bmId, cancel: !isStar })
     Toast.showToast({
       text: t(!isStar ? 'common.tips.unstar_success' : 'common.tips.star_success'),
@@ -459,18 +474,44 @@ const starBookmark = async (isStar: boolean) => {
 const moreMenuClick = async (action: MoreMenuAction) => {
   const { id } = action
   if (id === 'edit_title') {
-    const bookmark = detail.value
-    if (!bookmark) {
-      return
-    }
-    showEditNameModal({
-      bookmarkId: bookmark.bookmark_id || 0,
-      name: bookmark.title,
-      aliasName: bookmark.alias_title,
-      callback: (name: string) => {
-        bookmark.alias_title = name
+    // contenteditable 内联编辑标题
+    const titleEl = document.querySelector('.bookmark-detail .article-title') as HTMLElement
+    if (!titleEl) return
+    titleEl.setAttribute('contenteditable', 'true')
+    titleEl.focus()
+    const range = document.createRange()
+    range.selectNodeContents(titleEl)
+    const sel = window.getSelection()
+    sel?.removeAllRanges()
+    sel?.addRange(range)
+    const finish = async () => {
+      titleEl.removeAttribute('contenteditable')
+      titleEl.removeEventListener('blur', finish)
+      titleEl.removeEventListener('keydown', onKey)
+      const newTitle = titleEl.textContent?.trim() || ''
+      if (newTitle && detail.value && newTitle !== (detail.value.alias_title || detail.value.title)) {
+        const bookmark = detail.value
+        menuLoading.value = true
+        try {
+          await request().post({ url: RESTMethodPath.BOOKMARK_ALIAS_TITLE, body: { bookmark_id: bookmark.bookmark_id, alias_title: newTitle } })
+          bookmark.alias_title = newTitle
+        } finally {
+          menuLoading.value = false
+        }
       }
-    })
+    }
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault()
+        titleEl.blur()
+      }
+      if (ev.key === 'Escape') {
+        titleEl.textContent = detail.value?.alias_title || detail.value?.title || ''
+        titleEl.blur()
+      }
+    }
+    titleEl.addEventListener('blur', finish)
+    titleEl.addEventListener('keydown', onKey)
   } else if (id === 'feedback') {
     showFeedback()
   } else if (id === 'trash') {
@@ -491,7 +532,7 @@ const panelClick = (_type: BookmarkPanelType) => {
   // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
   --slax-header-height: var(--slax-header-h-snapshot);
 
-  --style: w-full relative flex justify-center items-start bg-surface-solid;
+  --style: w-full relative flex justify-center items-start;
 
   .app-name {
     --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
@@ -499,7 +540,14 @@ const panelClick = (_type: BookmarkPanelType) => {
   }
 
   .topbar-share-btn {
-    --style: 'w-28px h-28px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast';
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
     color: var(--slax-text-light);
     background: transparent;
 

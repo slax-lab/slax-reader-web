@@ -1,17 +1,17 @@
 <template>
   <div class="more-menu-wrap" ref="wrapEl">
     <button class="more-btn" :class="{ active: isOpen }" :title="$t('common.operate.more')" @click.stop="toggle">
-      <!-- 竖向三点 icon -->
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="3" r="1.5" fill="currentColor" />
-        <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-        <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="5" r="1" fill="currentColor" />
+        <circle cx="12" cy="12" r="1" fill="currentColor" />
+        <circle cx="12" cy="19" r="1" fill="currentColor" />
       </svg>
     </button>
     <Transition name="popover">
       <div v-if="isOpen" class="more-popover" v-on-click-outside="close">
         <button v-for="item in actions" :key="item.id" class="popover-item" :class="{ danger: item.danger }" @click="handleAction(item)">
-          {{ item.label }}
+          <span>{{ item.label }}</span>
+          <svg v-if="item.icon" v-html="item.icon" class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" />
         </button>
       </div>
     </Transition>
@@ -25,6 +25,7 @@ import { useExclusivePopover } from '#layers/core/app/composables/useExclusivePo
 export interface MoreMenuAction {
   id: string
   label: string
+  icon?: string
   danger?: boolean
 }
 
@@ -46,11 +47,18 @@ const handleAction = (action: MoreMenuAction) => {
 
 <style lang="scss" scoped>
 .more-menu-wrap {
-  --style: relative;
+  position: relative;
 }
 
 .more-btn {
-  --style: 'w-28px h-28px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast';
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
   color: var(--slax-text-light);
   background: transparent;
 
@@ -62,26 +70,49 @@ const handleAction = (action: MoreMenuAction) => {
 }
 
 .more-popover {
-  --style: absolute z-200 top-full right-0 mt-8px;
-  min-width: 160px;
-  padding: 4px;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  padding: 6px;
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
-  border-radius: var(--slax-radius-sm);
-  box-shadow: var(--slax-shadow-warm);
+  border-radius: var(--slax-radius);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 12px 36px color-mix(in srgb, var(--slax-accent) 12%, transparent);
+  z-index: 200;
 
   .popover-item {
-    --style: 'w-full px-16px py-10px flex items-center rounded-sm cursor-pointer transition-colors duration-fast text-left whitespace-nowrap';
-    color: var(--slax-text);
-    font-size: var(--slax-fs-aux);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 9px 12px;
     background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--slax-text-muted);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.12s;
+    text-align: left;
 
     &:hover {
       background: var(--slax-accent-bg);
+      color: var(--slax-text);
     }
 
     &.danger {
       color: var(--slax-danger);
+    }
+
+    .item-icon {
+      width: 15px;
+      height: 15px;
+      opacity: 0.75;
+      flex-shrink: 0;
     }
   }
 }
@@ -94,6 +125,8 @@ const handleAction = (action: MoreMenuAction) => {
 
 .popover-enter-active,
 .popover-leave-active {
-  --style: transition-all duration-fast ease-in-out;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 </style>
