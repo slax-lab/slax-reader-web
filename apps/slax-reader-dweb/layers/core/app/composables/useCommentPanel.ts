@@ -53,13 +53,15 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
 
   // 通过 info.id 闪烁正文划线
   const flashMarkByInfoId = (infoId: string) => {
-    const mark = document.querySelector(`slax-mark[data-uuid="${infoId}"]`) as HTMLElement
-    if (!mark) return
-    mark.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    mark.classList.remove('hl-flash')
-    void mark.offsetWidth // 强制重排，确保动画重新触发
-    mark.classList.add('hl-flash')
-    setTimeout(() => mark.classList.remove('hl-flash'), 5000)
+    const marks = document.querySelectorAll<HTMLElement>(`slax-mark[data-uuid="${infoId}"]`)
+    if (!marks.length) return
+    marks[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    marks.forEach(mark => {
+      mark.classList.remove('hl-flash')
+      void mark.offsetWidth
+      mark.classList.add('hl-flash')
+      setTimeout(() => mark.classList.remove('hl-flash'), 5000)
+    })
   }
 
   // 监听 slax:open-comment-panel 事件
