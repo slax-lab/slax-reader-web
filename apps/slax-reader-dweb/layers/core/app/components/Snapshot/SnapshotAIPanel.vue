@@ -510,7 +510,10 @@ watch(
     text-decoration: none !important;
     text-align: center;
     cursor: pointer;
-    font-family: inherit;
+    // 显式锁定字体，避免继承父元素（如 h1/h2 的 Playfair serif）影响 chip 外观
+    font-family: var(--slax-font-sans) !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
     height: auto !important;
     line-height: 1.6 !important;
     vertical-align: baseline !important;
