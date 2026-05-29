@@ -473,25 +473,27 @@ watch(
   // 嵌套列表（对齐 demo .panel-outline-sub）
   :deep(ul ul) {
     margin-top: 4px;
-    padding-left: 0;
+    padding-left: 16px;
   }
 
   :deep(ul ul li) {
-    display: flex;
-    align-items: flex-start;
+    position: relative;
     color: var(--slax-text-muted);
     margin-bottom: 4px;
 
     &::before {
       content: '';
-      flex-shrink: 0;
+      position: absolute;
+      left: -12px;
+      // top: 0.8em = line-height(1.6) / 2 * font-size，减去圆点半径 2px，自动跟随字号
+      top: calc(0.8em - 2px);
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      margin-top: calc((1em * 1.6 - 4px) / 2);
-      margin-right: 8px;
       background: var(--slax-text-light);
       box-sizing: content-box;
+    }
+  }
     }
   }
 
