@@ -520,9 +520,15 @@ watch(
 
     &:hover {
       background: var(--slax-accent-bg) !important;
-      color: var(--slax-accent) !important;
       opacity: 0.8;
     }
+  }
+
+  // hover 颜色单独用更高特异性选择器覆盖 MarkdownText 的 !important 白字
+  // MarkdownText 的选择器：.markdown-text .markdown-content[data-v-xxx] .slax_link:hover (0,5,0)
+  // 我们的选择器：.panel-outline-text[data-v-xxx] .markdown-text .markdown-content .slax_link:hover (0,6,0)
+  :deep(.markdown-text .markdown-content .slax_link:hover) {
+    color: var(--slax-accent) !important;
   }
 
   // li 内第一个子元素不加 margin-top，避免圆点标记与内容垂直错位
