@@ -27,6 +27,18 @@
 
 **保留不动：** `ChatBot.vue`（w/sw 页面依赖 + 有完整测试覆盖）、`chatbot.ts`、`QuestionMessage.vue`、`TipsMessage.vue`、`DotLoading.vue`、`BubbleMessage.vue`。
 
+### 与并行的 AI 面板任务的关系（已对账 commit `1ddef31`）
+
+本计划的基线是 commit `1ddef31`（`feat(dweb): add SnapshotAIPanel ...`，已落在 `feature/snapshot-detail-redesign` 分支）。该 AI 面板任务与本 Chat 任务**改到了相同的几个文件**，但改的是不同区域，互不冲突：
+
+| 文件 | AI 面板已改（不要回退） | 本 Chat 任务改 |
+| --- | --- | --- |
+| `bookmarks/[id].vue` / `s/[id].vue` | `#ai` slot：`AISummaries` → `SnapshotAIPanel`；移除 `useBookmark` 解构里的 `navigateToText` | `#chat` slot：`ChatBot` → `SnapshotChatPanel`；`chatbot` ref 类型 |
+| `en.json` / `zh.json` | 新增 `component.ai_panel`（在 `ai_summaries` 前，字母序） | 新增 `component.snapshot_chat`（在 `share_modal` 后，字母序） |
+| `tests/integration/pages/bookmarks/[id].spec.ts` | `baseStubs` 里 `AISummaries` stub → `SnapshotAIPanel` stub | 同 `baseStubs` 里的 `ChatBot` stub → `SnapshotChatPanel` stub |
+
+施工时所有改动按**符号/语义定位**（slot 名、import 符号、stub key、i18n 字母序），不要按固定行号——AI 面板 commit 已使行号偏移。
+
 ---
 
 ## 验证命令速查
@@ -55,14 +67,16 @@ pnpm --filter @apps/slax-reader-dweb dev
 
 ## Task 1: i18n 文案
 
+> **基线说明（已对账 AI 面板 commit `1ddef31`）**：`component` 节点的子键经实测为**严格字母序**（`ai_panel` < `ai_summaries` < ... < `share_modal` < `snapshot_status_modal` ...）。`ai_panel`（AI 面板任务新增）已在 `ai_summaries` 之前。本任务新增的 `snapshot_chat` 应插在 **`share_modal` 之后、`snapshot_status_modal` 之前**，以保持字母序。
+
 **Files:**
 
-- Modify: `apps/slax-reader-dweb/layers/core/i18n/locales/zh.json`（`component` 节点内，`chat_bot` 之后插入 `snapshot_chat`）
+- Modify: `apps/slax-reader-dweb/layers/core/i18n/locales/zh.json`（`component` 节点内，`share_modal` 之后插入 `snapshot_chat`）
 - Modify: `apps/slax-reader-dweb/layers/core/i18n/locales/en.json`（同结构）
 
 - [ ] **Step 1: 在 zh.json 的 `component` 节点内新增 `snapshot_chat`**
 
-在 `"chat_bot": { ... }` 块之后（同级）插入。注意 JSON key 按字母序排列时 `snapshot_chat` 应插在合适位置；若该文件 `component` 子键非严格字母序，则紧跟 `chat_bubble_message` 之后插入即可，保持合法 JSON（前一项补逗号）：
+按字母序插在 `"share_modal": { ... }` 块之后、`"snapshot_status_modal": { ... }` 块之前（同级），保持合法 JSON（前一项末尾补逗号）。若不确定精确位置，可先插入再用 `pnpm prettier --write` 让格式器规整；但 prettier **不会**重排 JSON key 顺序，故必须手动放到字母序正确位置：
 
 ```json
     "snapshot_chat": {
@@ -1762,6 +1776,8 @@ git commit -m "test(snapshot): add SnapshotChatPanel unit tests (42 cases)"
 
 ## Task 5: 页面集成（bookmarks/[id].vue + s/[id].vue）
 
+> **基线说明（已对账 AI 面板 commit `1ddef31`）**：该 commit 已把两个页面的 `#ai` slot 从 `AISummaries` 换成 `SnapshotAIPanel`，并从 `useBookmark` 解构中移除了 `navigateToText`（AISummaries 的 `@navigated-text` 已删）。**这些改动与 Chat 任务无关，本任务不要回退它们。** Chat 相关的三处改动点（`ChatBot` import、`chatbot` ref、`#chat` slot 内 `<ChatBot>`）**未被 AI 面板 commit 触碰**，依然成立，仅文件行号已变——施工时按符号定位（import 行、`const chatbot`、`#chat` slot），不要按固定行号。
+
 **Files:**
 
 - Modify: `apps/slax-reader-dweb/layers/core/app/pages/bookmarks/[id].vue`
@@ -1769,11 +1785,11 @@ git commit -m "test(snapshot): add SnapshotChatPanel unit tests (42 cases)"
 
 - [ ] **Step 1: bookmarks/[id].vue 替换 import 与 ref 类型**
 
-`bookmarks/[id].vue` 中：
+`bookmarks/[id].vue` 中（注意此时 import 区已有 `SnapshotAIPanel` 等多个 Snapshot 组件，按符号查找定位）：
 
 - import 行 `import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'` 改为 `import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'`
 - `const chatbot = ref<InstanceType<typeof ChatBot>>()` 改为 `const chatbot = ref<InstanceType<typeof SnapshotChatPanel>>()`
-- `#chat` slot 内 `<ChatBot ... />` 改为 `<SnapshotChatPanel ... />`（props/事件保持不变）
+- `#chat` slot 内 `<ChatBot ... />` 改为 `<SnapshotChatPanel ... />`（props/事件保持不变；`#ai` slot 的 `SnapshotAIPanel` 不动）
 
 - [ ] **Step 2: s/[id].vue 同样替换**
 
@@ -1798,17 +1814,20 @@ git commit -m "feat(snapshot): wire SnapshotChatPanel into bookmarks/s detail pa
 
 ## Task 6: 集成测试同步更新
 
+> **基线说明（已对账 AI 面板 commit `1ddef31`）**：`baseStubs` 里 `AISummaries` 已被替换为 `SnapshotAIPanel`（`{ name: 'SnapshotAIPanel', props: ['bookmarkId','shareCode','isAppeared'], emits: ['dismiss'] }`）。**这个 stub 不要动。** 紧跟其后的 `ChatBot` stub **仍存在**，本任务只改它。
+
 **Files:**
 
 - Modify: `apps/slax-reader-dweb/tests/integration/pages/bookmarks/[id].spec.ts`
 
 - [ ] **Step 1: 替换 stub 定义**
 
-`bookmarks/[id].spec.ts` 中（约 177 行）`baseStubs` 里的：
+`bookmarks/[id].spec.ts` 的 `baseStubs` 里（`SnapshotAIPanel` stub 之后那一项），将 `ChatBot` stub：
 
 ```ts
   ChatBot: {
     name: 'ChatBot',
+    template: '<div class="chat-bot" />',
     ...
   },
 ```
@@ -1818,11 +1837,12 @@ git commit -m "feat(snapshot): wire SnapshotChatPanel into bookmarks/s detail pa
 ```ts
   SnapshotChatPanel: {
     name: 'SnapshotChatPanel',
+    template: '<div class="chat-bot" />',
     ...
   },
 ```
 
-（stub 实现体保持原样，仅改 key 与 `name` 字段）
+（stub 实现体保持原样，仅改 key 与 `name` 字段；`template` / `props` / `emits` 等不变）
 
 - [ ] **Step 2: 替换 C32 用例的 findComponent**
 
