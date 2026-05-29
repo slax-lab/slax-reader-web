@@ -1,5 +1,7 @@
 <template>
   <div class="snapshot-chat-panel" ref="chat">
+    <!-- 标题（对齐 snapshot demo 的 .panel-title） -->
+    <div class="chat-title">Chat</div>
     <!-- 消息流（含空态） -->
     <div class="chat-messages" ref="messages">
       <!-- 空态 -->
@@ -653,6 +655,18 @@ defineExpose({ addQuoteData, focusTextarea })
 .snapshot-chat-panel {
   --style: w-full h-full flex flex-col overflow-hidden;
   background: var(--slax-surface-solid);
+
+  // 标题（对齐 snapshot demo 的 .panel-title + 评论面板 header 规格）
+  .chat-title {
+    flex-shrink: 0;
+    font-family: var(--slax-font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--slax-text);
+    padding: 24px 24px 0;
+    margin-bottom: 12px;
+  }
 
   .chat-messages {
     --style: flex-1 w-full overflow-y-auto;
