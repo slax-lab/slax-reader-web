@@ -487,22 +487,28 @@ watch(
   }
 
   // 锚点 chip 样式（对齐 demo .panel-outline-item .num）
-  // MarkdownText 把 anchor_N 链接转成 .slax_link，点击 emit anchorClick 跳到正文
+  // MarkdownText 自身有更具体的 .slax_link 样式（bg-#16b9981f text-txt py-3px h-16px align-middle），
+  // 用 !important 全量覆盖
   :deep(.slax_link) {
-    display: inline-block;
+    display: inline-block !important;
     min-width: 20px;
-    font-size: 12px;
-    color: var(--slax-accent);
-    background: var(--slax-accent-bg);
-    padding: 1px 5px;
-    border-radius: 3px;
+    font-size: 12px !important;
+    color: var(--slax-accent) !important;
+    background: var(--slax-accent-bg) !important;
+    padding: 1px 5px !important;
+    border-radius: 3px !important;
     margin-left: 6px;
-    text-decoration: none;
+    text-decoration: none !important;
     text-align: center;
     cursor: pointer;
     font-family: inherit;
+    height: auto !important;
+    line-height: 1.6 !important;
+    vertical-align: baseline !important;
 
     &:hover {
+      background: var(--slax-accent-bg) !important;
+      color: var(--slax-accent) !important;
       opacity: 0.8;
     }
   }
