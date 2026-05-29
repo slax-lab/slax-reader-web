@@ -30,7 +30,14 @@
 
     <!-- 全文解析区域 -->
     <section class="panel-outline">
-      <div class="panel-outline-header">{{ $t('component.ai_panel.outline_label') }}</div>
+      <!-- 标题带 grid icon，对齐 demo 的 .panel-action 样式 -->
+      <div class="panel-outline-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M3 9h18M9 3v18" />
+        </svg>
+        {{ $t('component.ai_panel.outline_label') }}
+      </div>
 
       <!-- 加载骨架（首次加载、尚无内容时） -->
       <div class="outline-skeleton" v-if="outlineLoading && outlineText.length === 0">
@@ -62,6 +69,15 @@ import { RequestMethodType } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { SummaryItemModel } from '@commons/types/interface'
+
+// 去掉 outline markdown 里的锚点链接，只保留文字
+// AISummaries 的锚点格式：[text](anchor_N) 或 [text](#url-encoded)
+// SnapshotAIPanel 不做跳转，直接剥掉链接语法避免渲染成无效 <a>
+const stripAnchors = (text: string): string => {
+  // [text](anchor_N) → text（内部 anchor key）
+  // [text](#...) → text（URL 锚点）
+  return text.replace(/\[([^\]]+)\]\((anchor_[^)]+|#[^)]*)\)/g, '$1')
+}
 
 const props = defineProps({
   bookmarkId: {
@@ -247,7 +263,7 @@ const loadOutline = async () => {
 
     if (list && list.length > 0) {
       const selfSummary = list.find(item => item.is_self) ?? list[0]!
-      outlineText.value = extractMarkdownFromText(selfSummary.content) || ''
+      outlineText.value = stripAnchors(extractMarkdownFromText(selfSummary.content) || '')
       outlineLoading.value = false
       outlineDone.value = true
       return
@@ -273,7 +289,7 @@ const loadOutline = async () => {
     let result = ''
     callBack((text: string, isDone: boolean) => {
       result += text
-      outlineText.value = extractMarkdownFromText(result) || ''
+      outlineText.value = stripAnchors(extractMarkdownFromText(result) || '')
       outlineLoading.value = outlineText.value.length === 0
       if (isDone) {
         outlineLoading.value = false
@@ -316,9 +332,25 @@ watch(
   --style: px-20px py-24px flex flex-col;
 }
 
-.panel-overview-label,
-.panel-outline-header {
+.panel-overview-label {
   --style: text-(13px accent) font-500 mb-10px;
+}
+
+// 全文解析标题：flex 行，带 grid icon，对齐 demo .panel-action
+.panel-outline-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--slax-accent);
+  font-weight: 500;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
 }
 
 .panel-overview-text {
@@ -356,9 +388,86 @@ watch(
   --style: h-1px bg-border mt-12px mb-24px;
 }
 
+// MarkdownText 渲染的 outline 内容样式
+// 对齐 demo 的 panel-section-title / panel-outline-item / panel-outline-sub
 .panel-outline-text {
   --style: text-(14px txt);
   line-height: 1.6;
+
+  // h1/h2 → 章节标题（Playfair serif，对齐 demo .panel-section-title）
+  :deep(h1),
+  :deep(h2) {
+    font-family: var(--slax-font-serif);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--slax-text);
+    margin: 16px 0 12px;
+    line-height: 1.4;
+  }
+
+  // h3 → 子章节标题（sans，稍小）
+  :deep(h3) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--slax-text);
+    margin: 10px 0 6px;
+    line-height: 1.5;
+  }
+
+  // 顶层列表项（对齐 demo .panel-outline-item）
+  :deep(ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  :deep(li) {
+    font-size: 14px;
+    color: var(--slax-text);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    padding-left: 0;
+  }
+
+  // 嵌套列表（对齐 demo .panel-outline-sub）
+  :deep(ul ul) {
+    margin-top: 4px;
+    padding-left: 16px;
+  }
+
+  :deep(ul ul li) {
+    position: relative;
+    color: var(--slax-text-muted);
+    margin-bottom: 4px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 10px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--slax-text-light);
+      box-sizing: content-box;
+    }
+  }
+
+  // 锚点数字 chip（对齐 demo .num）
+  // AISummaries 把锚点转成 [N](anchor_N)，stripAnchors 已去掉链接，
+  // 但纯数字文本仍可能出现在 li 末尾；这里不做特殊处理，保持纯文字即可
+  :deep(a) {
+    // 剩余未被 stripAnchors 处理的链接：去掉下划线，颜色用 accent
+    color: var(--slax-accent);
+    text-decoration: none;
+    pointer-events: none; // 不可点击，避免跳转
+  }
+
+  // 段落间距
+  :deep(p) {
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
 }
 
 .skeleton-row {
