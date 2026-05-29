@@ -65,7 +65,7 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 | 接口 | `RESTMethodPath.BOOKMARK_OVERVIEW`（POST 流式） |
 | 请求体 | `{ bookmark_id?, share_code?, force: false }`（两个页面分别传对应字段，后端待同步） |
 | 触发时机 | `isAppeared` 变为 `true` 且 overview 尚未加载时自动触发 |
-| 流式数据类型 | `overview`（**覆盖**最新值，非追加；参考 `AIOverview.vue:284` `overviewContent.value = responseData.content`）、`key_takeaways`（数组整体替换）、`tags`/`tag`（忽略，不处理） |
+| 流式数据类型 | 后端原始帧格式：`{"type":"progress","data":{"overview":...}}` / `{"type":"progress","data":{"key_takeaways":...}}` / `{"type":"done","data":{...}}`；`parseConcatenatedJson` 解析后内部转为 `{ type: 'overview', content }` / `{ type: 'key_takeaways', content }` 等。overview 字段**覆盖**最新值（参考 `AIOverview.vue:284`），key_takeaways 数组整体替换，tags/tag 忽略 |
 | 重试逻辑 | 加载完成后 `overviewContent` 仍为空 → 自动重试一次（`haveReconnected` 防止无限循环） |
 
 流式 JSON 解析复用 `AIOverview` 中的 `parseConcatenatedJson` 逻辑（内联到组件，不抽公共函数）。
@@ -205,7 +205,7 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 <SnapshotAIPanel :share-code="shareCode" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
 ```
 
-两个页面同步删除 `AISummaries` 的 import 语句。
+两个页面同步**替换** `AISummaries` import 为 `SnapshotAIPanel`（注意：`Snapshot/SnapshotAIPanel.vue` 不在全局组件目录，不会自动注册，必须显式 import）。
 
 `navigateToText` 函数在 `useBookmark.ts:92-96` 的实现为 `summariesExpanded.value = false`。但 `tests/unit/composables/bookmark/useBookmark.spec.ts:147,325-330` 仍断言 `navigateToText` 存在且小屏行为正确，**不能直接删除**。处置方案：
 
@@ -223,7 +223,7 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 ### 10.1 新增单元测试
 
-文件：`tests/unit/components/SnapshotAIPanel.spec.ts`
+文件：`tests/unit/components/Snapshot/SnapshotAIPanel.spec.ts`（镜像源码路径 `components/Snapshot/`，与现有 `Article/`、`Layouts/` 等范式一致）
 
 **Mock 链路规范**（参考 `AISummaries.spec.ts` 范式）：
 
