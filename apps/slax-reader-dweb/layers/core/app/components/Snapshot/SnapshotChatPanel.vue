@@ -677,6 +677,10 @@ defineExpose({ addQuoteData, focusTextarea })
     padding: 4px 24px 16px;
     overscroll-behavior: contain;
     scrollbar-width: none;
+    // 顶部边缘淡出：滚动内容经过上沿时渐隐（顶 16px 从透明→不透明），
+    // mask 作用于滚动视口、不随内容滚动，视觉上像与背景融合的轻微渐变
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
     &::-webkit-scrollbar {
       display: none;
     }
