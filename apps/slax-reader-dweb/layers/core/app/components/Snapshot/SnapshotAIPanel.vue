@@ -494,8 +494,6 @@ watch(
       box-sizing: content-box;
     }
   }
-    }
-  }
 
   // 锚点 chip 样式（对齐 demo .panel-outline-item .num）
   // MarkdownText 自身有更具体的 .slax_link 样式（bg-#16b9981f text-txt py-3px h-16px align-middle），
