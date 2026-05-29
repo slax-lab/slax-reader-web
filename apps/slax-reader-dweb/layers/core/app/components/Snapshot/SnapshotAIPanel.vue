@@ -46,7 +46,7 @@
 
       <!-- 大纲内容 -->
       <template v-else-if="outlineText.length > 0">
-        <MarkdownText class="panel-outline-text" :text="outlineText" />
+        <MarkdownText class="panel-outline-text" :text="outlineText" @anchor-click="handleAnchorClick" />
         <div class="outline-loading-bottom" v-if="outlineLoading">
           <DotLoading />
         </div>
@@ -66,17 +66,43 @@ import MarkdownText from '#layers/core/app/components/Markdown/MarkdownText.vue'
 
 import { extractMarkdownFromText } from '@commons/utils/parse'
 import { RequestMethodType } from '@commons/utils/request'
+import { findMatchingElement, queryMarkdownAnchorQuote, querySimularMarkdownAnchorQuote } from '@commons/utils/search'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { SummaryItemModel } from '@commons/types/interface'
 
-// 去掉 outline markdown 里的锚点链接，只保留文字
-// AISummaries 的锚点格式：[text](anchor_N) 或 [text](#url-encoded)
-// SnapshotAIPanel 不做跳转，直接剥掉链接语法避免渲染成无效 <a>
-const stripAnchors = (text: string): string => {
-  // [text](anchor_N) → text（内部 anchor key）
-  // [text](#...) → text（URL 锚点）
-  return text.replace(/\[([^\]]+)\]\((anchor_[^)]+|#[^)]*)\)/g, '$1')
+// 处理 outline markdown 里的锚点（对齐 AISummaries.handleData 逻辑）：
+// - anchor_N 格式：保留为 [text](anchor_N)，MarkdownText 会转成可点击的 .slax_link
+// - #url 格式（URL 锚点）：去掉链接只保留文字，这类锚点跳不到正文
+// 同时维护 anchorRefs 映射，供 anchorClick 跳转使用
+const anchorRefs: Record<string, string> = {}
+
+const processOutlineAnchors = (text: string): string => {
+  // 完整格式锚点：[text](anchor_N)
+  const anchors = queryMarkdownAnchorQuote(text)
+  const anchorIndexes = anchors.map(a => a.index)
+  anchors.forEach(anchor => {
+    const key = `anchor_${anchor.anchorNum}`
+    anchorRefs[key] = anchor.text
+    text = text.replaceAll(anchor.anchorText, ` [${decodeURIComponent(anchor.anchorNum)}](${key})`)
+  })
+  // 不完整格式锚点（#url）：去掉链接只保留文字
+  const simAnchors = querySimularMarkdownAnchorQuote(text).filter(a => !anchorIndexes.includes(a.index))
+  simAnchors.forEach(anchor => {
+    text = text.replaceAll(anchor.anchorText, ` ${decodeURIComponent(anchor.anchorNum)}`)
+  })
+  return text
+}
+
+const handleAnchorClick = (link: string) => {
+  const refText = anchorRefs[link]
+  if (!refText) return
+  // 在详情页正文区域查找并滚动到对应文本
+  const contentEl = document.querySelector('.bookmark-detail .detail') || document.body
+  const result = findMatchingElement(refText, contentEl)
+  if (result?.element) {
+    result.element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
 
 const props = defineProps({
@@ -263,7 +289,7 @@ const loadOutline = async () => {
 
     if (list && list.length > 0) {
       const selfSummary = list.find(item => item.is_self) ?? list[0]!
-      outlineText.value = stripAnchors(extractMarkdownFromText(selfSummary.content) || '')
+      outlineText.value = processOutlineAnchors(extractMarkdownFromText(selfSummary.content) || '')
       outlineLoading.value = false
       outlineDone.value = true
       return
@@ -289,7 +315,7 @@ const loadOutline = async () => {
     let result = ''
     callBack((text: string, isDone: boolean) => {
       result += text
-      outlineText.value = stripAnchors(extractMarkdownFromText(result) || '')
+      outlineText.value = processOutlineAnchors(extractMarkdownFromText(result) || '')
       outlineLoading.value = outlineText.value.length === 0
       if (isDone) {
         outlineLoading.value = false
@@ -329,7 +355,7 @@ watch(
 
 <style lang="scss" scoped>
 .snapshot-ai-panel {
-  --style: px-20px py-24px flex flex-col;
+  --style: px-24px py-24px flex flex-col;
 }
 
 .panel-overview-label {
@@ -453,14 +479,30 @@ watch(
     }
   }
 
-  // 锚点数字 chip（对齐 demo .num）
-  // AISummaries 把锚点转成 [N](anchor_N)，stripAnchors 已去掉链接，
-  // 但纯数字文本仍可能出现在 li 末尾；这里不做特殊处理，保持纯文字即可
-  :deep(a) {
-    // 剩余未被 stripAnchors 处理的链接：去掉下划线，颜色用 accent
+  // 锚点 chip 样式（对齐 demo .num）
+  // MarkdownText 把 anchor_N 链接转成 .slax_link，点击 emit anchorClick 跳到正文
+  :deep(.slax_link) {
+    display: inline-block;
+    min-width: 20px;
+    font-size: 11px;
     color: var(--slax-accent);
+    background: var(--slax-accent-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
     text-decoration: none;
-    pointer-events: none; // 不可点击，避免跳转
+    cursor: pointer;
+    vertical-align: middle;
+    line-height: 1.6;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  // li 内第一个子元素不加 margin-top，避免圆点标记与内容垂直错位
+  :deep(li > *:first-child) {
+    margin-top: 0;
   }
 
   // 段落间距
