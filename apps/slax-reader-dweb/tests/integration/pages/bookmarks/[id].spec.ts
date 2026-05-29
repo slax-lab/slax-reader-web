@@ -174,8 +174,8 @@ const baseStubs = {
   },
   SidebarLayout: { name: 'SidebarLayout', template: '<div class="sidebar-layout"><slot /></div>' },
   SnapshotAIPanel: { name: 'SnapshotAIPanel', template: '<div class="snapshot-ai-panel" />', props: ['bookmarkId', 'shareCode', 'isAppeared'], emits: ['dismiss'] },
-  ChatBot: {
-    name: 'ChatBot',
+  SnapshotChatPanel: {
+    name: 'SnapshotChatPanel',
     template: '<div class="chat-bot" />',
     emits: ['dismiss', 'find-quote'],
     expose: ['addQuoteData']
@@ -617,7 +617,7 @@ describe('pages/bookmarks/[id].vue', () => {
       )
     })
 
-    it('C32: ChatBot find-quote → bookmarkArticle.findQuote 调（间接验证不抛错）', async () => {
+    it('C32: SnapshotChatPanel find-quote → bookmarkArticle.findQuote 调（间接验证不抛错）', async () => {
       mockUseBookmark.mockReturnValueOnce({
         ...mockUseBookmark.getMockImplementation()?.({}),
         user: ref(baseUser),
@@ -643,9 +643,9 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const chatbot = wrapper.findComponent({ name: 'ChatBot' })
+      const chatbot = wrapper.findComponent({ name: 'SnapshotChatPanel' })
       const quote = { data: [{ type: 'text', content: 'q' }] }
-      // ChatBot stub emits find-quote → 父组件 findQuote 调 bookmarkArticle.findQuote
+      // SnapshotChatPanel stub emits find-quote → 父组件 findQuote 调 bookmarkArticle.findQuote
       await chatbot.vm.$emit('find-quote', quote)
       await nextTick()
       // 不抛错即过
