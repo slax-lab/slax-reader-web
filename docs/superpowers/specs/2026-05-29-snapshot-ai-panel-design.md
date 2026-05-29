@@ -13,7 +13,7 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 1. **全文概要**（overview 文本 + key takeaways 要点列表）
 2. **全文解析**（outline，无思维导图）
 
-`AISummaries` 在 dweb 中的唯一消费方就是这个 AI slot，重构后将成为死代码。因此本次采用**完全重写**策略，新建 `SnapshotAIPanel.vue`，不在旧组件上缝补。
+`AISummaries` 在 dweb 中，`bookmarks/[id].vue` 和 `s/[id].vue` 是其 snapshot 详情页消费方（`w/[id].vue` 和 `sw/[id].vue` 仍在使用，不在本次范围内）。因此本次采用**完全重写**策略，新建 `SnapshotAIPanel.vue`，不在旧组件上缝补。
 
 ---
 
@@ -272,6 +272,9 @@ overview 重试用例中，让 `mockGet` 返回非空缓存以隔离 outline str
 | `shareCode` 正确传入 overview 请求体                             | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ share_code: shareCode }`                      |
 | `shareCode` 正确传入 outline GET 请求                            | `mockGet` 调用参数 query 含 `{ share_code: shareCode }`                                                     |
 | `shareCode` 模式 outline 空缓存后 stream body 含 share_code      | `BOOKMARK_AI_SUMMARIES` stream 调用参数 body 含 `{ share_code: shareCode }`（不是 `bm_id`）                 |
+| overview stream 返回 `{ type: 'error' }` → 显示重试按钮          | `.panel-overview .retry-btn` 存在，loading 不卡住（`overviewLoading` 为 false）                             |
+| overview stream reject（网络错误）→ 显示重试按钮                 | `mockStream` 以 `BOOKMARK_OVERVIEW` reject，`.panel-overview .retry-btn` 存在，loading 不卡住               |
+| outline GET reject（网络错误）→ 显示重试按钮                     | `mockGet` reject，`.panel-outline .retry-btn` 存在，loading 不卡住                                          |
 | `useBookmark.spec.ts:C19` 更新                                   | `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）                                        |
 
 ### 10.1.1 集成测试更新
