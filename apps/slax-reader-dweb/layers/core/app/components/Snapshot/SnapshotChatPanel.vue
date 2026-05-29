@@ -782,9 +782,120 @@ defineExpose({ addQuoteData, focusTextarea })
     white-space: pre-wrap;
     word-break: break-word;
 
+    // markdown 渲染容器：v-html 出的是 <p>/<ul>/<h2> 等块级元素，
+    // 需覆盖父级的 pre-wrap（否则保留 HTML 源码空白符 + <p> margin = 双重大间距），
+    // 并对内部元素做 margin 清零 + 精确段间距 + 列表自绘 bullet（思路对齐 BubbleMessage）
     .chat-msg-ai-text {
+      white-space: normal;
+
+      // 清零所有元素默认 margin（code 除外），间距由下面 * + 选择器精确控制
+      :deep(:not(code)) {
+        margin: 0;
+      }
+
+      // 前面有内容时，段落 / 标题 / 列表才加上间距
+      :deep(* + p) {
+        margin-top: 12px;
+      }
+      :deep(* + ul),
+      :deep(* + ol) {
+        margin-top: 10px;
+      }
+      :deep(* + h1),
+      :deep(* + h2),
+      :deep(* + h3) {
+        margin-top: 18px;
+      }
+      :deep(* + pre),
+      :deep(* + blockquote) {
+        margin-top: 12px;
+      }
+
+      :deep(h1) {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+      :deep(h2) {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+      :deep(h3),
+      :deep(h4),
+      :deep(h5) {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      // 列表：去掉默认 marker（黑点会溢出容器），自绘 bullet 在 li padding 区内
+      :deep(ul),
+      :deep(ol) {
+        list-style: none;
+        padding-left: 0;
+      }
+      :deep(li) {
+        position: relative;
+        padding-left: 18px;
+        line-height: 1.6;
+      }
+      :deep(li + li) {
+        margin-top: 6px;
+      }
+      :deep(li::marker) {
+        content: none;
+      }
+      // 无序列表：accent 系小圆点
+      :deep(ul > li::before) {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 0.6em;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--slax-text-light);
+      }
+      // 有序列表：序号
+      :deep(ol) {
+        counter-reset: chat-ol;
+      }
+      :deep(ol > li) {
+        counter-increment: chat-ol;
+      }
+      :deep(ol > li::before) {
+        content: counter(chat-ol) '.';
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--slax-text-light);
+      }
+
+      :deep(blockquote) {
+        padding-left: 12px;
+        border-left: 2px solid var(--slax-accent-soft);
+        color: var(--slax-text-muted);
+      }
+
+      :deep(pre) {
+        background: color-mix(in srgb, var(--slax-text) 6%, transparent);
+        border-radius: 6px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+      :deep(code) {
+        font-family: 'Courier New', Courier, monospace;
+      }
+
       :deep(a) {
         color: var(--slax-accent);
+      }
+
+      :deep(img) {
+        max-width: 100%;
+        border-radius: 6px;
       }
     }
 
