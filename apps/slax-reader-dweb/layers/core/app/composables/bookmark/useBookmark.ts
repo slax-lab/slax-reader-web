@@ -5,13 +5,18 @@ import { isClient } from '@commons/utils/is'
 import type { CommonBookmarkOptions } from './type'
 import { useResize } from './useCommon'
 import type { UserInfo } from '@commons/types/interface'
-import type ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showLoginModal } from '#layers/core/app/components/Modal'
 import { useUserStore } from '#layers/core/app/stores/user'
 
+// duck-typing 接口：SnapshotChatPanel 与旧 ChatBot 都满足，避免绑死具体组件类型
+interface ChatBotLike {
+  addQuoteData: (data: QuoteData) => void
+  focusTextarea: () => void
+}
+
 interface BookmarkOptions extends CommonBookmarkOptions {
-  chatbot: Ref<InstanceType<typeof ChatBot> | undefined>
+  chatbot: Ref<ChatBotLike | undefined>
   typeOptions: () => BookmarkTypeOptions
   initialRequestTask?: () => Promise<void>
   initialTasksCompleted?: () => void
