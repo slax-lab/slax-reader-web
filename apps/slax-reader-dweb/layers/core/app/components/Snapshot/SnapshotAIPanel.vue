@@ -324,21 +324,30 @@ watch(
 .panel-overview-text {
   // 纯文本展示，对齐 snapshot demo 的 .panel-summary；pre-line 保留后端文本里的换行
   // 显式 font-sans，避免继承详情页标题的 serif 字体
-  --style: font-sans text-(14px txt) leading-1.8 mb-24px whitespace-pre-line;
+  // line-height 用原生 CSS 倍数写法（UnoCSS attrify 的 leading-1.8 会被误解析成极小值）
+  --style: font-sans text-(14px txt) mb-24px whitespace-pre-line;
+  line-height: 1.8;
 }
 
 .panel-keypoints {
   --style: font-sans list-none p-0 mb-28px;
 
   li {
-    --style: relative pl-16px text-(14px txt-muted) leading-1.6;
+    --style: relative pl-16px text-(14px txt-muted);
+    line-height: 1.6;
 
     &:not(:last-child) {
       --style: mb-8px;
     }
 
     &::before {
-      --style: content-empty absolute left-0 top-10px w-4px h-4px rounded-full border-(1.5px solid accent) bg-transparent;
+      --style: content-empty absolute left-0 top-10px w-4px h-4px rounded-full;
+      // border / line-height 用原生写法（UnoCSS 的 border-(1.5px ...) 简写会被解析成 1px）
+      // 显式 content-box 对齐 demo：项目全局 *{box-sizing:border-box} 会把伪元素也设成 border-box，
+      // 导致圆圈外径被压成 4px；demo 是 content-box，外径 = 4px content + 1.5px×2 border = 7px
+      box-sizing: content-box;
+      border: 1.5px solid var(--slax-accent);
+      background: transparent;
     }
   }
 }
@@ -348,7 +357,8 @@ watch(
 }
 
 .panel-outline-text {
-  --style: text-(14px txt) leading-1.6;
+  --style: text-(14px txt);
+  line-height: 1.6;
 }
 
 .skeleton-row {

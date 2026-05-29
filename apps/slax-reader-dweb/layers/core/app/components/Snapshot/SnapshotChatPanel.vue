@@ -118,15 +118,15 @@
 </template>
 
 <script lang="ts" setup>
-import DotLoading from '#layers/core/app/components/DotLoading.vue'
 import QuestionMessage from '#layers/core/app/components/Chat/QuestionMessage.vue'
 import TipsMessage from '#layers/core/app/components/Chat/TipsMessage.vue'
+import DotLoading from '#layers/core/app/components/DotLoading.vue'
 
 import { parseMarkdownText } from '@commons/utils/parse'
 import { getUUID } from '@commons/utils/random'
-import { vOnKeyStroke } from '@vueuse/components'
-
 import type { ChatBotParams } from '#layers/core/app/utils/chatbot'
+
+import { vOnKeyStroke } from '@vueuse/components'
 import type { BubbleMessageContent, BubbleMessageItem, MessageItem, QuestionMessageItem, QuoteData } from '#layers/core/app/components/Chat/type'
 
 const { t } = useI18n()
