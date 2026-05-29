@@ -58,14 +58,7 @@
         <SnapshotSidePanel v-if="canView" :active-tab="activePanel" @update:active-tab="activePanel = $event">
           <template #ai>
             <ClientOnly>
-              <AISummaries
-                v-if="bmId"
-                :bookmarkId="bmId"
-                :is-appeared="activePanel === 'ai'"
-                :content-selector="'.bookmark-detail .detail'"
-                @navigated-text="navigateToText"
-                @dismiss="activePanel = null"
-              />
+              <SnapshotAIPanel v-if="bmId" :bookmark-id="bmId" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
             </ClientOnly>
           </template>
           <template #chat>
@@ -126,12 +119,12 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
+import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -329,40 +322,29 @@ const loadBookmark = async () => {
   checkStatusInterval()
 }
 
-const {
-  user,
-  isSubscriptionExpired,
-  showAnalyzed,
-  showChatbot,
-  chatBotQuote,
-  showFeedback,
-  backToTop,
-  screenLockUpdate,
-  navigateToNotification,
-  navigateToBookmarks,
-  navigateToText
-} = useBookmark({
-  chatbot,
-  typeOptions: () => {
-    return {
-      type: BookmarkType.Normal,
-      title: detail.value?.alias_title || detail.value?.title || t('page.bookmarks_detail.no_title'),
-      bmId: bmId
-    }
-  },
-  initialRequestTask: async () => {
-    await loadBookmark()
-  },
-  initialTasksCompleted: () => {
-    nextTick(() => {
-      // 桌面态默认打开 comment tab（snapshot.md §4.3）
-      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
-      if (!isMobile) {
-        activePanel.value = 'comment'
+const { user, isSubscriptionExpired, showAnalyzed, showChatbot, chatBotQuote, showFeedback, backToTop, screenLockUpdate, navigateToNotification, navigateToBookmarks } =
+  useBookmark({
+    chatbot,
+    typeOptions: () => {
+      return {
+        type: BookmarkType.Normal,
+        title: detail.value?.alias_title || detail.value?.title || t('page.bookmarks_detail.no_title'),
+        bmId: bmId
       }
-    })
-  }
-})
+    },
+    initialRequestTask: async () => {
+      await loadBookmark()
+    },
+    initialTasksCompleted: () => {
+      nextTick(() => {
+        // 桌面态默认打开 comment tab（snapshot.md §4.3）
+        const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+        if (!isMobile) {
+          activePanel.value = 'comment'
+        }
+      })
+    }
+  })
 
 const checkStatusInterval = () => {
   if (!detail.value || detail.value.status !== BookmarkParseStatus.PENDING) {

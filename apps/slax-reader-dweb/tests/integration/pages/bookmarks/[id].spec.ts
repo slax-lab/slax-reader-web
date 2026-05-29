@@ -173,7 +173,7 @@ const baseStubs = {
     props: ['activeTab']
   },
   SidebarLayout: { name: 'SidebarLayout', template: '<div class="sidebar-layout"><slot /></div>' },
-  AISummaries: { name: 'AISummaries', template: '<div class="ai-summaries" />', emits: ['navigated-text', 'dismiss'] },
+  SnapshotAIPanel: { name: 'SnapshotAIPanel', template: '<div class="snapshot-ai-panel" />', props: ['bookmarkId', 'shareCode', 'isAppeared'], emits: ['dismiss'] },
   ChatBot: {
     name: 'ChatBot',
     template: '<div class="chat-bot" />',

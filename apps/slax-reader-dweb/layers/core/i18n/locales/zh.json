@@ -160,6 +160,11 @@
         "title": "添加链接"
       }
     },
+    "ai_panel": {
+      "outline_label": "全文解析",
+      "overview_label": "全文概要",
+      "retry": "加载失败，点击重试"
+    },
     "ai_summaries": {
       "click_to_expand": "点击彩色圆点可展开/收起节点",
       "click_to_interpret": "点击按钮解读此文章",

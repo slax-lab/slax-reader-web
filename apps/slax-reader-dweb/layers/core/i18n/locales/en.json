@@ -160,6 +160,11 @@
         "title": "Add URL"
       }
     },
+    "ai_panel": {
+      "outline_label": "Outline",
+      "overview_label": "Overview",
+      "retry": "Failed to load, click to retry"
+    },
     "ai_summaries": {
       "click_to_expand": "Click any circle to explore more details",
       "click_to_interpret": "Click the button to interpret this article",

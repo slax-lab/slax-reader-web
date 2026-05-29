@@ -63,13 +63,7 @@
         <SnapshotSidePanel v-if="detail" :active-tab="activePanel" @update:active-tab="activePanel = $event">
           <template #ai>
             <ClientOnly>
-              <AISummaries
-                :share-code="shareCode"
-                :is-appeared="activePanel === 'ai'"
-                :content-selector="'.bookmark-detail .detail'"
-                @navigated-text="navigateToText"
-                @dismiss="activePanel = null"
-              />
+              <SnapshotAIPanel :share-code="shareCode" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
             </ClientOnly>
           </template>
           <template #chat>
@@ -124,13 +118,13 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
 import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
+import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -364,8 +358,7 @@ const {
   loginVerify,
   screenLockUpdate,
   navigateToNotification,
-  navigateToBookmarks,
-  navigateToText
+  navigateToBookmarks
 } = useBookmark({
   chatbot,
   typeOptions: () => {
