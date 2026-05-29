@@ -62,7 +62,14 @@
             </ClientOnly>
           </template>
           <template #chat>
-            <ChatBot v-if="!isSubscriptionExpired" ref="chatbot" :bookmarkId="bmId" :is-appeared="activePanel === 'chat'" @dismiss="activePanel = null" @find-quote="findQuote" />
+            <SnapshotChatPanel
+              v-if="!isSubscriptionExpired"
+              ref="chatbot"
+              :bookmarkId="bmId"
+              :is-appeared="activePanel === 'chat'"
+              @dismiss="activePanel = null"
+              @find-quote="findQuote"
+            />
           </template>
           <template #comment>
             <ClientOnly>
@@ -120,7 +127,7 @@
 
 <script lang="ts" setup>
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
+import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
@@ -159,7 +166,7 @@ const detailForArticle = computed(() => (detail.value ?? {}) as BookmarkArticleD
 const { isStarred, allowStarred, updateStarred } = useArticleDetail(detailForArticle)
 
 const bookmarkArticle = ref<typeof BookmarkArticle>()
-const chatbot = ref<InstanceType<typeof ChatBot>>()
+const chatbot = ref<InstanceType<typeof SnapshotChatPanel>>()
 const isInvalidBookmark = ref(false)
 
 // 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）

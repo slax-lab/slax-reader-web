@@ -67,7 +67,7 @@
             </ClientOnly>
           </template>
           <template #chat>
-            <ChatBot
+            <SnapshotChatPanel
               v-if="!isSubscriptionExpired"
               ref="chatbot"
               :share-code="shareCode"
@@ -119,7 +119,7 @@
 
 <script lang="ts" setup>
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
+import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
@@ -158,7 +158,7 @@ const detail = ref<ShareBookmarkDetail>()
 const marks = ref<MarkDetail>()
 
 const bookmarkArticle = ref<InstanceType<typeof BookmarkArticle>>()
-const chatbot = ref<InstanceType<typeof ChatBot>>()
+const chatbot = ref<InstanceType<typeof SnapshotChatPanel>>()
 
 // 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）
 const bookmarkArticleSelection = computed(() => bookmarkArticle.value?.articleSelection ?? null)
