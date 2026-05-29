@@ -42,9 +42,8 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 │                                     │
 ├─────────────────────────────────────┤  ← 1px border 分隔线
 │                                     │
-│  ⊞ 全文解析                          │  ← .panel-action 按钮（折叠态）
-│                                     │     13px / accent / weight 500
-│                                     │     hover → text；左侧 grid 图标
+│  全文解析                            │  ← .panel-outline-header（13px / accent / weight 500）
+│                                     │
 │  § 1  Section Title                 │  ← .panel-section-title（Playfair 18px / weight 500）
 │    · outline item                   │  ← .panel-outline-item（14px / text）
 │    · outline item                   │     子项 14px / text-muted + 4px 实心点
@@ -64,7 +63,7 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 | 项目         | 说明                                                                                 |
 | ------------ | ------------------------------------------------------------------------------------ |
 | 接口         | `RESTMethodPath.BOOKMARK_OVERVIEW`（POST 流式）                                      |
-| 请求体       | `{ bookmark_id, force: false }`                                                      |
+| 请求体       | `{ bookmark_id?, share_code?, force: false }`（两个页面分别传对应字段，后端待同步）  |
 | 触发时机     | `isAppeared` 变为 `true` 且 overview 尚未加载时自动触发                              |
 | 流式数据类型 | `overview`（文本追加）、`key_takeaways`（数组）、`tags`/`tag`（忽略，不处理）        |
 | 重试逻辑     | 加载完成后 `overviewContent` 仍为空 → 自动重试一次（`haveReconnected` 防止无限循环） |
@@ -73,14 +72,14 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 
 ### 4.2 全文解析（outline）
 
-| 项目     | 说明                                                                      |
-| -------- | ------------------------------------------------------------------------- |
-| 接口     | `BOOKMARK_AI_SUMMARIES_LIST`（GET）+ `BOOKMARK_AI_SUMMARIES`（POST 流式） |
-| 触发时机 | 用户点击「全文解析」按钮时**懒加载**，只触发一次                          |
-| 加载策略 | 先 GET 列表，有缓存直接展示；无缓存则 POST 流式生成                       |
-| 文本处理 | `extractMarkdownFromText`（`@commons/utils/parse`）处理流式文本           |
+| 项目     | 说明                                                                               |
+| -------- | ---------------------------------------------------------------------------------- |
+| 接口     | `BOOKMARK_AI_SUMMARIES_LIST`（GET）+ `BOOKMARK_AI_SUMMARIES`（POST 流式）          |
+| 触发时机 | `isAppeared` 变为 `true` 且 outline 尚未加载时**自动触发**（与 overview 同步加载） |
+| 加载策略 | 先 GET 列表，有缓存直接展示；无缓存则 POST 流式生成                                |
+| 文本处理 | `extractMarkdownFromText`（`@commons/utils/parse`）处理流式文本                    |
 
-**不实现**：anchor 跳转、多版本切换（`summaries` 列表切换）、思维导图。
+**不实现**：anchor 跳转、多版本切换（`summaries` 列表切换）、思维导图、折叠/展开交互。
 
 ---
 
@@ -103,8 +102,8 @@ error（重试按钮）
 ### 5.2 outline 状态
 
 ```
-collapsed（「全文解析」按钮，未加载）
-  ↓ 用户点击
+idle
+  ↓ isAppeared = true
 loading（骨架占位）
   ↓ 数据到达
 streaming（MarkdownText 渲染 + DotLoading）
@@ -114,7 +113,7 @@ done（完整章节列表）
 error（重试按钮）
 ```
 
-outline 展开后不再折叠（`v-show` 控制，不用 `v-if`，避免重复加载）。
+outline 与 overview 同步自动加载，无折叠/展开交互。
 
 ---
 
@@ -154,18 +153,18 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 ## 八、样式规范（对齐 snapshot §5.1）
 
-| 元素                     | 规范                                                                                     |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| `.panel-overview-label`  | 13px / weight 500 / `var(--slax-accent)`                                                 |
-| `.panel-overview-text`   | 14px / line-height 1.8 / `var(--slax-text)`                                              |
-| `.panel-keypoints` 每条  | 14px / `var(--slax-text-muted)`；前缀 4px 直径、1.5px `var(--slax-accent)` 空心圆圈      |
-| 分隔线                   | 1px solid `var(--slax-border)`                                                           |
-| `.panel-action` 按钮     | 13px / weight 500 / `var(--slax-accent)`；hover → `var(--slax-text)`；左侧 grid SVG 图标 |
-| `.panel-section-title`   | Playfair 18px / weight 500 / `var(--slax-text)`                                          |
-| `.panel-outline-item`    | 14px / `var(--slax-text)`；子项 14px / `var(--slax-text-muted)` + 4px 实心点             |
-| 序号 chip                | 11px / `var(--slax-accent)` 字 + `var(--slax-accent-bg)` 底 + 3px 圆角                   |
-| 骨架占位 `.skeleton-row` | 渐变条 `from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)` + animate-pulse    |
-| 容器 padding             | `px-20px py-24px`                                                                        |
+| 元素                     | 规范                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| `.panel-overview-label`  | 13px / weight 500 / `var(--slax-accent)`                                              |
+| `.panel-overview-text`   | 14px / line-height 1.8 / `var(--slax-text)`                                           |
+| `.panel-keypoints` 每条  | 14px / `var(--slax-text-muted)`；前缀 4px 直径、1.5px `var(--slax-accent)` 空心圆圈   |
+| 分隔线                   | 1px solid `var(--slax-border)`                                                        |
+| `.panel-outline-header`  | 13px / weight 500 / `var(--slax-accent)`                                              |
+| `.panel-section-title`   | Playfair 18px / weight 500 / `var(--slax-text)`                                       |
+| `.panel-outline-item`    | 14px / `var(--slax-text)`；子项 14px / `var(--slax-text-muted)` + 4px 实心点          |
+| 序号 chip                | 11px / `var(--slax-accent)` 字 + `var(--slax-accent-bg)` 底 + 3px 圆角                |
+| 骨架占位 `.skeleton-row` | 渐变条 `from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)` + animate-pulse |
+| 容器 padding             | `px-20px py-24px`                                                                     |
 
 ---
 
@@ -222,28 +221,29 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 文件：`tests/unit/components/SnapshotAIPanel.spec.ts`
 
-| 用例                                           | 验证点                                               |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| `isAppeared=false` 时不触发 overview 加载      | `request().stream` 未被调用                          |
-| `isAppeared=true` 时自动触发 overview 加载     | `request().stream` 以 `BOOKMARK_OVERVIEW` 调用       |
-| overview 加载中显示骨架                        | `.skeleton-row` 存在                                 |
-| overview 加载完成显示内容                      | `.panel-overview-text` 内容正确                      |
-| overview 加载完成但内容为空 → 自动重试一次     | `request().stream` 被调用两次                        |
-| overview 重试后仍为空 → 显示重试按钮           | `.retry-btn` 存在，不再自动重试                      |
-| key takeaways 正确渲染                         | `.panel-keypoints` 子项数量与数据一致                |
-| 点击「全文解析」按钮触发 outline 加载          | `request().get` 以 `BOOKMARK_AI_SUMMARIES_LIST` 调用 |
-| outline 加载中显示骨架                         | outline 区域 `.skeleton-row` 存在                    |
-| outline 加载完成显示 MarkdownText              | `MarkdownText` 组件存在且 text prop 正确             |
-| 点击关闭按钮触发 `dismiss` emit                | emit 被触发                                          |
-| `bookmarkId` 和 `shareCode` 分别正确传入请求体 | 请求参数断言                                         |
+| 用例                                               | 验证点                                               |
+| -------------------------------------------------- | ---------------------------------------------------- |
+| `isAppeared=false` 时不触发任何加载                | `request().stream` 和 `request().get` 均未被调用     |
+| `isAppeared=true` 时自动触发 overview 加载         | `request().stream` 以 `BOOKMARK_OVERVIEW` 调用       |
+| `isAppeared=true` 时自动触发 outline 加载          | `request().get` 以 `BOOKMARK_AI_SUMMARIES_LIST` 调用 |
+| overview 加载中显示骨架                            | `.skeleton-row` 存在                                 |
+| overview 加载完成显示内容                          | `.panel-overview-text` 内容正确                      |
+| overview 加载完成但内容为空 → 自动重试一次         | `request().stream` 被调用两次                        |
+| overview 重试后仍为空 → 显示重试按钮，不再自动重试 | `.retry-btn` 存在，`request().stream` 共调用两次     |
+| key takeaways 正确渲染                             | `.panel-keypoints` 子项数量与数据一致                |
+| outline 加载中显示骨架                             | outline 区域 `.skeleton-row` 存在                    |
+| outline 加载完成显示 MarkdownText                  | `MarkdownText` 组件存在且 text prop 正确             |
+| 点击关闭按钮触发 `dismiss` emit                    | emit 被触发                                          |
+| `bookmarkId` 正确传入 overview 请求体              | 请求参数断言 `{ bookmark_id: bmId }`                 |
+| `shareCode` 正确传入 overview 请求体               | 请求参数断言 `{ share_code: shareCode }`             |
+| `shareCode` 正确传入 outline 请求                  | `BOOKMARK_AI_SUMMARIES_LIST` query 含 `share_code`   |
 
 ### 10.2 手验场景
 
-1. 打开 AI 面板 → overview 骨架 → 内容逐步出现 → key takeaways 列表
-2. 点击「全文解析」→ outline 骨架 → 章节列表渲染
-3. 切换到其他 tab 再切回 → overview/outline 状态保留（`v-show` 不重建）
-4. 网络失败场景 → 重试按钮出现 → 点击重试重新加载
-5. `s/[id].vue` 公共分享页（`shareCode` 模式）正常加载
+1. 打开 AI 面板 → overview 和 outline 同步骨架 → 内容逐步出现 → key takeaways 列表 + 章节列表
+2. 切换到其他 tab 再切回 → overview/outline 状态保留（`v-show` 不重建）
+3. 网络失败场景 → 重试按钮出现 → 点击重试重新加载
+4. `s/[id].vue` 公共分享页（`shareCode` 模式）正常加载 overview 和 outline
 
 ---
 
@@ -262,7 +262,7 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 | 风险 | 对策 |
 | --- | --- |
 | overview 接口（`BOOKMARK_OVERVIEW`）在 dweb 的 `RESTMethodPath` 中是否已定义 | 施工前 grep 确认；若缺失则在 `@commons/types/const` 补充 |
-| `BOOKMARK_OVERVIEW` 接口只接受 `bookmark_id`，`s/[id].vue` 使用 `shareCode` 无法调用 overview | `s/[id].vue` 的 AI 面板**只展示全文解析（outline）**，overview 区块隐藏（`v-if="bookmarkId"`）；`SnapshotAIPanel` 通过 `bookmarkId` 是否存在决定是否渲染 overview 区块 |
+| `BOOKMARK_OVERVIEW` 接口目前只接受 `bookmark_id`，`s/[id].vue` 传 `shareCode` | 前端请求体同时支持 `{ bookmark_id?, share_code?, force }` 两种入参；后端接口待同步支持 `share_code` 字段 |
 | `parseConcatenatedJson` 内联后与 `AIOverview` 行为不一致 | 直接复制 `AIOverview.vue` 中的实现，不做改动 |
 | outline 流式文本 `extractMarkdownFromText` 处理后为空 | 与 `AISummaries` 现有行为一致，显示「点击解析」空态 |
 | `SnapshotSidePanel` 用 `v-show` 保留 slot 状态，切 tab 时 `isAppeared` 变化 | `isAppeared` 由父层传入 `activePanel === 'ai'`，`v-show` 不卸载组件，watch 逻辑正确响应 |
