@@ -291,10 +291,10 @@ const outlineCalls = mockStream.mock.calls.filter(c => c[0].url === RESTMethodPa
 | outline 加载完成显示 MarkdownText | `MarkdownText` stub 存在于 `.panel-outline` 内且 text prop 正确 |
 | 点击关闭按钮触发 `dismiss` emit | emit 被触发 |
 | `bookmarkId` 正确传入 overview 请求体 | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ bookmark_id: bmId }` |
-| `shareCode` 正确传入 overview 请求体 | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ share_code: shareCode }` |
+| `shareCode` 正确传入 overview 请求体（⚠️ 依赖后端契约） | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ share_code: shareCode }`；**注意**：后端目前只接受 `bookmark_id`，`share_code` 支持待同步，此用例仅验证前端传参正确，真实 overview 加载需后端上线后手验 |
 | `shareCode` 正确传入 outline GET 请求 | `mockGet` 调用参数 query 含 `{ share_code: shareCode }` |
 | `shareCode` 模式 outline 空缓存后 stream body 含 share_code | `BOOKMARK_AI_SUMMARIES` stream 调用参数 body 含 `{ share_code: shareCode }`（不是 `bm_id`） |
-| overview stream 返回 `{ type: 'error' }` → 触发自动重试一次，重试后仍空则显示重试按钮 | `{ type: 'error' }` 按 `AIOverview` 行为被当作 done+空内容处理，触发 `haveReconnected` 自动重试；`BOOKMARK_OVERVIEW` stream 共调用两次，第二次也返回空后 `.panel-overview .retry-btn` 存在 |
+| overview stream error 帧 → 触发自动重试一次，重试后仍空则显示重试按钮 | handler 收到 JSON 字符串帧 `'{"type":"error","message":"x"}'` 并置 `done=true`；按 `AIOverview` 行为被当作 done+空内容处理，触发 `haveReconnected` 自动重试；`BOOKMARK_OVERVIEW` stream 共调用两次，第二次也返回空后 `.panel-overview .retry-btn` 存在 |
 | overview stream reject（网络错误）→ 显示重试按钮 | `mockStream` 以 `BOOKMARK_OVERVIEW` reject，`.panel-overview .retry-btn` 存在，loading 不卡住 |
 | outline GET reject（网络错误）→ 显示重试按钮 | `mockGet` reject，`.panel-outline .retry-btn` 存在，loading 不卡住 |
 | `useBookmark.spec.ts:C19` 更新 | `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态） |
