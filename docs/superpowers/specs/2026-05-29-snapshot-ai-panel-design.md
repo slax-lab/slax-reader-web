@@ -210,8 +210,7 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 `navigateToText` 函数在 `useBookmark.ts:92-96` 的实现为 `summariesExpanded.value = false`。但 `tests/unit/composables/bookmark/useBookmark.spec.ts:147,325-330` 仍断言 `navigateToText` 存在且小屏行为正确，**不能直接删除**。处置方案：
 
 - `useBookmark.ts` 中 `navigateToText` 保留函数签名，函数体改为空（`summariesExpanded` 已删，小屏逻辑已无意义）
-- `useBookmark.spec.ts:C19` 用例改为断言 `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）
-- `useBookmark.spec.ts` 中 C1（返回值含 `summariesExpanded` key）、C6-C13（`showAnalyzed`/`showChatbot` 对 `summariesExpanded` 的断言）需同步更新：`summariesExpanded` 已在 Phase 4 删除，这些用例应改为断言 `activePanel` 状态（Phase 4 已引入的替代 ref）
+- `useBookmark.spec.ts:C19` 用例改为断言 `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）；**C1/C6-C13 不改**——`summariesExpanded` 是 `useResize()` 返回的 composable 状态，`activePanel` 是页面局部 ref，两者不在同一层，C1/C6-C13 的断言目标与 `SnapshotAIPanel` 无关，本 PR 不触碰
 - 两个详情页的 `@navigated-text="navigateToText"` 绑定随 `AISummaries` 替换一并删除
 
 ### 9.2 AISummaries 消费方说明
@@ -230,13 +229,27 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 ```ts
 // request 是 nuxt auto-import，必须用 mockNuxtImport 拦截
-const { mockGet, mockStream, mockRequest } = vi.hoisted(() => { ... })
+// mockRequest 必须返回 { get: mockGet, stream: mockStream }（参考 AISummaries.spec.ts:961）
+const { mockGet, mockStream, mockRequest } = vi.hoisted(() => ({
+  mockGet: vi.fn(),
+  mockStream: vi.fn(),
+  mockRequest: vi.fn()
+}))
+mockRequest.mockImplementation(() => ({ get: mockGet, stream: mockStream }))
 mockNuxtImport('request', () => mockRequest)
 
-// 每个用例前 reset
+// 每个用例前 reset，reset 后必须重新安装默认 URL 分发实现
+// （mockReset 会清掉 implementation，不能用 mockClear）
 beforeEach(() => {
   mockGet.mockReset()
   mockStream.mockReset()
+  // 重新安装默认分发：按 url 返回对应 pending callback，各用例可按需 override
+  mockStream.mockImplementation(opts => {
+    if (opts.url === RESTMethodPath.BOOKMARK_OVERVIEW) return Promise.resolve(null)
+    if (opts.url === RESTMethodPath.BOOKMARK_AI_SUMMARIES) return Promise.resolve(null)
+    return Promise.resolve(null)
+  })
+  mockGet.mockResolvedValue([])
 })
 ```
 
