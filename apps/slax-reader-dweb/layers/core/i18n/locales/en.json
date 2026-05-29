@@ -383,6 +383,14 @@
       "revoke_tips": "Shared link access been revoked",
       "title": "Share"
     },
+    "snapshot_chat": {
+      "copied": "Copied",
+      "empty_desc": "Or select text in the article to start a conversation",
+      "empty_title": "Ask AI to understand this article",
+      "suggestion_1": "What is the core argument of this article?",
+      "suggestion_2": "What concepts are worth exploring further?",
+      "suggestion_3": "What are the author's main arguments?"
+    },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",
       "failed_content": "Try clicking the article title to read the original page, or use our browser extension to re-save this article",
