@@ -60,13 +60,13 @@ Snapshot 设计稿（§5.1）要求 AI 面板改为：
 
 ### 4.1 全文概要（overview）
 
-| 项目         | 说明                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------ |
-| 接口         | `RESTMethodPath.BOOKMARK_OVERVIEW`（POST 流式）                                      |
-| 请求体       | `{ bookmark_id?, share_code?, force: false }`（两个页面分别传对应字段，后端待同步）  |
-| 触发时机     | `isAppeared` 变为 `true` 且 overview 尚未加载时自动触发                              |
-| 流式数据类型 | `overview`（文本追加）、`key_takeaways`（数组）、`tags`/`tag`（忽略，不处理）        |
-| 重试逻辑     | 加载完成后 `overviewContent` 仍为空 → 自动重试一次（`haveReconnected` 防止无限循环） |
+| 项目 | 说明 |
+| --- | --- |
+| 接口 | `RESTMethodPath.BOOKMARK_OVERVIEW`（POST 流式） |
+| 请求体 | `{ bookmark_id?, share_code?, force: false }`（两个页面分别传对应字段，后端待同步） |
+| 触发时机 | `isAppeared` 变为 `true` 且 overview 尚未加载时自动触发 |
+| 流式数据类型 | `overview`（**覆盖**最新值，非追加；参考 `AIOverview.vue:284` `overviewContent.value = responseData.content`）、`key_takeaways`（数组整体替换）、`tags`/`tag`（忽略，不处理） |
+| 重试逻辑 | 加载完成后 `overviewContent` 仍为空 → 自动重试一次（`haveReconnected` 防止无限循环） |
 
 流式 JSON 解析复用 `AIOverview` 中的 `parseConcatenatedJson` 逻辑（内联到组件，不抽公共函数）。
 
@@ -207,11 +207,15 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 两个页面同步删除 `AISummaries` 的 import 语句。
 
-`navigateToText` 函数在 `useBookmark.ts:92-96` 的实现为 `summariesExpanded.value = false`，而 `summariesExpanded` 已在 Phase 4 重构中删除，该函数已是死代码。两个页面的 `navigateToText` 引用（`bookmarks/[id].vue:343`、`s/[id].vue:368`）和 `useBookmark.ts` 中的函数定义一并删除。
+`navigateToText` 函数在 `useBookmark.ts:92-96` 的实现为 `summariesExpanded.value = false`。但 `tests/unit/composables/bookmark/useBookmark.spec.ts:147,325-330` 仍断言 `navigateToText` 存在且小屏行为正确，**不能直接删除**。处置方案：
 
-### 9.2 AISummaries 标记待删除
+- `useBookmark.ts` 中 `navigateToText` 保留函数签名，函数体改为空（`summariesExpanded` 已删，小屏逻辑已无意义）
+- `useBookmark.spec.ts:C19` 用例改为断言 `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）
+- 两个详情页的 `@navigated-text="navigateToText"` 绑定随 `AISummaries` 替换一并删除
 
-`AISummaries.vue`（dweb 版）在本次改动后无消费方，在本 PR 中**不删除**（避免影响 extensions 的同名组件引发混淆），但在 PR 描述中标注「待后续 sprint 清理」。
+### 9.2 AISummaries 消费方说明
+
+`AISummaries.vue`（dweb 版）在本次改动后，`bookmarks/[id].vue` 和 `s/[id].vue` 不再引用，但 **`pages/w/[id].vue` 和 `pages/sw/[id].vue` 仍在使用**（已确认：`w/[id].vue:42`、`sw/[id].vue:42`）。因此本 PR **不删除、不标记待删除** `AISummaries.vue`，仅移除 snapshot 详情页的消费方。
 
 ---
 
@@ -221,22 +225,41 @@ emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = nu
 
 文件：`tests/unit/components/SnapshotAIPanel.spec.ts`
 
-| 用例                                               | 验证点                                               |
-| -------------------------------------------------- | ---------------------------------------------------- |
-| `isAppeared=false` 时不触发任何加载                | `request().stream` 和 `request().get` 均未被调用     |
-| `isAppeared=true` 时自动触发 overview 加载         | `request().stream` 以 `BOOKMARK_OVERVIEW` 调用       |
-| `isAppeared=true` 时自动触发 outline 加载          | `request().get` 以 `BOOKMARK_AI_SUMMARIES_LIST` 调用 |
-| overview 加载中显示骨架                            | `.skeleton-row` 存在                                 |
-| overview 加载完成显示内容                          | `.panel-overview-text` 内容正确                      |
-| overview 加载完成但内容为空 → 自动重试一次         | `request().stream` 被调用两次                        |
-| overview 重试后仍为空 → 显示重试按钮，不再自动重试 | `.retry-btn` 存在，`request().stream` 共调用两次     |
-| key takeaways 正确渲染                             | `.panel-keypoints` 子项数量与数据一致                |
-| outline 加载中显示骨架                             | outline 区域 `.skeleton-row` 存在                    |
-| outline 加载完成显示 MarkdownText                  | `MarkdownText` 组件存在且 text prop 正确             |
-| 点击关闭按钮触发 `dismiss` emit                    | emit 被触发                                          |
-| `bookmarkId` 正确传入 overview 请求体              | 请求参数断言 `{ bookmark_id: bmId }`                 |
-| `shareCode` 正确传入 overview 请求体               | 请求参数断言 `{ share_code: shareCode }`             |
-| `shareCode` 正确传入 outline 请求                  | `BOOKMARK_AI_SUMMARIES_LIST` query 含 `share_code`   |
+**Mock 链路规范**（参考 `AISummaries.spec.ts` 范式）：
+
+```ts
+// request 是 nuxt auto-import，必须用 mockNuxtImport 拦截
+const { mockGet, mockStream, mockRequest } = vi.hoisted(() => { ... })
+mockNuxtImport('request', () => mockRequest)
+
+// 每个用例前 reset
+beforeEach(() => {
+  mockGet.mockReset()
+  mockStream.mockReset()
+})
+```
+
+overview 区域容器选择器：`.panel-overview`；outline 区域容器选择器：`.panel-outline`。骨架和重试按钮在各自容器内查找，避免两区域互相满足断言。
+
+| 用例 | 验证点 |
+| --- | --- |
+| `isAppeared=false` 时不触发任何加载 | `mockStream` 和 `mockGet` 均未被调用 |
+| `isAppeared=true` 时自动触发 overview 加载 | `mockStream` 以 `BOOKMARK_OVERVIEW` url 调用 |
+| `isAppeared=true` 时自动触发 outline 加载 | `mockGet` 以 `BOOKMARK_AI_SUMMARIES_LIST` url 调用 |
+| overview 加载中显示骨架 | `.panel-overview .skeleton-row` 存在 |
+| overview 加载完成显示内容（覆盖语义） | 流式回调两次传入不同 overview 值，`.panel-overview-text` 最终显示最后一次值（非拼接） |
+| overview 加载完成但内容为空 → 自动重试一次 | `mockStream` 被调用两次 |
+| overview 重试后仍为空 → 显示重试按钮，不再自动重试 | `.panel-overview .retry-btn` 存在，`mockStream` 共调用两次 |
+| key takeaways 正确渲染 | `.panel-keypoints` 子项数量与数据一致 |
+| outline 加载中显示骨架 | `.panel-outline .skeleton-row` 存在 |
+| outline 空缓存后触发 stream 生成 | `mockGet` 返回空列表后，`mockStream` 以 `BOOKMARK_AI_SUMMARIES` url、POST method、`{ bm_id }` body 调用 |
+| outline 加载完成显示 MarkdownText | `MarkdownText` stub 存在于 `.panel-outline` 内且 text prop 正确 |
+| 点击关闭按钮触发 `dismiss` emit | emit 被触发 |
+| `bookmarkId` 正确传入 overview 请求体 | `mockStream` 调用参数 body 含 `{ bookmark_id: bmId }` |
+| `shareCode` 正确传入 overview 请求体 | `mockStream` 调用参数 body 含 `{ share_code: shareCode }` |
+| `shareCode` 正确传入 outline GET 请求 | `mockGet` 调用参数 query 含 `{ share_code: shareCode }` |
+| `shareCode` 模式 outline 空缓存后 stream body 含 share_code | `mockStream` 调用参数 body 含 `{ share_code: shareCode }`（对应 `AISummaries.querySummaries` 中 `share_code` 字段，不是 `bm_id`） |
+| `useBookmark.spec.ts:C19` 更新 | `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态） |
 
 ### 10.2 手验场景
 
