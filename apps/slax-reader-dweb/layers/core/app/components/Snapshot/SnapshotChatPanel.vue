@@ -3,7 +3,7 @@
     <!-- 标题（对齐 snapshot demo 的 .panel-title） -->
     <div class="chat-title">Chat</div>
     <!-- 消息流（含空态） -->
-    <div class="chat-messages" ref="messages">
+    <div class="chat-messages" :class="{ scrolled: isScrolled }" ref="messages" @scroll="onMessagesScroll">
       <!-- 空态 -->
       <div v-if="messageList.length === 0 && !isChatting" class="chat-empty">
         <div class="chat-empty-icon">
@@ -272,6 +272,12 @@ const bufferMessage = ref<BubbleMessageItem | null>(null) as Ref<BubbleMessageIt
 const bufferMarkdownContent = ref('')
 const quoteInfo = ref<QuoteData | null>(null) as Ref<QuoteData | null>
 const copiedId = ref<string | null>(null)
+// 是否已向下滚动：仅在离开顶部后才启用顶部淡出 mask，避免滚到最顶时淡化最上方消息
+const isScrolled = ref(false)
+
+const onMessagesScroll = () => {
+  isScrolled.value = (messages.value?.scrollTop ?? 0) > 0
+}
 
 const sendable = computed(() => inputText.value.trim().length > 0 && !isChatting.value)
 
@@ -677,12 +683,15 @@ defineExpose({ addQuoteData, focusTextarea })
     padding: 4px 24px 16px;
     overscroll-behavior: contain;
     scrollbar-width: none;
-    // 顶部边缘淡出：滚动内容经过上沿时渐隐（顶 16px 从透明→不透明），
-    // mask 作用于滚动视口、不随内容滚动，视觉上像与背景融合的轻微渐变
-    mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
     &::-webkit-scrollbar {
       display: none;
+    }
+
+    // 顶部边缘淡出：仅在离开顶部后启用（.scrolled），
+    // 滚到最顶时无 mask，不会淡化最上方消息；向下滚动时上沿渐隐与背景融合
+    &.scrolled {
+      mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%);
     }
   }
 
