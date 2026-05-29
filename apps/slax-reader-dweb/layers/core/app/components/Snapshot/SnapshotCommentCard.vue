@@ -22,12 +22,18 @@
       <!-- 子评论 -->
       <div v-if="mainComment.children?.length" class="comment-sub-list" @click.stop>
         <div v-for="child in mainComment.children" :key="child.markUid" class="comment-sub">
-          <p class="comment-sub-text">{{ child.comment }}</p>
-          <div class="comment-meta">
+          <p class="comment-sub-text">
+            <span v-if="child.reply?.username" class="comment-sub-reply-to">{{ `@${child.reply.username} ` }}</span
+            >{{ child.comment }}
+          </p>
+          <div class="comment-sub-time">
             <span>
               <span class="comment-author">{{ child.username }}</span>
               <template v-if="child.createdAt"> · {{ formatRelativeTime(child.createdAt) }}</template>
             </span>
+            <button v-if="allowAction && child.markUid" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
+              {{ $t('common.operate.reply') }}
+            </button>
           </div>
         </div>
       </div>
@@ -215,6 +221,47 @@ const formatRelativeTime = (date: Date | string | undefined) => {
         margin: 0 0 4px;
         white-space: pre-wrap;
         word-break: break-word;
+
+        .comment-sub-reply-to {
+          color: var(--slax-accent);
+          font-weight: 500;
+        }
+      }
+
+      .comment-sub-time {
+        font-size: 12px;
+        color: var(--slax-text-light);
+        font-weight: 300;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .comment-author {
+          color: var(--slax-text-muted);
+          font-weight: 500;
+        }
+
+        .comment-sub-reply-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          font: inherit;
+          font-size: 12px;
+          color: var(--slax-accent);
+          cursor: pointer;
+          opacity: 0;
+          transition: opacity 0.15s;
+          margin-left: 4px;
+
+          &:hover {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+          }
+        }
+      }
+
+      &:hover .comment-sub-reply-btn {
+        opacity: 0.75;
       }
     }
   }

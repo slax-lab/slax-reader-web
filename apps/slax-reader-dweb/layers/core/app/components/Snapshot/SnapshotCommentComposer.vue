@@ -49,6 +49,7 @@ const props = defineProps<{
   pendingQuote: QuoteData | null
   activeInfoId: string | null
   infos?: MarkItemInfo[]
+  replyToUid?: string | null
 }>()
 
 const emits = defineEmits<{
@@ -63,7 +64,7 @@ const inputText = ref('')
 const sending = ref(false)
 
 // 是否有回复目标（有则显示 composer，无则隐藏）
-const hasTarget = computed(() => !!props.pendingSelection || !!props.activeInfoId)
+const hasTarget = computed(() => !!props.pendingSelection || !!props.activeInfoId || !!props.replyToUid)
 
 // 组装引用信息：@用户名：内容
 const replyInfo = computed((): { username: string; content: string } | null => {
@@ -75,19 +76,28 @@ const replyInfo = computed((): { username: string; content: string } | null => {
     return null
   }
 
-  // 点击已有划线/评论
+  // 回复某条具体评论（replyToUid 优先）
+  if (props.replyToUid && props.infos) {
+    for (const info of props.infos) {
+      const findComment = (comments: MarkCommentInfo[]): MarkCommentInfo | null => {
+        for (const c of comments) {
+          if (c.markUid === props.replyToUid) return c
+          const found = findComment(c.children ?? [])
+          if (found) return found
+        }
+        return null
+      }
+      const target = findComment(info.comments)
+      if (target) return { username: target.username, content: target.comment?.slice(0, 80) ?? '' }
+    }
+  }
+
+  // 点击已有划线/评论（无 replyToUid，显示划线引用）
   if (props.activeInfoId && props.infos) {
     const info = props.infos.find(i => i.id === props.activeInfoId)
     if (!info) return null
 
-    const mainComment = info.comments[0]
-    if (mainComment) {
-      // 有评论：显示 @用户名：评论内容
-      const content = mainComment.comment?.slice(0, 80) ?? ''
-      return { username: mainComment.username, content }
-    }
-
-    // 纯划线：显示划线文本（从 quoteText 取，通过 DOM 查询）
+    // 纯划线：显示划线文本
     const quoteText = getQuoteTextFromInfo(info)
     if (quoteText) return { username: '', content: quoteText.slice(0, 80) }
     return null
@@ -157,7 +167,12 @@ const handleSend = async () => {
       info = { id: getUUID(), source: [], comments: [], stroke: [], approx: undefined }
     }
 
-    const resultInfoId = await props.articleSelection.strokeSelection({ info, comment })
+    const resultInfoId = await props.articleSelection.strokeSelection({
+      info,
+      comment,
+      // 新选区是全新评论，不能带 replyToUid；只有回复已有评论时才传
+      replyToUid: props.pendingSelection ? undefined : (props.replyToUid ?? undefined)
+    })
 
     if (!resultInfoId) {
       Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })

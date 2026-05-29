@@ -90,6 +90,7 @@
                   :pending-quote="pendingQuote"
                   :active-info-id="activeInfoId"
                   :infos="commentInfos"
+                  :reply-to-uid="replyToUid"
                   @sent="onCommentSent"
                   @cancel-reply="onCancelReply"
                 />
@@ -226,6 +227,8 @@ const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkBy
   articleSelection: bookmarkArticleSelection
 })
 
+const replyToUid = ref<string | null>(null)
+
 const onCommentCardClick = (infoId: string) => {
   flashMarkByInfoId(infoId)
 }
@@ -236,6 +239,7 @@ const onCommentReply = (comment: { markUid: string }) => {
     const found = info.comments.some(c => c.markUid === comment.markUid || c.children?.some(ch => ch.markUid === comment.markUid))
     if (found) {
       activeInfoId.value = info.id
+      replyToUid.value = comment.markUid
       break
     }
   }
@@ -243,6 +247,7 @@ const onCommentReply = (comment: { markUid: string }) => {
 
 const onReplyStroke = (infoId: string) => {
   activeInfoId.value = infoId
+  replyToUid.value = null
 }
 
 const onCommentSent = (infoId: string) => {
@@ -253,6 +258,7 @@ const onCancelReply = () => {
   pendingSelection.value = null
   pendingQuote.value = null
   activeInfoId.value = null
+  replyToUid.value = null
 }
 
 // SVG icon 字符串
