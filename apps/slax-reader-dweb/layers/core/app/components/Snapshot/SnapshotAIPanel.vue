@@ -97,11 +97,18 @@ const processOutlineAnchors = (text: string): string => {
 const handleAnchorClick = (link: string) => {
   const refText = anchorRefs[link]
   if (!refText) return
-  // 在详情页正文区域查找并滚动到对应文本
+  // 在详情页正文区域查找并滚动到对应文本，滚动后高亮闪烁
   const contentEl = document.querySelector('.bookmark-detail .detail') || document.body
   const result = findMatchingElement(refText, contentEl)
   if (result?.element) {
     result.element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // 高亮闪烁：复用 hl-flash 动画类（BookmarkArticle 定义在 slax-mark 上，
+    // 这里给普通元素加 anchor-flash 类，由本组件的 :global keyframes 驱动）
+    const el = result.element
+    el.classList.remove('anchor-flash')
+    void el.offsetWidth // 强制 reflow，确保 animation 重新触发
+    el.classList.add('anchor-flash')
+    setTimeout(() => el.classList.remove('anchor-flash'), 3000)
   }
 }
 
@@ -479,21 +486,21 @@ watch(
     }
   }
 
-  // 锚点 chip 样式（对齐 demo .num）
+  // 锚点 chip 样式（对齐 demo .panel-outline-item .num）
   // MarkdownText 把 anchor_N 链接转成 .slax_link，点击 emit anchorClick 跳到正文
   :deep(.slax_link) {
     display: inline-block;
     min-width: 20px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--slax-accent);
     background: var(--slax-accent-bg);
     padding: 1px 5px;
     border-radius: 3px;
     margin-left: 6px;
     text-decoration: none;
+    text-align: center;
     cursor: pointer;
-    vertical-align: middle;
-    line-height: 1.6;
+    font-family: inherit;
 
     &:hover {
       opacity: 0.8;
@@ -509,6 +516,22 @@ watch(
   :deep(p) {
     margin-bottom: 8px;
     line-height: 1.6;
+  }
+}
+
+// anchor-flash：锚点点击后正文元素的高亮动画
+// 用 :global 因为 anchor-flash 类加在正文 DOM 上（组件外部）
+:global(.anchor-flash) {
+  animation: anchor-flash 3s ease-out;
+}
+
+@keyframes anchor-flash {
+  0% {
+    background-color: color-mix(in srgb, var(--slax-accent) 22%, transparent);
+    border-radius: 4px;
+  }
+  100% {
+    background-color: transparent;
   }
 }
 
