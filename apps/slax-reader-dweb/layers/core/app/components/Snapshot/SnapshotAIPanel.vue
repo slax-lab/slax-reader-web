@@ -398,7 +398,11 @@ watch(
   --style: font-sans list-none p-0 mb-28px;
 
   li {
-    --style: relative pl-16px text-(14px txt-muted);
+    // flex 布局让 ::before 圆点自动对齐第一行中心，不依赖硬编码 top 值
+    display: flex;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--slax-text-muted);
     line-height: 1.6;
 
     &:not(:last-child) {
@@ -406,10 +410,14 @@ watch(
     }
 
     &::before {
-      --style: content-empty absolute left-0 top-10px w-4px h-4px rounded-full;
-      // border / line-height 用原生写法（UnoCSS 的 border-(1.5px ...) 简写会被解析成 1px）
-      // 显式 content-box 对齐 demo：项目全局 *{box-sizing:border-box} 会把伪元素也设成 border-box，
-      // 导致圆圈外径被压成 4px；demo 是 content-box，外径 = 4px content + 1.5px×2 border = 7px
+      content: '';
+      flex-shrink: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      // margin-top 让圆点垂直居中于第一行：(line-height * font-size - 圆点直径) / 2
+      margin-top: calc((1em * 1.6 - 4px) / 2);
+      margin-right: 12px;
       box-sizing: content-box;
       border: 1.5px solid var(--slax-accent);
       background: transparent;
@@ -465,22 +473,23 @@ watch(
   // 嵌套列表（对齐 demo .panel-outline-sub）
   :deep(ul ul) {
     margin-top: 4px;
-    padding-left: 16px;
+    padding-left: 0;
   }
 
   :deep(ul ul li) {
-    position: relative;
+    display: flex;
+    align-items: flex-start;
     color: var(--slax-text-muted);
     margin-bottom: 4px;
 
     &::before {
       content: '';
-      position: absolute;
-      left: -12px;
-      top: 10px;
+      flex-shrink: 0;
       width: 4px;
       height: 4px;
       border-radius: 50%;
+      margin-top: calc((1em * 1.6 - 4px) / 2);
+      margin-right: 8px;
       background: var(--slax-text-light);
       box-sizing: content-box;
     }
