@@ -11,7 +11,7 @@
 
       <!-- 概要内容 -->
       <template v-else-if="overviewContent.length > 0">
-        <MarkdownText class="panel-overview-text" :text="overviewContent" />
+        <div class="panel-overview-text">{{ overviewContent }}</div>
         <div class="overview-loading-bottom" v-if="overviewLoading">
           <DotLoading />
         </div>
@@ -318,27 +318,33 @@ watch(
 
 .panel-overview-label,
 .panel-outline-header {
-  --style: text-(13px accent) font-500 mb-12px;
+  --style: text-(13px accent) font-500 mb-10px;
 }
 
 .panel-overview-text {
-  --style: text-(14px txt) leading-1.8;
+  // 纯文本展示，对齐 snapshot demo 的 .panel-summary；pre-line 保留后端文本里的换行
+  // 显式 font-sans，避免继承详情页标题的 serif 字体
+  --style: font-sans text-(14px txt) leading-1.8 mb-24px whitespace-pre-line;
 }
 
 .panel-keypoints {
-  --style: mt-16px flex flex-col gap-10px list-none p-0;
+  --style: font-sans list-none p-0 mb-28px;
 
   li {
     --style: relative pl-16px text-(14px txt-muted) leading-1.6;
 
+    &:not(:last-child) {
+      --style: mb-8px;
+    }
+
     &::before {
-      --style: content-empty absolute left-0 top-7px w-4px h-4px rounded-full border-(1.5px solid accent);
+      --style: content-empty absolute left-0 top-10px w-4px h-4px rounded-full border-(1.5px solid accent) bg-transparent;
     }
   }
 }
 
 .panel-divider {
-  --style: my-20px h-1px bg-border;
+  --style: h-1px bg-border mt-12px mb-24px;
 }
 
 .panel-outline-text {
