@@ -5,8 +5,8 @@
       <!-- 空态 -->
       <div v-if="messageList.length === 0 && !isChatting" class="chat-empty">
         <div class="chat-empty-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-            <path d="M12 2l2.4 6.9L21 11l-6.6 2.1L12 20l-2.4-6.9L3 11l6.6-2.1L12 2z" />
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 2 L13.5 8.5 L20 10 L13.5 11.5 L12 18 L10.5 11.5 L4 10 L10.5 8.5 Z" />
           </svg>
         </div>
         <div class="chat-empty-title">{{ $t('component.snapshot_chat.empty_title') }}</div>
@@ -659,7 +659,8 @@ defineExpose({ addQuoteData, focusTextarea })
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 20px 16px;
+    // 对齐 snapshot demo：左右 24px，顶 4px，底 16px（给内容留呼吸空间，不贴 composer）
+    padding: 4px 24px 16px;
     overscroll-behavior: contain;
     scrollbar-width: none;
     &::-webkit-scrollbar {
@@ -667,24 +668,22 @@ defineExpose({ addQuoteData, focusTextarea })
     }
   }
 
-  // 空态
+  // 空态（对齐 snapshot demo：text-align center + 图标 margin auto，不用 flex 居中）
   .chat-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
-    padding-top: 72px;
+    padding: 72px 8px 24px;
+    color: var(--slax-text-light);
 
     .chat-empty-icon {
       width: 36px;
       height: 36px;
+      margin: 0 auto 12px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       background: var(--slax-accent-bg);
       color: var(--slax-accent);
-      margin-bottom: 16px;
     }
 
     .chat-empty-title {
@@ -697,7 +696,8 @@ defineExpose({ addQuoteData, focusTextarea })
       font-size: 13px;
       color: var(--slax-text-muted);
       line-height: 1.6;
-      margin-bottom: 20px;
+      // demo 中 title/desc 是一个 <p> 带 <br>，整体下边距 28px；此处拆两行，下边距落在 desc 上
+      margin-bottom: 28px;
     }
 
     .chat-suggestions {
@@ -712,7 +712,8 @@ defineExpose({ addQuoteData, focusTextarea })
         background: var(--slax-bg);
         border: 1px solid var(--slax-border);
         border-radius: 999px;
-        padding: 6px 14px;
+        padding: 7px 14px;
+        line-height: 1.4;
         cursor: pointer;
         transition: all 0.15s;
 
@@ -733,6 +734,7 @@ defineExpose({ addQuoteData, focusTextarea })
     font-size: 14px;
     line-height: 1.6;
     white-space: pre-wrap;
+    word-break: break-word;
     border-radius: 14px 14px 4px 14px;
     padding: 10px 14px;
     color: var(--slax-text);
@@ -762,10 +764,11 @@ defineExpose({ addQuoteData, focusTextarea })
     font-size: 14px;
     line-height: 1.75;
     color: var(--slax-text);
+    // 对齐 snapshot demo：换行与断词挂在 .chat-msg-ai 上（文本直接是其内容）
+    white-space: pre-wrap;
+    word-break: break-word;
 
     .chat-msg-ai-text {
-      white-space: pre-wrap;
-
       :deep(a) {
         color: var(--slax-accent);
       }
@@ -797,12 +800,13 @@ defineExpose({ addQuoteData, focusTextarea })
 
     .chat-msg-ai-caret {
       display: inline-block;
-      width: 2px;
+      width: 6px;
       height: 1em;
       background: var(--slax-accent);
       margin-left: 2px;
-      vertical-align: text-bottom;
-      animation: chatCaretBlink 0.9s steps(1) infinite;
+      vertical-align: -2px;
+      border-radius: 1px;
+      animation: chatCaretBlink 0.9s steps(2, start) infinite;
     }
 
     .chat-msg-ai-tools {
@@ -850,7 +854,8 @@ defineExpose({ addQuoteData, focusTextarea })
     flex-shrink: 0;
     background: var(--slax-bg);
     border-top: 1px solid var(--slax-border);
-    padding: 14px 16px;
+    // 对齐 snapshot demo：左右 24px
+    padding: 14px 24px 24px;
     box-shadow: 0 -8px 16px -8px color-mix(in srgb, var(--slax-accent) 6%, transparent);
     transition:
       border-color 0.15s,
@@ -952,11 +957,7 @@ defineExpose({ addQuoteData, focusTextarea })
 }
 
 @keyframes chatCaretBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
+  to {
     opacity: 0;
   }
 }
