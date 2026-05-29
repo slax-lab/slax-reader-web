@@ -119,13 +119,13 @@
 
 <script lang="ts" setup>
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
 import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
 import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
