@@ -252,34 +252,34 @@ const outlineCalls = mockStream.mock.calls.filter(c => c[0].url === RESTMethodPa
 
 overview 重试用例中，让 `mockGet` 返回非空缓存以隔离 outline stream 链路，避免 outline 的 stream 调用干扰 overview 重试计数。
 
-| 用例                                                             | 验证点                                                                                             |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `isAppeared=false` 时不触发任何加载                              | `mockStream` 和 `mockGet` 均未被调用                                                               |
-| `isAppeared=true` 时 overview 和 outline **并发**启动（非阻塞）  | 让 overview stream 保持 pending，立即断言 `mockGet`（outline list）已被调用                        |
-| `isAppeared=true` 时自动触发 overview 加载                       | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用存在                                                 |
-| `isAppeared=true` 时自动触发 outline 加载                        | `mockGet` 以 `BOOKMARK_AI_SUMMARIES_LIST` url 调用                                                 |
-| overview 加载中显示骨架                                          | `.panel-overview .skeleton-row` 存在                                                               |
-| overview 加载完成显示内容（覆盖语义）                            | 流式回调两次传入不同 overview 值，`.panel-overview-text` 最终显示最后一次值（非拼接）              |
-| overview 加载完成但内容为空 → 自动重试一次（outline 用缓存隔离） | 按 url 过滤，`BOOKMARK_OVERVIEW` stream 被调用两次                                                 |
-| overview 重试后仍为空 → 显示重试按钮，不再自动重试               | `.panel-overview .retry-btn` 存在，`BOOKMARK_OVERVIEW` stream 共调用两次                           |
-| key takeaways 正确渲染                                           | `.panel-keypoints` 子项数量与数据一致                                                              |
-| outline 加载中显示骨架                                           | `.panel-outline .skeleton-row` 存在                                                                |
-| outline 缓存命中 → 直接展示，不触发 stream                       | `mockGet` 返回非空 summary，`MarkdownText` 渲染该内容，`BOOKMARK_AI_SUMMARIES` stream **未**被调用 |
-| outline 空缓存后触发 stream 生成                                 | `mockGet` 返回空列表后，`BOOKMARK_AI_SUMMARIES` stream 以 POST method、`{ bm_id }` body 调用       |
-| outline 加载完成显示 MarkdownText                                | `MarkdownText` stub 存在于 `.panel-outline` 内且 text prop 正确                                    |
-| 点击关闭按钮触发 `dismiss` emit                                  | emit 被触发                                                                                        |
-| `bookmarkId` 正确传入 overview 请求体                            | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ bookmark_id: bmId }`                 |
-| `shareCode` 正确传入 overview 请求体                             | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ share_code: shareCode }`             |
-| `shareCode` 正确传入 outline GET 请求                            | `mockGet` 调用参数 query 含 `{ share_code: shareCode }`                                            |
-| `shareCode` 模式 outline 空缓存后 stream body 含 share_code      | `BOOKMARK_AI_SUMMARIES` stream 调用参数 body 含 `{ share_code: shareCode }`（不是 `bm_id`）        |
-| `useBookmark.spec.ts:C19` 更新                                   | `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）                               |
+| 用例                                                             | 验证点                                                                                                      |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `isAppeared=false` 时不触发任何加载                              | `mockStream` 和 `mockGet` 均未被调用                                                                        |
+| `isAppeared=true` 时 overview 和 outline **并发**启动（非阻塞）  | 让 overview stream 保持 pending，立即断言 `mockGet`（outline list）已被调用                                 |
+| `isAppeared=true` 时自动触发 overview 加载                       | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用存在                                                          |
+| `isAppeared=true` 时自动触发 outline 加载                        | `mockGet` 以 `BOOKMARK_AI_SUMMARIES_LIST` url 调用，且 `bookmarkId` 模式下 query 含 `{ bookmark_id: bmId }` |
+| overview 加载中显示骨架                                          | `.panel-overview .skeleton-row` 存在                                                                        |
+| overview 加载完成显示内容（覆盖语义）                            | 流式回调两次传入不同 overview 值，`.panel-overview-text` 最终显示最后一次值（非拼接）                       |
+| overview 加载完成但内容为空 → 自动重试一次（outline 用缓存隔离） | 按 url 过滤，`BOOKMARK_OVERVIEW` stream 被调用两次                                                          |
+| overview 重试后仍为空 → 显示重试按钮，不再自动重试               | `.panel-overview .retry-btn` 存在，`BOOKMARK_OVERVIEW` stream 共调用两次                                    |
+| key takeaways 正确渲染                                           | `.panel-keypoints` 子项数量与数据一致                                                                       |
+| outline 加载中显示骨架                                           | `.panel-outline .skeleton-row` 存在                                                                         |
+| outline 缓存命中 → 直接展示，不触发 stream                       | `mockGet` 返回非空 summary，`MarkdownText` 渲染该内容，`BOOKMARK_AI_SUMMARIES` stream **未**被调用          |
+| outline 空缓存后触发 stream 生成                                 | `mockGet` 返回空列表后，`BOOKMARK_AI_SUMMARIES` stream 以 POST method、`{ bm_id }` body 调用                |
+| outline 加载完成显示 MarkdownText                                | `MarkdownText` stub 存在于 `.panel-outline` 内且 text prop 正确                                             |
+| 点击关闭按钮触发 `dismiss` emit                                  | emit 被触发                                                                                                 |
+| `bookmarkId` 正确传入 overview 请求体                            | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ bookmark_id: bmId }`                          |
+| `shareCode` 正确传入 overview 请求体                             | 按 url 过滤后，`BOOKMARK_OVERVIEW` stream 调用参数 body 含 `{ share_code: shareCode }`                      |
+| `shareCode` 正确传入 outline GET 请求                            | `mockGet` 调用参数 query 含 `{ share_code: shareCode }`                                                     |
+| `shareCode` 模式 outline 空缓存后 stream body 含 share_code      | `BOOKMARK_AI_SUMMARIES` stream 调用参数 body 含 `{ share_code: shareCode }`（不是 `bm_id`）                 |
+| `useBookmark.spec.ts:C19` 更新                                   | `navigateToText` 可调用且不抛错（不再断言 `summariesExpanded` 状态）                                        |
 
 ### 10.1.1 集成测试更新
 
 `tests/integration/pages/bookmarks/[id].spec.ts` 中涉及 AI 面板的用例（含 C25 切换到 ai tab）需同步更新：
 
 - 将 `AISummaries` stub 改为 `SnapshotAIPanel` stub
-- 补充 `mockStream` 的 `BOOKMARK_OVERVIEW` 和 `BOOKMARK_AI_SUMMARIES_LIST` mock，避免挂载真实组件时触发缺失的 stream 链路
+- `mockRequest` 需同时暴露 `get`（拦截 `BOOKMARK_AI_SUMMARIES_LIST`）和 `stream`（拦截 `BOOKMARK_OVERVIEW` 和 `BOOKMARK_AI_SUMMARIES`），避免挂载真实组件时触发缺失的请求链路或 `stream is not a function` 报错
 
 ### 10.2 手验场景
 
