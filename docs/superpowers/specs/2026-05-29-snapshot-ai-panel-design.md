@@ -1,0 +1,268 @@
+# SnapshotAIPanel 设计规范
+
+> 编制日期：2026-05-29分支：`feature/snapshot-detail-redesign` 关联文档：[snapshot-refactor-plan.md](../../.claude/new-design/snapshot-refactor-plan.md)、[slax-reader-snapshot.md](../../.claude/new-design/slax-reader-snapshot.md) §5.1
+
+---
+
+## 一、背景与目标
+
+详情页重构（Phase 4）完成后，AI 解析面板 slot 目前直接使用 `AISummaries.vue`，展示「全文解析（outline markdown）+ 思维导图」。
+
+Snapshot 设计稿（§5.1）要求 AI 面板改为：
+
+1. **全文概要**（overview 文本 + key takeaways 要点列表）
+2. **全文解析**（outline，无思维导图）
+
+`AISummaries` 在 dweb 中的唯一消费方就是这个 AI slot，重构后将成为死代码。因此本次采用**完全重写**策略，新建 `SnapshotAIPanel.vue`，不在旧组件上缝补。
+
+---
+
+## 二、组件定位
+
+| 项目     | 说明                                                                                      |
+| -------- | ----------------------------------------------------------------------------------------- |
+| 文件路径 | `apps/slax-reader-dweb/layers/core/app/components/Snapshot/SnapshotAIPanel.vue`           |
+| 消费方   | `pages/bookmarks/[id].vue` 和 `pages/s/[id].vue` 的 `#ai` slot                            |
+| 替换目标 | `AISummaries.vue`（dweb 版）在两个详情页的使用                                            |
+| 不影响   | `apps/slax-reader-extensions/src/components/AISummaries.vue`（extensions 独立版本，不动） |
+
+---
+
+## 三、布局结构
+
+```
+┌─────────────────────────────────────┐
+│  全文概要                            │  ← .panel-overview-label（13px / accent / weight 500）
+│                                     │
+│  overview 正文（14px / 1.8）         │  ← .panel-overview-text（MarkdownText 渲染）
+│                                     │
+│  ○ key takeaway 1                   │  ← .panel-keypoints 列表
+│  ○ key takeaway 2                   │     每条 14px / text-muted
+│  ○ key takeaway 3                   │     前缀：4px 直径、1.5px accent 空心圆圈
+│                                     │
+├─────────────────────────────────────┤  ← 1px border 分隔线
+│                                     │
+│  ⊞ 全文解析                          │  ← .panel-action 按钮（折叠态）
+│                                     │     13px / accent / weight 500
+│                                     │     hover → text；左侧 grid 图标
+│  § 1  Section Title                 │  ← .panel-section-title（Playfair 18px / weight 500）
+│    · outline item                   │  ← .panel-outline-item（14px / text）
+│    · outline item                   │     子项 14px / text-muted + 4px 实心点
+│  § 2  Section Title                 │     序号 chip：11px / accent 字 + accent-bg 底 + 3px 圆角
+│    · outline item                   │
+└─────────────────────────────────────┘
+```
+
+---
+
+## 四、数据流设计
+
+两段内容**独立加载，互不阻塞**：
+
+### 4.1 全文概要（overview）
+
+| 项目         | 说明                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------ |
+| 接口         | `RESTMethodPath.BOOKMARK_OVERVIEW`（POST 流式）                                      |
+| 请求体       | `{ bookmark_id, force: false }`                                                      |
+| 触发时机     | `isAppeared` 变为 `true` 且 overview 尚未加载时自动触发                              |
+| 流式数据类型 | `overview`（文本追加）、`key_takeaways`（数组）、`tags`/`tag`（忽略，不处理）        |
+| 重试逻辑     | 加载完成后 `overviewContent` 仍为空 → 自动重试一次（`haveReconnected` 防止无限循环） |
+
+流式 JSON 解析复用 `AIOverview` 中的 `parseConcatenatedJson` 逻辑（内联到组件，不抽公共函数）。
+
+### 4.2 全文解析（outline）
+
+| 项目     | 说明                                                                      |
+| -------- | ------------------------------------------------------------------------- |
+| 接口     | `BOOKMARK_AI_SUMMARIES_LIST`（GET）+ `BOOKMARK_AI_SUMMARIES`（POST 流式） |
+| 触发时机 | 用户点击「全文解析」按钮时**懒加载**，只触发一次                          |
+| 加载策略 | 先 GET 列表，有缓存直接展示；无缓存则 POST 流式生成                       |
+| 文本处理 | `extractMarkdownFromText`（`@commons/utils/parse`）处理流式文本           |
+
+**不实现**：anchor 跳转、多版本切换（`summaries` 列表切换）、思维导图。
+
+---
+
+## 五、状态机
+
+### 5.1 overview 状态
+
+```
+idle
+  ↓ isAppeared = true
+loading（骨架占位：3 行渐变条）
+  ↓ 流式数据到达
+streaming（逐步显示文本 + DotLoading）
+  ↓ done = true
+done（完整内容）
+  ↓ overviewContent 为空
+error（重试按钮）
+```
+
+### 5.2 outline 状态
+
+```
+collapsed（「全文解析」按钮，未加载）
+  ↓ 用户点击
+loading（骨架占位）
+  ↓ 数据到达
+streaming（MarkdownText 渲染 + DotLoading）
+  ↓ done = true
+done（完整章节列表）
+  ↓ 加载失败
+error（重试按钮）
+```
+
+outline 展开后不再折叠（`v-show` 控制，不用 `v-if`，避免重复加载）。
+
+---
+
+## 六、Props / Emits
+
+```ts
+// Props
+props: {
+  bookmarkId?: number      // bookmarks/[id].vue 传入
+  shareCode?: string       // s/[id].vue 传入
+  isAppeared?: boolean     // 面板是否可见（驱动自动加载）
+}
+
+// Emits
+emits: ['dismiss']         // 关闭按钮点击，父层执行 activePanel = null
+```
+
+`contentSelector` 不需要（新组件不做 anchor 跳转到正文）。
+
+---
+
+## 七、复用清单
+
+| 复用项                       | 来源                                   | 用途                    |
+| ---------------------------- | -------------------------------------- | ----------------------- |
+| `MarkdownText`               | `components/Markdown/MarkdownText.vue` | 渲染 outline markdown   |
+| `DotLoading`                 | `components/DotLoading.vue`            | 流式加载光标动画        |
+| `extractMarkdownFromText`    | `@commons/utils/parse`                 | 处理 outline 流式文本   |
+| `parseConcatenatedJson` 逻辑 | 内联（参考 `AIOverview.vue`）          | 解析 overview 流式 JSON |
+| `RESTMethodPath`             | `@commons/types/const`                 | 接口路径常量            |
+| `request()` composable       | dweb 全局                              | HTTP 请求               |
+| `--slax-*` token             | `theme.tokens.css`                     | 颜色、字号、间距        |
+
+**不复用**：`AISummaries`、`AIOverview`、`MarkMindMap`、anchor 跳转逻辑、多版本切换逻辑、`CopyButton`（本期不做复制功能）。
+
+---
+
+## 八、样式规范（对齐 snapshot §5.1）
+
+| 元素                     | 规范                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| `.panel-overview-label`  | 13px / weight 500 / `var(--slax-accent)`                                                 |
+| `.panel-overview-text`   | 14px / line-height 1.8 / `var(--slax-text)`                                              |
+| `.panel-keypoints` 每条  | 14px / `var(--slax-text-muted)`；前缀 4px 直径、1.5px `var(--slax-accent)` 空心圆圈      |
+| 分隔线                   | 1px solid `var(--slax-border)`                                                           |
+| `.panel-action` 按钮     | 13px / weight 500 / `var(--slax-accent)`；hover → `var(--slax-text)`；左侧 grid SVG 图标 |
+| `.panel-section-title`   | Playfair 18px / weight 500 / `var(--slax-text)`                                          |
+| `.panel-outline-item`    | 14px / `var(--slax-text)`；子项 14px / `var(--slax-text-muted)` + 4px 实心点             |
+| 序号 chip                | 11px / `var(--slax-accent)` 字 + `var(--slax-accent-bg)` 底 + 3px 圆角                   |
+| 骨架占位 `.skeleton-row` | 渐变条 `from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)` + animate-pulse    |
+| 容器 padding             | `px-20px py-24px`                                                                        |
+
+---
+
+## 九、与现有代码的衔接
+
+### 9.1 两个详情页 AI slot 改动
+
+**`pages/bookmarks/[id].vue`**（第 61-69 行）：
+
+```vue
+<!-- 改前 -->
+<AISummaries
+  v-if="bmId"
+  :bookmarkId="bmId"
+  :is-appeared="activePanel === 'ai'"
+  :content-selector="'.bookmark-detail .detail'"
+  @navigated-text="navigateToText"
+  @dismiss="activePanel = null"
+/>
+
+<!-- 改后 -->
+<SnapshotAIPanel v-if="bmId" :bookmark-id="bmId" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
+```
+
+**`pages/s/[id].vue`**（第 66-73 行）：
+
+```vue
+<!-- 改前 -->
+<AISummaries
+  :share-code="shareCode"
+  :is-appeared="activePanel === 'ai'"
+  :content-selector="'.bookmark-detail .detail'"
+  @navigated-text="navigateToText"
+  @dismiss="activePanel = null"
+/>
+
+<!-- 改后 -->
+<SnapshotAIPanel :share-code="shareCode" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
+```
+
+两个页面同步删除 `AISummaries` 的 import 语句。
+
+`navigateToText` 函数在 `useBookmark.ts:92-96` 的实现为 `summariesExpanded.value = false`，而 `summariesExpanded` 已在 Phase 4 重构中删除，该函数已是死代码。两个页面的 `navigateToText` 引用（`bookmarks/[id].vue:343`、`s/[id].vue:368`）和 `useBookmark.ts` 中的函数定义一并删除。
+
+### 9.2 AISummaries 标记待删除
+
+`AISummaries.vue`（dweb 版）在本次改动后无消费方，在本 PR 中**不删除**（避免影响 extensions 的同名组件引发混淆），但在 PR 描述中标注「待后续 sprint 清理」。
+
+---
+
+## 十、测试计划
+
+### 10.1 新增单元测试
+
+文件：`tests/unit/components/SnapshotAIPanel.spec.ts`
+
+| 用例                                           | 验证点                                               |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| `isAppeared=false` 时不触发 overview 加载      | `request().stream` 未被调用                          |
+| `isAppeared=true` 时自动触发 overview 加载     | `request().stream` 以 `BOOKMARK_OVERVIEW` 调用       |
+| overview 加载中显示骨架                        | `.skeleton-row` 存在                                 |
+| overview 加载完成显示内容                      | `.panel-overview-text` 内容正确                      |
+| overview 加载完成但内容为空 → 自动重试一次     | `request().stream` 被调用两次                        |
+| overview 重试后仍为空 → 显示重试按钮           | `.retry-btn` 存在，不再自动重试                      |
+| key takeaways 正确渲染                         | `.panel-keypoints` 子项数量与数据一致                |
+| 点击「全文解析」按钮触发 outline 加载          | `request().get` 以 `BOOKMARK_AI_SUMMARIES_LIST` 调用 |
+| outline 加载中显示骨架                         | outline 区域 `.skeleton-row` 存在                    |
+| outline 加载完成显示 MarkdownText              | `MarkdownText` 组件存在且 text prop 正确             |
+| 点击关闭按钮触发 `dismiss` emit                | emit 被触发                                          |
+| `bookmarkId` 和 `shareCode` 分别正确传入请求体 | 请求参数断言                                         |
+
+### 10.2 手验场景
+
+1. 打开 AI 面板 → overview 骨架 → 内容逐步出现 → key takeaways 列表
+2. 点击「全文解析」→ outline 骨架 → 章节列表渲染
+3. 切换到其他 tab 再切回 → overview/outline 状态保留（`v-show` 不重建）
+4. 网络失败场景 → 重试按钮出现 → 点击重试重新加载
+5. `s/[id].vue` 公共分享页（`shareCode` 模式）正常加载
+
+---
+
+## 十一、范围排除
+
+- **不实现** anchor 跳转到正文（`@navigated-text`）
+- **不实现** 多版本 outline 切换（`summaries` 列表）
+- **不实现** 复制按钮（`CopyButton`）
+- **不实现** 思维导图（`MarkMindMap`）
+- **不删除** `AISummaries.vue`（dweb 版），本 PR 仅移除其消费方
+
+---
+
+## 十二、风险与对策
+
+| 风险 | 对策 |
+| --- | --- |
+| overview 接口（`BOOKMARK_OVERVIEW`）在 dweb 的 `RESTMethodPath` 中是否已定义 | 施工前 grep 确认；若缺失则在 `@commons/types/const` 补充 |
+| `BOOKMARK_OVERVIEW` 接口只接受 `bookmark_id`，`s/[id].vue` 使用 `shareCode` 无法调用 overview | `s/[id].vue` 的 AI 面板**只展示全文解析（outline）**，overview 区块隐藏（`v-if="bookmarkId"`）；`SnapshotAIPanel` 通过 `bookmarkId` 是否存在决定是否渲染 overview 区块 |
+| `parseConcatenatedJson` 内联后与 `AIOverview` 行为不一致 | 直接复制 `AIOverview.vue` 中的实现，不做改动 |
+| outline 流式文本 `extractMarkdownFromText` 处理后为空 | 与 `AISummaries` 现有行为一致，显示「点击解析」空态 |
+| `SnapshotSidePanel` 用 `v-show` 保留 slot 状态，切 tab 时 `isAppeared` 变化 | `isAppeared` 由父层传入 `activePanel === 'ai'`，`v-show` 不卸载组件，watch 逻辑正确响应 |
