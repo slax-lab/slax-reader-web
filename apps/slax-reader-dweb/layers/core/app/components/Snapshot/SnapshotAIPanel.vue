@@ -525,9 +525,10 @@ watch(
   }
 
   // hover 颜色单独用更高特异性选择器覆盖 MarkdownText 的 !important 白字
-  // MarkdownText 的选择器：.markdown-text .markdown-content[data-v-xxx] .slax_link:hover (0,5,0)
-  // 我们的选择器：.panel-outline-text[data-v-xxx] .markdown-text .markdown-content .slax_link:hover (0,6,0)
+  // MarkdownText 用 --un-text-opacity: 1 + color: rgb(255 255 255 / var(--un-text-opacity))，
+  // 仅覆盖 color 属性不够，必须同时把 --un-text-opacity 置 0 让白色透明
   :deep(.markdown-text .markdown-content .slax_link:hover) {
+    --un-text-opacity: 0 !important;
     color: var(--slax-accent) !important;
   }
 
