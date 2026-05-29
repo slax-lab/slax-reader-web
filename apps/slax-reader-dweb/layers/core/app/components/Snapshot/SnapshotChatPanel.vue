@@ -959,12 +959,17 @@ defineExpose({ addQuoteData, focusTextarea })
           bottom: 100%;
           left: 50%;
           transform: translateX(-50%);
+          margin-bottom: 4px;
           font-size: 11px;
           color: var(--slax-accent);
-          background: var(--slax-accent-bg);
-          padding: 2px 6px;
+          // 不透明底（accent-bg 仅 6-8% alpha 会透出下方文字），叠 accent 边框 + 轻阴影
+          background: var(--slax-surface-solid);
+          border: 1px solid color-mix(in srgb, var(--slax-accent) 30%, transparent);
+          box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-text) 10%, transparent);
+          padding: 2px 8px;
           border-radius: 4px;
           white-space: nowrap;
+          pointer-events: none;
         }
       }
     }
