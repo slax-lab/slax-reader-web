@@ -87,7 +87,7 @@ const logout = () => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--slax-border);
+  border: 2px solid var(--slax-accent-soft);
   overflow: hidden;
   cursor: pointer;
   background: transparent;

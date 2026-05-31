@@ -781,10 +781,3 @@ const notificationBack = () => {
   --style: -translate-y-10px;
 }
 </style>
-
-<!-- eslint-disable vue-scoped-css/enforce-style-type -->
-<style lang="scss">
-body {
-  --style: 'max-md:(bg-surface-solid) md:(bg-surface-solid)';
-}
-</style>

@@ -1,6 +1,7 @@
 <template>
   <!-- 顶栏内嵌搜索框：支持历史记录下拉、回车搜索、Esc 收起 -->
-  <div class="topbar-search" :class="{ focused: isFocused }" ref="searchWrap">
+  <!-- click-outside 绑在容器上，避免 input focus 时被误判为外部点击导致历史闪烁 -->
+  <div class="topbar-search" :class="{ focused: isFocused }" ref="searchWrap" v-on-click-outside="onClickOutside">
     <!-- 搜索图标 -->
     <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
       <circle cx="11" cy="11" r="8" />
@@ -13,9 +14,8 @@
       :placeholder="$t('page.bookmarks_index.search_placeholder')"
       v-model="keyword"
       @focus="onFocus"
-      @blur="isFocused = false"
       @keydown.enter="doSearch"
-      @keydown.esc="showHistory = false"
+      @keydown.esc="closeSearch"
     />
 
     <!-- 清除按钮 -->
@@ -27,7 +27,7 @@
 
     <!-- 历史记录下拉 -->
     <Transition name="search-dropdown">
-      <div class="search-history" v-if="showHistory" v-on-click-outside="() => (showHistory = false)">
+      <div class="search-history" v-if="showHistory">
         <div class="search-history-header">
           <span>{{ $t('page.bookmarks_index.search_history_title') }}</span>
           <button class="history-clear-btn" @click="clearHistory" type="button">
@@ -103,6 +103,17 @@ const onFocus = () => {
   if (!keyword.value && historyList.value.length > 0) {
     showHistory.value = true
   }
+}
+
+// 收起搜索（Esc 或点击外部）
+const closeSearch = () => {
+  isFocused.value = false
+  showHistory.value = false
+}
+
+// 点击容器外部时收起
+const onClickOutside = () => {
+  closeSearch()
 }
 
 // 执行搜索：写入历史 + emit + 收起下拉
