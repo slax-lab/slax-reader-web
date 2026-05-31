@@ -765,6 +765,9 @@ const notificationBack = () => {
 
     .card-cells-wrapper {
       --style: px-16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
   }
 

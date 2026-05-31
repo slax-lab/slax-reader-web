@@ -621,7 +621,7 @@ const starBookmark = async (isStar: boolean) => {
   align-items: center;
   gap: 10px;
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
 }
 
 // 日期
