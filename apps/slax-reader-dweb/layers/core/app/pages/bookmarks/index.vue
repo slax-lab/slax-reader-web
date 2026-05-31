@@ -11,6 +11,9 @@
     <!-- AddUrlTopModal 保留在根级别，由 FAB 触发 -->
     <AddUrlTopModal v-model:show="isShowTopModal" @add-url-success="addUrlSuccess" />
 
+    <!-- FAB：浮动添加按钮 -->
+    <BookmarksFab @click="isShowTopModal = true" />
+
     <BookmarksLayout ref="bookmarksLayout" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
       <template v-slot:sidebar-left>
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
@@ -122,6 +125,7 @@ import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopMo
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
+import BookmarksFab from '#layers/core/app/components/BookmarkList/BookmarksFab.vue'
 import SearchHeader from '#layers/core/app/components/BookmarkList/SearchHeader.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
 import TagsHeader from '#layers/core/app/components/BookmarkList/TagsHeader.vue'

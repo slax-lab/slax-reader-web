@@ -179,6 +179,7 @@ const baseStubs = {
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
   QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
   InstallExtensionTips: { name: 'InstallExtensionTips', template: '<div class="install-extension-tips" />' },
+  BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
   OperatesBar: true
 }
 
