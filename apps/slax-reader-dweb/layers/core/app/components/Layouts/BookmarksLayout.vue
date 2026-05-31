@@ -3,14 +3,8 @@
     <!-- 移动端断点检测元素：opacity-1 时表示小屏，供 isSmallScreen() 判断 -->
     <div class="small-screen-trigger" ref="smallScreenTrigger"></div>
 
-    <!-- 顶栏：固定定位，毛玻璃效果 -->
-    <BookmarksTopBar>
-      <template #left>
-        <span class="topbar-logo">{{ $t('common.app.name') }}</span>
-        <ClientOnly><ProIcon /></ClientOnly>
-        <ClientOnly><ThemeSwitcher /></ClientOnly>
-      </template>
-    </BookmarksTopBar>
+    <!-- 顶栏：固定定位，毛玻璃效果，自包含所有内容 -->
+    <BookmarksTopBar @search="emit('search', $event)" @feedback="emit('feedback')" @check-all="emit('checkAll')" />
 
     <!-- 主体：顶部留出 header 高度，sidebar + main 布局 -->
     <div class="layout">
@@ -29,6 +23,14 @@
 </template>
 
 <script lang="ts" setup>
+import BookmarksTopBar from '#layers/core/app/components/BookmarkList/BookmarksTopBar.vue'
+
+const emit = defineEmits<{
+  search: [keyword: string]
+  feedback: []
+  checkAll: []
+}>()
+
 const smallScreenTrigger = ref<HTMLDivElement>()
 
 // 通过 CSS opacity 判断当前是否为小屏（移动端）
@@ -54,11 +56,6 @@ defineExpose({
 // 移动端断点检测：小屏时 opacity-1，桌面端 opacity-0
 .small-screen-trigger {
   --style: 'h-0 bg-transparent max-md:(opacity-100) md:(opacity-0)';
-}
-
-// 顶栏 logo 文字
-.topbar-logo {
-  --style: font-serif font-500 text-brand text-accent;
 }
 
 // 主体容器：顶部留出 header 高度，居中对齐

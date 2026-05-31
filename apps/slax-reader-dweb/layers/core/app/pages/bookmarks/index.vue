@@ -8,50 +8,12 @@
         </div>
       </Transition>
     </div>
-    <BookmarksLayout ref="bookmarksLayout">
-      <template v-slot:operates>
-        <div class="left-operates">
-          <button class="search-icon" ref="notificationIcon" @click="!isSearching && (isShowSearchModal = true)">
-            <img src="@images/tiny-search-outline-icon.png" />
-          </button>
-          <UserNotification @checkAll="showNotificationList" />
-        </div>
-        <div class="right-operates">
-          <OperatesBar />
-        </div>
-      </template>
-      <template v-slot:top-modals>
-        <SearchTopModal v-model:show="isShowSearchModal" @search="text => (searchText = text)" />
-        <AddUrlTopModal v-model:show="isShowTopModal" @add-url-success="addUrlSuccess" />
-      </template>
+    <!-- AddUrlTopModal 保留在根级别，由 FAB 触发 -->
+    <AddUrlTopModal v-model:show="isShowTopModal" @add-url-success="addUrlSuccess" />
+
+    <BookmarksLayout ref="bookmarksLayout" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
       <template v-slot:sidebar-left>
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
-      </template>
-      <template v-slot:sidebar-right>
-        <div class="sidebar-wrapper">
-          <div class="tips-sidebar">
-            <InstallExtensionTips v-if="(isCurrentInboxTab && !isDataEmpty) || !isCurrentInboxTab" />
-          </div>
-          <div class="tools-sidebar">
-            <div class="add-url">
-              <button
-                @click="
-                  () => {
-                    !isShowTopModal && (isShowTopModal = true)
-                  }
-                "
-              >
-                <img src="@images/button-add-fill-circle-icon.png" alt="" />
-                <span>{{ $t('page.bookmarks_index.add_url') }}</span>
-              </button>
-            </div>
-            <div class="feedback">
-              <button @click="feedbackClick">
-                <img src="@images/button-feedback-icon.png" alt="" />
-              </button>
-            </div>
-          </div>
-        </div>
       </template>
       <template v-slot:content-header>
         <SearchHeader v-if="searchText" :default-search-text="searchText" @back="() => (searchText = '')" @search-status-update="status => (isSearching = status)" />
@@ -132,13 +94,11 @@ import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopMo
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
 import SearchHeader from '#layers/core/app/components/BookmarkList/SearchHeader.vue'
-import SearchTopModal from '#layers/core/app/components/BookmarkList/SearchTopModal.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
 import TagsHeader from '#layers/core/app/components/BookmarkList/TagsHeader.vue'
 import BookmarksLayout from '#layers/core/app/components/Layouts/BookmarksLayout.vue'
 import NotificationCell from '#layers/core/app/components/Notification/NotificationCell.vue'
 import NotificationHeader from '#layers/core/app/components/Notification/NotificationHeader.vue'
-import UserNotification from '#layers/core/app/components/Notification/UserNotification.vue'
 import QuickStart from '#layers/core/app/components/QuickStart.vue'
 import InstallExtensionTips from '#layers/core/app/components/Tips/InstallExtensionTips.vue'
 
@@ -146,7 +106,7 @@ import { isPC, isSafari } from '@commons/utils/is'
 import type { ChannelMessageData } from '#layers/core/app/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
-import type { BookmarkItem, HighlightItem, UserInfo, UserNotificationMessageItem } from '@commons/types/interface'
+import type { BookmarkItem, HighlightItem, UserNotificationMessageItem } from '@commons/types/interface'
 import { useDebounceFn, useEventListener, useInfiniteScroll } from '@vueuse/core'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast from '#layers/core/app/components/Toast'
@@ -169,7 +129,6 @@ const isActivated = ref(true)
 const isFirstLoad = ref(true)
 const route = useRoute()
 const userStore = useUserStore()
-const userInfo = ref<UserInfo>()
 const bookmarks = ref<BookmarkItem[]>([])
 const loading = ref(false)
 const ending = ref(false)
@@ -190,7 +149,6 @@ const highlights = ref<HighlightItem[]>([])
 const notifications = ref<UserNotificationMessageItem[]>([])
 
 const isShowTopModal = ref(false)
-const isShowSearchModal = ref(false)
 const showRefreshLoading = ref(false)
 const refreshInterval = ref<NodeJS.Timeout>()
 
@@ -309,9 +267,7 @@ if (window.visualViewport) {
   useEventListener(window.visualViewport, 'resize', resetInfiniteScroll)
 }
 
-userStore.getUserInfo({ refresh: true }).then(info => {
-  userInfo.value = info
-})
+userStore.getUserInfo({ refresh: true })
 
 onMounted(() => {
   addChannelMessageHandler(chanelMessageHandler)

@@ -151,13 +151,11 @@ const baseStubs = {
   BookmarksLayout: {
     name: 'BookmarksLayout',
     template: `<div class="bookmarks-layout">
-      <slot name="operates" />
-      <slot name="top-modals" />
       <slot name="sidebar-left" />
-      <slot name="sidebar-right" />
       <slot name="content-header" />
       <slot name="content-list" />
     </div>`,
+    emits: ['search', 'feedback', 'checkAll'],
     methods: { isSmallScreen: () => false }
   },
   TabsSidebar: {
@@ -175,12 +173,10 @@ const baseStubs = {
   BookmarkHighlightCell: { name: 'BookmarkHighlightCell', template: '<div class="bookmark-highlight-cell" />', props: ['highlight'] },
   NotificationCell: { name: 'NotificationCell', template: '<div class="notification-cell" />', props: ['notification'] },
   SearchHeader: { name: 'SearchHeader', template: '<div class="search-header" />', emits: ['back', 'search-status-update'], props: ['defaultSearchText'] },
-  SearchTopModal: { name: 'SearchTopModal', template: '<div class="search-top-modal" />', emits: ['search', 'update:show'] },
   AddUrlTopModal: { name: 'AddUrlTopModal', template: '<div class="add-url-top-modal" />', emits: ['add-url-success', 'update:show'] },
   TagsHeader: { name: 'TagsHeader', template: '<div class="tags-header" />', emits: ['select-tag'] },
   CollectionHeader: { name: 'CollectionHeader', template: '<div class="collection-header" />', emits: ['select-collect', 'code-update'] },
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
-  UserNotification: { name: 'UserNotification', template: '<div class="user-notification" />', emits: ['checkAll'] },
   QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
   InstallExtensionTips: { name: 'InstallExtensionTips', template: '<div class="install-extension-tips" />' },
   OperatesBar: true
@@ -650,24 +646,23 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockGet).toHaveBeenCalled()
     })
 
-    it('C35: feedbackClick → showFeedbackModal', async () => {
+    it('C35: BookmarksLayout emit feedback → feedbackClick → showFeedbackModal', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const feedbackBtn = wrapper.find('.feedback button')
-      if (feedbackBtn.exists()) {
-        await feedbackBtn.trigger('click')
-        expect(mockShowFeedbackModal).toHaveBeenCalled()
-      }
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('feedback')
+      await nextTick()
+      expect(mockShowFeedbackModal).toHaveBeenCalled()
     })
   })
 
   describe('补 functions 覆盖（C36-C45）', () => {
-    it('C36: UserNotification emit checkAll → showNotificationList → inboxClick("notifications")', async () => {
+    it('C36: BookmarksLayout emit checkAll → showNotificationList → inboxClick("notifications")', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
       mockNavigateTo.mockClear()
-      const userNotification = wrapper.findComponent({ name: 'UserNotification' })
-      await userNotification.vm.$emit('checkAll')
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('checkAll')
       await flushPromises()
       expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks?filter=notifications', expect.objectContaining({ replace: false }))
     })
@@ -688,11 +683,11 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockUseRouterGo).toHaveBeenCalledWith(-1)
     })
 
-    it('C38: SearchTopModal emit search → searchText 同步设置（inline arrow）', async () => {
+    it('C38: BookmarksLayout emit search → searchText 同步设置', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const search = wrapper.findComponent({ name: 'SearchTopModal' })
-      await search.vm.$emit('search', 'foo')
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('search', 'foo')
       await nextTick()
       // searchText 设置后 SearchHeader 渲染
       expect(wrapper.findComponent({ name: 'SearchHeader' }).exists()).toBe(true)
@@ -701,8 +696,8 @@ describe('pages/bookmarks/index.vue', () => {
     it('C39: SearchHeader emit back → searchText="" (inline arrow)', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const searchModal = wrapper.findComponent({ name: 'SearchTopModal' })
-      await searchModal.vm.$emit('search', 'foo')
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('search', 'foo')
       await nextTick()
       const header = wrapper.findComponent({ name: 'SearchHeader' })
       await header.vm.$emit('back')
@@ -714,8 +709,8 @@ describe('pages/bookmarks/index.vue', () => {
     it('C40: SearchHeader emit search-status-update → isSearching 设置（inline arrow）', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const searchModal = wrapper.findComponent({ name: 'SearchTopModal' })
-      await searchModal.vm.$emit('search', 'foo')
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('search', 'foo')
       await nextTick()
       const header = wrapper.findComponent({ name: 'SearchHeader' })
       await header.vm.$emit('search-status-update', true)
@@ -740,25 +735,20 @@ describe('pages/bookmarks/index.vue', () => {
       expect(true).toBe(true)
     })
 
-    it('C42: .add-url button click → isShowTopModal=true (inline arrow)', async () => {
+    it('C42: AddUrlTopModal 存在于模板根级别（由 FAB 触发）', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const btn = wrapper.find('.add-url button')
-      expect(btn.exists()).toBe(true)
-      await btn.trigger('click')
-      await nextTick()
-      // AddUrlTopModal v-model:show 同步
-      expect(true).toBe(true)
+      // AddUrlTopModal 已移至根级别，不再依赖 sidebar-right slot
+      expect(wrapper.findComponent({ name: 'AddUrlTopModal' }).exists()).toBe(true)
     })
 
-    it('C43: .search-icon click → isShowSearchModal=true (inline arrow + !isSearching 短路)', async () => {
+    it('C43: BookmarksLayout emit feedback → feedbackClick → showFeedbackModal', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      const icon = wrapper.find('.search-icon')
-      expect(icon.exists()).toBe(true)
-      await icon.trigger('click')
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('feedback')
       await nextTick()
-      expect(true).toBe(true)
+      expect(mockShowFeedbackModal).toHaveBeenCalled()
     })
 
     it('C44: filterStatus="topics" + filterTopicId>0 + bookmarks 非空 → isDataEmpty=false (line 212 truthy分支)', async () => {
@@ -830,13 +820,11 @@ describe('pages/bookmarks/index.vue', () => {
         BookmarksLayout: {
           name: 'BookmarksLayout',
           template: `<div class="bookmarks-layout">
-            <slot name="operates" />
-            <slot name="top-modals" />
             <slot name="sidebar-left" />
-            <slot name="sidebar-right" />
             <slot name="content-header" />
             <slot name="content-list" />
           </div>`,
+          emits: ['search', 'feedback', 'checkAll'],
           methods: { isSmallScreen: () => true }
         },
         TabsSidebar: {
@@ -877,9 +865,9 @@ describe('pages/bookmarks/index.vue', () => {
     it('C49: inboxClick searchText 非空 → searchText 重置 + y=0（line 480-483）', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 先设置 searchText
-      const searchModal = wrapper.findComponent({ name: 'SearchTopModal' })
-      await searchModal.vm.$emit('search', 'foo')
+      // 先通过 BookmarksLayout emit search 设置 searchText
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      await layout.vm.$emit('search', 'foo')
       await nextTick()
       // 触发 inboxClick
       const tabs = wrapper.findComponent({ name: 'TabsSidebar' })
