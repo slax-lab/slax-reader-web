@@ -494,7 +494,15 @@
       "starred": "Starred",
       "topics": "Tags",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
-      "view_original": "View original"
+      "view_original": "View original",
+      "search_placeholder": "Search articles…",
+      "search_history_title": "Recent searches",
+      "search_history_clear": "Clear",
+      "search_back": "Back",
+      "layout_card": "Card view",
+      "layout_text": "Text view",
+      "add_article": "Add article",
+      "date_group_format": "{month} {year}"
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"

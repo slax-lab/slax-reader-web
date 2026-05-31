@@ -494,7 +494,15 @@
       "starred": "星标",
       "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
-      "view_original": "查看原文"
+      "view_original": "查看原文",
+      "search_placeholder": "搜索文章…",
+      "search_history_title": "最近搜索",
+      "search_history_clear": "清空",
+      "search_back": "返回",
+      "layout_card": "卡片视图",
+      "layout_text": "文字视图",
+      "add_article": "添加文章",
+      "date_group_format": "{year} 年 {month} 月"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"
