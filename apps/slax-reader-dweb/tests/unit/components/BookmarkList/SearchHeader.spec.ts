@@ -1,4 +1,4 @@
-// SearchHeader 组件单测
+// SearchHeader 组件单测（新版：移除 InputBar，改为搜索结果视图）
 // props: defaultSearchText
 // emit: back / searchStatusUpdate
 // 依赖 request().post (auto-import) + pwaOpen (auto-import)
@@ -36,11 +36,11 @@ describe('SearchHeader', () => {
   })
 
   describe('渲染 + onMounted', () => {
-    it('默认渲染 .search-header + .search-navigator + InputBar', () => {
+    it('默认渲染 .search-view + .search-view-header + .search-back-btn', () => {
       const wrapper = mountWithApp(SearchHeader)
-      expect(wrapper.find('.search-header').exists()).toBe(true)
-      expect(wrapper.find('.search-navigator').exists()).toBe(true)
-      expect(wrapper.findComponent({ name: 'InputBar' }).exists()).toBe(true)
+      expect(wrapper.find('.search-view').exists()).toBe(true)
+      expect(wrapper.find('.search-view-header').exists()).toBe(true)
+      expect(wrapper.find('.search-back-btn').exists()).toBe(true)
     })
 
     it('defaultSearchText 非空 → onMounted 触发 search → mockPost 调', async () => {
@@ -60,60 +60,49 @@ describe('SearchHeader', () => {
       expect(mockPost).not.toHaveBeenCalled()
     })
 
-    it('search 返结果 → 渲染 .search-cell', async () => {
+    it('search 返结果 → 渲染 .search-result-item', async () => {
       mockPost.mockResolvedValueOnce([
         { bookmark_id: 1, highlight_title: '<mark>foo</mark>', highlight_content: 'content', type: 'fts', vs_score: 0 },
         { bookmark_id: 2, highlight_title: '<mark>foo</mark>2', highlight_content: 'content2', type: 'vector', vs_score: 0.85 }
       ])
       const wrapper = mountWithApp(SearchHeader, { props: { defaultSearchText: 'foo' } })
       await flushPromises()
-      expect(wrapper.findAll('.search-cell').length).toBe(2)
+      expect(wrapper.findAll('.search-result-item').length).toBe(2)
     })
 
-    it('vector 类型 → 渲染 semantic_relative 文案', async () => {
+    it('vector 类型 → 渲染 .search-result-tag', async () => {
       mockPost.mockResolvedValueOnce([{ bookmark_id: 1, highlight_title: 't', highlight_content: 'c', type: 'vector', vs_score: 0.85 }])
       const wrapper = mountWithApp(SearchHeader, { props: { defaultSearchText: 'foo' } })
       await flushPromises()
-      const aiTag = wrapper.find('.cell-header-ai-tag span')
-      expect(aiTag.exists()).toBe(true)
+      expect(wrapper.find('.search-result-tag').exists()).toBe(true)
     })
 
-    it('isSearching=false + 0 results → 渲染 .no-data', async () => {
+    it('isSearching=false + 0 results + defaultSearchText 非空 → 渲染 .search-empty', async () => {
       mockPost.mockResolvedValueOnce([])
       const wrapper = mountWithApp(SearchHeader, { props: { defaultSearchText: 'foo' } })
       await flushPromises()
-      expect(wrapper.find('.no-data').exists()).toBe(true)
+      expect(wrapper.find('.search-empty').exists()).toBe(true)
     })
   })
 
   describe('交互', () => {
     it('back 按钮 click → emit back + searchStatusUpdate(false)', async () => {
       const wrapper = mountWithApp(SearchHeader)
-      await wrapper.find('.search-navigator button').trigger('click')
+      await wrapper.find('.search-back-btn').trigger('click')
       expect(wrapper.emitted('back')).toBeTruthy()
       expect(wrapper.emitted('searchStatusUpdate')).toBeTruthy()
       const statusEvents = wrapper.emitted('searchStatusUpdate')!
       expect(statusEvents[statusEvents.length - 1]).toEqual([false])
     })
 
-    it('cell-header-title click → pwaOpen({ url: /bookmarks/${id} })', async () => {
+    it('search-result-item click → pwaOpen({ url: /bookmarks/${id} })', async () => {
       mockPost.mockResolvedValueOnce([{ bookmark_id: 42, highlight_title: 't', highlight_content: 'c', type: 'fts', vs_score: 0 }])
       const wrapper = mountWithApp(SearchHeader, { props: { defaultSearchText: 'foo' } })
       await flushPromises()
-      const title = wrapper.find('.cell-header-title')
-      expect(title.exists()).toBe(true)
-      await title.trigger('click')
+      const item = wrapper.find('.search-result-item')
+      expect(item.exists()).toBe(true)
+      await item.trigger('click')
       expect(mockPwaOpen).toHaveBeenCalledWith({ url: '/bookmarks/42' })
-    })
-
-    it('InputBar emit confirm → search 调 → mockPost', async () => {
-      const wrapper = mountWithApp(SearchHeader)
-      const inputBar = wrapper.findComponent({ name: 'InputBar' })
-      await inputBar.vm.$emit('update:text', 'bar')
-      await nextTick()
-      await inputBar.vm.$emit('confirm')
-      await flushPromises()
-      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ body: { keyword: 'bar' } }))
     })
   })
 
@@ -136,14 +125,13 @@ describe('SearchHeader', () => {
       expect(events!.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('搜索抛错 → console.error + isSearching 走完', async () => {
+    it('搜索抛错 → console.error + isSearching 走完 → .search-empty 渲染', async () => {
       mockPost.mockRejectedValueOnce(new Error('network'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const wrapper = mountWithApp(SearchHeader, { props: { defaultSearchText: 'foo' } })
       await flushPromises()
       expect(consoleSpy).toHaveBeenCalled()
-      // .no-data 因 isSearching=false + searchResults=[] 渲染
-      expect(wrapper.find('.no-data').exists()).toBe(true)
+      expect(wrapper.find('.search-empty').exists()).toBe(true)
       consoleSpy.mockRestore()
     })
   })

@@ -99,7 +99,8 @@
       "unarchive": "取消归档",
       "unsubscribe": "取消订阅",
       "view_source": "查看",
-      "view_source_all": "查看全部"
+      "view_source_all": "查看全部",
+      "close": "关闭"
     },
     "payment": {
       "completed": "已完成支付",
@@ -157,7 +158,8 @@
       "add_url": {
         "button": "添加",
         "placeholder": "将你想要添加的链接粘贴到这里",
-        "title": "添加链接"
+        "title": "添加链接",
+        "invalid_url": "请粘贴有效的文章链接，需以 http:// 或 https:// 开头"
       }
     },
     "ai_panel": {
@@ -367,7 +369,8 @@
       "back": "返回",
       "empty": "没有找到相关内容",
       "placeholder": "输入你要查找的内容",
-      "semantic_relative": "语义相关 {value}%"
+      "semantic_relative": "语义相关 {value}%",
+      "found_count": "找到 {count} 篇包含"
     },
     "share_bubble_tips": {
       "text": "把内容分享给好友"
@@ -502,7 +505,12 @@
       "layout_card": "卡片视图",
       "layout_text": "文字视图",
       "add_article": "添加文章",
-      "date_group_format": "{year} 年 {month} 月"
+      "date_group_format": "{year} 年 {month} 月",
+      "last_updated_at": "最近更新于 {time}",
+      "just_now": "刚刚",
+      "minutes_ago": "{n} 分钟前",
+      "hours_ago": "{n} 小时前",
+      "days_ago": "{n} 天前"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"

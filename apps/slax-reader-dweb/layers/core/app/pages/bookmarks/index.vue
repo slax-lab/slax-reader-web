@@ -35,24 +35,21 @@
       <template v-slot:content-list>
         <!-- 布局切换器：非搜索、非 highlights/notifications 时显示 -->
         <div class="page-toolbar" v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus)">
-          <div />
+          <p class="page-subtitle" v-if="lastUpdatedText">{{ lastUpdatedText }}</p>
+          <div v-else />
           <div class="layout-switcher">
+            <!-- 文字列表：三条横线 icon（对齐 demo） -->
             <button class="layout-btn" :class="{ active: listMode === 'text' }" @click="listMode = 'text'" :title="$t('page.bookmarks_index.layout_text')" type="button">
-              <!-- 文字列表 icon -->
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
             </button>
             <div class="layout-divider" />
+            <!-- 卡片列表：两个横向矩形 icon（对齐 demo） -->
             <button class="layout-btn" :class="{ active: listMode === 'card' }" @click="listMode = 'card'" :title="$t('page.bookmarks_index.layout_card')" type="button">
-              <!-- 卡片列表 icon -->
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="7" rx="2" />
+                <rect x="3" y="14" width="18" height="7" rx="2" />
               </svg>
             </button>
           </div>
@@ -230,6 +227,22 @@ const isInTrash = computed(() => {
 
 const isRefreshLoading = computed(() => {
   return loading.value && page.value === 1
+})
+
+// 最近更新时间：取列表中最新书签的 created_at，格式化为相对时间
+const lastUpdatedText = computed(() => {
+  const latest = bookmarks.value[0]?.created_at
+  if (!latest) return ''
+  const diff = Date.now() - new Date(latest).getTime()
+  const mins = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  let time: string
+  if (mins < 1) time = t('page.bookmarks_index.just_now')
+  else if (hours < 1) time = t('page.bookmarks_index.minutes_ago', { n: mins })
+  else if (days < 1) time = t('page.bookmarks_index.hours_ago', { n: hours })
+  else time = t('page.bookmarks_index.days_ago', { n: days })
+  return t('page.bookmarks_index.last_updated_at', { time })
 })
 
 const isDataEmpty = computed(() => {
@@ -640,14 +653,17 @@ const notificationBack = () => {
     --style: flex items-center justify-between mb-16px px-4px;
   }
 
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--slax-text-light);
+    font-weight: 300;
+    margin: 0;
+  }
+
   .layout-switcher {
     display: flex;
     align-items: center;
-    gap: 2px;
-    padding: 3px;
-    background: var(--slax-surface);
-    border: 1px solid var(--slax-border);
-    border-radius: 8px;
+    gap: 4px;
   }
 
   .layout-btn {
@@ -655,22 +671,21 @@ const notificationBack = () => {
     align-items: center;
     justify-content: center;
     width: 28px;
-    height: 24px;
+    height: 28px;
     border: none;
     background: transparent;
     color: var(--slax-text-light);
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: all 0.15s;
+    outline: none;
 
     &:hover {
-      color: var(--slax-text);
-      background: var(--slax-accent-bg);
+      color: var(--slax-text-muted);
     }
 
     &.active {
-      color: var(--slax-accent);
-      background: var(--slax-accent-bg);
+      color: var(--slax-text);
     }
   }
 
@@ -678,7 +693,6 @@ const notificationBack = () => {
     width: 1px;
     height: 14px;
     background: var(--slax-border);
-    margin: 0 2px;
   }
 
   .bookmarks {

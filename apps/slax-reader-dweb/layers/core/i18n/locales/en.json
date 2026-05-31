@@ -99,7 +99,8 @@
       "unarchive": "Unarchive",
       "unsubscribe": "Unsubscribe",
       "view_source": "Source",
-      "view_source_all": "View all"
+      "view_source_all": "View all",
+      "close": "Close"
     },
     "payment": {
       "completed": "Payment Completed",
@@ -157,7 +158,8 @@
       "add_url": {
         "button": "Add",
         "placeholder": "Paste the link you want to add here",
-        "title": "Add URL"
+        "title": "Add URL",
+        "invalid_url": "Please enter a valid URL starting with http:// or https://"
       }
     },
     "ai_panel": {
@@ -367,7 +369,8 @@
       "back": "Back",
       "empty": "No related content found",
       "placeholder": "Enter what you want to find",
-      "semantic_relative": "Semantic related {value}%"
+      "semantic_relative": "Semantic related {value}%",
+      "found_count": "Found {count} results for"
     },
     "share_bubble_tips": {
       "text": "Share with friends"
@@ -502,7 +505,12 @@
       "layout_card": "Card view",
       "layout_text": "Text view",
       "add_article": "Add article",
-      "date_group_format": "{month} {year}"
+      "date_group_format": "{month} {year}",
+      "last_updated_at": "Updated {time}",
+      "just_now": "just now",
+      "minutes_ago": "{n}m ago",
+      "hours_ago": "{n}h ago",
+      "days_ago": "{n}d ago"
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"

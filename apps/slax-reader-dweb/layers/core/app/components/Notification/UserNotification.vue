@@ -1,7 +1,9 @@
 <template>
   <div class="user-notification" ref="userNotification">
     <div class="notification-icon" ref="notificationIcon" :class="{ tiny: iconStyle === UserNotificationIconStyle.TINY }" @click="iconClick">
-      <img src="@images/tiny-notification-outline-icon.png" alt="" />
+      <slot name="icon">
+        <img src="@images/tiny-notification-outline-icon.png" alt="" />
+      </slot>
     </div>
     <Transition name="opacity">
       <i class="dot" v-show="unreadCount > 0"></i>

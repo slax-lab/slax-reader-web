@@ -50,7 +50,20 @@ defineExpose({
 
 <style lang="scss" scoped>
 .bookmarks-layout {
-  --style: w-full min-h-screen bg-surface-solid;
+  --style: w-full min-h-screen bg-bg;
+  position: relative;
+
+  // demo 同款氛围渐变背景（三个径向渐变叠加）
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%),
+      radial-gradient(at 50% 80%, var(--slax-grad-c) 0%, transparent 40%);
+    z-index: -1;
+    pointer-events: none;
+  }
 }
 
 // 移动端断点检测：小屏时 opacity-1，桌面端 opacity-0

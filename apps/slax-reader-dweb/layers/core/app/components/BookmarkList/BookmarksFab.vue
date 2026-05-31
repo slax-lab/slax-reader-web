@@ -23,7 +23,7 @@ defineEmits<{ click: [] }>()
   justify-content: center;
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
-  border-radius: 50%;
+  border-radius: var(--slax-radius);
   box-shadow: var(--slax-shadow-warm);
   backdrop-filter: var(--slax-blur);
   cursor: pointer;
