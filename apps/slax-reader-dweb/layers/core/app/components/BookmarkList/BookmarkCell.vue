@@ -1,95 +1,81 @@
 <template>
-  <div class="bookmark-cell" :class="{ deleting: isDeleting }">
-    <div class="index" v-if="index !== undefined">{{ index + 1 }}.</div>
-    <div class="main-content">
-      <div class="cell-content">
-        <div class="cell-header">
-          <button v-if="!isEditingTitle" class="title" :class="{ stroking: isStroking }" @click="clickTitle">
-            {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
+  <!-- 卡片式书签条目：hover 浮起阴影，操作区 hover 显示 -->
+  <div class="article-card" :class="{ deleting: isDeleting }">
+    <!-- 序号 -->
+    <span class="article-num">{{ index !== undefined ? index + 1 : '' }}</span>
+
+    <div class="article-body">
+      <!-- 标题区：正常态为 button，编辑态为 input -->
+      <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click="clickTitle">
+        {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
+      </button>
+      <input
+        ref="input"
+        type="text"
+        v-else
+        class="article-title-input"
+        v-model="editingTitle"
+        :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
+        @input="handleInput"
+        v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+        v-on-click-outside="[
+          () => {
+            onClickoutside()
+          },
+          { ignore: [editTitleButton] }
+        ]"
+      />
+
+      <!-- meta 行：日期 + 来源 + hover 操作区 -->
+      <div class="article-meta">
+        <span class="article-date">{{ dateString }}</span>
+        <span class="article-source" @click.stop="clickHref">{{ getSiteName() }}</span>
+
+        <!-- hover 操作区 -->
+        <div class="article-actions">
+          <!-- 编辑标题 -->
+          <button class="article-action" ref="editTitleButton" @click="clickEdit" type="button">
+            {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
           </button>
-          <input
-            ref="input"
-            type="text"
-            v-else
-            v-model="editingTitle"
-            :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
-            @input="handleInput"
-            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-            v-on-click-outside="[
-              () => {
-                onClickoutside()
-              },
-              { ignore: [editTitleButton] }
-            ]"
-          />
+
+          <!-- 归档 / 取消归档（非废纸篓 + 非订阅） -->
           <template v-if="!isTrashed && !isSubscribe">
             <button
-              class="star bg-[length:11px_11px] bg-[url('@images/tiny-star-disable.png')] bg-center"
-              :class="{ enabled: isStarred }"
-              @click="starBookmark(!isStarred)"
-            ></button>
-            <!-- <template v-if="bookmark.status === 'failed' && !haveRetried">
-              <i class="seperator"></i>
-              <button class="retry" v-if="!isRetrying" @click="retryBookmark">{{ $t('common.operate.refetch') }}</button>
-              <div class="i-svg-spinners:90-ring w-12px color-#5490c2" v-else></div>
-            </template> -->
-          </template>
-        </div>
-        <div class="cell-footer">
-          <span class="date">{{ dateString }}</span>
-          <i class="seperator"></i>
-          <template v-if="bookmark.type === 'shortcut'">
-            <button class="href" @click="clickHref">
-              <img src="@images/tiny-href-fill-icon.png" />
-              <span class="ml-4px">
-                {{ getSiteName() }}
-              </span>
+              v-if="['inbox', 'archive'].indexOf(bookmark.archived) !== -1 && !isArchiving"
+              class="article-action"
+              ref="archieveButton"
+              @click="archiveBookmark(bookmark.archived === 'inbox')"
+              type="button"
+            >
+              {{ bookmark.archived === 'inbox' ? $t('common.operate.archive') : $t('common.operate.unarchive') }}
             </button>
-          </template>
-          <template v-else>
-            <button class="href" @click="clickHref">
-              <img src="@images/tiny-link-outline-icon.png" />
-              <span class="ml-4px">
-                {{ getSiteName() }}
-              </span>
-            </button>
-            <template v-if="!isSubscribe">
-              <i class="seperator"></i>
-              <button class="href snapshot" @click="clickCache">
-                <img src="@images/tiny-link-outline-icon.png" />
-                <span class="ml-4px">
-                  {{ $t('common.operate.snapshot') }}
-                </span>
-              </button>
-            </template>
+            <div class="i-svg-spinners:90-ring w-12px color-#5490c2" v-else-if="isArchiving"></div>
           </template>
 
-          <template v-if="!isSubscribe">
-            <template v-if="!isTrashed">
-              <button class="edit" ref="editTitleButton" @click="clickEdit">
-                {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
-              </button>
-              <i class="seperator"></i>
-              <button
-                v-if="['inbox', 'archive'].indexOf(bookmark.archived) !== -1 && !isArchiving"
-                class="archieve"
-                ref="archieveButton"
-                :class="{ hover: isArchieveHovered }"
-                @click="archiveBookmark(bookmark.archived === 'inbox')"
-              >
-                {{ bookmark.archived === 'inbox' ? $t('common.operate.archive') : $t('common.operate.unarchive') }}
-              </button>
-              <div class="i-svg-spinners:90-ring ml-20px w-12px color-#5490c2" v-else-if="isArchiving"></div>
-              <i class="seperator"></i>
-              <button class="delete" ref="deleteButton" :class="{ hover: isDeleteHovered }" @click="clickDelete">{{ $t('common.operate.trashed') }}</button>
-            </template>
-            <template v-else>
-              <button class="revert" ref="revertButton" :class="{ hover: isRevertHovered }" @click="clickRevert">{{ $t('common.operate.revert_to_inbox') }}</button>
-            </template>
-          </template>
+          <!-- 删除（非废纸篓 + 非订阅） -->
+          <button v-if="!isTrashed && !isSubscribe" class="article-action danger" @click="clickDelete" type="button">
+            {{ $t('common.operate.trashed') }}
+          </button>
+
+          <!-- 恢复（废纸篓） -->
+          <button v-if="isTrashed" class="article-action" ref="revertButton" @click="clickRevert" type="button">
+            {{ $t('common.operate.revert_to_inbox') }}
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- 星标按钮：绝对定位右侧（非废纸篓 + 非订阅） -->
+    <button v-if="!isTrashed && !isSubscribe" class="article-star" :class="{ active: isStarred }" @click="starBookmark(!isStarred)" type="button">
+      <!-- 未星标：outline 星 -->
+      <svg class="star-outline" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+      <!-- 已星标：填充星 -->
+      <svg class="star-filled" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -524,122 +510,229 @@ const starBookmark = async (isStar: boolean) => {
 }
 </script>
 <style lang="scss" scoped>
-.bookmark-cell {
-  --style: flex justify-between py-0 max-h-200px transition-all duration-500 overflow-hidden;
+// 卡片容器：hover 浮起阴影 + 上移 1px
+.article-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi, rgba(255, 255, 255, 0.06));
+  transition: all 0.2s;
+  overflow: hidden;
+  max-height: 200px;
 
+  &:hover {
+    box-shadow:
+      var(--slax-shadow-warm),
+      inset 0 1px 0 var(--slax-inset-hi, rgba(255, 255, 255, 0.06));
+    transform: translateY(-1px);
+  }
+
+  // 删除动画
   &.deleting {
-    --style: max-h-0 opacity-0;
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    transition: all 0.5s;
+  }
+}
+
+// 序号：衬线字体，右对齐，固定宽度
+.article-num {
+  font-family: var(--slax-font-serif);
+  font-size: 12px;
+  color: var(--slax-text-light);
+  min-width: 24px;
+  padding-top: 2px;
+  text-align: right;
+  flex-shrink: 0;
+  line-height: 1.6;
+  user-select: none;
+}
+
+// 内容区：flex-1，右侧留出星标空间
+.article-body {
+  flex: 1;
+  min-width: 0;
+  padding-right: 28px;
+}
+
+// 标题按钮
+.article-title {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--slax-font-serif);
+  font-size: 15px;
+  color: var(--slax-text);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.12s;
+
+  &:hover {
+    color: var(--slax-accent);
   }
 
-  .index {
-    --style: mt-1 w-54px h-22px text-(aux #a8b1cd) line-height-22px text-align-center flex-shrink-0 select-none;
+  // 划线删除动画
+  &.stroking {
+    &::before {
+      --style: content-empty absolute top-1/2 left-0 w-full h-1px bg-txt animate-fade-in-left animate-ease-in-out animate-duration-500;
+    }
+  }
+}
+
+// 标题编辑输入框
+.article-title-input {
+  display: block;
+  width: 100%;
+  font-family: var(--slax-font-serif);
+  font-size: 15px;
+  color: var(--slax-text);
+  line-height: 1.45;
+  margin-bottom: 8px;
+  // #a8b1cd 浅蓝灰为输入边框辅助色，保留
+  border: 1px solid #a8b1cd;
+  border-radius: 4px;
+  padding: 2px 6px;
+  background: transparent;
+  outline: none;
+
+  &::placeholder {
+    color: var(--slax-text-light);
+  }
+}
+
+// meta 行：日期 + 来源 + 操作区
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+// 日期
+.article-date {
+  font-size: 11px;
+  color: var(--slax-text-light);
+  font-weight: 300;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// 来源标签：胶囊形，点击跳转原链接
+.article-source {
+  font-size: 11px;
+  color: var(--slax-text-muted);
+  background: var(--slax-accent-bg);
+  padding: 2px 10px;
+  border-radius: 999px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 1;
+  transition: all 0.12s;
+
+  &:hover {
+    color: var(--slax-accent);
+  }
+}
+
+// hover 操作区：默认隐藏，卡片 hover 时显示
+.article-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+
+  .article-card:hover & {
+    opacity: 1;
+  }
+}
+
+// 操作按钮
+.article-action {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--slax-text-light);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: inherit;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--slax-accent-bg);
+    color: var(--slax-text);
   }
 
-  .main-content {
-    --style: relative px-0 py-1 select-none overflow-hidden text-ellipsis whitespace-nowrap flex-1;
+  &.danger:hover {
+    // #FF6838 是删除按钮 hover 警示橙色，保留
+    color: #ff6838;
+    background: color-mix(in srgb, #ff6838 10%, transparent);
+  }
+}
 
-    .cell-content {
-      .seperator {
-        --style: w-1px h-10px bg-border;
-      }
+// 星标按钮：绝对定位右侧
+.article-star {
+  position: absolute;
+  right: 0;
+  top: 16px;
+  height: 28px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--slax-text-light);
+  opacity: 0.3;
+  transition: all 0.15s;
+  background: none;
+  border: none;
+  border-radius: 0 var(--slax-radius) 0 var(--slax-radius);
 
-      .cell-header {
-        --style: flex items-center overflow-hidden text-ellipsis overflow-hidden whitespace-nowrap flex-nowrap text-txt;
-        .title {
-          --style: relative text-(meta txt ellipsis) line-height-22px overflow-hidden;
+  &:hover {
+    opacity: 0.6;
+  }
 
-          &.stroking {
-            &:before {
-              --style: content-empty absolute top-1/2 left-0 w-full h-1px bg-txt animate-fade-in-left animate-ease-in-out animate-duration-500;
-            }
-          }
-        }
+  &.active {
+    color: var(--slax-accent);
+    opacity: 0.7;
+  }
 
-        input {
-          // #a8b1cd 浅蓝灰为输入边框辅助色，不属于 token 色板，保留
-          --style: border-(1px solid #a8b1cd) text-(meta txt) line-height-20px px-4px w-auto min-w-160px max-w-500px;
+  // 未激活时隐藏填充星，显示 outline 星
+  .star-filled {
+    display: none;
+  }
 
-          &::placeholder,
-          &::-webkit-input-placeholder {
-            --style: text-(tag txt-light);
-          }
-        }
+  &.active {
+    .star-filled {
+      display: block;
+    }
 
-        .star {
-          --style: shrink-0 -m-1px w-16px h-16px mx-8px;
-
-          &.enabled {
-            background-image: url('@images/tiny-star-enable.png');
-            // --style: bg-[url('@images/tiny-star-enable.png')];
-          }
-        }
-
-        .seperator {
-          --style: mx-8px;
-        }
-
-        .retry {
-          --style: text-(tag #5490c2) line-height-17px;
-        }
-      }
-
-      .cell-footer {
-        --style: flex items-center mt-2px line-height-17px;
-
-        & > * {
-          --style: text-(tag txt-light);
-        }
-
-        .seperator {
-          --style: mx-8px;
-        }
-
-        .snapshot {
-          --style: 'mr-20px';
-        }
-
-        .edit {
-          --style: 'text-(tag txt-light) hover:(text-txt)';
-        }
-
-        .archieve {
-          &.hover {
-            --style: text-txt;
-          }
-        }
-
-        .href {
-          --style: flex-center overflow-hidden flex-shrink-1;
-          img {
-            --style: w-10px h-10px -mb-1px;
-          }
-
-          span {
-            --style: ml-4px flex-shrink-1 overflow-hidden text-ellipsis;
-          }
-        }
-
-        .delete {
-          --style: 'flex-shrink-0';
-
-          &.hover {
-            // #FF6838 是删除按钮 hover 警示橙色，比 token --slax-danger（红色 #c44）更偏橙暖，保留
-            --style: text-#FF6838;
-          }
-        }
-
-        .revert {
-          --style: ml-20px text-(tag txt-light);
-
-          &.hover {
-            --style: text-txt;
-          }
-        }
-      }
-
-      button {
-        --style: 'p-0 transition-all duration-normal active:(scale-102)';
-      }
+    .star-outline {
+      display: none;
     }
   }
 }

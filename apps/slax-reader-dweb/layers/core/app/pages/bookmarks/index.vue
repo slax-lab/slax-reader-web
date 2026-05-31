@@ -30,21 +30,49 @@
         </template>
       </template>
       <template v-slot:content-list>
+        <!-- 布局切换器：非搜索、非 highlights/notifications 时显示 -->
+        <div class="page-toolbar" v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus)">
+          <div />
+          <div class="layout-switcher">
+            <button class="layout-btn" :class="{ active: listMode === 'text' }" @click="listMode = 'text'" :title="$t('page.bookmarks_index.layout_text')" type="button">
+              <!-- 文字列表 icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div class="layout-divider" />
+            <button class="layout-btn" :class="{ active: listMode === 'card' }" @click="listMode = 'card'" :title="$t('page.bookmarks_index.layout_card')" type="button">
+              <!-- 卡片列表 icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
         <div class="bookmarks" v-if="showList">
           <template v-if="['highlights', 'notifications'].indexOf(filterStatus) === -1">
             <TransitionGroup :name="loading ? '' : 'opacity'" @after-leave="transitionLeave">
-              <BookmarkCell
-                v-for="(bookmark, index) in bookmarks"
-                :key="bookmark.id"
-                :index="index"
-                :is-subscribe="filterStatus === 'collections'"
-                :bookmark="bookmark"
-                :collection-code="filterCollectionCode"
-                @delete="handleDelete"
-                @archive-update="handleCellArchive"
-                @alias-title-update="handleCellAliasTitle"
-                @bookmark-update="handleCellBookmarkUpdate"
-              />
+              <template v-for="item in groupedBookmarks" :key="item.type === 'group' ? item.key : item.bookmark.id">
+                <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
+                <BookmarkCell
+                  v-else
+                  :index="item.index"
+                  :is-subscribe="filterStatus === 'collections'"
+                  :bookmark="item.bookmark"
+                  :collection-code="filterCollectionCode"
+                  :class="{ 'text-mode': listMode === 'text' }"
+                  @delete="handleDelete"
+                  @archive-update="handleCellArchive"
+                  @alias-title-update="handleCellAliasTitle"
+                  @bookmark-update="handleCellBookmarkUpdate"
+                />
+              </template>
             </TransitionGroup>
           </template>
           <template v-else-if="filterStatus === 'highlights'">
@@ -92,6 +120,7 @@
 <script lang="ts" setup>
 import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopModal.vue'
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
+import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
 import SearchHeader from '#layers/core/app/components/BookmarkList/SearchHeader.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
@@ -151,6 +180,45 @@ const notifications = ref<UserNotificationMessageItem[]>([])
 const isShowTopModal = ref(false)
 const showRefreshLoading = ref(false)
 const refreshInterval = ref<NodeJS.Timeout>()
+
+// 列表布局模式：'card'（卡片）| 'text'（紧凑文字），localStorage 持久化
+const listMode = ref<'card' | 'text'>(import.meta.client ? (localStorage.getItem('slax-list-mode') as 'card' | 'text') || 'card' : 'card')
+watch(listMode, v => {
+  if (import.meta.client) {
+    localStorage.setItem('slax-list-mode', v)
+  }
+})
+
+// 日期分组条目类型
+type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
+
+// 将书签列表按年月分组，插入分组标签
+const groupedBookmarks = computed<GroupedItem[]>(() => {
+  // highlights / notifications 不分组
+  if (['highlights', 'notifications'].includes(filterStatus.value)) return []
+  const result: GroupedItem[] = []
+  let lastGroup = ''
+  bookmarks.value.forEach((bookmark, index) => {
+    const dateStr = bookmark.created_at
+    if (dateStr) {
+      const date = new Date(dateStr)
+      const groupKey = `${date.getFullYear()}-${date.getMonth()}`
+      if (groupKey !== lastGroup) {
+        result.push({
+          type: 'group',
+          label: t('page.bookmarks_index.date_group_format', {
+            year: date.getFullYear(),
+            month: date.getMonth() + 1
+          }),
+          key: groupKey
+        })
+        lastGroup = groupKey
+      }
+    }
+    result.push({ type: 'bookmark', bookmark, index })
+  })
+  return result
+})
 
 const isInTrash = computed(() => {
   return filterStatus.value === 'trashed'
@@ -563,77 +631,77 @@ const notificationBack = () => {
 
 <style lang="scss" scoped>
 .bookmarks-view {
-  .left-operates {
-    --style: 'flex items-center gap-16px';
+  // 布局切换器工具栏
+  .page-toolbar {
+    --style: flex items-center justify-between mb-16px px-4px;
+  }
 
-    .search-icon {
-      --style: size-24px cursor-pointer;
+  .layout-switcher {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    background: var(--slax-surface);
+    border: 1px solid var(--slax-border);
+    border-radius: 8px;
+  }
 
-      img {
-        --style: object-fit w-full h-full;
-      }
+  .layout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--slax-text-light);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.12s;
+
+    &:hover {
+      color: var(--slax-text);
+      background: var(--slax-accent-bg);
+    }
+
+    &.active {
+      color: var(--slax-accent);
+      background: var(--slax-accent-bg);
     }
   }
 
-  .right-operates {
-    --style: 'flex items-center max-md:(justify-end) md:(justify-start flex-1)';
-    & > * {
-      --style: 'not-first:ml-16px';
-    }
-  }
-
-  .sidebar-wrapper {
-    --style: h-full w-full flex flex-col justify-between items-center;
-
-    & > * {
-      --style: w-full;
-    }
-
-    .tips-sidebar {
-      --style: mt-24px;
-    }
-
-    .tools-sidebar {
-      --style: mb-80px w-full flex flex-col justify-end;
-      .add-url {
-        // #a8b1cd3d 蓝灰辅助边框（与 BookmarkPanel 同源），保留
-        --style: 'mt-24px bg-surface-solid border-(1px solid #a8b1cd3d) rounded-8px w-68px h-82px py-5px px-5px';
-        button {
-          --style: 'w-full h-full rounded-8px flex-(col center) hover:(bg-surface) transition-all duration-normal active:(scale-105)';
-          img {
-            --style: object-fit w-24px h-24px;
-          }
-
-          span {
-            --style: mt-4px text-(tag txt-light) line-height-14px;
-          }
-        }
-      }
-
-      .feedback {
-        --style: mt-35px w-68px flex-center;
-        button {
-          // #a8b1cd14 蓝灰辅助 + #00000014 浮动按钮阴影，保留
-          --style: 'rounded-full bg-surface-solid w-42px h-42px border-(1px solid #a8b1cd14) hover:(bg-surface) active:(scale-110) transition-all duration-normal';
-          box-shadow: 0px 15px 30px 0px #00000014;
-
-          img {
-            --style: w-18px h-17px object-contain;
-          }
-        }
-      }
-    }
+  .layout-divider {
+    width: 1px;
+    height: 14px;
+    background: var(--slax-border);
+    margin: 0 2px;
   }
 
   .bookmarks {
-    --style: relative pt-20px;
-
-    &:not(:has(.card-cells-wrapper)) {
-      --style: 'max-md:(pr-32px)';
-    }
+    --style: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     .card-cells-wrapper {
       --style: px-16px;
+    }
+  }
+
+  // text-mode：紧凑文字模式，移除卡片阴影和边框
+  :deep(.text-mode.article-card) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding: 10px 20px;
+    border-radius: 0;
+    border-bottom: 1px solid var(--slax-border);
+
+    &:hover {
+      background: var(--slax-accent-bg);
+      border-color: transparent;
+      box-shadow: none;
+      transform: none;
     }
   }
 
