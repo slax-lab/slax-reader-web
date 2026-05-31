@@ -510,7 +510,21 @@
       "just_now": "just now",
       "minutes_ago": "{n}m ago",
       "hours_ago": "{n}h ago",
-      "days_ago": "{n}d ago"
+      "days_ago": "{n}d ago",
+      "empty_starred_title": "No starred articles yet",
+      "empty_starred_desc": "Click the star icon on any article to save your favorites here",
+      "empty_topics_title": "No topics yet",
+      "empty_topics_desc": "Tag your saved articles and they will be grouped into topics automatically",
+      "empty_highlights_title": "No highlights yet",
+      "empty_highlights_desc": "Select text in any article to highlight it — all your highlights appear here",
+      "empty_archive_title": "Archive is empty",
+      "empty_archive_desc": "Archived articles are hidden from your inbox but remain searchable",
+      "empty_trash_title": "Trash is empty",
+      "empty_trash_desc": "Deleted articles are kept here for 7 days before being permanently removed",
+      "empty_collections_title": "No collection content",
+      "empty_collections_desc": "Select a collection to view its articles",
+      "empty_notifications_title": "No notifications",
+      "empty_notifications_desc": "New comments and replies will appear here"
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"

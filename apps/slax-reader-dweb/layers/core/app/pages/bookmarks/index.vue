@@ -89,14 +89,21 @@
           </template>
         </div>
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
-          <div class="no-data" v-if="!loading && isDataEmpty">
-            <div class="empty" v-if="!isCurrentInboxTab || !isPC()">
-              <div class="icon" @click="checkMore"></div>
-              <span>{{ $t('page.bookmarks_index.empty') }}</span>
-            </div>
-            <div class="quick-start" v-else-if="!isFirstLoad">
-              <QuickStart></QuickStart>
-            </div>
+          <div v-if="!loading && isDataEmpty">
+            <!-- inbox 空态：QuickStart 引导（PC）或通用空态 -->
+            <template v-if="isCurrentInboxTab && isPC() && !isFirstLoad">
+              <div class="quick-start-wrap">
+                <QuickStart />
+              </div>
+            </template>
+            <!-- 其他 tab 空态：新版 BookmarksEmptyView -->
+            <template v-else>
+              <BookmarksEmptyView :title="emptyViewConfig.title" :desc="emptyViewConfig.desc">
+                <template #icon>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyViewConfig.iconPath" />
+                </template>
+              </BookmarksEmptyView>
+            </template>
           </div>
           <div class="bottom-status" v-else-if="!((filterStatus === 'topics' && !filterTopicId) || (filterStatus === 'collections' && !filterCollectionId))">
             <TransitionGroup name="opacity">
@@ -106,7 +113,7 @@
               </div>
               <div class="end" v-else-if="!loading && ending">
                 <div class="line"></div>
-                <span class="ml-2">{{ isInTrash ? $t('page.bookmarks_index.trash_no_more') : $t('page.bookmarks_index.no_more') }}</span>
+                <span>{{ isInTrash ? $t('page.bookmarks_index.trash_no_more') : $t('page.bookmarks_index.no_more') }}</span>
                 <div class="line"></div>
               </div>
             </TransitionGroup>
@@ -122,6 +129,7 @@ import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopMo
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
+import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
 import BookmarksFab from '#layers/core/app/components/BookmarkList/BookmarksFab.vue'
 import SearchHeader from '#layers/core/app/components/BookmarkList/SearchHeader.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
@@ -258,6 +266,55 @@ const isDataEmpty = computed(() => {
     default:
       return bookmarks.value.length === 0
   }
+})
+
+// 各 tab 空数据视图配置（icon path + 标题 + 描述）
+const emptyViewConfig = computed(() => {
+  const configs: Record<string, { iconPath: string; title: string; desc: string }> = {
+    starred: {
+      iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+      title: t('page.bookmarks_index.empty_starred_title'),
+      desc: t('page.bookmarks_index.empty_starred_desc')
+    },
+    topics: {
+      iconPath:
+        '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+      title: t('page.bookmarks_index.empty_topics_title'),
+      desc: t('page.bookmarks_index.empty_topics_desc')
+    },
+    highlights: {
+      iconPath: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+      title: t('page.bookmarks_index.empty_highlights_title'),
+      desc: t('page.bookmarks_index.empty_highlights_desc')
+    },
+    archive: {
+      iconPath: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
+      title: t('page.bookmarks_index.empty_archive_title'),
+      desc: t('page.bookmarks_index.empty_archive_desc')
+    },
+    trashed: {
+      iconPath: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>',
+      title: t('page.bookmarks_index.empty_trash_title'),
+      desc: t('page.bookmarks_index.empty_trash_desc')
+    },
+    collections: {
+      iconPath: '<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>',
+      title: t('page.bookmarks_index.empty_collections_title'),
+      desc: t('page.bookmarks_index.empty_collections_desc')
+    },
+    notifications: {
+      iconPath: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>',
+      title: t('page.bookmarks_index.empty_notifications_title'),
+      desc: t('page.bookmarks_index.empty_notifications_desc')
+    }
+  }
+  return (
+    configs[filterStatus.value] ?? {
+      iconPath: '<circle cx="12" cy="12" r="10"/>',
+      title: t('page.bookmarks_index.empty'),
+      desc: ''
+    }
+  )
 })
 
 const showList = computed(() => {
@@ -701,6 +758,11 @@ const notificationBack = () => {
     flex-direction: column;
     gap: 8px;
 
+    // 文字模式下移除卡片间距
+    &:has(.text-mode) {
+      gap: 0;
+    }
+
     .card-cells-wrapper {
       --style: px-16px;
     }
@@ -721,52 +783,51 @@ const notificationBack = () => {
       box-shadow: none;
       transform: none;
     }
+
+    // 文字模式下操作按钮右侧负边距，贴近卡片右边缘
+    .article-actions {
+      margin-right: -10px;
+    }
   }
 
-  .no-data {
-    --style: pb-52px text-(tag txt-light) select-none relative shrink-0;
-    .empty {
-      --style: relative pt-168px flex-col items-center h-full flex-center;
-      .icon {
-        --style: bg-contain w-60px h-75px shrink-0;
-        background-image: url('@images/logo-bg-gray.png');
-      }
-
-      span {
-        --style: mt-24px text-meta line-height-22px;
-      }
-    }
-    .quick-start {
-      --style: max-w-572px mt-24px mx-auto;
-    }
+  .quick-start-wrap {
+    --style: max-w-572px mt-24px mx-auto;
   }
 
   .bottom-status {
-    --style: py-52px text-(tag txt-light) select-none relative shrink-0;
-
-    & > * {
-      --style: flex-center absolute inset-0;
-    }
+    --style: select-none relative shrink-0;
+    padding: 48px 0 0;
+    text-align: center;
 
     .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--slax-text-light);
+      font-size: 13px;
+
       .icon {
-        --style: 'i-svg-spinners:90-ring';
+        --style: 'i-svg-spinners:90-ring text-aux';
       }
     }
 
     .end {
+      // demo 同款：斜体衬线字体，淡色
+      font-family: var(--slax-font-serif);
+      font-size: 13px;
+      color: var(--slax-text-light);
+      font-weight: 300;
+      font-style: italic;
+
+      // 隐藏旧的两条线
       .line {
-        // #a8b1cd3d 带蓝调的半透明分隔线（与 BookmarkArticle .end .line 同源），保留
-        --style: w-36px h-1px bg-#a8b1cd3d;
+        display: none;
       }
 
       span {
-        --style: mx-12px text-align-center;
+        --style: mx-0;
       }
-    }
-
-    .icon {
-      --style: 'cursor-pointer transition-transform duration-200 hover:scale-120 text-aux';
     }
   }
 }

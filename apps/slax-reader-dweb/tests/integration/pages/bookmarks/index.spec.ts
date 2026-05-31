@@ -180,6 +180,7 @@ const baseStubs = {
   QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
   InstallExtensionTips: { name: 'InstallExtensionTips', template: '<div class="install-extension-tips" />' },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
+  BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc'] },
   OperatesBar: true
 }
 
@@ -217,12 +218,12 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksLayout' }).exists()).toBe(true)
     })
 
-    it('C2: 默认无 bookmarks → no-data 渲染（onLoadMore 后 isFirstLoad=false 让 quick-start 显示）', async () => {
+    it('C2: 默认无 bookmarks → 空数据视图渲染（onLoadMore 后 isFirstLoad=false 让 quick-start 显示）', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
       // useInfiniteScroll mock 后立即调 onLoadMore → isFirstLoad=false + ending=true
-      // .no-data 应渲染
-      expect(wrapper.find('.no-data').exists()).toBe(true)
+      // inbox + isPC=true + isFirstLoad=false → quick-start 渲染
+      expect(wrapper.find('.quick-start').exists()).toBe(true)
     })
 
     it('C3: route.query.filter="trashed" → isInTrash=true', async () => {

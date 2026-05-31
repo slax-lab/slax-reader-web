@@ -510,7 +510,21 @@
       "just_now": "刚刚",
       "minutes_ago": "{n} 分钟前",
       "hours_ago": "{n} 小时前",
-      "days_ago": "{n} 天前"
+      "days_ago": "{n} 天前",
+      "empty_starred_title": "还没有星标文章",
+      "empty_starred_desc": "在文章列表中点击星标图标，收藏你最喜欢的内容",
+      "empty_topics_title": "还没有话题",
+      "empty_topics_desc": "给收藏的文章打标签，内容会自动聚合成话题",
+      "empty_highlights_title": "还没有划线",
+      "empty_highlights_desc": "在文章中选中文字即可标注，所有划线会汇聚在这里",
+      "empty_archive_title": "归档区还是空的",
+      "empty_archive_desc": "处理完的文章可以归档收存，不会出现在收件箱，但仍可被搜索到",
+      "empty_trash_title": "回收站是空的",
+      "empty_trash_desc": "删除的文章会在这里暂存 7 天，过期后会被自动清除",
+      "empty_collections_title": "还没有合集内容",
+      "empty_collections_desc": "选择一个合集，查看其中收录的文章",
+      "empty_notifications_title": "暂无通知",
+      "empty_notifications_desc": "当有新的评论或回复时，通知会出现在这里"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"

@@ -11,31 +11,31 @@
       <div v-if="isOpen" class="user-popover" v-on-click-outside="close">
         <!-- 个人信息 -->
         <button class="popover-item" @click="goProfile">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
           <span>{{ $t('component.user_operate_icon.personal_info') }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
         </button>
 
         <!-- 反馈 -->
         <button class="popover-item" @click="onFeedback">
+          <span>{{ $t('common.operate.feedback') }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
-          <span>{{ $t('common.operate.feedback') }}</span>
         </button>
 
         <div class="popover-divider" />
 
         <!-- 退出登录 -->
         <button class="popover-item danger" @click="logout">
+          <span>{{ $t('component.user_operate_icon.logout') }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span>{{ $t('component.user_operate_icon.logout') }}</span>
         </button>
       </div>
     </Transition>
@@ -126,7 +126,7 @@ const logout = () => {
 .popover-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   width: 100%;
   padding: 9px 12px;
   background: transparent;
