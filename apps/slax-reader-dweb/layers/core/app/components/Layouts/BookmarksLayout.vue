@@ -1,40 +1,29 @@
 <template>
   <div class="bookmarks-layout">
+    <!-- 移动端断点检测元素：opacity-1 时表示小屏，供 isSmallScreen() 判断 -->
     <div class="small-screen-trigger" ref="smallScreenTrigger"></div>
-    <div class="header">
-      <div class="left">
-        <div class="app">
-          <div class="items-wrapper">
-            <img src="@images/logo-sm.png" alt="" />
-            <span class="title">{{ $t('common.app.name') }}</span>
-            <ClientOnly><ProIcon /></ClientOnly>
-          </div>
-        </div>
-        <div class="inbox blank">
-          <slot name="sidebar-left" />
-        </div>
-      </div>
-      <div class="responsive-width relative h-full">
-        <slot name="top-modals" />
-      </div>
-      <div class="right">
-        <div class="operates">
-          <slot name="operates" />
-        </div>
-        <div class="blank tools">
-          <slot name="sidebar-right" />
-        </div>
-      </div>
-    </div>
-    <div class="content">
-      <div class="left"><!-- 这个元素仅起一个占位的作用 --></div>
-      <div class="responsive-width list">
+
+    <!-- 顶栏：固定定位，毛玻璃效果 -->
+    <BookmarksTopBar>
+      <template #left>
+        <span class="topbar-logo">{{ $t('common.app.name') }}</span>
+        <ClientOnly><ProIcon /></ClientOnly>
+        <ClientOnly><ThemeSwitcher /></ClientOnly>
+      </template>
+    </BookmarksTopBar>
+
+    <!-- 主体：顶部留出 header 高度，sidebar + main 布局 -->
+    <div class="layout">
+      <!-- 左侧导航：sticky，≤920px 隐藏 -->
+      <aside class="sidebar">
+        <slot name="sidebar-left" />
+      </aside>
+
+      <!-- 主内容区 -->
+      <main class="main">
         <slot name="content-header" />
         <slot name="content-list" />
-      </div>
-      <div class="right">
-        <div class="blank"><!-- 这个元素仅起一个占位的作用 --></div>
-      </div>
+      </main>
     </div>
   </div>
 </template>
@@ -42,11 +31,12 @@
 <script lang="ts" setup>
 const smallScreenTrigger = ref<HTMLDivElement>()
 
+// 通过 CSS opacity 判断当前是否为小屏（移动端）
+// 小屏时 .small-screen-trigger opacity 为 1，桌面端为 0
 const isSmallScreen = () => {
   if (!smallScreenTrigger.value) {
     return false
   }
-
   const style = window.getComputedStyle(smallScreenTrigger.value)
   return style.opacity === '1'
 }
@@ -58,79 +48,59 @@ defineExpose({
 
 <style lang="scss" scoped>
 .bookmarks-layout {
-  --style: w-full flex flex-col items-center overflow-hidden;
+  --style: w-full min-h-screen bg-surface-solid;
+}
 
-  .responsive-width {
-    --style: 'max-w-900px max-md:(w-full) md:(w-900px)';
+// 移动端断点检测：小屏时 opacity-1，桌面端 opacity-0
+.small-screen-trigger {
+  --style: 'h-0 bg-transparent max-md:(opacity-100) md:(opacity-0)';
+}
+
+// 顶栏 logo 文字
+.topbar-logo {
+  --style: font-serif font-500 text-brand text-accent;
+}
+
+// 主体容器：顶部留出 header 高度，居中对齐
+.layout {
+  --style: max-w-shell mx-auto flex;
+  padding-top: var(--slax-header-height);
+
+  @media (max-width: 768px) {
+    padding-top: var(--slax-header-h-mobile);
+  }
+}
+
+// 左侧导航：sticky，≤920px 隐藏
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--slax-header-height);
+  height: calc(100vh - var(--slax-header-height));
+  overflow-y: auto;
+
+  @media (max-width: 920px) {
+    display: none;
   }
 
-  .small-screen-trigger {
-    --style: 'h-0 bg-transparent max-md:(opacity-100) md:(opacity-0)';
+  @media (max-width: 768px) {
+    top: var(--slax-header-h-mobile);
+    height: calc(100vh - var(--slax-header-h-mobile));
+  }
+}
+
+// 主内容区：flex-1，内边距
+.main {
+  --style: flex-1 min-w-0;
+  padding: 32px 40px 80px;
+
+  @media (max-width: 920px) {
+    padding: 24px 20px 80px;
   }
 
-  .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-surface';
-    --md-height: calc(100vh - var(--slax-header-height));
-    .left {
-      --style: h-full flex-1 flex flex-row-reverse items-center relative;
-
-      .app {
-        --style: min-w-200px flex items-center relative;
-
-        .items-wrapper {
-          --style: 'absolute top-0 left-0 h-full flex items-center max-md:(pl-40px) md:(pl-60px)';
-
-          & > * {
-            --style: 'not-first:ml-8px shrink-0';
-          }
-
-          img {
-            --style: w-20px;
-          }
-
-          .title {
-            // #16b998 当前品牌绿 logo 文字色，保留
-            --style: font-semibold text-(#16b998 15px) line-height-21px;
-          }
-        }
-      }
-
-      .inbox {
-        // 移动端 from-#FAFAF9 to-#fcfcfc 渐变是浅米白专属过渡，与 surface token 调性不同，保留
-        --style: 'w-180p max-md:(p-0 left-0 w-vw bg-gradient-to-b from-#FAFAF9 to-#fcfcfc) md:(right-0 pl-44px pr-16px pt-18px min-w-200px h-[var(--md-height)] flex flex-col justify-between) absolute top-full z-1';
-      }
-    }
-
-    .right {
-      --style: h-full flex-1 flex items-center relative;
-      .operates {
-        --style: 'pl-9px pr-40px relative flex flex-row items-center md:(min-w-280px justify-start) max-md:(justify-end)  gap-16px';
-      }
-
-      .tools {
-        --style: 'w-180p overflow-hidden max-md:(hidden) md:(left-0 min-w-280px h-[var(--md-height)] pl-16px) absolute top-full z-1';
-      }
-    }
-  }
-
-  .content {
-    --style: 'w-full flex justify-center max-md:(flex-col) md:(flex-row) bg-surface-solid';
-
-    .blank {
-      --style: ' w-200px';
-    }
-
-    .left {
-      --style: 'pt-[var(--slax-header-height)] flex-1 min-w-200px max-md:(w-full pl-0 pb-[var(--slax-header-height)])';
-    }
-
-    .list {
-      --style: 'flex-grow-1 flex-shrink-1 overflow-auto max-md:(pt-0 min-h-0) md:(pt-11 min-h-screen) relative';
-    }
-
-    .right {
-      --style: 'flex-1 min-w-280px max-md:(hidden) relative';
-    }
+  @media (max-width: 768px) {
+    padding: 16px 16px 80px;
   }
 }
 </style>
