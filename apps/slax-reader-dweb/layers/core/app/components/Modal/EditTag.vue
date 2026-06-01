@@ -298,7 +298,6 @@ const t = (text: string) => {
     }
 
     .delete-btn {
-      margin-right: auto;
       padding: 0;
       background: transparent;
       color: var(--slax-text-light);
