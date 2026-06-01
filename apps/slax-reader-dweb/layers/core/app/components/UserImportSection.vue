@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="settings-card">
     <div class="title">{{ $t('page.user.import_third_party_data') }}</div>
     <div class="info">
       <div class="import">
@@ -120,9 +120,15 @@ const pocketClick = () => {
 </script>
 
 <style lang="scss" scoped>
-section {
-  --style: 'mt-48px not-first:mt-60px';
+.settings-card {
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+  padding: 24px;
+
   .title {
+    font-family: var(--slax-font-serif);
     --style: font-600 text-(h2 txt) line-height-33px text-left select-none;
   }
 
@@ -146,7 +152,9 @@ section {
         }
 
         button.inline {
-          --style: 'text-(meta #5490c2) line-height-20px underline underline-#5490C2 transition-all duration-normal hover:(scale-102) active:(scale-105)';
+          color: var(--slax-accent);
+          text-decoration-color: var(--slax-accent);
+          --style: 'text-meta line-height-20px underline transition-all duration-normal hover:(scale-102) active:(scale-105)';
         }
       }
     }

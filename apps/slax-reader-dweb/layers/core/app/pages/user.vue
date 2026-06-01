@@ -1,47 +1,66 @@
 <template>
   <div class="user-info">
-    <NuxtLoadingIndicator color="#16b998" />
-    <div class="content responsive-width">
-      <div class="header">
-        <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
+    <NuxtLoadingIndicator color="var(--slax-accent)" />
+
+    <!-- 顶栏：固定 56px，毛玻璃背景 -->
+    <div class="user-topbar">
+      <div class="topbar-inner">
+        <button class="back-btn" @click="navigateToBookmarks">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>{{ $t('common.app.name') }}</span>
+        </button>
+        <span class="topbar-logo">{{ $t('common.app.name') }}</span>
       </div>
+    </div>
+
+    <div class="content">
       <Transition name="opacity" mode="out-in">
         <div class="detail" v-if="!loading" key="content">
-          <div class="options-select">
-            <div class="locale">
-              <span class="title">{{ $t('page.user.language') }}</span>
+          <!-- 语言设置卡片 -->
+          <div class="settings-card">
+            <div class="settings-row" v-if="true">
+              <span class="settings-label">{{ $t('page.user.language') }}</span>
               <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
             </div>
-            <div class="ai-locale" v-if="userInfo">
-              <AILanguageTips />
-              <span class="title">{{ $t('page.user.ai_response_language') }}</span>
+            <div class="settings-divider" v-if="userInfo" />
+            <div class="settings-row" v-if="userInfo">
+              <div class="settings-label-group">
+                <AILanguageTips />
+                <span class="settings-label">{{ $t('page.user.ai_response_language') }}</span>
+              </div>
               <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
             </div>
           </div>
-          <section>
-            <div class="title">{{ $t('page.user.personal_info') }}</div>
-            <div class="info">
-              <div class="personal">
-                <div class="introduction">
-                  <img :src="userInfo?.avatar || avatarUrl" />
-                  <div class="text">
-                    <span class="username">{{ userInfo?.name }}</span>
-                    <span class="email">{{ userInfo?.email }}</span>
-                  </div>
-                </div>
+
+          <!-- 个人信息卡片 -->
+          <div class="settings-card">
+            <div class="section-title">{{ $t('page.user.personal_info') }}</div>
+            <div class="personal">
+              <img class="avatar" :src="userInfo?.avatar || avatarUrl" />
+              <div class="personal-text">
+                <span class="username">{{ userInfo?.name }}</span>
+                <span class="email">{{ userInfo?.email }}</span>
               </div>
             </div>
-          </section>
+          </div>
+
+          <!-- 第三方绑定（UserRelatedInfoSection 自带 .settings-card） -->
           <UserRelatedInfoSection v-if="userInfo" :user-info="userInfo" @update="getUserDetailInfo" />
+
+          <!-- 导入（UserImportSection 自带 .settings-card） -->
           <UserImportSection />
-          <section>
-            <div class="title">{{ $t('page.user.help_and_support') }}</div>
-            <div class="info">
-              <div class="support">
-                <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
-              </div>
+
+          <!-- 帮助与支持卡片 -->
+          <div class="settings-card">
+            <div class="section-title">{{ $t('page.user.help_and_support') }}</div>
+            <div class="support">
+              <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
             </div>
-          </section>
+          </div>
+
+          <!-- 删除账号（不加 settings-card，保持原样） -->
           <UserDeleteAccountSection v-if="userInfo" />
         </div>
         <UserPageSkeleton v-else key="skeleton" />
@@ -68,7 +87,7 @@ import { useUserStore } from '#layers/core/app/stores/user'
 const { t, locale } = useI18n()
 const userStore = useUserStore()
 
-const { progress, isLoading, start, finish, clear } = useLoadingIndicator({
+const { start, finish } = useLoadingIndicator({
   duration: 5000,
   throttle: 200,
   estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50)
@@ -100,7 +119,6 @@ const aiLanguageOptions = computed<{ name: string; value: string }[]>(() => [
   }
 ])
 
-// 检查当前url是否有lang参数
 const preferredLang = isSlaxReaderApp() ? getPreferredLanguage() : undefined
 
 if (!preferredLang && userStore.currentLocale !== locale.value) {
@@ -137,6 +155,7 @@ const alertParams = (() => {
 useHead({
   title: `${t('component.user_operate_icon.personal_info')} - Slax Reader`
 })
+
 onMounted(async () => {
   try {
     analyticsLog({
@@ -205,80 +224,202 @@ const localeSelect = (index: number) => {
 <style lang="scss" scoped>
 .user-info {
   --style: w-full relative flex justify-center items-start pb-88px;
+}
 
-  .content {
-    --style: 'relative min-h-screen flex-1 max-md:(pb-10 !w-full) transition-transform duration-200';
-    .header {
-      --style: h-11 border-b-(1px solid #ecf0f5) flex justify-between items-center;
+// 顶栏：固定 56px，毛玻璃
+.user-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--slax-topbar-bg);
+  backdrop-filter: var(--slax-blur);
+  border-bottom: 1px solid var(--slax-border);
+  z-index: 100;
+}
 
-      .app-name {
-        --style: text-(body #16b998) font-bold line-height-22px;
-      }
-    }
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-    .detail {
-      .options-select {
-        --style: flex;
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 6px 0;
+  color: var(--slax-text-muted);
+  font-size: var(--slax-fs-aux);
+  font-family: inherit;
+  cursor: pointer;
+  transition: color var(--slax-dur-normal);
 
-        & > * {
-          --style: 'not-first:ml-48px';
-        }
-
-        .locale,
-        .ai-locale {
-          --style: mt-24px flex items-center justify-start;
-
-          .title {
-            --style: text-(meta #333) line-height-20px mr-16px;
-          }
-
-          // eslint-disable-next-line vue-scoped-css/no-unused-selector
-          div + .title {
-            --style: ml-4px;
-          }
-        }
-      }
-      section {
-        --style: 'not-first:mt-60px';
-        .title {
-          --style: font-600 text-(h2 #0f1419) line-height-33px text-left select-none;
-        }
-
-        .info {
-          .personal {
-            --style: mt-40px flex justify-between items-center;
-
-            .introduction {
-              --style: flex items-center;
-
-              img {
-                --style: w-64px h-64px object-contain rounded-8px;
-              }
-
-              .text {
-                --style: ml-24px flex flex-col;
-
-                .username {
-                  --style: text-(card #0f1419) line-height-25px font-600;
-                }
-
-                .email {
-                  --style: mt-4px text-(meta #999) line-height-20px;
-                }
-              }
-            }
-          }
-
-          .support {
-            --style: mt-24px;
-          }
-        }
-      }
-    }
+  &:hover {
+    color: var(--slax-text);
   }
 
-  .responsive-width {
-    --style: 'w-2xl max-w-2xl max-md:(pl-5 pr-5)';
+  span {
+    font-weight: 500;
   }
+}
+
+.topbar-logo {
+  font-family: var(--slax-font-serif);
+  font-size: var(--slax-fs-brand);
+  font-weight: 500;
+  color: var(--slax-text);
+  letter-spacing: -0.02em;
+}
+
+// 内容区：顶部留出顶栏高度 + 额外间距
+.content {
+  width: 100%;
+  max-width: 672px;
+  padding: calc(var(--slax-header-height) + 32px) 24px 88px;
+
+  @media (max-width: 768px) {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+// 通用卡片样式
+.settings-card {
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+  padding: 24px;
+  margin-top: 16px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Section 标题
+.section-title {
+  font-family: var(--slax-font-serif);
+  font-size: var(--slax-fs-h2);
+  font-weight: 500;
+  color: var(--slax-text);
+  line-height: 1.4;
+  margin-bottom: 20px;
+  user-select: none;
+}
+
+// 语言设置行
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.settings-label {
+  font-size: var(--slax-fs-aux);
+  color: var(--slax-text-muted);
+  line-height: 1.5;
+}
+
+.settings-label-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.settings-divider {
+  height: 1px;
+  background: var(--slax-border);
+  margin: 8px 0;
+}
+
+// 个人信息区
+.personal {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.personal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.username {
+  font-family: var(--slax-font-serif);
+  font-size: var(--slax-fs-card);
+  color: var(--slax-text);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.email {
+  font-size: var(--slax-fs-aux);
+  color: var(--slax-text-light);
+  line-height: 1.5;
+}
+
+// 帮助支持
+.support {
+  margin-top: 16px;
+}
+</style>
+
+<!-- eslint-disable vue-scoped-css/enforce-style-type -->
+<style lang="scss">
+/* user 页专属背景：override body 背景色和氛围渐变，随主题切换 */
+body {
+  background: #faf8f2;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+[data-slax-theme='dark'] body {
+  background: #141210;
+}
+
+[data-slax-theme='dark'] body::before {
+  background:
+    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
+}
+
+[data-slax-theme='eink'] body {
+  background: #ffffff;
+}
+
+[data-slax-theme='eink'] body::before {
+  display: none;
 }
 </style>
