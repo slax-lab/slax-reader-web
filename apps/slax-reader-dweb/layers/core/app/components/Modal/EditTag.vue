@@ -271,9 +271,9 @@ const t = (text: string) => {
 
   .bottom {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 
     button:not(.delete-btn):not(.cancel-btn):not(.danger-btn) {
       padding: 8px 18px;
@@ -286,7 +286,6 @@ const t = (text: string) => {
       font-family: inherit;
       cursor: pointer;
       transition: all 0.15s;
-      margin-left: auto;
 
       &:hover {
         opacity: 0.9;
@@ -299,19 +298,18 @@ const t = (text: string) => {
     }
 
     .delete-btn {
-      padding: 6px 12px;
+      margin-right: auto;
+      padding: 0;
       background: transparent;
-      color: var(--slax-danger);
-      border: 1px solid color-mix(in srgb, var(--slax-danger) 30%, transparent);
-      border-radius: var(--slax-radius-sm);
+      color: var(--slax-text-light);
+      border: none;
       font-size: 12px;
       font-family: inherit;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: color 0.12s;
 
       &:hover {
-        background: var(--slax-danger-bg);
-        border-color: var(--slax-danger);
+        color: var(--slax-danger);
       }
     }
   }
