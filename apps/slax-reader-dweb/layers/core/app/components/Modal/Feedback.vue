@@ -160,7 +160,7 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
-      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
+      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all';
     }
 
     .link {

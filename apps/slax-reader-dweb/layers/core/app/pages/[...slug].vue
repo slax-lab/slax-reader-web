@@ -1,18 +1,10 @@
 <template>
   <div class="slug">
-    <div class="header">
-      <div class="header-container responsive-width">
-        <div class="left">
-          <div class="app" @click="logoClick">
-            <div class="items-wrapper">
-              <img src="@images/logo-sm.png" alt="" />
-              <span class="title">{{ $t('common.app.name') }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="right"></div>
-      </div>
-    </div>
+    <SnapshotTopBar>
+      <template #left>
+        <span class="topbar-logo" @click="logoClick">{{ $t('common.app.name') }}</span>
+      </template>
+    </SnapshotTopBar>
     <div class="content">
       <div class="slug-container">
         <img src="@images/404.png" alt="" />
@@ -35,42 +27,18 @@ const logoClick = () => {
 .slug {
   --style: w-full flex flex-col items-center overflow-hidden select-none;
 
-  .responsive-width {
-    --style: pl-128px;
-  }
-
-  .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
-
-    .header-container {
-      --style: flex items-center;
-    }
-
-    .left {
-      .app {
-        --style: flex items-center relative cursor-pointer;
-
-        .items-wrapper {
-          --style: flex items-center;
-
-          & > * {
-            --style: 'not-first:ml-8px shrink-0';
-          }
-
-          img {
-            --style: w-20px;
-          }
-
-          .title {
-            --style: font-semibold text-(#16b998 15px) line-height-21px;
-          }
-        }
-      }
-    }
+  .topbar-logo {
+    font-family: var(--slax-font-serif);
+    font-size: var(--slax-fs-brand);
+    font-weight: 500;
+    color: var(--slax-text);
+    letter-spacing: -0.02em;
+    cursor: pointer;
   }
 
   .content {
     --style: w-full pt-[var(--slax-header-height)] pb-68px h-screen flex-center -translate-y-25px;
+
     .slug-container {
       --style: flex-center flex-col;
 
@@ -79,11 +47,16 @@ const logoClick = () => {
       }
 
       span {
-        --style: mt-16px text-(meta #999) line-height-20px;
+        --style: mt-16px text-meta line-height-20px;
+        color: var(--slax-text-muted);
       }
 
       button {
-        --style: 'mt-100px w-274px h-48px text-(meta #1f1f1f) font-bold rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
+        --style: 'mt-100px w-274px h-48px font-bold rounded-3xl flex-center transition-all duration-normal hover:(opacity-90 scale-105)';
+        font-size: var(--slax-fs-meta);
+        color: var(--slax-text);
+        background: var(--slax-surface-solid);
+        border: 1px solid var(--slax-border);
       }
     }
   }
@@ -93,6 +66,31 @@ const logoClick = () => {
 <!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 body {
-  --style: bg-#FCFCFC;
+  background: #faf8f2;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+[data-slax-theme='dark'] body {
+  background: #141210;
+}
+[data-slax-theme='dark'] body::before {
+  background:
+    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
+}
+
+[data-slax-theme='eink'] body {
+  background: #ffffff;
+}
+[data-slax-theme='eink'] body::before {
+  display: none;
 }
 </style>

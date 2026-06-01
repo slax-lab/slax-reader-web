@@ -73,7 +73,7 @@ E-ink 主题下分别收紧为 4px / 2px。
 ### 2.4 字体
 
 ```css
---slax-font-sans       /* 无衬线：Inter + PingFang SC（正文、UI） */
+--slax-font-sans       /* 无衬线：Inter + 系统字体（正文、UI） */
 --slax-font-serif      /* 衬线：Playfair Display + Noto Serif SC（标题、Logo、卡片标题） */
 --slax-font-mono       /* 等宽：SF Mono + Fira Code（代码） */
 ```

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full flex items-start justify-start px-15 py-20" style="background: linear-gradient(45deg, #fff 0%, #16b998 100%); font-family: 'PingFang SC', sans-serif">
+  <div class="h-full w-full flex items-start justify-start px-15 py-20" style="background: linear-gradient(45deg, #fff 0%, #16b998 100%); font-family: 'Inter', sans-serif">
     <div class="h-full w-full flex items-start justify-start">
       <div class="h-full w-full flex flex-col justify-between">
         <div class="flex flex-row items-center text-left text-[70px] font-black">

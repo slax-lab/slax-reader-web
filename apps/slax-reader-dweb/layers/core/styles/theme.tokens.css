@@ -72,7 +72,7 @@
   --slax-header-height: var(--slax-header-h-list);
 
   /* 字体 */
-  --slax-font-sans: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --slax-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --slax-font-serif: 'Playfair Display', 'Noto Serif SC', serif;
   --slax-font-mono: 'SF Mono', 'Fira Code', monospace;
 

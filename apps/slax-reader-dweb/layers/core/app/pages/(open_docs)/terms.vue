@@ -42,13 +42,45 @@ const { data: page } = await useAsyncData(
 
 .terms {
   main {
-    // bg-#fcffff 文档页冷白底（带极淡蓝绿调），保留
-    --style: py-40px px-20px bg-#fcffff flex-center;
+    --style: py-40px px-20px flex-center;
+    background: var(--slax-bg);
 
     .terms-wrapper {
       --style: max-w-800px;
       @include markdownContent.contentStyle;
     }
   }
+}
+</style>
+
+<!-- eslint-disable vue-scoped-css/enforce-style-type -->
+<style lang="scss">
+body {
+  background: #faf8f2;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+[data-slax-theme='dark'] body {
+  background: #141210;
+}
+[data-slax-theme='dark'] body::before {
+  background:
+    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
+}
+
+[data-slax-theme='eink'] body {
+  background: #ffffff;
+}
+[data-slax-theme='eink'] body::before {
+  display: none;
 }
 </style>
