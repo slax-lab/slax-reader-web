@@ -360,11 +360,6 @@ if (notification.isSupportedNotification) {
         display: none;
       }
     }
-      scrollbar-width: none;
-      &::-webkit-scrollbar {
-        --style: hidden;
-      }
-    }
   }
 }
 
