@@ -170,8 +170,7 @@ const performDelete = async () => {
 <style lang="scss" scoped>
 @use '#layers/core/styles/markdown/content.scss' as markdownContent;
 
-// 删除按钮警示橙 #FF6838 与 BookmarkCell 删除按钮一致，比 --slax-danger（#c44 红）偏暖；
-// 主题作者刻意区分"删除/警示"语义色，本组件沿用硬编码橙；其余颜色 / 时长 / 字号全部走 token。
+// 删除按钮使用 --slax-danger token，与 EditTag 等组件保持一致
 .user-delete-account-section {
   --style: 'mt-60px pt-24px border-t-(1px solid border)';
 
@@ -183,7 +182,7 @@ const performDelete = async () => {
     }
 
     .delete-button {
-      --style: 'p-0 bg-transparent border-none text-tag text-txt-light line-height-18px underline underline-border underline-offset-2 transition-colors duration-normal hover:(text-#FF6838 underline-#FF6838) active:(scale-102)';
+      --style: 'p-0 bg-transparent border-none text-tag text-txt-light line-height-18px underline underline-border underline-offset-2 transition-colors duration-normal hover:(text-danger underline-danger) active:(scale-102)';
     }
   }
 }
@@ -225,11 +224,11 @@ const performDelete = async () => {
     }
 
     .btn-confirm {
-      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-meta text-txt-btn font-500 transition-all duration-normal hover:(bg-#e85a2e) disabled:(opacity-50 cursor-not-allowed)';
+      --style: 'px-20px h-36px rounded-8px border-none bg-danger text-meta text-txt-btn font-500 transition-all duration-normal hover:(opacity-85) disabled:(opacity-50 cursor-not-allowed)';
     }
 
     .btn-confirm-final {
-      --style: 'px-20px h-36px rounded-8px border-none bg-#FF6838 text-meta text-txt-btn font-500 transition-all duration-normal flex-center min-w-140px hover:(bg-#e85a2e) disabled:(opacity-80 cursor-not-allowed)';
+      --style: 'px-20px h-36px rounded-8px border-none bg-danger text-meta text-txt-btn font-500 transition-all duration-normal flex-center min-w-140px hover:(opacity-85) disabled:(opacity-80 cursor-not-allowed)';
 
       .loading-inline {
         --style: flex items-center gap-8px;
@@ -258,7 +257,7 @@ const performDelete = async () => {
     --style: px-24px pt-24px;
 
     .modal-title {
-      --style: text-card text-#ff6838 line-height-25px font-600;
+      --style: text-card text-danger line-height-25px font-600;
     }
   }
 

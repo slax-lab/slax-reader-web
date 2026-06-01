@@ -699,9 +699,8 @@ const starBookmark = async (isStar: boolean) => {
   }
 
   &.danger:hover {
-    // #FF6838 是删除按钮 hover 警示橙色，保留
-    color: #ff6838;
-    background: color-mix(in srgb, #ff6838 10%, transparent);
+    color: var(--slax-danger);
+    background: var(--slax-danger-bg);
   }
 }
 
