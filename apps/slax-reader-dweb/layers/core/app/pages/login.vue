@@ -62,7 +62,13 @@ onMounted(() => {
     --style: mt-5;
 
     .login-view {
-      --style: 'min-w-md max-md:(min-w-auto) p-10 border-rounded-8px select-none relative';
+      --style: 'min-w-md max-md:(min-w-auto) p-10 select-none relative';
+      background: var(--slax-surface);
+      border: 1px solid var(--slax-border);
+      border-radius: var(--slax-radius);
+      box-shadow:
+        var(--slax-shadow-warm),
+        inset 0 1px 0 var(--slax-inset-hi);
 
       .content {
         --style: flex flex-col z-1 items-center relative;

@@ -326,19 +326,25 @@ border-radius: var(--slax-radius-sm);
 
 ### 幽灵按钮（Ghost）
 
+适用于次要操作、返回、取消等非强制性操作（如 404 页返回首页、弹窗取消按钮）：
+
 ```scss
 background: transparent;
 border: 1px solid var(--slax-border);
 border-radius: var(--slax-radius-sm);
 color: var(--slax-text-muted);
-padding: 6px 16px;
-font-size: var(--slax-fs-aux);
+padding: 8px 20px;
+font-size: var(--slax-fs-body);
 font-weight: 500;
+cursor: pointer;
 transition: all var(--slax-dur-normal);
 
 &:hover {
   background: var(--slax-surface);
   color: var(--slax-text);
+  border-color: color-mix(in srgb, var(--slax-text-light) 40%, var(--slax-border));
+  transform: translateY(-1px);
+  box-shadow: var(--slax-shadow-sm);
 }
 ```
 

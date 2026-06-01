@@ -47,13 +47,29 @@ defineExpose({
 
 <style lang="scss" scoped>
 .google-login-button {
-  --style: 'w-300px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center hover:(opacity-90 scale-105) transition-all duration-normal';
+  --style: 'w-300px h-48px flex-center';
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius-sm);
+  cursor: pointer;
+  transition: all var(--slax-dur-normal);
+
   & > * {
     --style: 'not-first:ml-8px';
   }
 
   span {
-    --style: text-(meta txt) font-bold line-height-18px;
+    font-size: var(--slax-fs-meta);
+    font-weight: 500;
+    color: var(--slax-text);
+    line-height: 18px;
+  }
+
+  &:hover {
+    background: var(--slax-surface);
+    border-color: color-mix(in srgb, var(--slax-text-light) 40%, var(--slax-border));
+    transform: translateY(-1px);
+    box-shadow: var(--slax-shadow-sm);
   }
 }
 </style>
