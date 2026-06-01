@@ -53,7 +53,7 @@ describe('Modal/EditTag', () => {
     expect(wrapper.find('.edit-tag-modal').exists()).toBe(true)
     expect(wrapper.find('textarea').exists()).toBe(true)
     expect(wrapper.find('button.close').exists()).toBe(true)
-    expect(wrapper.find('.bottom button').exists()).toBe(true)
+    expect(wrapper.find('.bottom button:not(.delete-btn)').exists()).toBe(true)
   })
 
   it('textarea placeholder 是 tagName', () => {
@@ -64,7 +64,7 @@ describe('Modal/EditTag', () => {
   it('save 按钮：editname 等于 tagName → closeModal 短路', async () => {
     const wrapper = mountWithApp(EditTag, { props: { tagId: 5, tagName: 'same' } })
     await wrapper.find('textarea').setValue('same')
-    await wrapper.find('.bottom button').trigger('click')
+    await wrapper.find('.bottom button:not(.delete-btn)').trigger('click')
     await flushPromises()
     expect(mockPost).not.toHaveBeenCalled()
   })
@@ -72,7 +72,7 @@ describe('Modal/EditTag', () => {
   it('save 按钮：editname 空 → closeModal 短路', async () => {
     const wrapper = mountWithApp(EditTag, { props: { tagId: 5, tagName: 'old' } })
     await wrapper.find('textarea').setValue('   ')
-    await wrapper.find('.bottom button').trigger('click')
+    await wrapper.find('.bottom button:not(.delete-btn)').trigger('click')
     await flushPromises()
     expect(mockPost).not.toHaveBeenCalled()
   })
@@ -80,7 +80,7 @@ describe('Modal/EditTag', () => {
   it('save 按钮：editname 新值 → request.post(UPDATE_USER_TAG) + emit success', async () => {
     const wrapper = mountWithApp(EditTag, { props: { tagId: 5, tagName: 'old' } })
     await wrapper.find('textarea').setValue('new tag')
-    await wrapper.find('.bottom button').trigger('click')
+    await wrapper.find('.bottom button:not(.delete-btn)').trigger('click')
     await flushPromises()
     expect(mockPost).toHaveBeenCalledWith(
       expect.objectContaining({

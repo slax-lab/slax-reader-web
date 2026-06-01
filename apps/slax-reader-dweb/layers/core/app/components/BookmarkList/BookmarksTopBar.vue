@@ -65,8 +65,8 @@ const onSearch = (keyword: string) => {
 }
 
 .topbar-logo {
-  // 品牌名：衬线字体 + 强调色，点击回到列表首页
-  --style: font-serif font-500 text-brand text-accent cursor-pointer bg-transparent border-none p-0;
+  // 品牌名：衬线字体，demo 用 var(--text) 深色而非 accent 橙色
+  --style: font-serif font-500 text-brand text-txt cursor-pointer bg-transparent border-none p-0;
 }
 
 .topbar-right {

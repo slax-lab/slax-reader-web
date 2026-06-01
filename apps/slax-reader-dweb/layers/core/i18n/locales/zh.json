@@ -252,7 +252,8 @@
     },
     "edit_tag": {
       "delete": "删除该标签",
-      "title": "修改标签"
+      "title": "修改标签",
+      "delete_confirm": "确认删除该标签？此操作不可撤销"
     },
     "feedback": {
       "follow_up": "允许通过 {email} 跟进",

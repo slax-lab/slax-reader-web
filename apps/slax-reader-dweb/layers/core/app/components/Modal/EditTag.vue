@@ -17,9 +17,22 @@
             @compositionend="compositionend"
           ></textarea>
         </div>
-        <div class="bottom">
+
+        <!-- 正常态底部：保存 + 删除 -->
+        <div class="bottom" v-if="!confirmingDelete">
+          <button class="delete-btn" @click="confirmingDelete = true">{{ t('common.operate.delete') }}</button>
           <button @click="submitTagName">{{ t('common.operate.save') }}</button>
         </div>
+
+        <!-- 二次确认态底部：确认删除 -->
+        <div class="bottom confirm-delete" v-else>
+          <span class="confirm-text">{{ t('component.edit_tag.delete_confirm') }}</span>
+          <div class="confirm-actions">
+            <button class="cancel-btn" @click="confirmingDelete = false">{{ t('common.operate.cancel') }}</button>
+            <button class="danger-btn" @click="deleteTag">{{ t('common.operate.confirm') }}</button>
+          </div>
+        </div>
+
         <Transition name="opacity">
           <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
@@ -49,6 +62,7 @@ const isLocked = useScrollLock(window)
 const appear = ref(false)
 const editname = ref('')
 const compositionAppear = ref(false)
+const confirmingDelete = ref(false)
 
 isLocked.value = true
 
@@ -257,14 +271,91 @@ const t = (text: string) => {
 
   .bottom {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     gap: 8px;
 
-    button:not(.delete) {
+    button:not(.delete-btn):not(.cancel-btn):not(.danger-btn) {
       padding: 8px 18px;
       background: var(--slax-accent);
       color: var(--slax-btn-text);
+      border: none;
+      border-radius: var(--slax-radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-left: auto;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: scale(0.97);
+      }
+    }
+
+    .delete-btn {
+      padding: 6px 12px;
+      background: transparent;
+      color: var(--slax-danger);
+      border: 1px solid color-mix(in srgb, var(--slax-danger) 30%, transparent);
+      border-radius: var(--slax-radius-sm);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--slax-danger-bg);
+        border-color: var(--slax-danger);
+      }
+    }
+  }
+
+  .confirm-delete {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--slax-border);
+
+    .confirm-text {
+      font-size: 13px;
+      color: var(--slax-danger);
+      line-height: 1.5;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .cancel-btn {
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--slax-border);
+      border-radius: var(--slax-radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--slax-text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--slax-surface);
+        color: var(--slax-text);
+      }
+    }
+
+    .danger-btn {
+      padding: 7px 14px;
+      background: var(--slax-danger);
+      color: #fff;
       border: none;
       border-radius: var(--slax-radius-sm);
       font-size: 13px;
@@ -276,10 +367,6 @@ const t = (text: string) => {
       &:hover {
         opacity: 0.9;
         transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: scale(0.97);
       }
     }
   }

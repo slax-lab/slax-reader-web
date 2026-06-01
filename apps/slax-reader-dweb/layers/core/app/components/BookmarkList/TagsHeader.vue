@@ -204,6 +204,7 @@ const saveTag = async () => {
 
   isAddingTag.value = false
   isAddingTagLoading.value = false
+  addingTagName.value = ''
 
   if (!tags.value.find(tag => tag.id === res.id)) {
     tags.value.push(res)
