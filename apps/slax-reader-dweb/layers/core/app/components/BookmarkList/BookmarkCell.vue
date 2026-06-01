@@ -581,15 +581,24 @@ const starBookmark = async (isStar: boolean) => {
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: color 0.12s;
+  position: relative;
 
   &:hover {
     color: var(--slax-accent);
   }
 
-  // 划线删除动画
+  // 划线删除动画：用 clip-path 从左到右展开，不受 overflow:hidden 影响
   &.stroking {
-    &::before {
-      --style: content-empty absolute top-1/2 left-0 w-full h-1px bg-txt animate-fade-in-left animate-ease-in-out animate-duration-500;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: var(--slax-text);
+      transform: translateY(-50%);
+      animation: strikethrough 0.5s ease-in-out forwards;
     }
   }
 }
@@ -733,6 +742,15 @@ const starBookmark = async (isStar: boolean) => {
     .star-outline {
       display: none;
     }
+  }
+}
+
+@keyframes strikethrough {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
   }
 }
 </style>

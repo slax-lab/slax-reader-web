@@ -25,7 +25,10 @@
           </div>
         </Transition>
         <div class="empty" v-if="notifications.length === 0">
-          <img src="@images/logo-bg-gray.png" alt="" />
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--slax-text-light); opacity: 0.4">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
           <span>{{ $t('component.user_notification.no_message') }}</span>
         </div>
         <div class="notification-messages" v-else>
@@ -77,8 +80,8 @@ const notificationIcon = ref<HTMLDivElement>()
 const bubble = ref<HTMLDivElement>()
 
 const defaultValue = {
-  bubbleWidth: 480,
-  leftOffset: -309
+  bubbleWidth: 360,
+  leftOffset: -220
 }
 
 const bubbleWidth = ref(`${defaultValue.bubbleWidth}px`)
