@@ -72,7 +72,9 @@ defineExpose({
 
 <style lang="scss" scoped>
 .tabs-sidebar {
-  --style: w-full flex flex-col py-16px;
+  --style: w-full flex flex-col;
+  padding: 40px 16px 24px;
+  gap: 4px;
 }
 
 .sidebar-item {
