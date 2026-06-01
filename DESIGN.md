@@ -361,11 +361,31 @@ transition: opacity var(--slax-dur-normal);
 ### 危险按钮
 
 ```scss
-/* 删除/警示操作使用暖橙色，区别于 --slax-danger 红色 */
-background: #ff6838;
-color: #ffffff;
-/* hover */
-background: #e85a2e;
+/* 删除/警示操作统一使用 --slax-danger token，自动适配三套主题 */
+background: var(--slax-danger);
+color: var(--slax-btn-text);
+border: none;
+border-radius: var(--slax-radius-sm);
+padding: 8px 20px;
+font-size: var(--slax-fs-aux);
+font-weight: 500;
+transition: all var(--slax-dur-normal);
+
+&:hover {
+  opacity: 0.85;
+}
+&:disabled {
+  opacity: 0.5;
+}
+```
+
+危险操作的 hover 背景色使用 `var(--slax-danger-bg)`（如列表删除按钮 hover 态）：
+
+```scss
+&.danger:hover {
+  color: var(--slax-danger);
+  background: var(--slax-danger-bg);
+}
 ```
 
 ---
