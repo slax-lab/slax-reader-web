@@ -1,4 +1,4 @@
-// TagsHeader 组件单测
+// TagsHeader 组件单测（新版：胶囊标签 + flex-wrap 布局）
 // props: selectTagId / selectTagName
 // emit: select-tag
 // 顶层 setup 调 loadUserTags() → request().get(TAG_LIST) → tags filtered by display
@@ -49,7 +49,7 @@ describe('TagsHeader', () => {
   })
 
   describe('渲染 + loadUserTags', () => {
-    it('selectTagId 空 → 渲染 .tags-grids + .add tag-item', async () => {
+    it('selectTagId 空 → 渲染 .tags-header + .tag-add', async () => {
       mockGet.mockResolvedValueOnce([
         { id: 1, show_name: 'Tag1', display: true },
         { id: 2, show_name: 'Tag2', display: true, system: true }
@@ -57,10 +57,9 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       expect(wrapper.find('.tags-header').exists()).toBe(true)
-      expect(wrapper.find('.add.tag-item').exists()).toBe(true)
-      // 2 个 tag + 1 个 add → 3 个 tag-item
-      const tagItems = wrapper.findAll('.tag-item')
-      expect(tagItems.length).toBeGreaterThanOrEqual(3)
+      expect(wrapper.find('.tag-add').exists()).toBe(true)
+      // 2 个 tag-chip
+      expect(wrapper.findAll('.tag-chip').length).toBe(2)
     })
 
     it('display=false 的 tag 被过滤', async () => {
@@ -70,17 +69,18 @@ describe('TagsHeader', () => {
       ])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      const cells = wrapper.findAll('.tag-cell .tag-name')
-      const names = cells.map(c => c.text())
+      const chips = wrapper.findAll('.tag-chip span')
+      const names = chips.map(c => c.text())
       expect(names).toContain('Visible')
       expect(names).not.toContain('Hidden')
     })
 
-    it('selectTagId 非空 → 渲染 .selected-tag 而非 .tags-grids', async () => {
+    it('selectTagId 非空 → 渲染 .selected-tag-header 而非 .tag-add', async () => {
       mockGet.mockResolvedValueOnce([{ id: 5, show_name: 'tech', display: true }])
       const wrapper = mountWithApp(TagsHeader, { props: { selectTagId: 5, selectTagName: 'tech' } })
       await flushPromises()
-      expect(wrapper.find('.selected-tag').exists()).toBe(true)
+      expect(wrapper.find('.selected-tag-header').exists()).toBe(true)
+      expect(wrapper.find('.tag-add').exists()).toBe(false)
     })
 
     it('mockGet 失败（返 null）→ Toast.showToast Error', async () => {
@@ -103,39 +103,39 @@ describe('TagsHeader', () => {
   })
 
   describe('交互', () => {
-    it('selectTagId 空 + 点击 .tag-add → isAddingTag=true → .tag-input 显示', async () => {
+    it('selectTagId 空 + 点击 .tag-add → isAddingTag=true → .tag-input-wrap 显示', async () => {
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      expect(wrapper.find('.tag-input').exists()).toBe(true)
+      expect(wrapper.find('.tag-input-wrap').exists()).toBe(true)
     })
 
-    it('点击 .tag-cell → emit select-tag', async () => {
+    it('点击 .tag-chip → emit select-tag', async () => {
       mockGet.mockResolvedValueOnce([{ id: 1, show_name: 'tech', display: true }])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      await wrapper.find('.tag-cell').trigger('click')
+      await wrapper.find('.tag-chip').trigger('click')
       const events = wrapper.emitted('select-tag')
       expect(events).toBeTruthy()
       expect(events![events!.length - 1]).toEqual([{ id: 1, name: 'tech' }])
     })
 
-    it('点击非 system tag 的 edit button → showEditTagModal', async () => {
+    it('点击非 system tag 的 .tag-edit-btn → showEditTagModal', async () => {
       mockGet.mockResolvedValueOnce([{ id: 7, show_name: 'tag', display: true }])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      const editBtn = wrapper.find('.tag-operate button')
+      const editBtn = wrapper.find('.tag-edit-btn')
       expect(editBtn.exists()).toBe(true)
       await editBtn.trigger('click')
       expect(mockShowEditTagModal).toHaveBeenCalledWith(expect.objectContaining({ tagId: 7, tagName: 'tag' }))
     })
 
-    it('selectTagId 非空 + 点击 back 按钮 → emit select-tag null', async () => {
+    it('selectTagId 非空 + 点击 .back-btn → emit select-tag null', async () => {
       mockGet.mockResolvedValueOnce([{ id: 5, show_name: 'tech', display: true }])
       const wrapper = mountWithApp(TagsHeader, { props: { selectTagId: 5, selectTagName: 'tech' } })
       await flushPromises()
-      await wrapper.find('.selected-tag .tag-header button').trigger('click')
+      await wrapper.find('.back-btn').trigger('click')
       const events = wrapper.emitted('select-tag')
       expect(events).toBeTruthy()
       expect(events![events!.length - 1]).toEqual([null])
@@ -148,7 +148,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      const input = wrapper.find('.tag-input input')
+      const input = wrapper.find('.tag-input-wrap input')
       await input.setValue('newtag')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
@@ -165,7 +165,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      const input = wrapper.find('.tag-input input')
+      const input = wrapper.find('.tag-input-wrap input')
       await input.setValue('   ')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
@@ -177,7 +177,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      const input = wrapper.find('.tag-input input')
+      const input = wrapper.find('.tag-input-wrap input')
       await input.trigger('keydown', { key: 'Escape' })
       await flushPromises()
       expect(wrapper.find('.tag-add').exists()).toBe(true)
@@ -189,7 +189,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      const input = wrapper.find('.tag-input input')
+      const input = wrapper.find('.tag-input-wrap input')
       await input.setValue('willfail')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
@@ -201,7 +201,7 @@ describe('TagsHeader', () => {
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
-      const input = wrapper.find('.tag-input input')
+      const input = wrapper.find('.tag-input-wrap input')
       await input.trigger('compositionstart')
       await input.setValue('foo')
       await input.trigger('keydown', { key: 'Enter' })
@@ -225,7 +225,6 @@ describe('TagsHeader', () => {
       await flushPromises()
       await wrapper.setProps({ selectTagId: 2 })
       await flushPromises()
-      // 不抛错即覆盖 watch
       expect(wrapper.exists()).toBe(true)
     })
 
@@ -244,26 +243,24 @@ describe('TagsHeader', () => {
       mockGet.mockResolvedValueOnce([{ id: 7, show_name: 'old', display: true }])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      await wrapper.find('.tag-operate button').trigger('click')
-      // 拿到 showEditTagModal 调用参数 → 触发 callback
+      await wrapper.find('.tag-edit-btn').trigger('click')
       const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.callback(7, 'newname')
       await flushPromises()
-      // 验证 tag.show_name 已更新
-      const cell = wrapper.find('.tag-cell .tag-name')
-      expect(cell.text()).toBe('newname')
+      const chip = wrapper.find('.tag-chip span')
+      expect(chip.text()).toBe('newname')
     })
 
     it('编辑回调 callback id 不匹配 → 不修改', async () => {
       mockGet.mockResolvedValueOnce([{ id: 7, show_name: 'old', display: true }])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      await wrapper.find('.tag-operate button').trigger('click')
+      await wrapper.find('.tag-edit-btn').trigger('click')
       const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.callback(99, 'newname')
       await flushPromises()
-      const cell = wrapper.find('.tag-cell .tag-name')
-      expect(cell.text()).toBe('old')
+      const chip = wrapper.find('.tag-chip span')
+      expect(chip.text()).toBe('old')
     })
 
     it('删除回调 deleteCallback(id) → 移除 tag', async () => {
@@ -273,13 +270,13 @@ describe('TagsHeader', () => {
       ])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      const editBtns = wrapper.findAll('.tag-operate button')
+      const editBtns = wrapper.findAll('.tag-edit-btn')
       await editBtns[0]!.trigger('click')
       const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.deleteCallback(7)
       await flushPromises()
-      const cells = wrapper.findAll('.tag-cell .tag-name')
-      const names = cells.map(c => c.text())
+      const chips = wrapper.findAll('.tag-chip span')
+      const names = chips.map(c => c.text())
       expect(names).not.toContain('tag7')
       expect(names).toContain('tag8')
     })
@@ -288,12 +285,12 @@ describe('TagsHeader', () => {
       mockGet.mockResolvedValueOnce([{ id: 7, show_name: 'tag7', display: true }])
       const wrapper = mountWithApp(TagsHeader)
       await flushPromises()
-      await wrapper.find('.tag-operate button').trigger('click')
+      await wrapper.find('.tag-edit-btn').trigger('click')
       const callArgs = mockShowEditTagModal.mock.calls[0]![0]
       callArgs.deleteCallback(99)
       await flushPromises()
-      const cells = wrapper.findAll('.tag-cell .tag-name')
-      expect(cells.map(c => c.text())).toContain('tag7')
+      const chips = wrapper.findAll('.tag-chip span')
+      expect(chips.map(c => c.text())).toContain('tag7')
     })
   })
 })

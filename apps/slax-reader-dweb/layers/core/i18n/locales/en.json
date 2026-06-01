@@ -493,7 +493,7 @@
       "inbox": "Inbox",
       "more": "Load more",
       "new_topic": "Input tag (less than 30 characters)...",
-      "no_more": "No more",
+      "no_more": "— end of list —",
       "starred": "Starred",
       "topics": "Tags",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",

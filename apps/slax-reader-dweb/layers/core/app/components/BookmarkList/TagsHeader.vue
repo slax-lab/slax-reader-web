@@ -1,56 +1,65 @@
 <template>
   <div class="tags-header">
     <template v-if="!selectTagId">
-      <div class="tags-grids">
-        <div class="add tag-item">
-          <div class="tag-add" v-if="!isAddingTag" @click="addTagClick">
-            <i class="h-10px w-10px bg-[length:10px_10px] bg-[url('@images/tiny-plus-icon.png')] bg-contain"></i>
-            <span>{{ t('component.tags_header.add_tag') }}</span>
-          </div>
-          <div class="tag-input" v-else>
-            <input
-              ref="tagInput"
-              type="text"
-              :disabled="isAddingTagLoading"
-              v-model="addingTagName"
-              :placeholder="t('component.tags_header.add_tag_placeholder')"
-              @compositionstart="compositionstart"
-              @compositionend="compositionend"
-              v-on-key-stroke:Escape,Enter="[onKeyDown, { eventName: 'keydown' }]"
-            />
-            <i class="seperator"></i>
-            <button v-if="!isAddingTagLoading">{{ t('common.operate.add') }}</button>
-            <div class="i-svg-spinners:90-ring w-48px color-#f4c982" v-else></div>
-          </div>
+      <!-- 添加标签行 -->
+      <div class="tags-add-row">
+        <div class="tag-add" v-if="!isAddingTag" @click="addTagClick">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>{{ t('component.tags_header.add_tag') }}</span>
+        </div>
+        <div class="tag-input-wrap" v-else>
+          <input
+            ref="tagInput"
+            type="text"
+            :disabled="isAddingTagLoading"
+            v-model="addingTagName"
+            :placeholder="t('component.tags_header.add_tag_placeholder')"
+            @compositionstart="compositionstart"
+            @compositionend="compositionend"
+            v-on-key-stroke:Escape,Enter="[onKeyDown, { eventName: 'keydown' }]"
+          />
+          <button v-if="!isAddingTagLoading" @click="saveTag" class="tag-input-confirm">
+            {{ t('common.operate.add') }}
+          </button>
+          <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" v-else></div>
         </div>
       </div>
-      <div class="tags-grids">
+
+      <!-- 加载中 -->
+      <div class="tags-loading" v-if="isTagLoading">
+        <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)"></div>
+        <span>{{ $t('component.tags_header.loading') }}</span>
+      </div>
+
+      <!-- 标签列表 -->
+      <div class="tags-list">
         <TransitionGroup name="opacity">
-          <div class="tag-item group" v-for="tag in tags" :key="tag.id">
-            <div class="tag-cell" @click="selectTag(tag)">
-              <span class="tag-name">{{ tag.show_name }}</span>
-              <i class="ai" v-if="tag.system"></i>
-            </div>
-            <div class="tag-operate min-w-30px group-hover:!opacity-100">
-              <button @click="editTagClick(tag)" v-if="!tag.system">
-                <img src="@images/button-edit-outline-icon.png" />
-              </button>
-            </div>
+          <div class="tag-item" v-for="tag in tags" :key="tag.id">
+            <button class="tag-chip" :class="{ system: tag.system }" @click="selectTag(tag)">
+              <span>{{ tag.show_name }}</span>
+              <i class="ai-badge" v-if="tag.system"></i>
+            </button>
+            <button class="tag-edit-btn" v-if="!tag.system" @click="editTagClick(tag)" :title="t('common.operate.edit')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
           </div>
         </TransitionGroup>
       </div>
-      <div class="tags-grids" v-if="isTagLoading">
-        <div class="loading">
-          <div class="i-svg-spinners:90-ring w-24px color-#f4c982"></div>
-          <span>{{ $t('component.tags_header.loading') }}</span>
-        </div>
-      </div>
     </template>
-    <div class="selected-tag" v-else>
-      <div class="tag-header">
-        <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="unselectTag"></button>
-        <span>{{ $t('component.tags_header.filter_tag_title', { title: filterTagName || '' }) }} </span>
-      </div>
+
+    <!-- 已选标签：显示返回 + 标签名 -->
+    <div class="selected-tag-header" v-else>
+      <button class="back-btn" @click="unselectTag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>{{ $t('component.tags_header.filter_tag_title', { title: filterTagName || '' }) }}</span>
+      </button>
     </div>
   </div>
 </template>
@@ -238,274 +247,198 @@ const compositionend = () => {
 
 <style lang="scss" scoped>
 .tags-header {
-  padding-bottom: 8px;
+  padding-bottom: 16px;
+}
 
-  .tags-grids {
-    display: grid;
-    gap: 8px;
-    padding: 0 4px;
-    grid-template-columns: repeat(2, 1fr);
+// 添加标签行
+.tags-add-row {
+  margin-bottom: 16px;
+}
 
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
+.tag-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px dashed color-mix(in srgb, var(--slax-accent) 35%, transparent);
+  border-radius: 999px;
+  background: var(--slax-accent-bg);
+  color: var(--slax-accent);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
 
-    &:first-child {
-      padding-top: 4px;
-      margin-bottom: 4px;
-    }
-
-    &:not(:first-child) {
-      padding-top: 4px;
-    }
-
-    .tag-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      user-select: none;
-
-      &.add {
-        grid-column: 1 / -1;
-      }
-
-      .tag-add {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
-        border-radius: var(--slax-radius-sm);
-        background: var(--slax-accent-bg);
-        border: 1px dashed color-mix(in srgb, var(--slax-accent) 30%, transparent);
-        cursor: pointer;
-        transition: all 0.15s;
-        flex: 1;
-
-        &:hover {
-          background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
-          border-color: var(--slax-accent);
-        }
-
-        i {
-          width: 14px;
-          height: 14px;
-          flex-shrink: 0;
-          color: var(--slax-accent);
-          opacity: 0.8;
-          background-image: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          &::before {
-            content: '+';
-            font-size: 16px;
-            line-height: 1;
-            color: var(--slax-accent);
-          }
-        }
-
-        span {
-          font-size: 13px;
-          color: var(--slax-accent);
-          line-height: 1.4;
-        }
-      }
-
-      .tag-input {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        border: 1px solid var(--slax-accent);
-        border-radius: var(--slax-radius-sm);
-        background: var(--slax-accent-bg);
-        box-shadow: 0 0 0 3px var(--slax-accent-bg);
-        overflow: hidden;
-
-        input {
-          flex: 1;
-          min-width: 0;
-          padding: 10px 14px;
-          font-size: 13px;
-          color: var(--slax-text);
-          background: transparent;
-          border: none;
-          outline: none;
-          font-family: inherit;
-
-          &::placeholder {
-            color: var(--slax-text-light);
-          }
-        }
-
-        .seperator {
-          width: 1px;
-          height: 14px;
-          background: var(--slax-border);
-          flex-shrink: 0;
-        }
-
-        button {
-          flex-shrink: 0;
-          padding: 0 14px;
-          height: 100%;
-          font-size: 13px;
-          color: var(--slax-accent);
-          font-weight: 500;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          transition: opacity 0.12s;
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-      }
-
-      .tag-cell {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        flex: 1;
-        padding: 10px 14px;
-        border: 1px solid var(--slax-border);
-        border-radius: var(--slax-radius-sm);
-        background: var(--slax-surface);
-        cursor: pointer;
-        transition: all 0.15s;
-        overflow: hidden;
-        box-shadow: inset 0 1px 0 var(--slax-inset-hi);
-
-        &:hover {
-          border-color: color-mix(in srgb, var(--slax-accent) 40%, transparent);
-          background: var(--slax-accent-bg);
-        }
-
-        span {
-          font-size: 13px;
-          color: var(--slax-text-muted);
-          line-height: 1.4;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        &:has(.ai) {
-          opacity: 0.7;
-        }
-
-        .ai {
-          width: 14px;
-          height: 14px;
-          flex-shrink: 0;
-          background-image: url('@images/cell-ai-style-icon.png');
-          background-size: contain;
-          background-repeat: no-repeat;
-          opacity: 0.6;
-        }
-      }
-
-      .tag-operate {
-        flex-shrink: 0;
-        opacity: 0;
-        transition: opacity 0.15s;
-
-        button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          border: 1px solid var(--slax-border);
-          border-radius: 50%;
-          background: var(--slax-surface-solid);
-          cursor: pointer;
-          transition: all 0.12s;
-
-          &:hover {
-            border-color: var(--slax-accent);
-            background: var(--slax-accent-bg);
-          }
-
-          img {
-            width: 14px;
-            height: 14px;
-            object-fit: contain;
-          }
-        }
-      }
-
-      &:hover .tag-operate {
-        opacity: 1;
-      }
-    }
-
-    .loading {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      grid-column: 1 / -1;
-      padding: 8px 4px;
-
-      span {
-        font-size: 13px;
-        color: var(--slax-text-light);
-      }
-    }
+  &:hover {
+    border-color: var(--slax-accent);
+    background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
   }
 
-  .selected-tag {
-    padding: 0 4px;
+  svg {
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+}
 
-    .tag-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 0 20px;
-      border-bottom: 1px solid var(--slax-border);
-      margin-bottom: 16px;
+.tag-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--slax-accent);
+  border-radius: 999px;
+  background: var(--slax-accent-bg);
+  box-shadow: 0 0 0 3px var(--slax-accent-bg);
+  max-width: 320px;
 
-      button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border: 1px solid var(--slax-border);
-        border-radius: var(--slax-radius-sm);
-        background: transparent;
-        cursor: pointer;
-        color: var(--slax-text-muted);
-        transition: all 0.15s;
-        background-image: none;
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    color: var(--slax-text);
+    font-family: inherit;
 
-        &::before {
-          content: '';
-          display: block;
-          width: 16px;
-          height: 16px;
-          background-image: url('@images/button-navigate-back.png');
-          background-size: contain;
-          background-repeat: no-repeat;
-          background-position: center;
-        }
-
-        &:hover {
-          background: var(--slax-surface);
-          border-color: color-mix(in srgb, var(--slax-accent) 30%, var(--slax-border));
-        }
-      }
-
-      span {
-        font-size: 15px;
-        color: var(--slax-text);
-        font-weight: 500;
-        line-height: 1.4;
-      }
+    &::placeholder {
+      color: var(--slax-text-light);
     }
+  }
+}
+
+.tag-input-confirm {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  background: var(--slax-accent);
+  color: var(--slax-btn-text);
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.12s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// 加载中
+.tags-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--slax-text-light);
+}
+
+// 标签列表：flex wrap 胶囊布局
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--slax-border);
+  border-radius: 999px;
+  background: var(--slax-surface);
+  color: var(--slax-text-muted);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--slax-accent) 40%, transparent);
+    background: var(--slax-accent-bg);
+    color: var(--slax-text);
+  }
+
+  &.system {
+    opacity: 0.65;
+  }
+}
+
+.ai-badge {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url('@images/cell-ai-style-icon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.tag-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--slax-border);
+  border-radius: 50%;
+  background: var(--slax-surface-solid);
+  color: var(--slax-text-light);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.12s;
+
+  .tag-item:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    border-color: var(--slax-accent);
+    color: var(--slax-accent);
+    background: var(--slax-accent-bg);
+  }
+}
+
+// 已选标签 header
+.selected-tag-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--slax-border);
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius-sm);
+  background: transparent;
+  color: var(--slax-text-muted);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--slax-surface);
+    color: var(--slax-text);
+    border-color: color-mix(in srgb, var(--slax-accent) 30%, var(--slax-border));
+  }
+
+  span {
+    font-weight: 500;
+    color: var(--slax-text);
   }
 }
 </style>

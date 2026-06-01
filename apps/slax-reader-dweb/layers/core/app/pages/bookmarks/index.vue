@@ -33,8 +33,8 @@
         </template>
       </template>
       <template v-slot:content-list>
-        <!-- 布局切换器：非搜索、非 highlights/notifications 时显示 -->
-        <div class="page-toolbar" v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus)">
+        <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签时显示 -->
+        <div class="page-toolbar" v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId)">
           <p class="page-subtitle" v-if="lastUpdatedText">{{ lastUpdatedText }}</p>
           <div v-else />
           <div class="layout-switcher">
