@@ -845,3 +845,21 @@ const notificationBack = () => {
   --style: -translate-y-10px;
 }
 </style>
+
+<!-- eslint-disable vue-scoped-css/enforce-style-type -->
+<style lang="scss">
+/* 列表页专属背景：override body 背景色和氛围渐变（色值来自 redesign-list demo） */
+body {
+  background: #faf8f2;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
+  z-index: -1;
+  pointer-events: none;
+}
+</style>
