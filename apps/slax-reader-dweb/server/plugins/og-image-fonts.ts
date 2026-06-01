@@ -1,5 +1,6 @@
 export default defineNitroPlugin(nitroApp => {
-  nitroApp.hooks.hook('nuxt-og-image:context', ctx => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nitroApp.hooks.hook('nuxt-og-image:context' as any, (ctx: any) => {
     const existingFonts = Array.isArray(ctx.options.fonts) ? ctx.options.fonts : []
     ctx.options.fonts = [
       ...existingFonts,

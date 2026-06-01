@@ -497,6 +497,7 @@ const resetBookmarks = () => {
   loading.value = false
   ending.value = false
   page.value = 1
+  isTransitioning.value = false
 
   reset()
 }
