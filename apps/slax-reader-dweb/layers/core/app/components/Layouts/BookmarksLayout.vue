@@ -53,14 +53,13 @@ defineExpose({
   --style: w-full min-h-screen bg-bg;
   position: relative;
 
-  // demo 同款氛围渐变背景（三个径向渐变叠加）
+  // 列表页专属氛围渐变（色值来自 redesign-list demo，不走共享 token 避免影响详情页）
   &::before {
     content: '';
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%),
-      radial-gradient(at 50% 80%, var(--slax-grad-c) 0%, transparent 40%);
+      radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
     z-index: -1;
     pointer-events: none;
   }
