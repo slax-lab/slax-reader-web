@@ -9,7 +9,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          <span>{{ $t('common.app.name') }}</span>
+          <span>{{ $t('component.search_header.back') }}</span>
         </button>
         <span class="topbar-logo">{{ $t('common.app.name') }}</span>
       </div>
@@ -328,6 +328,12 @@ const localeSelect = (index: number) => {
   align-items: center;
   justify-content: space-between;
   padding: 4px 0;
+  position: relative;
+
+  // 第一行下拉需要浮在第二行之上
+  &:first-child {
+    z-index: 2;
+  }
 }
 
 .settings-label {

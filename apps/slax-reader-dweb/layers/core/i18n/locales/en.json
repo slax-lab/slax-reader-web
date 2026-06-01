@@ -743,6 +743,7 @@
       "import_progress": "Import progress",
       "import_third_party_data": "Import third-party data",
       "import_time": "Import time",
+      "no_import_records": "No import records yet",
       "language": "Language:",
       "language_en": "En",
       "language_zh": "Chinese",

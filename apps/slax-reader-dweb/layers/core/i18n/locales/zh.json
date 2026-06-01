@@ -743,6 +743,7 @@
       "import_progress": "导入进度",
       "import_third_party_data": "导入第三方数据",
       "import_time": "导入时间",
+      "no_import_records": "暂无导入记录",
       "language": "界面语言:",
       "language_en": "EN",
       "language_zh": "中文",
