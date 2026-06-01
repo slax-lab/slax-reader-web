@@ -5,12 +5,11 @@ export default defineNitroPlugin(nitroApp => {
     ctx.options.fonts = [
       ...existingFonts,
       {
-        name: 'PingFang SC',
-        path: '/fonts/pingfang-sc-regular.woff',
+        name: 'Noto Sans SC',
+        path: '/fonts/noto-sans-sc-400.ttf',
         weight: 400,
         style: 'normal'
       }
     ]
-    console.log('[og-image-fonts] injected PingFang SC, total fonts:', ctx.options.fonts.length)
   })
 })

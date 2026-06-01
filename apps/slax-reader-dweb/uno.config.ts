@@ -80,7 +80,7 @@ export default defineConfig(
         },
         fontFamily: {
           serif: ['Playfair Display', 'Noto Serif SC', 'serif'],
-          sans: ['Inter', 'PingFang SC', '-apple-system', 'sans-serif'],
+          sans: ['Inter', '-apple-system', 'sans-serif'],
           mono: ['SF Mono', 'Fira Code', 'monospace']
         },
         // 特效参数桥接（来源：design-system §6）。业务侧 utility：
