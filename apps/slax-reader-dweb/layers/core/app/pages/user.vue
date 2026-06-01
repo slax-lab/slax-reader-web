@@ -329,6 +329,7 @@ const localeSelect = (index: number) => {
   justify-content: space-between;
   padding: 4px 0;
   position: relative;
+  z-index: 1;
 
   // 第一行下拉需要浮在第二行之上
   &:first-child {
