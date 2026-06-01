@@ -848,7 +848,7 @@ const notificationBack = () => {
 
 <!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
-/* 列表页专属背景：override body 背景色和氛围渐变（色值来自 redesign-list demo） */
+/* 列表页专属背景：override body 背景色和氛围渐变，随主题切换 */
 body {
   background: #faf8f2;
 }
@@ -861,5 +861,22 @@ body::before {
     radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
   z-index: -1;
   pointer-events: none;
+}
+
+[data-slax-theme='dark'] body {
+  background: #141210;
+}
+
+[data-slax-theme='dark'] body::before {
+  background:
+    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
+}
+
+[data-slax-theme='eink'] body {
+  background: #ffffff;
+}
+
+[data-slax-theme='eink'] body::before {
+  display: none;
 }
 </style>

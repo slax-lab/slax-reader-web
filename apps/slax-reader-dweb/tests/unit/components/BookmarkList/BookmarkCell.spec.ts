@@ -142,15 +142,14 @@ describe('components/BookmarkList/BookmarkCell', () => {
       expect(mockShowSnapshot).not.toHaveBeenCalled()
     })
 
-    it('document 含 slax-reader-panel：走 clickHref', async () => {
+    it('document 含 slax-reader-panel：仍走 clickCache（优先快照）', async () => {
       const panel = document.createElement('slax-reader-panel')
       document.body.appendChild(panel)
-      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
       await wrapper.find('.article-title').trigger('click')
-      expect(openSpy).toHaveBeenCalled()
+      expect(mockPwaOpen).toHaveBeenCalledWith({ url: '/bookmarks/1000001' })
       document.body.removeChild(panel)
     })
 

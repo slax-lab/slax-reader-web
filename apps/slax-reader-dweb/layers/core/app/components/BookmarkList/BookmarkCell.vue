@@ -6,25 +6,27 @@
 
     <div class="article-body">
       <!-- 标题区：正常态为 button，编辑态为 input -->
-      <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click="clickTitle">
-        {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
-      </button>
-      <input
-        ref="input"
-        type="text"
-        v-else
-        class="article-title-input"
-        v-model="editingTitle"
-        :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
-        @input="handleInput"
-        v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-        v-on-click-outside="[
-          () => {
-            onClickoutside()
-          },
-          { ignore: [editTitleButton] }
-        ]"
-      />
+      <div class="title-wrap">
+        <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click="clickTitle">
+          {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
+        </button>
+        <input
+          ref="input"
+          type="text"
+          v-else
+          class="article-title-input"
+          v-model="editingTitle"
+          :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
+          @input="handleInput"
+          v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+          v-on-click-outside="[
+            () => {
+              onClickoutside()
+            },
+            { ignore: [editTitleButton] }
+          ]"
+        />
+      </div>
 
       <!-- meta 行：日期 + 来源 + hover 操作区 -->
       <div class="article-meta">
@@ -208,15 +210,8 @@ const clickTitle = () => {
     return
   }
 
-  if (document?.querySelector('slax-reader-panel')) {
-    // pwaOpen({
-    //   url: '/w/' + String(bookmark.value.id)
-    // })
-
-    clickHref()
-  } else {
-    clickCache()
-  }
+  // 优先跳快照页
+  clickCache()
 }
 
 const clickHref = () => {
@@ -562,10 +557,18 @@ const starBookmark = async (isStar: boolean) => {
   padding-right: 28px;
 }
 
-// 标题按钮
-.article-title {
+// 标题外层容器：控制截断，让 button 宽度由文字决定
+.title-wrap {
   display: block;
   width: 100%;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+// 标题按钮
+.article-title {
+  display: inline-block;
+  max-width: 100%;
   text-align: left;
   background: transparent;
   border: none;
@@ -575,11 +578,11 @@ const starBookmark = async (isStar: boolean) => {
   color: var(--slax-text);
   line-height: 1.45;
   letter-spacing: -0.01em;
-  margin-bottom: 8px;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  vertical-align: bottom;
   transition: color 0.12s;
   position: relative;
 
@@ -587,7 +590,7 @@ const starBookmark = async (isStar: boolean) => {
     color: var(--slax-accent);
   }
 
-  // 划线删除动画：用 clip-path 从左到右展开，不受 overflow:hidden 影响
+  // 划线删除动画：clip-path 从左到右展开，宽度跟随文字
   &.stroking {
     &::after {
       content: '';
