@@ -114,6 +114,7 @@ import type { BookmarkItem, HighlightItem, UserNotificationMessageItem } from '@
 import { useDebounceFn, useEventListener, useInfiniteScroll } from '@vueuse/core'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast from '#layers/core/app/components/Toast'
+import { useBookmarkFilter } from '#layers/core/app/composables/bookmark/useBookmarkFilter'
 import { useListLayoutMode } from '#layers/core/app/composables/bookmark/useListLayoutMode'
 import { useRefreshIndicator } from '#layers/core/app/composables/bookmark/useRefreshIndicator'
 import useNotification from '#layers/core/app/composables/useNotification'
@@ -139,13 +140,21 @@ const bookmarks = ref<BookmarkItem[]>([])
 const loading = ref(false)
 const ending = ref(false)
 const page = ref(1)
-const filterStatus = ref(`${route.query.filter || 'inbox'}`)
-const filterTopicId = ref(Number(route.query.topic_id || ''))
-const filterTopicName = ref(`${route.query.topic_name || ''}`)
 
-const filterCollectionId = ref(Number(route.query.c_id || ''))
-const filterCollectionCode = ref<string>(String(route.query.c_code || ''))
-const filterCollectionName = ref<string>(String(route.query.c_name || ''))
+// 筛选状态 + 纯导航 helper（编排动作 selectTopic/selectCollection/inboxClick 留在本页）
+const {
+  filterStatus,
+  filterTopicId,
+  filterTopicName,
+  filterCollectionId,
+  filterCollectionCode,
+  filterCollectionName,
+  isInTrash,
+  isCurrentInboxTab,
+  applyTopic,
+  applyCollection,
+  applyTab
+} = useBookmarkFilter()
 
 const searchText = ref('')
 const isSearching = ref(false)
@@ -188,10 +197,6 @@ const groupedBookmarks = computed<GroupedItem[]>(() => {
     result.push({ type: 'bookmark', bookmark, index })
   })
   return result
-})
-
-const isInTrash = computed(() => {
-  return filterStatus.value === 'trashed'
 })
 
 const isRefreshLoading = computed(() => {
@@ -241,10 +246,6 @@ const showList = computed(() => {
     default:
       return bookmarks.value.length > 0
   }
-})
-
-const isCurrentInboxTab = computed(() => {
-  return filterStatus.value === 'inbox' || !Boolean(filterStatus.value)
 })
 
 const addLog = () => {
@@ -431,51 +432,22 @@ const onLoadMore = async () => {
   }
 }
 
+// 编排动作：选择话题。filterStatus 不变（始终 'topics'），故手动 reset + load
 const selectTopic = async (info: { id: number; name: string } | null) => {
   resetBookmarks()
-  const topicParams: Record<string, number | string> = {}
-  if (info) {
-    info.id && (topicParams.topic_id = info.id)
-  }
-
-  filterTopicId.value = info?.id || 0
-  filterTopicName.value = info?.name || ''
-
-  const paramsStr = Object.keys(topicParams)
-    .map(key => `${key}=${topicParams[key]}`)
-    .join('&')
-
-  await navigateTo(`/bookmarks?filter=topics${paramsStr.length > 0 ? '&' + paramsStr : ''}`, {
-    replace: true
-  })
-
+  await applyTopic(info)
   await onLoadMore()
 }
 
+// 编排动作：选择合集。filterStatus 不变（始终 'collections'），故手动 reset + load
 const selectCollection = async (info: { id: number; name: string; code: string } | null) => {
   resetBookmarks()
-  const collectParams: Record<string, number | string> = {}
-  if (info) {
-    info.id && (collectParams.c_id = info.id)
-    info.name && (collectParams.c_name = info.name)
-    info.code && (collectParams.c_code = info.code)
-  }
-
-  filterCollectionId.value = info?.id || 0
-  filterCollectionCode.value = info?.code || ''
-  filterCollectionName.value = info?.name || ''
-
-  const paramsStr = Object.keys(collectParams)
-    .map(key => `${key}=${collectParams[key]}`)
-    .join('&')
-
-  await navigateTo(`/bookmarks?filter=collections${paramsStr.length > 0 ? '&' + paramsStr : ''}`, {
-    replace: true
-  })
-
+  await applyCollection(info)
   await onLoadMore()
 }
 
+// 编排动作：切换 tab（原 inboxClick）。搜索态先复位 + 同 tab 短路；
+//   applyTab 改 filterStatus → watch(filterStatus) 触发重载，故此处不调 onLoadMore
 const inboxClick = async (type: string, index?: number) => {
   if (searchText.value) {
     searchText.value = ''
@@ -487,12 +459,7 @@ const inboxClick = async (type: string, index?: number) => {
   }
 
   resetBookmarks()
-  filterStatus.value = type
-  filterCollectionId.value = 0
-  filterTopicId.value = 0
-  await navigateTo(`/bookmarks?filter=${type}`, {
-    replace: type !== 'notifications'
-  })
+  await applyTab(type)
 
   if (index !== undefined && bookmarksLayout.value?.isSmallScreen()) {
     const button = tabsSidebar.value?.getAllButtons()[index]
