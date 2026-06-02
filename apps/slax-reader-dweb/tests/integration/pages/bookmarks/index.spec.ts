@@ -178,7 +178,6 @@ const baseStubs = {
   CollectionHeader: { name: 'CollectionHeader', template: '<div class="collection-header" />', emits: ['select-collect', 'code-update'] },
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
   QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
-  InstallExtensionTips: { name: 'InstallExtensionTips', template: '<div class="install-extension-tips" />' },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
   BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc'] },
   OperatesBar: true
@@ -283,12 +282,12 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
-    it('C7: 默认 inbox + isDataEmpty=true → InstallExtensionTips 不渲染（isCurrentInboxTab + isDataEmpty 路径）', async () => {
+    it('C7: 默认 inbox + isDataEmpty=true + PC → QuickStart 空态（非通用 EmptyView）', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 模板：v-if="(isCurrentInboxTab && !isDataEmpty) || !isCurrentInboxTab"
-      // inbox + data empty → false || false → 不渲染
-      expect(wrapper.findComponent({ name: 'InstallExtensionTips' }).exists()).toBe(false)
+      // inbox + 空数据 + isPC=true + 非首屏 → 走 QuickStart 引导，不展示通用 BookmarksEmptyView
+      expect(wrapper.find('.quick-start').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
   })
 

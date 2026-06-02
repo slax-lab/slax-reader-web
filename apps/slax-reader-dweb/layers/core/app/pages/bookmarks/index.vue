@@ -18,41 +18,28 @@
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
       <template v-slot:content-header>
-        <SearchHeader v-if="searchText" :default-search-text="searchText" @back="() => (searchText = '')" @search-status-update="status => (isSearching = status)" />
-        <template v-else>
-          <TagsHeader v-if="filterStatus === 'topics'" :select-tag-id="filterTopicId" :select-tag-name="filterTopicName" @select-tag="selectTopic" />
-          <CollectionHeader
-            v-if="filterStatus === 'collections'"
-            :select-collect-id="filterCollectionId"
-            :select-collect-name="filterCollectionName"
-            @code-update="(code: string) => (filterCollectionCode = code)"
-            @select-collect="selectCollection"
-          />
-          <NotificationHeader v-if="filterStatus === 'notifications'" @back="notificationBack" />
-        </template>
+        <BookmarksContentHeader
+          :search-text="searchText"
+          :filter-status="filterStatus"
+          :filter-topic-id="filterTopicId"
+          :filter-topic-name="filterTopicName"
+          :filter-collection-id="filterCollectionId"
+          :filter-collection-name="filterCollectionName"
+          @back="() => (searchText = '')"
+          @search-status-update="status => (isSearching = status)"
+          @select-tag="selectTopic"
+          @select-collect="selectCollection"
+          @code-update="(code: string) => (filterCollectionCode = code)"
+          @notification-back="notificationBack"
+        />
       </template>
       <template v-slot:content-list>
         <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签时显示 -->
-        <div class="page-toolbar" v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId)">
-          <p class="page-subtitle" v-if="lastUpdatedText">{{ lastUpdatedText }}</p>
-          <div v-else />
-          <div class="layout-switcher">
-            <!-- 文字列表：三条横线 icon（对齐 demo） -->
-            <button class="layout-btn" :class="{ active: listMode === 'text' }" @click="listMode = 'text'" :title="$t('page.bookmarks_index.layout_text')" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-              </svg>
-            </button>
-            <div class="layout-divider" />
-            <!-- 卡片列表：两个横向矩形 icon（对齐 demo） -->
-            <button class="layout-btn" :class="{ active: listMode === 'card' }" @click="listMode = 'card'" :title="$t('page.bookmarks_index.layout_card')" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="7" rx="2" />
-                <rect x="3" y="14" width="18" height="7" rx="2" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <ListLayoutSwitcher
+          v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId)"
+          v-model="listMode"
+          :last-updated-text="lastUpdatedText"
+        />
 
         <div class="bookmarks" v-if="showList">
           <template v-if="['highlights', 'notifications'].indexOf(filterStatus) === -1">
@@ -88,35 +75,17 @@
           </template>
         </div>
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
-          <div v-if="!loading && isDataEmpty">
-            <!-- inbox 空态：QuickStart 引导（PC）或通用空态 -->
-            <template v-if="isCurrentInboxTab && isPC() && !isFirstLoad">
-              <div class="quick-start-wrap">
-                <QuickStart />
-              </div>
-            </template>
-            <!-- 其他 tab 空态：新版 BookmarksEmptyView -->
-            <template v-else>
-              <BookmarksEmptyView :title="emptyViewConfig.title" :desc="emptyViewConfig.desc">
-                <template #icon>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyViewConfig.iconPath" />
-                </template>
-              </BookmarksEmptyView>
-            </template>
-          </div>
-          <div class="bottom-status" v-else-if="!((filterStatus === 'topics' && !filterTopicId) || (filterStatus === 'collections' && !filterCollectionId))">
-            <TransitionGroup name="opacity">
-              <div class="loading" v-if="loading && !isRefreshLoading">
-                <div class="icon"></div>
-                <span class="ml-5">{{ $t('page.bookmarks_index.more') }}</span>
-              </div>
-              <div class="end" v-else-if="!loading && ending">
-                <div class="line"></div>
-                <span>{{ isInTrash ? $t('page.bookmarks_index.trash_no_more') : $t('page.bookmarks_index.no_more') }}</span>
-                <div class="line"></div>
-              </div>
-            </TransitionGroup>
-          </div>
+          <BookmarksEmptyState v-if="!loading && isDataEmpty" :filter-status="filterStatus" :is-current-inbox-tab="isCurrentInboxTab" :is-first-load="isFirstLoad" />
+          <ListBottomStatus
+            v-else
+            :loading="loading"
+            :ending="ending"
+            :is-refresh-loading="isRefreshLoading"
+            :is-in-trash="isInTrash"
+            :filter-status="filterStatus"
+            :filter-topic-id="filterTopicId"
+            :filter-collection-id="filterCollectionId"
+          />
         </template>
       </template>
     </BookmarksLayout>
@@ -128,18 +97,16 @@ import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopMo
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
-import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
+import BookmarksContentHeader from '#layers/core/app/components/BookmarkList/BookmarksContentHeader.vue'
+import BookmarksEmptyState from '#layers/core/app/components/BookmarkList/BookmarksEmptyState.vue'
 import BookmarksFab from '#layers/core/app/components/BookmarkList/BookmarksFab.vue'
-import SearchHeader from '#layers/core/app/components/BookmarkList/SearchHeader.vue'
+import ListBottomStatus from '#layers/core/app/components/BookmarkList/ListBottomStatus.vue'
+import ListLayoutSwitcher from '#layers/core/app/components/BookmarkList/ListLayoutSwitcher.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
-import TagsHeader from '#layers/core/app/components/BookmarkList/TagsHeader.vue'
 import BookmarksLayout from '#layers/core/app/components/Layouts/BookmarksLayout.vue'
 import NotificationCell from '#layers/core/app/components/Notification/NotificationCell.vue'
-import NotificationHeader from '#layers/core/app/components/Notification/NotificationHeader.vue'
-import QuickStart from '#layers/core/app/components/QuickStart.vue'
-import InstallExtensionTips from '#layers/core/app/components/Tips/InstallExtensionTips.vue'
 
-import { isPC, isSafari } from '@commons/utils/is'
+import { isSafari } from '@commons/utils/is'
 import type { ChannelMessageData } from '#layers/core/app/utils/channel'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -147,6 +114,8 @@ import type { BookmarkItem, HighlightItem, UserNotificationMessageItem } from '@
 import { useDebounceFn, useEventListener, useInfiniteScroll } from '@vueuse/core'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast from '#layers/core/app/components/Toast'
+import { useListLayoutMode } from '#layers/core/app/composables/bookmark/useListLayoutMode'
+import { useRefreshIndicator } from '#layers/core/app/composables/bookmark/useRefreshIndicator'
 import useNotification from '#layers/core/app/composables/useNotification'
 import { useUserStore } from '#layers/core/app/stores/user'
 
@@ -186,16 +155,9 @@ const highlights = ref<HighlightItem[]>([])
 const notifications = ref<UserNotificationMessageItem[]>([])
 
 const isShowTopModal = ref(false)
-const showRefreshLoading = ref(false)
-const refreshInterval = ref<NodeJS.Timeout>()
 
-// 列表布局模式：'card'（卡片）| 'text'（紧凑文字），localStorage 持久化
-const listMode = ref<'card' | 'text'>(import.meta.client ? (localStorage.getItem('slax-list-mode') as 'card' | 'text') || 'card' : 'card')
-watch(listMode, v => {
-  if (import.meta.client) {
-    localStorage.setItem('slax-list-mode', v)
-  }
-})
+// 列表布局模式（card / text），localStorage 持久化
+const { listMode } = useListLayoutMode()
 
 // 日期分组条目类型
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
@@ -267,55 +229,6 @@ const isDataEmpty = computed(() => {
   }
 })
 
-// 各 tab 空数据视图配置（icon path + 标题 + 描述）
-const emptyViewConfig = computed(() => {
-  const configs: Record<string, { iconPath: string; title: string; desc: string }> = {
-    starred: {
-      iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-      title: t('page.bookmarks_index.empty_starred_title'),
-      desc: t('page.bookmarks_index.empty_starred_desc')
-    },
-    topics: {
-      iconPath:
-        '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-      title: t('page.bookmarks_index.empty_topics_title'),
-      desc: t('page.bookmarks_index.empty_topics_desc')
-    },
-    highlights: {
-      iconPath: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
-      title: t('page.bookmarks_index.empty_highlights_title'),
-      desc: t('page.bookmarks_index.empty_highlights_desc')
-    },
-    archive: {
-      iconPath: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
-      title: t('page.bookmarks_index.empty_archive_title'),
-      desc: t('page.bookmarks_index.empty_archive_desc')
-    },
-    trashed: {
-      iconPath: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>',
-      title: t('page.bookmarks_index.empty_trash_title'),
-      desc: t('page.bookmarks_index.empty_trash_desc')
-    },
-    collections: {
-      iconPath: '<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>',
-      title: t('page.bookmarks_index.empty_collections_title'),
-      desc: t('page.bookmarks_index.empty_collections_desc')
-    },
-    notifications: {
-      iconPath: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>',
-      title: t('page.bookmarks_index.empty_notifications_title'),
-      desc: t('page.bookmarks_index.empty_notifications_desc')
-    }
-  }
-  return (
-    configs[filterStatus.value] ?? {
-      iconPath: '<circle cx="12" cy="12" r="10"/>',
-      title: t('page.bookmarks_index.empty'),
-      desc: ''
-    }
-  )
-})
-
 const showList = computed(() => {
   if (isTransitioning.value) return true
   if (searchText.value) return false
@@ -372,19 +285,8 @@ watch(filterStatus, (value, oldValue) => {
   reloadList()
 })
 
-watch(
-  () => isRefreshLoading.value,
-  value => {
-    if (value) {
-      refreshInterval.value = setTimeout(() => {
-        showRefreshLoading.value = true
-      }, 250)
-    } else {
-      refreshInterval.value && clearTimeout(refreshInterval.value)
-      showRefreshLoading.value = false
-    }
-  }
-)
+// 刷新指示器：首屏加载时延迟 250ms 展示顶部 spinner
+const { showRefreshLoading } = useRefreshIndicator(isRefreshLoading)
 
 const { y } = useScroll(window, { behavior: 'smooth', throttle: 10 })
 const canLoadMoreList = () => !loading.value && !ending.value && isActivated.value && !searchText.value
@@ -705,53 +607,6 @@ const notificationBack = () => {
 
 <style lang="scss" scoped>
 .bookmarks-view {
-  // 布局切换器工具栏
-  .page-toolbar {
-    --style: flex items-center justify-between mb-16px px-4px;
-  }
-
-  .page-subtitle {
-    font-size: 13px;
-    color: var(--slax-text-light);
-    font-weight: 300;
-    margin: 0;
-  }
-
-  .layout-switcher {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .layout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    color: var(--slax-text-light);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    outline: none;
-
-    &:hover {
-      color: var(--slax-text-muted);
-    }
-
-    &.active {
-      color: var(--slax-text);
-    }
-  }
-
-  .layout-divider {
-    width: 1px;
-    height: 14px;
-    background: var(--slax-border);
-  }
-
   .bookmarks {
     --style: relative;
     display: flex;
@@ -790,47 +645,6 @@ const notificationBack = () => {
     // 文字模式下操作按钮右侧负边距，贴近卡片右边缘
     .article-actions {
       margin-right: -10px;
-    }
-  }
-
-  .quick-start-wrap {
-    --style: max-w-572px mt-24px mx-auto;
-  }
-
-  .bottom-status {
-    --style: select-none relative shrink-0;
-    padding: 48px 0 0;
-    text-align: center;
-
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: var(--slax-text-light);
-      font-size: 13px;
-
-      .icon {
-        --style: 'i-svg-spinners:90-ring text-aux';
-      }
-    }
-
-    .end {
-      // demo 同款：斜体衬线字体，淡色
-      font-family: var(--slax-font-serif);
-      font-size: 13px;
-      color: var(--slax-text-light);
-      font-weight: 300;
-      font-style: italic;
-
-      // 隐藏旧的两条线
-      .line {
-        display: none;
-      }
-
-      span {
-        --style: mx-0;
-      }
     }
   }
 }
