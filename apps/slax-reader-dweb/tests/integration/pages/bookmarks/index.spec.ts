@@ -236,10 +236,9 @@ describe('pages/bookmarks/index.vue', () => {
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
       await flushPromises()
-      // computed isInTrash 影响 .end 文本（trash_no_more vs no_more），间接验证
-      // 直接通过 wrapper.html() 检查 end 文案
-      // 因为 ending=false 默认，先模拟 ending 状态
-      expect(true).toBe(true) // 间接验证：filterStatus 同步 routeState（在 setup 阶段）
+      // trashed 是非 inbox tab + 空数据 → 渲染通用空态 BookmarksEmptyView（而非 inbox 的 quick-start）
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
+      expect(wrapper.find('.quick-start').exists()).toBe(false)
     })
 
     it('C4: filterStatus="highlights" + highlights=[] → isDataEmpty=true', async () => {
@@ -250,10 +249,10 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
-      mountIndexPage()
+      const wrapper = mountIndexPage()
       await flushPromises()
-      // 间接验证 isDataEmpty
-      expect(true).toBe(true)
+      // highlights 空 → isDataEmpty=true → 非 inbox tab → BookmarksEmptyView 渲染
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })
 
     it('C5: filterStatus="topics" + filterTopicId=0 → isDataEmpty=false（特殊路径）', async () => {
@@ -264,10 +263,10 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
-      mountIndexPage()
+      const wrapper = mountIndexPage()
       await flushPromises()
-      // topicId=0 → isDataEmpty=false
-      expect(true).toBe(true)
+      // topicId=0 → isDataEmpty=false（未选标签的占位态，不展示空态视图）
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
     it('C6: filterStatus="collections" + filterCollectionId=0 → isDataEmpty=false', async () => {
@@ -278,9 +277,10 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
-      mountIndexPage()
+      const wrapper = mountIndexPage()
       await flushPromises()
-      expect(true).toBe(true)
+      // collectionId=0 → isDataEmpty=false（未选合集的占位态）
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
     it('C7: 默认 inbox + isDataEmpty=true → InstallExtensionTips 不渲染（isCurrentInboxTab + isDataEmpty 路径）', async () => {
@@ -330,25 +330,28 @@ describe('pages/bookmarks/index.vue', () => {
     it('C10: isRefreshLoading=true → setTimeout 250ms → showRefreshLoading=true', async () => {
       vi.useFakeTimers()
       // 让 mockGet 永不 resolve 让 loading 持续 true
-      let _resolve: any
-      mockGet.mockImplementation(
-        () =>
-          new Promise(r => {
-            _resolve = r
-          })
-      )
-      mountIndexPage()
+      mockGet.mockImplementation(() => new Promise(() => {}))
+      const wrapper = mountIndexPage()
       // page=1 + loading=true → isRefreshLoading=true → 250ms setTimeout
       await vi.advanceTimersByTimeAsync(300)
-      // 间接验证（showRefreshLoading 影响 .list-loading transition 元素 v-show）
-      expect(true).toBe(true)
+      await nextTick()
+      // showRefreshLoading=true → 顶部 spinner 容器（translate-y-50px）v-show 可见
+      const spinner = wrapper.find('.i-svg-spinners\\:90-ring')
+      expect(spinner.exists()).toBe(true)
+      // v-show 通过 display 控制：容器未被 display:none 隐藏
+      expect((spinner.element.parentElement as HTMLElement).style.display).not.toBe('none')
     })
 
     it('C11: isRefreshLoading=false 切换 → clearTimeout（间接：refreshInterval 被清）', async () => {
-      mountIndexPage()
+      vi.useFakeTimers()
+      // 首屏正常 resolve → loading 走完 → isRefreshLoading=false
+      mockGet.mockResolvedValue([])
+      const wrapper = mountIndexPage()
+      await vi.advanceTimersByTimeAsync(300)
       await flushPromises()
-      // 默认 loading 走完后 isRefreshLoading=false
-      expect(true).toBe(true)
+      // isRefreshLoading=false → spinner 容器被 v-show 隐藏（display:none）
+      const spinner = wrapper.find('.i-svg-spinners\\:90-ring')
+      expect((spinner.element.parentElement as HTMLElement).style.display).toBe('none')
     })
   })
 
@@ -375,12 +378,15 @@ describe('pages/bookmarks/index.vue', () => {
         { ...baseBookmarkItem, id: 1 },
         { ...baseBookmarkItem, id: 2 }
       ])
-      mountIndexPage()
+      const wrapper = mountIndexPage()
       await flushPromises()
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(2)
       capturedChannelHandler.value('archive', { archive: { id: 1, cancel: false } })
       await nextTick()
-      // 不抛错即覆盖该路径
-      expect(true).toBe(true)
+      // inbox + cancel=false → id=1 移除
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').id).toBe(2)
     })
 
     it('C15: archive cancel=true + filterStatus="archive" → bookmark filter 移除', async () => {
@@ -391,12 +397,19 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
-      mountIndexPage()
+      mockGet.mockResolvedValueOnce([
+        { ...baseBookmarkItem, id: 1 },
+        { ...baseBookmarkItem, id: 2 }
+      ])
+      const wrapper = mountIndexPage()
       await flushPromises()
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(2)
       capturedChannelHandler.value('archive', { archive: { id: 1, cancel: true } })
       await nextTick()
-      expect(true).toBe(true)
+      // archive + cancel=true → id=1 移除
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').id).toBe(2)
     })
 
     it('C16: star cancel=false + filterStatus="starred" → reloadList', async () => {
@@ -425,12 +438,19 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
-      mountIndexPage()
+      mockGet.mockResolvedValueOnce([
+        { ...baseBookmarkItem, id: 1 },
+        { ...baseBookmarkItem, id: 2 }
+      ])
+      const wrapper = mountIndexPage()
       await flushPromises()
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(2)
       capturedChannelHandler.value('trashed', { trashed: { id: 1, trashed: true } })
       await nextTick()
-      expect(true).toBe(true)
+      // trashed tab + trashed=true → id=1 移除
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').id).toBe(2)
     })
 
     it('C18: trashed=false + filterStatus="inbox" → reloadList', async () => {
@@ -483,12 +503,13 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/user/read_notifications' }))
     })
 
-    it('C22: loadData query 返 [] → ending=true', async () => {
+    it('C22: loadData query 返 [] → ending=true（列表无 cell + 进入空态）', async () => {
       mockGet.mockResolvedValueOnce([])
-      mountIndexPage()
+      const wrapper = mountIndexPage()
       await flushPromises()
-      // ending=true 通过模板 .end 元素显示控制
-      expect(true).toBe(true)
+      // 返回 [] → bookmarks 为空 → 无 BookmarkCell；inbox 空态走 quick-start
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(0)
+      expect(wrapper.find('.quick-start').exists()).toBe(true)
     })
 
     it('C23: filterStatus="topics" + topicId=0 → resetBookmarks + ending=true 早退', async () => {
@@ -576,63 +597,73 @@ describe('pages/bookmarks/index.vue', () => {
 
   describe('handleCell × 4 + handleDelete（C29-C33）', () => {
     it('C29: BookmarkCell archiveUpdate(id, true) + filterStatus="inbox" → bookmark filter 移除', async () => {
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
+      mockGet.mockResolvedValueOnce([
+        { ...baseBookmarkItem, id: 1 },
+        { ...baseBookmarkItem, id: 2 }
+      ])
       const wrapper = mountIndexPage()
       await flushPromises()
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(2)
       const cell = wrapper.findComponent({ name: 'BookmarkCell' })
-      if (cell.exists()) {
-        await cell.vm.$emit('archiveUpdate', 1, true)
-        await nextTick()
-      }
-      expect(true).toBe(true)
+      await cell.vm.$emit('archiveUpdate', 1, true)
+      await nextTick()
+      // inbox + archive=true → id=1 被移除，仅剩 id=2
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').id).toBe(2)
     })
 
     it('C30: handleCellArchive id 不存在 → fallback 修改 archived', async () => {
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 99 }])
+      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 99, archived: 'inbox' }])
       const wrapper = mountIndexPage()
       await flushPromises()
       const cell = wrapper.findComponent({ name: 'BookmarkCell' })
-      if (cell.exists()) {
-        await cell.vm.$emit('archiveUpdate', 99, false)
-        await nextTick()
-      }
-      expect(true).toBe(true)
+      // archive=false 且 filterStatus=inbox → 不命中移除分支 → fallback 改 archived='inbox'
+      await cell.vm.$emit('archiveUpdate', 99, false)
+      await nextTick()
+      // 列表项保留（未移除），archived 被 fallback 设为 'inbox'
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').archived).toBe('inbox')
     })
 
     it('C31: BookmarkCell aliasTitleUpdate(id, "New") → bookmark.alias_title 修改', async () => {
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
+      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1, alias_title: '' }])
       const wrapper = mountIndexPage()
       await flushPromises()
       const cell = wrapper.findComponent({ name: 'BookmarkCell' })
-      if (cell.exists()) {
-        await cell.vm.$emit('aliasTitleUpdate', 1, 'New Alias')
-        await nextTick()
-      }
-      expect(true).toBe(true)
+      await cell.vm.$emit('aliasTitleUpdate', 1, 'New Alias')
+      await nextTick()
+      // alias_title 就地更新
+      expect(wrapper.findComponent({ name: 'BookmarkCell' }).props('bookmark').alias_title).toBe('New Alias')
     })
 
     it('C32: BookmarkCell bookmarkUpdate(id, newBookmark) → splice 替换', async () => {
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
+      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1, title: 'Old Title' }])
       const wrapper = mountIndexPage()
       await flushPromises()
       const cell = wrapper.findComponent({ name: 'BookmarkCell' })
-      if (cell.exists()) {
-        await cell.vm.$emit('bookmarkUpdate', 1, { ...baseBookmarkItem, id: 1, title: 'New Title' })
-        await nextTick()
-      }
-      expect(true).toBe(true)
+      await cell.vm.$emit('bookmarkUpdate', 1, { ...baseBookmarkItem, id: 1, title: 'New Title' })
+      await nextTick()
+      // splice 替换后标题变更
+      expect(wrapper.findComponent({ name: 'BookmarkCell' }).props('bookmark').title).toBe('New Title')
     })
 
     it('C33: BookmarkCell delete(id) → bookmark filter 移除 + isTransitioning=true', async () => {
-      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
+      mockGet.mockResolvedValueOnce([
+        { ...baseBookmarkItem, id: 1 },
+        { ...baseBookmarkItem, id: 2 }
+      ])
       const wrapper = mountIndexPage()
       await flushPromises()
+      expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(2)
       const cell = wrapper.findComponent({ name: 'BookmarkCell' })
-      if (cell.exists()) {
-        await cell.vm.$emit('delete', 1)
-        await nextTick()
-      }
-      expect(true).toBe(true)
+      await cell.vm.$emit('delete', 1)
+      await nextTick()
+      // delete → id=1 被 filter 移除，仅剩 id=2
+      const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
+      expect(cells).toHaveLength(1)
+      expect(cells[0].props('bookmark').id).toBe(2)
     })
   })
 
@@ -729,12 +760,14 @@ describe('pages/bookmarks/index.vue', () => {
         fullPath: '/bookmarks'
       })
       mockUseRoute.mockReturnValue(routeState)
+      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
       const wrapper = mountIndexPage()
       await flushPromises()
       const colHeader = wrapper.findComponent({ name: 'CollectionHeader' })
       await colHeader.vm.$emit('code-update', 'NEW_CODE')
       await nextTick()
-      expect(true).toBe(true)
+      // filterCollectionCode 透传给 BookmarkCell 的 collection-code prop
+      expect(wrapper.findComponent({ name: 'BookmarkCell' }).props('collectionCode')).toBe('NEW_CODE')
     })
 
     it('C42: AddUrlTopModal 存在于模板根级别（由 FAB 触发）', async () => {
