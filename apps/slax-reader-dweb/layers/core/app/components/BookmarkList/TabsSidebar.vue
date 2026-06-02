@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { BookmarkTabTypes, TabIconPaths } from '#layers/core/app/composables/useBookmarkRelative'
-
+// BookmarkTabTypes 和 TabIconPaths 由 Nuxt auto-import 注入
+// 不显式 import，以便 fork 对 useBookmarkRelative 的 override 能通过 layer 优先级生效
 const { t } = useI18n()
 const sidebarEl = ref<HTMLElement>()
 
