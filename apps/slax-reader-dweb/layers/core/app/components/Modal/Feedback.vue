@@ -153,9 +153,7 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
-  box-shadow:
-    var(--slax-shadow-warm),
-    0 20px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--slax-shadow-modal);
 
   .header {
     --style: relative z-1 flex justify-between items-center;

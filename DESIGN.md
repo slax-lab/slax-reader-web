@@ -40,7 +40,7 @@
 | **Dark**          | `data-slax-theme="dark"` | 深棕暖色底、偏橙 accent、更深阴影                          |
 | **E-ink**         | `data-slax-theme="eink"` | 纯黑白灰、无毛玻璃、无阴影、圆角收紧至 4/2px、禁用所有动效 |
 
-**切换方式**：`ThemeSwitcher` 组件写入 `document.documentElement.dataset.slaxTheme`，同时持久化到 localStorage。
+**切换方式**：通过 `@nuxtjs/color-mode` 管理（配置 `dataValue: 'slax-theme'`、`storageKey: 'slax-color-mode'`）。`ThemeSwitcher` 组件调用 `useColorMode().preference = 'light' | 'dark' | 'eink'`，由 color-mode 模块负责把 `data-slax-theme` 写到 `<html>` 并持久化到 localStorage。iframe 文章预览通过 `useIframeTheme` 监听 `colorMode.value` 同步主题。**新增主题切换入口一律走 `useColorMode().preference`，不要直接写 `document.documentElement.dataset.slaxTheme`**——绕过 colorMode 会导致按钮 active 态、iframe 同步与持久化状态不一致。
 
 ---
 
@@ -81,9 +81,10 @@
 ```css
 --slax-shadow-warm     /* 标准暖色阴影：0 8px 32px rgba(accent, 0.08) */
 --slax-shadow-sm       /* 小阴影：0 2px 8px rgba(accent, 0.05) */
+--slax-shadow-modal    /* 弹窗阴影：warm + 0 20px 60px rgba(0,0,0,0.12) 大范围投影 */
 ```
 
-E-ink 主题下两者均为 `none`。
+E-ink 主题下三者均为 `none`。
 
 ### 2.3 圆角
 
@@ -156,47 +157,64 @@ E-ink 主题下 `--slax-blur: none`，且 `theme.css` 通配禁用所有 `transi
 --slax-sidebar-w          /* 240px — 列表页左侧边栏 */
 --slax-shell-w            /* 1200px — 最大内容壳宽 */
 --slax-content-w          /* 820px — 快照页正文最大宽 */
+--slax-content-min-w      /* 640px — 快照页正文最小宽（push 布局收缩下限） */
+
+/* 快照页侧边面板（SidePanel 拖拽 + push 布局，详见 useSnapshotLayout） */
+--slax-side-panel-w       /* 440px — 侧边面板默认宽 */
+--slax-side-panel-min-w   /* 380px — 拖拽收窄下限 */
+--slax-side-panel-max-w   /* 680px — 拖拽展宽上限 */
+--slax-push-amount        /* 由 JS 动态写入的“完整有效推距”（默认 0px）；
+                             CSS 消费方按需 * -0.5 做内容居中修正，不要再预先折半 */
 ```
 
 ---
 
 ## 三、页面背景
 
-每个主要页面（列表页、设置页）在 `<style lang="scss">` 非 scoped 块中 override `body` 背景，以实现暖色氛围渐变：
+页面背景由**全局样式统一驱动，单个页面无需也不应再 override**：
+
+- 底色：`theme.css` 中 `body { background: var(--slax-bg) }` 兜底，随主题切换。
+- 氛围渐变：`global.scss` 中的 `body::before` 用三处径向渐变叠加，颜色全部走 token，E-ink 下 token 为 `transparent` 自动隐藏。
 
 ```scss
-/* 页面级背景 override（非 scoped，仅在该页面路由激活时生效） */
-body {
-  background: #faf8f2;
-}
-
+/* global.scss —— 全站唯一的氛围渐变层，已 token 化，勿在页面内复制 */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
-  z-index: -1;
+  z-index: 0; /* 配合 #__nuxt { z-index: 1 } 压在内容之下 */
   pointer-events: none;
-}
-
-[data-slax-theme='dark'] body {
-  background: #141210;
-}
-[data-slax-theme='dark'] body::before {
   background:
-    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
-}
-
-[data-slax-theme='eink'] body {
-  background: #ffffff;
-}
-[data-slax-theme='eink'] body::before {
-  display: none;
+    radial-gradient(at 30% 0%, var(--slax-grad-a) 0%, transparent 50%), radial-gradient(at 80% 20%, var(--slax-grad-b) 0%, transparent 60%),
+    radial-gradient(at 50% 80%, var(--slax-grad-c) 0%, transparent 40%);
 }
 ```
 
-> 注：这里的硬编码色值是 `--slax-bg` 和渐变 token 的具体值，属于页面级背景 override 的惯例写法，不违反"禁止硬编码颜色"规范。
+对应 token（`--slax-bg` / `--slax-grad-a/b/c`）在三套主题中均已声明，E-ink 的 `--slax-grad-*` 为 `transparent`。
+
+> **禁止**在页面 `<style>` 里重新定义 `body` / `body::before` 背景——既会与全局渐变层重复，又容易硬编码出与 token 不一致的色值（历史遗留的页面级 override 已统一移除）。需要特殊背景时，新增带主题适配的 `--slax-*` token，再在全局或组件内消费。
+
+### 按页微调渐变（受控例外）
+
+如果某类页面需要与全站不同的氛围渐变，**不要复制 `body::before` 规则，而是 override 渐变 token**，让全局那一份渲染逻辑读到不同的值。当前唯一例外是阅读详情页（`pages/bookmarks/[id]`、`pages/s/[id]`）：它们用更暖的 `#fff4e0` 系渐变，其余页面用 `:root` 的 `#faf5eb` 系。
+
+```scss
+/* 详情页 <style lang="scss">（非 scoped） */
+html {
+  --style: bg-surface-solid; /* 阅读界面不透明底色，盖住其它装饰但保留 body::before 透出 */
+}
+
+/* 只正向命中 light（含 color-mode 注入前的无属性首屏态），其余主题各自沿用 :root token */
+:root[data-slax-theme='light'],
+:root:not([data-slax-theme]) {
+  --slax-grad-a: #fff4e0;
+  --slax-grad-b: #faecdc;
+}
+```
+
+> **为什么用白名单而非 `:not` 黑名单**：选择器要正向枚举「哪些主题适用此覆盖」，而不是排除「哪些不适用」。若写成 `:root:not([dark]):not([eink])`，将来新增任何主题（如 sepia）都会被误命中，得回到每个详情页补 `:not([sepia])`，漏一个就是 bug；正向写法下，新主题既不等于 `light` 也不是「无属性」，自动落回它在 `theme.tokens.css` 的 `:root` 值，**详情页零改动**——新增主题的维护点收敛回 token 文件一处。
+>
+> **特异性**：两条选择器均为 `(0,2,0)`（`:root` 0,1,0 + 属性/`:not` 内属性 0,1,0），高于全局 light 的 `:root`（0,1,0），覆盖不依赖源码顺序。`@nuxtjs/color-mode` 对所有主题（含 light）都会写 `<html data-slax-theme="...">`，第二条 `:not([data-slax-theme])` 仅兜注入前的极早期态。**这是 token override，不是复制背景规则**——与上面的「禁止」并不冲突。
 
 ---
 
@@ -455,9 +473,7 @@ transition: all var(--slax-dur-normal);
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
-  box-shadow:
-    var(--slax-shadow-warm),
-    0 20px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--slax-shadow-modal);
   max-width: 92vw;
   max-height: 85vh;
   display: flex;
@@ -826,16 +842,21 @@ textarea {
 
 ## 十七、代码风格
 
-### UnoCSS `--style` 简写
+### UnoCSS `--style` 指令
 
-项目使用 UnoCSS，支持 `--style` 属性简写：
+项目通过 UnoCSS `transformerDirectives` 注册了 `--style`（配置 `applyVariable: ['--at-apply', '--style']`），它是写在 `<style>` 块里的 **CSS 声明**（类似 `@apply`），把空格分隔的 utilities 就地展开到选择器上——**不是** Vue / HTML 模板属性。在模板里写 `<div --style="...">` 不会生效。
 
-```html
-<!-- 等价于 class="flex items-center gap-8px" -->
-<div --style="flex items-center gap-8px"></div>
+```scss
+/* 在 <style lang="scss" scoped> 中，对选择器声明 --style */
+.dots-menu {
+  --style: relative flex;
+}
+.menu-item {
+  --style: px-20px py-10px flex items-center rounded-8px cursor-pointer;
+}
 ```
 
-复杂样式（含 CSS 变量、伪类、媒体查询）直接写在 `<style lang="scss" scoped>` 中。
+需要 utilities 无法表达的样式（含 CSS 变量、伪类、媒体查询、嵌套）时，与 `--style` 写在同一选择器内，直接用常规 SCSS 即可。
 
 ### 样式优先级
 

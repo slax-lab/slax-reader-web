@@ -331,9 +331,7 @@ const optionClick = async (index: number) => {
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
-  box-shadow:
-    var(--slax-shadow-warm),
-    0 20px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--slax-shadow-modal);
 
   .header {
     --style: p-24px flex items-center justify-between;

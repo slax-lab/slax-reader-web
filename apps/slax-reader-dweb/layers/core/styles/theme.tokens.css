@@ -36,9 +36,9 @@
   /* 弹窗专用：暖色阴影叠一层大范围投影抬升浮层；E-ink 下整体置 none */
   --slax-shadow-modal: 0 8px 32px rgba(180, 88, 55, 0.08), 0 20px 60px rgba(0, 0, 0, 0.12);
 
-  /* 渐变氛围 */
-  --slax-grad-a: #fff4e0;
-  --slax-grad-b: #faecdc;
+  /* 渐变氛围（详情页阅读界面用更暖的 #fff4e0 系，见 pages/bookmarks/[id]、pages/s/[id] 内 html override） */
+  --slax-grad-a: #faf5eb;
+  --slax-grad-b: #f6efe4;
   --slax-grad-c: #f8efe4;
 
   /* 浮层细节 */

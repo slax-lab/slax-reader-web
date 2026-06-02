@@ -131,9 +131,7 @@ getImportProgressData()
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
-  box-shadow:
-    var(--slax-shadow-warm),
-    0 20px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--slax-shadow-modal);
   width: 800px;
   max-width: 92vw;
   max-height: 80vh;
