@@ -19,7 +19,7 @@
           <div class="notice-body">
             <ContentRenderer v-if="noticePage" :value="noticePage" />
             <div v-else class="loading-placeholder">
-              <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
+              <div class="i-svg-spinners:180-ring-with-bg text-accent text-3xl"></div>
             </div>
           </div>
           <div class="footer">

@@ -51,7 +51,7 @@
             >
               {{ bookmark.archived === 'inbox' ? $t('common.operate.archive') : $t('common.operate.unarchive') }}
             </button>
-            <div class="i-svg-spinners:90-ring w-12px color-#5490c2" v-else-if="isArchiving"></div>
+            <div class="i-svg-spinners:90-ring text-accent w-12px" v-else-if="isArchiving"></div>
           </template>
 
           <!-- 删除（非废纸篓 + 非订阅） -->

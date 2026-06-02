@@ -5,7 +5,6 @@
         <div class="left">
           <div class="app" @click="logoClick">
             <div class="items-wrapper">
-              <img src="@images/logo-sm.png" alt="" />
               <span class="title">{{ $t('common.app.name') }}</span>
             </div>
           </div>
@@ -86,15 +85,24 @@ const logoClick = () => {
 .guide {
   --style: w-full flex flex-col items-center overflow-hidden select-none;
 
+  // 内容左侧留白：桌面 128px，移动端收紧到 16px（与顶栏共用，保证 logo 与正文对齐）
   .responsive-width {
     --style: pl-128px;
+
+    @media (max-width: 768px) {
+      --style: pl-16px pr-16px;
+    }
   }
 
+  // 顶栏：固定全宽，毛玻璃浮层 + 极淡底边
   .header {
-    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-10 p-0 flex items-center justify-between select-none bg-#f5f5f3';
+    --style: 'fixed top-0 left-0 w-full h-[var(--slax-header-height)] z-100 p-0 flex items-center select-none';
+    background: var(--slax-topbar-bg);
+    backdrop-filter: var(--slax-blur);
+    border-bottom: 1px solid var(--slax-border);
 
     .header-container {
-      --style: flex items-center;
+      --style: w-full flex items-center justify-between;
     }
 
     .left {
@@ -112,8 +120,13 @@ const logoClick = () => {
             --style: w-20px;
           }
 
+          // Logo 文字走衬线品牌档，深色而非强调色（DESIGN §四）
           .title {
-            --style: font-semibold text-(#16b998 15px) line-height-21px;
+            font-family: var(--slax-font-serif);
+            font-size: var(--slax-fs-brand);
+            font-weight: 500;
+            color: var(--slax-text);
+            letter-spacing: -0.02em;
           }
         }
       }
@@ -132,14 +145,23 @@ const logoClick = () => {
         }
 
         .text {
-          --style: ml-24px flex flex-col text-#333 line-height-20px whitespace-nowrap;
+          --style: ml-24px flex flex-col whitespace-nowrap;
 
+          // 欢迎大标题：衬线 display 档 + 负字距
           h1 {
-            --style: text-24px font-600;
+            font-family: var(--slax-font-serif);
+            font-size: var(--slax-fs-display);
+            font-weight: 500;
+            color: var(--slax-text);
+            letter-spacing: -0.02em;
+            line-height: 1.4;
           }
 
           span {
-            --style: mt-12px text-15px;
+            --style: mt-12px;
+            font-size: var(--slax-fs-body);
+            color: var(--slax-text-muted);
+            line-height: 1.6;
           }
         }
       }
@@ -147,17 +169,22 @@ const logoClick = () => {
       .guide-content {
         --style: w-full relative;
 
+        // 左右渐隐遮罩，提示横向可滚动；颜色取页面底色 token
         &::before,
         &::after {
-          --style: z-2 content-empty absolute w-10px h-full top-0 from-#fcfcfc to-transprent;
+          content: '';
+          --style: z-2 absolute w-10px h-full top-0;
+          pointer-events: none;
         }
 
         &::before {
-          --style: -left-10px bg-gradient-to-r;
+          --style: -left-10px;
+          background: linear-gradient(to right, var(--slax-bg), transparent);
         }
 
         &::after {
-          --style: right-0px bg-gradient-to-l;
+          --style: right-0px;
+          background: linear-gradient(to left, var(--slax-bg), transparent);
         }
 
         .scroll-content {
@@ -168,20 +195,43 @@ const logoClick = () => {
             --style: hidden;
           }
 
+          // 引导卡片：暖色半透明表面 + 极淡边框 + 顶部内高光，hover 浮起
           .guide-card {
-            --style: p-24px max-w-402px min-h-320px bg-#fff rounded-8px border-(1px solid #ecf0f5) flex flex-col flex-start;
+            --style: p-24px max-w-402px min-h-320px flex flex-col flex-start;
+            background: var(--slax-surface);
+            border: 1px solid var(--slax-border);
+            border-radius: var(--slax-radius);
+            box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+            transition: all var(--slax-dur-normal);
             scroll-snap-align: center;
+
+            &:hover {
+              box-shadow:
+                var(--slax-shadow-warm),
+                inset 0 1px 0 var(--slax-inset-hi);
+              transform: translateY(-1px);
+            }
 
             &:not(:first-child) {
               --style: ml-16px;
             }
 
+            // 序号：衬线大字、弱化色，作为克制的装饰性索引
             h1 {
-              --style: text-(24px #333) line-height-20px font-600;
+              font-family: var(--slax-font-serif);
+              font-size: var(--slax-fs-display);
+              font-weight: 500;
+              color: var(--slax-text-light);
+              letter-spacing: -0.02em;
+              line-height: 1.2;
             }
 
             span {
-              --style: mt-16px text-(14px #333) line-height-20px font-500;
+              --style: mt-16px;
+              font-size: var(--slax-fs-body);
+              font-weight: 500;
+              color: var(--slax-text);
+              line-height: 1.6;
             }
 
             img {
@@ -197,7 +247,11 @@ const logoClick = () => {
     --style: mt-68px flex items-center;
 
     .footer-title {
-      --style: text-(15px #0f1419) line-height-20 font-500 shrink-0;
+      --style: shrink-0;
+      font-size: var(--slax-fs-body);
+      font-weight: 500;
+      color: var(--slax-text);
+      line-height: 1.6;
     }
 
     .operate {
@@ -208,24 +262,62 @@ const logoClick = () => {
       }
     }
 
+    // 主按钮（DESIGN §七）：accent 底、btn-text 文字、hover 浮起 + 柔光
     .use {
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(14px #ffffff) font-semibold line-height-40px transition-all duration-250;
+      --style: 'inline-flex items-center justify-center h-44px px-28px';
+      background: var(--slax-accent);
+      color: var(--slax-btn-text);
+      border: none;
+      border-radius: var(--slax-radius-sm);
+      font-size: var(--slax-fs-aux);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--slax-dur-normal);
 
-      &:not(.disabled):hover {
-        --style: bg-#14a689;
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-accent) 20%, transparent);
       }
 
-      &:not(.disabled):active {
-        --style: scale-105;
+      &:active {
+        transform: translateY(0);
       }
     }
   }
 }
 </style>
 
-<!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
+<!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
+/* guide 页专属背景：override body 背景色和氛围渐变，随主题切换 */
 body {
-  --style: bg-#FCFCFC;
+  background: #faf8f2;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(at 30% 0%, #faf5eb 0%, transparent 50%), radial-gradient(at 80% 20%, #f6efe4 0%, transparent 60%), radial-gradient(at 50% 80%, #f8efe4 0%, transparent 40%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+[data-slax-theme='dark'] body {
+  background: #141210;
+}
+
+[data-slax-theme='dark'] body::before {
+  background:
+    radial-gradient(at 30% 0%, #1e1810 0%, transparent 50%), radial-gradient(at 80% 20%, #1a1612 0%, transparent 60%), radial-gradient(at 50% 80%, #181410 0%, transparent 40%);
+}
+
+[data-slax-theme='eink'] body {
+  background: #ffffff;
+}
+
+[data-slax-theme='eink'] body::before {
+  display: none;
 }
 </style>

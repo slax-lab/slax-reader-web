@@ -21,7 +21,7 @@
         </div>
         <Transition name="loading">
           <div class="loading" v-show="loading">
-            <div class="i-svg-spinners:90-ring text-h2 color-#16b998"></div>
+            <div class="i-svg-spinners:90-ring text-h2 text-accent"></div>
           </div>
         </Transition>
         <div class="empty" v-if="notifications.length === 0">

@@ -3,8 +3,7 @@
     <div class="fixed left-0 top-0 z-100 h-0px w-full flex-center">
       <Transition name="list-loading">
         <div class="bg-surface-solid h-30px w-30px translate-y-50px rounded-full shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
-          <!-- color-#16b998 当前品牌绿 loading spinner，保留 -->
-          <div class="i-svg-spinners:90-ring text-h2 color-#16b998"></div>
+          <div class="i-svg-spinners:90-ring text-h2 text-accent"></div>
         </div>
       </Transition>
     </div>
