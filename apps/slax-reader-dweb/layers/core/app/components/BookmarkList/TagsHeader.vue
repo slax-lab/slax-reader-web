@@ -254,6 +254,7 @@ const compositionend = () => {
 // 添加标签行
 .tags-add-row {
   margin-bottom: 16px;
+  user-select: none;
 }
 
 .tag-add {
