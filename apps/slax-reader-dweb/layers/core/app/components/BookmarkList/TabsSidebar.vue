@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookmarkTabTypes } from '#layers/core/app/composables/useBookmarkRelative'
+import { BookmarkTabTypes, TabIconPaths } from '#layers/core/app/composables/useBookmarkRelative'
 
 const { t } = useI18n()
 const sidebarEl = ref<HTMLElement>()
@@ -37,22 +37,11 @@ defineProps({
 
 const emits = defineEmits(['changeTab'])
 
-// 每个 tab 对应的 inline SVG path 内容
-const iconPaths: Record<string, string> = {
-  inbox: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h8M8 12h6M8 16h4"/>',
-  starred: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-  topics:
-    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-  highlights: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
-  archive: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>'
-}
-
-// 构建 tab 列表（含 collections 扩展支持）
 const tabList = computed(() =>
   BookmarkTabTypes.map(type => ({
     type,
     title: t(`page.bookmarks_index.${type}`),
-    iconPath: iconPaths[type] ?? ''
+    iconPath: TabIconPaths[type] ?? ''
   }))
 )
 
