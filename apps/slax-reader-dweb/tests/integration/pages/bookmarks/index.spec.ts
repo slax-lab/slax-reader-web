@@ -527,7 +527,7 @@ describe('pages/bookmarks/index.vue', () => {
     })
   })
 
-  describe('selectTopic / selectCollection / inboxClick / checkMore（C24-C28）', () => {
+  describe('selectTopic / selectCollection / inboxClick / 空态分支（C24-C28）', () => {
     it('C24: TagsHeader emit select-tag → selectTopic + navigateTo /bookmarks?filter=topics', async () => {
       const routeState = reactive({
         query: { filter: 'topics', topic_id: '0', topic_name: '', c_id: '', c_code: '', c_name: '' },
@@ -578,19 +578,14 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks?filter=notifications', expect.objectContaining({ replace: false }))
     })
 
-    it('C28: checkMore button → ending=false + onLoadMore（间接验证 .empty .icon click 触发）', async () => {
-      // 通过 BookmarksLayout 模拟 isPC=false 让 .empty 渲染
+    it('C28: 非 PC + inbox 空态 → 走通用 BookmarksEmptyView（isPC 分支，原 checkMore 死代码已移除）', async () => {
+      // isPC=false → 即使 inbox 也不走 QuickStart，而是通用空态视图
       mockIsPC.mockReturnValue(false)
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountIndexPage()
       await flushPromises()
-      // .empty .icon 是 div 不是 button，但有 @click="checkMore"
-      const emptyIcon = wrapper.find('.empty .icon')
-      if (emptyIcon.exists()) {
-        await emptyIcon.trigger('click')
-        await flushPromises()
-      }
-      expect(true).toBe(true) // 不抛错即过
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
+      expect(wrapper.find('.quick-start').exists()).toBe(false)
     })
   })
 
