@@ -3,17 +3,29 @@
     <Transition name="modal" @after-leave="onAfterLeave">
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
-          <span>{{ t('component.share_modal.title') }}</span>
-          <div class="switch" @click="switchClick">
-            <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
-              <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-txt-btn text-meta" v-show="isSwitchLoading"></div>
-              </Transition>
-            </div>
+          <div class="title-group">
+            <svg class="share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+            </svg>
+            <span>{{ t('component.share_modal.title') }}</span>
           </div>
+          <button class="switch" :class="{ on: isSwitched }" :aria-pressed="isSwitched" @click="switchClick">
+            <span class="knob" :class="{ loading: isSwitchLoading }">
+              <Transition name="opacity">
+                <div class="i-svg-spinners:180-ring-with-bg text-accent text-tag" v-show="isSwitchLoading"></div>
+              </Transition>
+            </span>
+          </button>
         </div>
         <Transition name="tips">
           <div class="tips" v-show="isShowTips">
+            <svg class="tips-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
             <span>{{ t('component.share_modal.revoke_tips') }}</span>
           </div>
         </Transition>
@@ -24,20 +36,29 @@
               <div class="link">
                 <span>{{ shareLinkUrl }}</span>
               </div>
-              <button @click="copyLinkClick">{{ copyTitle }}</button>
+              <button @click="copyLinkClick">
+                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+                <span>{{ copyTitle }}</span>
+              </button>
             </div>
           </Transition>
           <div class="options">
             <div class="option" v-for="(option, index) in options" :key="index" @click="optionClick(index)">
-              <button :class="{ selected: option.selected }"></button>
+              <span class="checkbox" :class="{ selected: option.selected }">
+                <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </span>
               <span>{{ option.title }}</span>
             </div>
           </div>
         </div>
         <Transition name="opacity">
-          <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
-          <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
-            <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
+          <div class="loading-mask" v-show="isLoading">
+            <div class="i-svg-spinners:180-ring-with-bg text-accent text-3xl"></div>
           </div>
         </Transition>
       </div>
@@ -297,66 +318,102 @@ const optionClick = async (index: number) => {
 
 <style lang="scss" scoped>
 .share-modal-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
+  --style: fixed inset-0 z-200 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
-    // #0f141999 通用 UI 蒙层（深灰半透），保留
-    --style: bg-#0f141999;
+    // 遵循 DESIGN.md 第八节弹窗遮罩规范
+    background: rgba(15, 20, 25, 0.6);
+    backdrop-filter: blur(4px);
   }
 }
 
 .modal-content {
-  --style: bg-surface rounded-2 p-0px w-480px select-none mb-10 relative overflow-hidden;
+  --style: select-none mb-10 relative overflow-hidden w-480px;
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 20px 60px rgba(0, 0, 0, 0.12);
 
   .header {
-    --style: p-24px flex items-center justify-between bg-surface-solid;
-    span {
-      --style: text-(card txt) line-height-25px font-500;
+    --style: p-24px flex items-center justify-between;
+    border-bottom: 1px solid var(--slax-border);
+
+    .title-group {
+      --style: flex items-center gap-10px;
+
+      .share-icon {
+        --style: w-18px h-18px flex-shrink-0;
+        color: var(--slax-accent);
+      }
+
+      span {
+        font-family: var(--slax-font-serif);
+        font-size: var(--slax-fs-card);
+        font-weight: 500;
+        color: var(--slax-text);
+        line-height: 1.4;
+      }
     }
 
     .switch {
-      // #c5c6cb80 通用 UI 灰色开关底（关态），保留
-      --style: cursor-pointer rounded-9px w-32px h-18px p-3px flex-center transition-colors duration-normal bg-#c5c6cb80;
-      &:has(.open) {
-        // #16b998 品牌绿（slax 主色）开关开态，保留
-        --style: bg-#16b998;
+      // 开关关态：弱化文本色淡化底，开态填 accent；遵循 design-system toggle 规范
+      --style: relative flex-none w-36px h-20px rounded-full cursor-pointer transition-colors duration-normal;
+      background: color-mix(in srgb, var(--slax-text-light) 40%, transparent);
+
+      &.on {
+        background: var(--slax-accent);
       }
 
-      .ball {
-        --style: w-14px h-14px rounded-full bg-surface-solid transition-all -translate-x-7px duration-normal;
-        &.open {
-          --style: translate-x-7px;
-        }
+      .knob {
+        --style: absolute top-2px left-2px w-16px h-16px rounded-full flex-center transition-all duration-normal;
+        background: var(--slax-surface-solid);
+        box-shadow: var(--slax-shadow-sm);
 
         &.loading {
-          --style: bg-transparent;
+          --style: bg-transparent shadow-none;
         }
+      }
+
+      &.on .knob {
+        --style: translate-x-16px;
       }
     }
   }
 
   .tips {
-    // #FFF6E7 提示黄底（与 token 警示色调性不同），保留
-    --style: bg-#FFF6E7 flex-center px-6px py-0 h-32px overflow-hidden;
+    --style: flex items-center gap-8px px-24px py-0 h-36px overflow-hidden;
+    background: var(--slax-accent-bg);
+
+    .tips-icon {
+      --style: w-15px h-15px flex-shrink-0;
+      color: var(--slax-accent);
+    }
+
     span {
-      --style: text-(meta #f19943) line-height-20px;
+      --style: text-meta line-height-20px;
+      color: var(--slax-text-muted);
     }
   }
 
   .content {
-    --style: bg-surface pt-20px px-24px pb-32px;
+    --style: pt-20px px-24px pb-32px;
 
     .title {
       --style: w-full text-(meta txt) line-height-21px font-500 whitespace-nowrap text-ellipsis overflow-hidden;
     }
 
     .copy {
-      --style: mt-20px bg-surface-solid p-0 border-(2px #16b998 solid) rounded-8px flex items-center justify-between overflow-hidden transition-all duration-normal;
+      --style: mt-20px p-0 flex items-center justify-between overflow-hidden transition-all duration-normal;
+      background: var(--slax-surface-solid);
+      border: 1px solid var(--slax-border);
+      border-radius: var(--slax-radius-sm);
 
       .link {
-        --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-normal;
+        --style: px-14px py-10px h-full flex-1 overflow-hidden transition-all duration-normal;
 
         span {
-          --style: relative text-(meta txt ellipsis) line-height-21px select-all font-500;
+          --style: relative text-(meta txt ellipsis) line-height-21px select-all font-400;
           &:before {
             --style: content-empty bg-txt-light w-full h-1px absolute top-1/2 left-0 transition-all duration-normal opacity-0;
           }
@@ -364,16 +421,20 @@ const optionClick = async (index: number) => {
       }
 
       button {
-        // #16B998 品牌绿（slax 主色）复制按钮底色，保留
-        --style: p-10px bg-#16B998 flex-center text-(meta txt-btn) font-600 min-w-76px transition-all duration-normal;
+        --style: flex items-center gap-6px px-14px py-10px self-stretch text-(aux txt-btn) font-500 flex-shrink-0 transition-all duration-normal;
+        background: var(--slax-accent);
+
+        .copy-icon {
+          --style: w-14px h-14px;
+        }
 
         &:hover {
-          // #14a689 品牌绿（slax 主色）按钮悬停态，保留
-          --style: bg-#14a689;
+          --style: -translate-y-px;
+          box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-accent) 25%, transparent);
         }
 
         &:active {
-          --style: scale-105;
+          --style: translate-y-0 scale-98;
         }
       }
 
@@ -401,27 +462,34 @@ const optionClick = async (index: number) => {
       --style: mt-24px;
 
       .option {
-        --style: 'flex items-center not-first:(mt-10px) cursor-pointer';
+        --style: 'flex items-center not-first:(mt-12px) cursor-pointer';
 
-        button {
-          --style: border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-normal;
+        .checkbox {
+          --style: w-14px h-14px rounded-3px flex-center flex-shrink-0 transition-all duration-fast;
+          background: transparent;
+          border: 1px solid var(--slax-border);
+
+          .tick {
+            --style: w-9px h-9px opacity-0 transition-opacity duration-fast;
+            color: var(--slax-accent);
+          }
 
           &.selected {
-            --style: 'bg-center bg-[length:7px_6px] border-1';
-            background-image: url('@images/tiny-tick-outline-icon.png');
-          }
+            background: var(--slax-accent-bg);
+            border-color: var(--slax-accent-soft);
 
-          &:hover {
-            --style: scale-105;
-          }
-
-          &:active {
-            --style: scale-110;
+            .tick {
+              --style: opacity-70;
+            }
           }
         }
 
+        &:hover .checkbox:not(.selected) {
+          border-color: var(--slax-accent-soft);
+        }
+
         span {
-          --style: ml-12px text-(meta txt) line-height-22px;
+          --style: ml-10px text-(meta txt) line-height-22px;
         }
       }
     }
@@ -434,13 +502,15 @@ const optionClick = async (index: number) => {
       .options {
         .option {
           --style: cursor-auto;
-          button {
-            // #f5f5f5 通用 UI 浅灰禁用底色，保留
-            --style: bg-#f5f5f5 cursor-auto;
-            &:hover,
-            &:active {
-              --style: scale-100;
-            }
+
+          .checkbox {
+            --style: cursor-auto;
+            background: var(--slax-surface);
+            border-color: var(--slax-border);
+          }
+
+          &:hover .checkbox:not(.selected) {
+            border-color: var(--slax-border);
           }
 
           span {
@@ -449,6 +519,11 @@ const optionClick = async (index: number) => {
         }
       }
     }
+  }
+
+  .loading-mask {
+    --style: absolute inset-0 flex-center;
+    background: color-mix(in srgb, var(--slax-surface-solid) 80%, transparent);
   }
 }
 
@@ -459,7 +534,8 @@ const optionClick = async (index: number) => {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-normal ease-in-out;
+  --style: transition-all duration-normal;
+  transition-timing-function: var(--slax-ease-spring);
 }
 
 .tips-leave-to,
