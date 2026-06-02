@@ -268,9 +268,6 @@ importers:
       '@rollup/plugin-replace':
         specifier: ^6.0.3
         version: 6.0.3(rollup@4.60.4)
-      '@slax-lab/liveproxy-sw':
-        specifier: 1.0.3-dev.1
-        version: 1.0.3-dev.1
       '@testing-library/vue':
         specifier: ^8.1.0
         version: 8.1.0(@vue/compiler-dom@3.5.34)(@vue/compiler-sfc@3.5.34)(@vue/server-renderer@3.5.34(vue@3.5.34(typescript@5.9.3)))(vue@3.5.34(typescript@5.9.3))
@@ -4645,9 +4642,6 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
-
-  '@slax-lab/liveproxy-sw@1.0.3-dev.1':
-    resolution: {integrity: sha512-DtxD0bxsnpoBfP4p+jmsXzMeHhwXw/pSFJqh0OLWFFoaJoYFFaiCpJl9qnkH867e8czzjmVSaUrS/Rxovv6g+A==}
 
   '@slax-lab/readability@0.6.3':
     resolution: {integrity: sha512-ipVCKokORVH2jWxZMmc/Qe6oLEDu6PxWgJ0IMnJGu3v1+U2ZHplGuV6tp83ssrFfBOdsT7ow7j+cBa3rYVjFUA==}
@@ -15955,10 +15949,6 @@ snapshots:
   '@sindresorhus/is@7.0.2': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
-
-  '@slax-lab/liveproxy-sw@1.0.3-dev.1':
-    dependencies:
-      acorn: 8.14.1
 
   '@slax-lab/readability@0.6.3': {}
 

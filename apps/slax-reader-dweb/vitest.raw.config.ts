@@ -2,7 +2,7 @@ import { phase4ExcludeAdditions, sharedExcludeBase, sharedTestOptions } from './
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 // 第四期 Sprint 0（2026-05-26）：raw 二轮验证 config
-// 第五期收尾（2026-05-26）：raw 跑也 exclude 9 项 e2e-only 文件（4 ce.Selection + 4 ce.CEComponents + 1 RawWebPanel）
+// 第五期收尾（2026-05-26）：raw 跑也 exclude 8 项 e2e-only 文件（4 ce.Selection + 4 ce.CEComponents）
 //   原因：这些文件 happy-dom 完全不可达，永远 0% 覆盖，会拉低 raw overall 失去基线含义
 //   保留第三期 6 项 base exclude（types/app/error/layouts/plugins）
 //   主跑与 raw 跑共享同一组 exclude，让 vitest coverage 视图彻底干净

@@ -1,8 +1,6 @@
 import { getDWebConfig, getEnv } from '../../configs/env'
 import pkg from './package.json'
 import replace from '@rollup/plugin-replace'
-import fs from 'fs'
-import path from 'path'
 
 const env = getEnv()
 const isDev = env === 'development'
@@ -124,7 +122,7 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: true }>
       ),
-      ...['/bookmarks/**', '/w/**', '/sw/**'].reduce(
+      ...['/bookmarks/**'].reduce(
         (rules, route) => {
           rules[route] = { ssr: false, prerender: false }
           return rules
@@ -313,14 +311,6 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: isDev,
       type: 'module'
-    }
-  },
-  hooks: {
-    'build:before': () => {
-      console.log('build:before, copy liveproxy-sw file...')
-      const swSource = path.resolve(__dirname, 'node_modules/@slax-lab/liveproxy-sw/dist/liveproxy-sw.js')
-      const swDest = path.resolve(__dirname, 'public/liveproxy-sw.js')
-      fs.copyFileSync(swSource, swDest)
     }
   },
   scripts: {
