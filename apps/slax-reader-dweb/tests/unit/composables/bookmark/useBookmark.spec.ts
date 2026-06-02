@@ -276,7 +276,7 @@ describe('useBookmark', () => {
       const result = useBookmark(options)
       result.chatBotQuote({ text: 'q' } as any)
       await nextTick()
-      expect(options.chatbot.value.addQuoteData).not.toHaveBeenCalled()
+      expect(options.chatbot!.value!.addQuoteData).not.toHaveBeenCalled()
     })
 
     it('C15: 订阅过期 → 早退', async () => {
@@ -287,7 +287,7 @@ describe('useBookmark', () => {
       const result = useBookmark(options)
       result.chatBotQuote({ text: 'q' } as any)
       await nextTick()
-      expect(options.chatbot.value.addQuoteData).not.toHaveBeenCalled()
+      expect(options.chatbot!.value!.addQuoteData).not.toHaveBeenCalled()
     })
 
     it('C16: 通过 + botExpanded=false → 设 true → addQuoteData 被调', async () => {
@@ -299,7 +299,7 @@ describe('useBookmark', () => {
       result.chatBotQuote(data)
       await nextTick()
       expect(botExpanded.value).toBe(true)
-      expect(options.chatbot.value.addQuoteData).toHaveBeenCalledWith(data)
+      expect(options.chatbot!.value!.addQuoteData).toHaveBeenCalledWith(data)
     })
 
     it('C17: 通过 + chatbot.value=undefined → addQuoteData 不调（合并已展开 + chatbot undefined 分支）', async () => {
@@ -325,7 +325,7 @@ describe('useBookmark', () => {
     it('C19: navigateToText 小屏 → summariesExpanded=false', () => {
       summariesExpanded.value = true
       const options = makeOptions()
-      options.detailLayout.value!.isSmallScreen = vi.fn(() => true) as any
+      options.detailLayout!.value!.isSmallScreen = vi.fn(() => true) as any
       const result = useBookmark(options)
       result.navigateToText()
       expect(summariesExpanded.value).toBe(false)

@@ -14,7 +14,7 @@ vi.mock('~~/layers/core/app/components/ImagePreview/ImagePreview.vue', () => ({
   }
 }))
 
-const baseFrame = { x: 0, y: 0, width: 100, height: 100 }
+const baseFrame = { left: 0, top: 0, width: 100, height: 100, imgWidth: 100, imgHeight: 100 }
 
 describe('ImagePreview/index showImagePreview 工厂', () => {
   beforeEach(() => {

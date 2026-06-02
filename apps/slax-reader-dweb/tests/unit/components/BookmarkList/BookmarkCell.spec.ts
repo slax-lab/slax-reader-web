@@ -204,7 +204,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
       // article-actions 内：[0]=编辑, [1]=归档, [2]=删除
-      const archiveBtn = wrapper.findAll('.article-action')[1]
+      const archiveBtn = wrapper.findAll('.article-action')[1]!
       expect(archiveBtn).toBeDefined()
       await archiveBtn.trigger('click')
       await flushPromises()
@@ -220,7 +220,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       mockPost.mockResolvedValueOnce({ bookmark_id: 1000001, status: 'inbox' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       // [0]=编辑, [1]=归档（unarchive）
-      const unarchiveBtn = wrapper.findAll('.article-action')[1]
+      const unarchiveBtn = wrapper.findAll('.article-action')[1]!
       expect(unarchiveBtn).toBeDefined()
       await unarchiveBtn.trigger('click')
       await flushPromises()
@@ -235,7 +235,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const archiveBtn = wrapper.findAll('.article-action')[1]
+      const archiveBtn = wrapper.findAll('.article-action')[1]!
       await archiveBtn.trigger('click')
       await flushPromises()
       expect(mockToastShowToast).toHaveBeenCalled()
@@ -263,7 +263,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const bm = makeBookmarkItem({ trashed_at: '2026-01-02T00:00:00.000Z' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       // isTrashed=true 时：[0]=编辑, [1]=恢复
-      const revertBtn = wrapper.findAll('.article-action')[1]
+      const revertBtn = wrapper.findAll('.article-action')[1]!
       expect(revertBtn).toBeDefined()
       await revertBtn.trigger('click')
       await flushPromises()
@@ -279,7 +279,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
       // 编辑按钮是 article-actions 中第一个 article-action
-      const editBtn = wrapper.findAll('.article-action')[0]
+      const editBtn = wrapper.findAll('.article-action')[0]!
       expect(editBtn).toBeDefined()
       await editBtn.trigger('click')
       expect(wrapper.find('input').exists()).toBe(true)
@@ -291,7 +291,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const editBtn = wrapper.findAll('.article-action')[0]
+      const editBtn = wrapper.findAll('.article-action')[0]!
       await editBtn.trigger('click')
       const input = wrapper.find('input')
       await input.setValue('新标题')
@@ -309,7 +309,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('编辑后值与原 alias_title 一致：短路不调 post，仅退出编辑态', async () => {
       const bm = makeBookmarkItem({ alias_title: '已存在' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      const editBtn = wrapper.findAll('.article-action')[0]
+      const editBtn = wrapper.findAll('.article-action')[0]!
       await editBtn.trigger('click')
       const input = wrapper.find('input')
       await input.setValue('已存在')
@@ -324,7 +324,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const editBtn = wrapper.findAll('.article-action')[0]
+      const editBtn = wrapper.findAll('.article-action')[0]!
       await editBtn.trigger('click')
       mockPost.mockClear()
       await wrapper.find('input').trigger('keydown', { key: 'Esc' })

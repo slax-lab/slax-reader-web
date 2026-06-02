@@ -25,14 +25,14 @@ describe('TabsSidebar', () => {
       const wrapper = mountWithApp(TabsSidebar, { props: { tabType: 'trashed' } })
       const items = wrapper.findAll('.sidebar-item')
       // 废纸篓是最后一个 sidebar-item
-      const trashBtn = items[items.length - 1]
+      const trashBtn = items[items.length - 1]!
       expect(trashBtn.classes()).toContain('active')
     })
 
     it('tabType="inbox" → 废纸篓按钮无 active class', () => {
       const wrapper = mountWithApp(TabsSidebar, { props: { tabType: 'inbox' } })
       const items = wrapper.findAll('.sidebar-item')
-      const trashBtn = items[items.length - 1]
+      const trashBtn = items[items.length - 1]!
       expect(trashBtn.classes()).not.toContain('active')
     })
 
@@ -47,7 +47,7 @@ describe('TabsSidebar', () => {
     it('点击废纸篓按钮 → emit changeTab("trashed")', async () => {
       const wrapper = mountWithApp(TabsSidebar)
       const items = wrapper.findAll('.sidebar-item')
-      const trashBtn = items[items.length - 1]
+      const trashBtn = items[items.length - 1]!
       await trashBtn.trigger('click')
       const events = wrapper.emitted('changeTab')
       expect(events).toBeTruthy()

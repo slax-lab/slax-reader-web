@@ -31,8 +31,7 @@ export default defineConfig({
         }
       ]
 
-      for (let i = 0; i < tags.length; i++) {
-        const tag = tags[i]
+      for (const tag of tags) {
         if (!matcher.startsWith(tag.name)) {
           continue
         }
