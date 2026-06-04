@@ -121,6 +121,10 @@ const props = defineProps({
     type: String,
     required: false
   },
+  collection: {
+    type: Object as PropType<{ code: string; cbId: number }>,
+    required: false
+  },
   isAppeared: {
     type: Boolean,
     required: false,
@@ -293,7 +297,8 @@ const loadOutline = async () => {
       url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
       query: {
         ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
-        ...(props.shareCode ? { share_code: props.shareCode } : undefined)
+        ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined)
       }
     })
 
@@ -312,6 +317,7 @@ const loadOutline = async () => {
       body: {
         ...(props.bookmarkId ? { bm_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined),
         force: false
       }
     })
