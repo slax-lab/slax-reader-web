@@ -42,9 +42,11 @@ export const useBookmark = (options: BookmarkOptions) => {
     showFeedbackView(options, feedbackType.value)
   }
 
-  const showAnalyzed = () => {
+  // 返回 boolean：true = 成功打开/切换；false = 被登录或订阅校验拦截
+  // 调用方可据此判断是否回退 activePanel（防止侧栏高亮但内容被拦截）
+  const showAnalyzed = (): boolean => {
     if (!loginVerify() || checkSubscriptionExpired()) {
-      return
+      return false
     }
 
     botExpanded.value = false
@@ -54,11 +56,12 @@ export const useBookmark = (options: BookmarkOptions) => {
       const options = typeOptions()
       logAnalyzed(options, userStore.user?.userId || 0)
     }
+    return true
   }
 
-  const showChatbot = () => {
+  const showChatbot = (): boolean => {
     if (!loginVerify() || checkSubscriptionExpired()) {
-      return
+      return false
     }
 
     summariesExpanded.value = false
@@ -68,6 +71,7 @@ export const useBookmark = (options: BookmarkOptions) => {
       const options = typeOptions()
       logChat(options, userStore.user?.userId || 0)
     }
+    return true
   }
 
   const chatBotQuote = (data: QuoteData) => {

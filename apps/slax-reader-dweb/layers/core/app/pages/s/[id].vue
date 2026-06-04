@@ -181,10 +181,16 @@ const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
 const { panelOpen } = useSnapshotLayout()
-watch(activePanel, val => {
+watch(activePanel, (val, oldVal) => {
+  if (val === 'ai' && !showAnalyzed()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
+  if (val === 'chat' && !showChatbot()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
   panelOpen.value = val !== null
-  if (val === 'ai') showAnalyzed()
-  else if (val === 'chat') showChatbot()
 })
 
 // Phase 5：评论面板联动（必须在 activePanel 声明之后）

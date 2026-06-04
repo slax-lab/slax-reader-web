@@ -1,7 +1,7 @@
 <template>
   <div class="snapshot-ai-panel">
-    <!-- 全文概要区域 -->
-    <section class="panel-overview">
+    <!-- 全文概要区域：仅在有 bookmarkId 时支持（shareCode 不支持 overview） -->
+    <section class="panel-overview" v-if="overviewSupported">
       <div class="panel-overview-label">{{ $t('component.ai_panel.overview_label') }}</div>
 
       <!-- 加载骨架（首次加载、尚无内容时） -->
@@ -26,7 +26,7 @@
       </div>
     </section>
 
-    <div class="panel-divider"></div>
+    <div class="panel-divider" v-if="overviewSupported"></div>
 
     <!-- 全文解析区域 -->
     <section class="panel-outline">
@@ -129,6 +129,9 @@ const props = defineProps({
 })
 
 defineEmits(['dismiss'])
+
+// overview 仅在有 bookmarkId 时支持；shareCode 场景（分享页）不支持通过 shareCode 获取
+const overviewSupported = computed(() => !!props.bookmarkId)
 
 // ── overview 状态 ──
 const overviewContent = ref('')
