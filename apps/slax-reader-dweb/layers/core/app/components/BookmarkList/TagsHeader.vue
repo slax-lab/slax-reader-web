@@ -329,11 +329,18 @@ const compositionend = () => {
 // 加载中
 .tags-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  font-size: 13px;
-  color: var(--slax-text-light);
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+
+  span {
+    font-family: var(--slax-font-serif);
+    font-size: var(--slax-fs-body);
+    font-weight: 500;
+    color: var(--slax-text-muted);
+  }
 }
 
 // 标签列表：flex wrap 胶囊布局
