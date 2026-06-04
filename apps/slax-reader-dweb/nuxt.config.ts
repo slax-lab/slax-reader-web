@@ -109,7 +109,7 @@ export default defineNuxtConfig({
       dir: 'dist'
     },
     prerender: {
-      routes: ['/zh', '/en', '/download', '/privacy', '/terms', '/contact', '/sitemap.xml', '/robots.txt', '/how-do-i-delete-my-account', '/delete-account-notice'],
+      routes: ['/privacy', '/terms', '/sitemap.xml', '/robots.txt', '/how-do-i-delete-my-account', '/delete-account-notice'],
       autoSubfolderIndex: false,
       crawlLinks: true,
       failOnError: true
@@ -143,13 +143,8 @@ export default defineNuxtConfig({
         },
         {} as Record<string, { ssr: false; prerender: false }>
       ),
-      ...['/download', '/contact'].reduce(
-        (rules, route) => {
-          rules[route] = { ssr: true, prerender: true }
-          return rules
-        },
-        {} as Record<string, { ssr: true; prerender: true }>
-      ),
+      '/zh': { redirect: '/' },
+      '/en': { redirect: '/' },
       '/b': { redirect: '/bookmarks' }
     },
     cloudflare: {
@@ -170,7 +165,7 @@ export default defineNuxtConfig({
     sitemap: [`/sitemap.xml`],
     groups: [
       {
-        allow: [`/zh`, '/en', '/download', '/contact', '/s/*'],
+        allow: ['/s/*'],
         disallow: ['/bookmarks', '/user', '/login', '/guide', '/auth']
       }
     ],
@@ -194,22 +189,6 @@ export default defineNuxtConfig({
             {
               loc: '/',
               lastmod: date
-            },
-            {
-              loc: '/zh',
-              lastmod: date
-            },
-            {
-              loc: '/en',
-              lastmod: date
-            },
-            {
-              loc: '/download',
-              lastmod: date
-            },
-            {
-              loc: '/contact',
-              lastmod: date
             }
           ]
         }
@@ -225,7 +204,7 @@ export default defineNuxtConfig({
       type: 'Organization',
       name: 'Slax Reader',
       logo: `${envConfig.PUBLIC_BASE_URL || ''}/logo.png`,
-      url: `${envConfig.PUBLIC_BASE_URL || ''}/en`,
+      url: `${envConfig.PUBLIC_BASE_URL || ''}`,
       sameAs: ['https://x.com/SlaxReader', 'https://t.me/slax_app', 'https://github.com/slax-lab/slax-reader', 'https://x.com/wulujia'],
       contactPoint: [
         {
