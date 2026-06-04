@@ -5,13 +5,18 @@ import { isClient } from '@commons/utils/is'
 import type { CommonBookmarkOptions } from './type'
 import { useResize } from './useCommon'
 import type { UserInfo } from '@commons/types/interface'
-import type ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showLoginModal } from '#layers/core/app/components/Modal'
 import { useUserStore } from '#layers/core/app/stores/user'
 
+// duck-typing 接口：SnapshotChatPanel 与旧 ChatBot 都满足，避免绑死具体组件类型
+interface ChatBotLike {
+  addQuoteData: (data: QuoteData) => void
+  focusTextarea: () => void
+}
+
 interface BookmarkOptions extends CommonBookmarkOptions {
-  chatbot: Ref<InstanceType<typeof ChatBot> | undefined>
+  chatbot: Ref<ChatBotLike | undefined>
   typeOptions: () => BookmarkTypeOptions
   initialRequestTask?: () => Promise<void>
   initialTasksCompleted?: () => void
@@ -27,13 +32,8 @@ export const useBookmark = (options: BookmarkOptions) => {
   const redirectHref = useRequestURL().href
   const { isSubscriptionExpired, checkSubscriptionExpired, updateSubscribeStatus } = useUserSubscribe()
 
-  const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail, chatbot, typeOptions } = options
-  const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize({
-    detailLayout,
-    summariesSidebar,
-    botSidebar,
-    bookmarkDetail
-  })
+  const { chatbot, typeOptions } = options
+  const { resizeAnimated, summariesExpanded, botExpanded, onResizeObserver, contentXOffset, isLocked, isNeedResized } = useResize(options)
 
   const feedbackType = ref('parse_error')
   const showFeedback = () => {
@@ -42,9 +42,11 @@ export const useBookmark = (options: BookmarkOptions) => {
     showFeedbackView(options, feedbackType.value)
   }
 
-  const showAnalyzed = () => {
+  // 返回 boolean：true = 成功打开/切换；false = 被登录或订阅校验拦截
+  // 调用方可据此判断是否回退 activePanel（防止侧栏高亮但内容被拦截）
+  const showAnalyzed = (): boolean => {
     if (!loginVerify() || checkSubscriptionExpired()) {
-      return
+      return false
     }
 
     botExpanded.value = false
@@ -54,11 +56,12 @@ export const useBookmark = (options: BookmarkOptions) => {
       const options = typeOptions()
       logAnalyzed(options, userStore.user?.userId || 0)
     }
+    return true
   }
 
-  const showChatbot = () => {
+  const showChatbot = (): boolean => {
     if (!loginVerify() || checkSubscriptionExpired()) {
-      return
+      return false
     }
 
     summariesExpanded.value = false
@@ -68,6 +71,7 @@ export const useBookmark = (options: BookmarkOptions) => {
       const options = typeOptions()
       logChat(options, userStore.user?.userId || 0)
     }
+    return true
   }
 
   const chatBotQuote = (data: QuoteData) => {
@@ -95,7 +99,7 @@ export const useBookmark = (options: BookmarkOptions) => {
   }
 
   const navigateToText = () => {
-    if (detailLayout.value?.isSmallScreen()) {
+    if (options.detailLayout?.value?.isSmallScreen()) {
       summariesExpanded.value = false
     }
   }

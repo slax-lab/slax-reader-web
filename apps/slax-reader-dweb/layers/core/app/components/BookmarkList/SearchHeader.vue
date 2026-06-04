@@ -1,46 +1,43 @@
 <template>
-  <div class="search-header">
-    <div class="search-navigator">
-      <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="navigateBack"></button>
-      <span>{{ $t('component.search_header.back') }}</span>
+  <div class="search-view">
+    <!-- 搜索结果头部：返回按钮 + 元信息 -->
+    <div class="search-view-header">
+      <button class="search-back-btn" @click="navigateBack" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>{{ $t('page.bookmarks_index.search_back') }}</span>
+      </button>
+      <p class="search-view-meta" v-if="searchResults.length > 0 || (!isSearching && defaultSearchText)">
+        {{ $t('component.search_header.found_count', { count: searchResults.length }) }}
+        <span class="search-keyword">{{ defaultSearchText }}</span>
+      </p>
     </div>
-    <div class="search-bar">
-      <div class="search-input">
-        <InputBar
-          v-model:text="searchText"
-          :confirm-title="$t('common.operate.search')"
-          :confirm-icon="InputConfirmIcon.Search"
-          :placeholder="$t('component.search_header.placeholder')"
-          :loading="isSearching"
-          :disabled="searchText.length === 0"
-          @confirm="search"
-        />
-      </div>
-    </div>
-    <div class="search-list" v-if="searchResults.length > 0">
-      <div v-for="result in searchResults" :key="result.bookmark_id" class="search-cell">
-        <div class="search-cell-header">
-          <div class="cell-header-title" v-html="result.highlight_title" @click="navigateToBookmark(result.bookmark_id)" />
-          <!-- AI标识 -->
-          <div class="cell-header-ai-tag">
-            <span v-if="result.type === 'vector'">{{ $t('component.search_header.semantic_relative', { value: `${(result.vs_score * 100).toFixed(1)}` }) }}</span>
-          </div>
+
+    <!-- 搜索结果列表 -->
+    <div class="search-result-list" v-if="searchResults.length > 0">
+      <article v-for="result in searchResults" :key="result.bookmark_id" class="search-result-item" @click="navigateToBookmark(result.bookmark_id)">
+        <h3 class="search-result-title" v-html="result.highlight_title" />
+        <p class="search-result-snippet" v-if="result.highlight_content">…<span v-html="result.highlight_content"></span>…</p>
+        <div class="search-result-meta" v-if="result.type === 'vector'">
+          <span class="search-result-tag">{{ $t('component.search_header.semantic_relative', { value: `${(result.vs_score * 100).toFixed(1)}` }) }}</span>
         </div>
-        <div class="search-cell-content">…<span v-html="result.highlight_content"></span>…</div>
-      </div>
+      </article>
     </div>
-    <div class="no-data" v-if="!isSearching && searchResults.length === 0">
-      <div class="empty">
-        <div class="icon"></div>
-        <span>{{ $t('component.search_header.empty') }}</span>
-      </div>
+
+    <!-- 空态 -->
+    <div class="search-empty" v-if="!isSearching && searchResults.length === 0 && defaultSearchText">
+      {{ $t('component.search_header.empty') }}
+    </div>
+
+    <!-- 加载中 -->
+    <div class="search-loading" v-if="isSearching">
+      <div class="i-svg-spinners:90-ring" style="color: var(--slax-accent); width: 20px; height: 20px"></div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import InputBar, { InputConfirmIcon } from '#layers/core/app/components/InputBar.vue'
-
 import { RESTMethodPath } from '@commons/types/const'
 import type { SearchResultItem } from '@commons/types/interface'
 
@@ -55,15 +52,13 @@ const props = defineProps({
 const emits = defineEmits(['back', 'searchStatusUpdate'])
 
 const isSearching = ref(false)
-const searchText = ref(props.defaultSearchText)
 const searchResults = ref<SearchResultItem[]>([])
 
 watch(
   () => props.defaultSearchText,
   value => {
-    if (searchText.value !== value) {
-      searchText.value = value
-      search()
+    if (value) {
+      search(value)
     }
   }
 )
@@ -76,15 +71,15 @@ watch(
 )
 
 onMounted(() => {
-  search()
+  if (props.defaultSearchText) {
+    search(props.defaultSearchText)
+  }
 })
 
 const searchApi = async (text: string) => {
   return await request().post<SearchResultItem[]>({
     url: RESTMethodPath.SEARCH_CONTENT,
-    body: {
-      keyword: text
-    }
+    body: { keyword: text }
   })
 }
 
@@ -94,20 +89,14 @@ const navigateBack = () => {
 }
 
 const navigateToBookmark = (bookmarkId: number) => {
-  pwaOpen({
-    url: `/bookmarks/${bookmarkId}`
-  })
+  pwaOpen({ url: `/bookmarks/${bookmarkId}` })
 }
 
-const search = async () => {
-  if (!searchText.value) {
-    return
-  }
-
+const search = async (text: string) => {
+  if (!text) return
   isSearching.value = true
-
   try {
-    const results = await searchApi(searchText.value)
+    const results = await searchApi(text)
     searchResults.value = results || []
   } catch (error) {
     console.error('搜索出错:', error)
@@ -118,66 +107,129 @@ const search = async () => {
 </script>
 
 <style lang="scss" scoped>
-.search-header {
-  --style: pl-24px;
+.search-view {
+  padding-bottom: 48px;
+}
 
-  .search-navigator {
-    --style: flex items-center py-24px;
+.search-view-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 
-    button {
-      --style: w-16px h-16px;
-    }
+.search-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius-sm);
+  cursor: pointer;
+  color: var(--slax-text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.15s;
+  flex-shrink: 0;
 
-    span {
-      --style: ml-14px text-(txt 16px) line-height-20px font-500;
-    }
+  &:hover {
+    background: var(--slax-surface);
+    color: var(--slax-text);
+    border-color: color-mix(in srgb, var(--slax-accent) 30%, var(--slax-border));
   }
+}
 
-  .search-bar {
-    --style: mt-2px pl-14px pr-38px;
+.search-view-meta {
+  font-size: 13px;
+  color: var(--slax-text-light);
+  margin: 0;
+}
+
+.search-keyword {
+  color: var(--slax-accent);
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.search-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-result-item {
+  display: block;
+  padding: 16px 18px;
+  border-radius: var(--slax-radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:hover {
+    background: var(--slax-surface);
+    border-color: var(--slax-border);
   }
+}
 
-  .search-list {
-    --style: mt-24px pl-30px pr-38px pb-50px select-none;
-    .search-cell {
-      --style: 'not-first:(mt-12px)';
+.search-result-title {
+  font-family: var(--slax-font-serif);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--slax-text);
+  margin: 0 0 6px;
+  line-height: 1.5;
 
-      :deep(mark) {
-        // #16b998 是当前品牌绿，保留（品牌强调）
-        --style: bg-transparent text-#16b998;
-      }
-
-      .search-cell-header {
-        --style: flex items-center justify-between;
-
-        .cell-header-title {
-          --style: relative text-(meta txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap cursor-pointer;
-        }
-
-        .cell-header-ai-tag {
-          --style: text-(tag txt-light) line-height-17px whitespace-nowrap shrink-0 ml-30px;
-        }
-      }
-
-      .search-cell-content {
-        --style: 'relative mt-2px text-(meta txt-light) line-height-22px overflow-hidden max-md:(text-ellipsis whitespace-nowrap)';
-      }
-    }
+  :deep(mark) {
+    background: var(--slax-accent-bg);
+    color: var(--slax-accent);
+    border-radius: 3px;
+    padding: 0 2px;
   }
+}
 
-  .no-data {
-    --style: pb-52px text-(tag txt-light) select-none relative shrink-0 select-none;
-    .empty {
-      --style: relative pt-168px flex-col items-center h-full flex-center;
-      .icon {
-        --style: bg-contain w-60px h-75px shrink-0;
-        background-image: url('@images/logo-bg-gray.png');
-      }
+.search-result-snippet {
+  font-size: 13px;
+  color: var(--slax-text-light);
+  line-height: 1.7;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
-      span {
-        --style: mt-24px text-meta lien-height-22px;
-      }
-    }
+  :deep(mark) {
+    background: var(--slax-accent-bg);
+    color: var(--slax-accent);
+    border-radius: 3px;
+    padding: 0 2px;
   }
+}
+
+.search-result-meta {
+  margin-top: 4px;
+}
+
+.search-result-tag {
+  font-size: 11px;
+  color: var(--slax-text-light);
+  background: var(--slax-accent-bg);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.search-empty {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--slax-text-light);
+  font-size: 13px;
+}
+
+.search-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
 }
 </style>

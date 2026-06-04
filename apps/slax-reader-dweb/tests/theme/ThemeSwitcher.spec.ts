@@ -26,16 +26,15 @@ const setup = () => {
 }
 
 describe('ThemeSwitcher 组件', () => {
-  it('渲染 4 个主题按钮（即使 fallback 也是 4 个 skeleton）', async () => {
+  it('渲染 3 个主题按钮（light / dark / eink，移除了 system）', async () => {
     const wrapper = setup()
     await new Promise(r => setTimeout(r, 0))
-    // 主分支按钮 + fallback skeleton 都是 4 个，这里只校验"主分支被渲染时"按钮数量
     const buttons = wrapper.findAll('button.theme-btn')
     if (buttons.length > 0) {
-      expect(buttons.length).toBe(4)
+      expect(buttons.length).toBe(3)
     } else {
-      // fallback 路径
-      expect(wrapper.findAll('.theme-btn-skeleton').length).toBe(4)
+      // fallback 路径：单骨架
+      expect(wrapper.findAll('.theme-btn-skeleton').length).toBeGreaterThanOrEqual(1)
     }
   })
 
@@ -53,12 +52,12 @@ describe('ThemeSwitcher 组件', () => {
     cm.preference = 'light'
     await wrapper.vm.$nextTick()
 
-    // 按 ThemeSwitcher 内 themes 数组顺序：light / dark / eink / system
+    // 按 ThemeSwitcher 内 themes 数组顺序：light / dark / eink
     await buttons[1]!.trigger('click')
     expect(cm.preference).toBe('dark')
   })
 
-  it('active class + aria-pressed 跟随 preference', async () => {
+  it('active class + aria-pressed 跟随 colorMode.value', async () => {
     const wrapper = setup()
     await new Promise(r => setTimeout(r, 0))
 
@@ -85,16 +84,16 @@ describe('ThemeSwitcher 组件', () => {
     for (const txt of texts) {
       expect(txt.length, `按钮文案不能为空，texts=${JSON.stringify(texts)}`).toBeGreaterThan(0)
     }
-    expect(texts).toHaveLength(4)
+    expect(texts).toHaveLength(3)
   })
 
-  it('ClientOnly fallback：测试环境（happy-dom）下渲染 4 个 skeleton', async () => {
+  it('ClientOnly fallback：测试环境（happy-dom）下渲染 skeleton 或主按钮', async () => {
     const wrapper = setup()
     await new Promise(r => setTimeout(r, 0))
     // happy-dom + nuxt-test-utils 在 ClientOnly 上的行为可能渲染 fallback；
-    // 不强求"必须渲染" / "必须不渲染"，断言为：要么主分支 4 按钮，要么 fallback 4 骨架
+    // 不强求"必须渲染" / "必须不渲染"，断言为：要么主分支 3 按钮，要么 fallback 骨架存在
     const buttons = wrapper.findAll('button.theme-btn')
     const skeletons = wrapper.findAll('.theme-btn-skeleton')
-    expect(buttons.length + skeletons.length, '至少有一个分支渲染了 4 个元素').toBeGreaterThanOrEqual(4)
+    expect(buttons.length + skeletons.length, '至少有一个分支渲染了元素').toBeGreaterThanOrEqual(1)
   })
 })

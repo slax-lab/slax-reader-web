@@ -46,12 +46,13 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     vi.useRealTimers()
   })
 
-  it('mount → 渲染 .modal-overlay + .modal-content + h3 标题', async () => {
-    const wrapper = mountWithApp(ImportProgressModal)
+  it('mount → 渲染 .modal-overlay + .modal-content + 标题', async () => {
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    expect(wrapper.find('.modal-overlay').exists()).toBe(true)
-    expect(wrapper.find('.modal-content').exists()).toBe(true)
-    expect(wrapper.find('.modal-header h3').exists()).toBe(true)
+    expect(document.querySelector('.modal-overlay')).not.toBeNull()
+    expect(document.querySelector('.modal-content')).not.toBeNull()
+    expect(document.querySelector('.modal-title')).not.toBeNull()
+    wrapper.unmount()
   })
 
   it('isLoading=true 期间 → 渲染 .loading-container', async () => {
@@ -62,20 +63,21 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
           resolve = r
         })
     )
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('.loading-container').exists()).toBe(true)
+    expect(document.querySelector('.loading-container')).not.toBeNull()
     resolve?.([])
     await flushPromises()
+    wrapper.unmount()
   })
 
   it('成功获取 progressData → 渲染 .progress-table + 行', async () => {
     mockGet.mockResolvedValueOnce([baseItem])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    expect(wrapper.find('.progress-table').exists()).toBe(true)
-    // header + 1 data row
-    expect(wrapper.findAll('.table-row').length).toBeGreaterThanOrEqual(2)
+    expect(document.querySelector('.progress-table')).not.toBeNull()
+    expect(document.querySelectorAll('.table-row').length).toBeGreaterThanOrEqual(2)
+    wrapper.unmount()
   })
 
   it('mockGet 返 null → Toast Error', async () => {
@@ -86,83 +88,100 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
   })
 
   it('close-btn click → emit close', async () => {
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    await wrapper.find('button.close-btn').trigger('click')
+    const closeBtn = document.querySelector('button.close-btn') as HTMLElement
+    closeBtn?.click()
+    await wrapper.vm.$nextTick()
     expect(wrapper.emitted('close')).toBeTruthy()
+    wrapper.unmount()
   })
 
   it('点击 modal-overlay 自身 → emit close', async () => {
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    await wrapper.find('.modal-overlay').trigger('click')
+    const overlay = document.querySelector('.modal-overlay') as HTMLElement
+    overlay?.click()
+    await wrapper.vm.$nextTick()
     expect(wrapper.emitted('close')).toBeTruthy()
+    wrapper.unmount()
   })
 
   it('status=3 → status-success class + "Success" 文本', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 3 }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = wrapper.find('.status span')
-    expect(statusSpan.classes()).toContain('status-success')
-    expect(statusSpan.text()).toBe('Success')
+    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    expect(statusSpan?.className).toContain('status-success')
+    expect(statusSpan?.textContent).toBe('Success')
+    wrapper.unmount()
   })
 
   it('status=0 → status-pending class + "Pending"', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 0 }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = wrapper.find('.status span')
-    expect(statusSpan.classes()).toContain('status-pending')
-    expect(statusSpan.text()).toBe('Pending')
+    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    expect(statusSpan?.className).toContain('status-pending')
+    expect(statusSpan?.textContent).toBe('Pending')
+    wrapper.unmount()
   })
 
   it('status=2 → status-failed class + "Failed"', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 2 }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = wrapper.find('.status span')
-    expect(statusSpan.classes()).toContain('status-failed')
-    expect(statusSpan.text()).toBe('Failed')
+    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    expect(statusSpan?.className).toContain('status-failed')
+    expect(statusSpan?.textContent).toBe('Failed')
+    wrapper.unmount()
   })
 
   it('status=1 → status-processing class + "Processing"', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 1 }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = wrapper.find('.status span')
-    expect(statusSpan.classes()).toContain('status-processing')
-    expect(statusSpan.text()).toBe('Processing')
+    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    expect(statusSpan?.className).toContain('status-processing')
+    expect(statusSpan?.textContent).toBe('Processing')
+    wrapper.unmount()
   })
 
   it('platform=omnivore → 渲染 omnivore icon', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'omnivore' }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = wrapper.find('.platform img')
-    expect(img.attributes('src')).toContain('omnivore')
+    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    expect(img?.src).toContain('omnivore')
+    wrapper.unmount()
   })
 
   it('platform=pocket → 渲染 pocket icon', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'pocket' }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = wrapper.find('.platform img')
-    expect(img.attributes('src')).toContain('pocket')
+    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    expect(img?.src).toContain('pocket')
+    wrapper.unmount()
   })
 
   it('platform 未知 → icon src 空', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'unknown' }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = wrapper.find('.platform img')
-    expect(img.attributes('src') || '').toBe('')
+    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    expect(img?.getAttribute('src') || '').toBe('')
+    wrapper.unmount()
   })
 
   it('progress 计算 = round(current_count / batch_count * 100)', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, current_count: 30, batch_count: 100 }])
-    const wrapper = mountWithApp(ImportProgressModal)
+    const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    expect(wrapper.find('.progress').text()).toBe('30%')
+    // 跳过 header 行，取数据行的 col-batches
+    const batchesCells = document.querySelectorAll('.col-batches')
+    const dataCell = Array.from(batchesCells).find(el => !el.closest('.table-header')) as HTMLElement
+    expect(dataCell?.textContent).toBe('30%')
+    wrapper.unmount()
   })
 })

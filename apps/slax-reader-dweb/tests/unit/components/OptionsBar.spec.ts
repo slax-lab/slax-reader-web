@@ -34,6 +34,12 @@ describe('OptionsBar', () => {
       const container = wrapper.find('.options-container')
       expect(container.attributes('style') || '').toContain('display: none')
     })
+
+    it('渲染 SVG 箭头（无旧 <i> 图片箭头）', () => {
+      const wrapper = mountWithApp(OptionsBar, { props: { options: defaultOptions } })
+      expect(wrapper.find('.bar-container svg').exists()).toBe(true)
+      expect(wrapper.find('.bar-container i').exists()).toBe(false)
+    })
   })
 
   describe('交互', () => {

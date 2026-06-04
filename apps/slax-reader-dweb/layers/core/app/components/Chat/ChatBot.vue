@@ -1,19 +1,18 @@
 <template>
   <div class="chat-bot" ref="chat">
     <div class="dark-trigger" ref="darkTrigger" />
-    <div class="chat-header">
-      <div class="chat-title">
-        <img v-if="!isDark()" src="@images/panel-item-chatbot.png" alt="" />
-        <img v-else src="@images/panel-item-chatbot-dark.png" alt="" />
-        <span>{{ $t('component.chat_bot.hello') }}</span>
-      </div>
-      <button v-if="!closeButtonHidden" class="close" @click="closeModal">
-        <img v-if="!isDark()" src="@images/button-dialog-close.png" />
-        <img v-else src="@images/button-dialog-close-dark.png" />
-      </button>
-    </div>
+    <div class="chat-panel-title">Chat</div>
+    <button v-if="!closeButtonHidden" class="close" @click="closeModal">
+      <img v-if="!isDark()" src="@images/button-dialog-close.png" />
+      <img v-else src="@images/button-dialog-close-dark.png" />
+    </button>
     <div class="messages-container">
       <div class="messages" ref="messages">
+        <!-- 空状态：无消息时显示 -->
+        <div v-if="messageList.length === 0 && !isChatting" class="chat-empty">
+          <div class="chat-empty-title">Chat</div>
+          <div class="chat-empty-desc">{{ $t('component.chat_bot.empty_desc') }}</div>
+        </div>
         <div class="message" v-for="message in messageList" :key="message.id">
           <template v-if="message.type === 'question'">
             <QuestionMessage :question="message" @question-click="questionClick" />
@@ -59,8 +58,9 @@
             @compositionend="compositionend"
             @input="handleInput"
           ></textarea>
-          <button v-if="!isDark()" :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send.png')]" @click="sendMessage"></button>
-          <button v-else :class="{ disabled: !sendable }" class="bg-[url('@images/button-tiny-send-dark.png')]" @click="sendMessage"></button>
+          <button class="chat-send-btn" :class="{ disabled: !sendable }" @click="sendMessage">
+            {{ $t('common.operate.send') }}
+          </button>
         </div>
       </div>
     </div>
@@ -795,6 +795,17 @@ defineExpose({
     --style: 'absolute left-0 top-0 w-0 h-0 opacity-0 dark:opacity-100';
   }
 
+  .chat-panel-title {
+    font-family: var(--slax-font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--slax-text);
+    padding: 24px 24px 0;
+    margin-bottom: 0;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+
   .chat-header {
     --style: 'w-full pt-20px px-16px flex justify-between items-center relative h-54px pb-10px dark:(h-70px pb-25px)';
 
@@ -900,44 +911,95 @@ defineExpose({
     }
 
     .input-container {
-      --style: w-full p-12px rounded-1 overflow-hidden;
-      // dark 下 input-container 自身额外填充背景，由 token surface-solid 接管即可
-      --style: 'dark:bg-surface-solid';
+      flex-shrink: 0;
+      border-top: 1px solid var(--slax-border);
+      padding: 14px 24px 24px;
+      box-shadow: 0 -8px 16px -8px color-mix(in srgb, var(--slax-accent) 6%, transparent);
+      background: var(--slax-bg);
+      transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+
+      &:focus-within {
+        border-top-color: color-mix(in srgb, var(--slax-accent) 35%, transparent);
+        box-shadow: 0 -8px 16px -8px color-mix(in srgb, var(--slax-accent) 10%, transparent);
+      }
 
       .textarea-wrapper {
-        --style: 'w-full h-full relative border-(2px solid) rounded-8px py-16px pl-16px pr-64px flex transition-all duration-normal border-border dark:bg-surface-solid';
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
 
         &.focus {
-          // #16b99899 当前品牌绿半透明聚焦边框，保留
-          --style: border-(1px solid #16b99899);
+          // focus 状态由外层 input-container:focus-within 处理
         }
 
         textarea {
-          --style: w-full min-h-22px max-h-88px h-22px resize-none text-meta line-height-22px bg-transparent text-txt;
+          flex: 1;
+          min-height: 40px;
+          max-height: 120px;
+          resize: none;
+          border: none;
+          background: transparent;
+          color: var(--slax-text);
+          font-size: 13px;
+          font-family: inherit;
+          line-height: 1.6;
+          outline: none;
 
           &::placeholder,
           &::-webkit-input-placeholder {
-            --style: text-meta line-height-21px;
+            color: var(--slax-text-light);
           }
         }
 
-        button {
-          --style: absolute right-22px bottom-17px w-20px h-20px bg-contain transition-transform duration-normal;
+        .chat-send-btn {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 16px;
+          border-radius: var(--slax-radius-sm);
+          font-size: 13px;
+          font-weight: 500;
+          font-family: inherit;
+          cursor: pointer;
+          transition: all 0.15s;
+          background: var(--slax-accent);
+          color: white;
+          min-width: 52px;
+          height: 32px;
 
           &.disabled {
-            --style: opacity-50 cursor-auto;
+            opacity: 0.4;
+            cursor: not-allowed;
           }
 
-          &:not(.disabled) {
-            &:hover {
-              --style: scale-105;
-            }
-
-            &:active {
-              --style: scale-115;
-            }
+          &:not(.disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-accent) 20%, transparent);
           }
         }
+      }
+    }
+
+    .chat-empty {
+      padding: 24px 24px 0;
+
+      .chat-empty-title {
+        font-family: var(--slax-font-serif);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--slax-text);
+        margin-bottom: 8px;
+      }
+
+      .chat-empty-desc {
+        font-size: 13px;
+        color: var(--slax-text-light);
+        line-height: 1.6;
       }
     }
   }

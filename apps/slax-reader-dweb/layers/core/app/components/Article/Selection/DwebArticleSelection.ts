@@ -87,7 +87,32 @@ export class DwebArticleSelection extends BaseArticleSelection {
             this.manager.copyMarkedText({ source, event })
           } else if (type === ('comment' as MenuType)) {
             currentInfo.id = getUUID()
-            this.manager.showPanel({ fallbackYOffset: menusY })
+            const isInline = !this.config.iframe
+            if (isInline) {
+              // inline 模式：补齐 quote 聚合，派发事件给 Vue 宿主消费
+              const quote: QuoteData = {
+                source: {},
+                data: this.createQuote(currentInfo.source)
+              }
+              const sel = this.getSelection()
+              const range = sel?.rangeCount ? sel.getRangeAt(0) : undefined
+              const selected = this.manager.getElementsList(range!)
+              if (!selected || selected.length === 0) {
+                quote.source.selection = range
+              } else {
+                const paths = this.getMarkPathItems(selected)
+                quote.source.paths = paths || (range ? undefined : [])
+                if (!paths && range) quote.source.selection = range
+              }
+              window.dispatchEvent(
+                new CustomEvent('slax:open-comment-panel', {
+                  detail: { kind: 'new', info: { ...currentInfo }, quote }
+                })
+              )
+            } else {
+              // iframe 模式：保留原 CE Panel 渲染
+              this.manager.showPanel({ fallbackYOffset: menusY })
+            }
           } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
             const quote: QuoteData = {
               source: {},

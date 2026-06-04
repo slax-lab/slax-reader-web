@@ -1,23 +1,40 @@
-/* 划线评论单独注入 */
+/* 划线评论单独注入（iframe 路径：w/[id].vue / sw/[id].vue 以 ?raw 注入） */
 
 slax-mark {
   color: inherit;
-  position: relative;
-  transition: color var(--slax-dur-normal);
-}
-
-slax-mark.comment {
-  cursor: pointer;
-  border-bottom: 1.5px dashed #f6af69 !important;
+  transition: all var(--slax-dur-normal);
 }
 
 slax-mark.stroke {
   cursor: pointer;
-  border-bottom: 1.5px dashed #f6af69 !important;
+  text-decoration: underline solid;
+  text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 6px;
+  box-decoration-break: clone;
 }
 
 slax-mark.self-stroke {
-  border-bottom: 1.5px solid #f6af69 !important;
+  cursor: pointer;
+  text-decoration: underline solid;
+  text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 6px;
+  box-decoration-break: clone;
+}
+
+slax-mark.comment {
+  cursor: pointer;
+  text-decoration: underline dashed;
+  text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 6px;
+  box-decoration-break: clone;
+}
+
+slax-mark:hover {
+  text-decoration-color: var(--slax-accent);
+  background: var(--slax-accent-bg);
 }
 
 slax-mark.highlighted {
@@ -30,12 +47,10 @@ slax-mark:has(img) {
   display: inline-block;
 }
 
+slax-mark:has(img).stroke,
 slax-mark:has(img).comment {
-  border: 2px dashed #f6af69 !important;
-}
-
-slax-mark:has(img).stroke {
-  border: 2px solid #f6af69 !important;
+  border: 1.5px solid var(--slax-accent) !important;
+  text-decoration: none;
 }
 
 slax-mark:has(img)::after {
@@ -46,7 +61,7 @@ slax-mark:has(img)::after {
   padding-left: 0;
   padding-right: 0;
   border-radius: 50%;
-  background-color: #f6af69ee;
+  background-color: color-mix(in srgb, var(--slax-accent) 93%, transparent);
   right: -5px;
   top: -5px;
   line-height: 25px;

@@ -59,7 +59,6 @@ export const useResize = (options: CommonBookmarkOptions) => {
   const { tracking, isLocked } = useTracking()
 
   const { detailLayout, summariesSidebar, botSidebar, bookmarkDetail } = options
-
   const isNeedResized = ref(false) // 标记页面是否符合要调整布局的条件
   const resizeAnimated = ref(false) // 标记页面调整是否需要动画
   const summariesExpanded = ref(false) // 标记摘要是否展开
@@ -83,7 +82,7 @@ export const useResize = (options: CommonBookmarkOptions) => {
         tracking.wheelTrack(isExpanded)
 
         if (isExpanded) {
-          contentWidthUpdate(bookmarkDetail.value?.getBoundingClientRect().width || 0)
+          contentWidthUpdate(bookmarkDetail?.value?.getBoundingClientRect().width || 0)
         } else {
           isLocked.value = false
         }
@@ -98,26 +97,26 @@ export const useResize = (options: CommonBookmarkOptions) => {
   const panelMaxWidth = 60 + 68 /* 侧边栏的间距和宽度 */
 
   const updateIsNeedResizeHandler = (width: number) => {
-    const maxSidebarContentWidth = Math.max(summariesSidebar.value?.contentWidth() || 0, botSidebar.value?.contentWidth() || 0)
-    const shadowContentWidth = detailLayout.value?.contentWidth() || 0
+    const maxSidebarContentWidth = Math.max(summariesSidebar?.value?.contentWidth() || 0, botSidebar?.value?.contentWidth() || 0)
+    const shadowContentWidth = detailLayout?.value?.contentWidth() || 0
     const gap = (width - shadowContentWidth) / 2
     isNeedResized.value = !(gap - maxSidebarContentWidth > panelMaxWidth)
   }
 
   const contentWidthUpdateHandler = (width: number) => {
-    if (detailLayout.value?.isSmallScreen()) {
+    if (detailLayout?.value?.isSmallScreen()) {
       contentXOffset.value = 0
       return
     }
 
     let sidebarContentWidth = 0
     if (summariesExpanded.value) {
-      sidebarContentWidth = summariesSidebar.value?.contentWidth() || 0
+      sidebarContentWidth = summariesSidebar?.value?.contentWidth() || 0
     } else if (botExpanded.value) {
-      sidebarContentWidth = botSidebar.value?.contentWidth() || 0
+      sidebarContentWidth = botSidebar?.value?.contentWidth() || 0
     }
 
-    const shadowContentWidth = detailLayout.value?.contentWidth() || 0
+    const shadowContentWidth = detailLayout?.value?.contentWidth() || 0
     const gap = (width - shadowContentWidth) / 2
     if (gap - sidebarContentWidth > panelMaxWidth) {
       contentXOffset.value = 0

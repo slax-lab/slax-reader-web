@@ -97,7 +97,7 @@ describe('components/Modal/ShareModal', () => {
       })
       expect(wrapper.find('.link span').text()).toBe('https://share.test/s/abc123')
       // 开关处于开态
-      expect(wrapper.find('.ball').classes()).toContain('open')
+      expect(wrapper.find('.switch').classes()).toContain('on')
     })
 
     it('share_code 空：自动 updateShare 并切到开态', async () => {
@@ -130,7 +130,7 @@ describe('components/Modal/ShareModal', () => {
       mockGet.mockResolvedValueOnce(null)
       const wrapper = await mountAndStabilize()
       expect(mockToastShowToast).toHaveBeenCalledTimes(1)
-      expect(wrapper.find('.ball').classes()).not.toContain('open')
+      expect(wrapper.find('.switch').classes()).not.toContain('on')
     })
 
     it('type=Original：getShareUrl 用 sw 路径', async () => {
@@ -149,7 +149,7 @@ describe('components/Modal/ShareModal', () => {
         url: '/v1/share/delete',
         body: { bookmark_id: 7 }
       })
-      expect(wrapper.find('.ball').classes()).not.toContain('open')
+      expect(wrapper.find('.switch').classes()).not.toContain('on')
     })
 
     it('已关 → updateShare：让所有 option=true 并切到开态', async () => {
@@ -172,7 +172,7 @@ describe('components/Modal/ShareModal', () => {
           allow_action: true
         }
       })
-      expect(wrapper.find('.ball').classes()).toContain('open')
+      expect(wrapper.find('.switch').classes()).toContain('on')
     })
 
     it('isSwitchLoading 进行中：再次点击短路', async () => {

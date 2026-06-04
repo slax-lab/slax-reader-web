@@ -1,15 +1,15 @@
 export default defineNitroPlugin(nitroApp => {
-  nitroApp.hooks.hook('nuxt-og-image:context', ctx => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nitroApp.hooks.hook('nuxt-og-image:context' as any, (ctx: any) => {
     const existingFonts = Array.isArray(ctx.options.fonts) ? ctx.options.fonts : []
     ctx.options.fonts = [
       ...existingFonts,
       {
-        name: 'PingFang SC',
-        path: '/fonts/pingfang-sc-regular.woff',
+        name: 'Noto Sans SC',
+        path: '/fonts/noto-sans-sc-400.ttf',
         weight: 400,
         style: 'normal'
       }
     ]
-    console.log('[og-image-fonts] injected PingFang SC, total fonts:', ctx.options.fonts.length)
   })
 })

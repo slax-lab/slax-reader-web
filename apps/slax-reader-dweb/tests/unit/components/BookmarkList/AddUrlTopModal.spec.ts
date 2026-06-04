@@ -1,9 +1,10 @@
-// AddUrlTopModal 组件单测
+// AddUrlTopModal 组件单测（居中 modal 版本，使用 Teleport to="body"）
 // model: show
 // emit: addUrlSuccess
 // computed addUrlButtonEnable：text 非空 + http(s):// 前缀
 // topModalClick → request().post(ADD_URL) → 关闭 modal + emit + clear
-// watch show=true → focus inputbar
+// watch show=true → focus input
+// 注意：Teleport 渲染到 document.body，需 attachTo: document.body 并从 document 查找
 import { nextTick } from 'vue'
 
 import AddUrlTopModal from '~~/layers/core/app/components/BookmarkList/AddUrlTopModal.vue'
@@ -23,6 +24,13 @@ const { mockRequest, mockPost } = vi.hoisted(() => {
 
 mockNuxtImport('request', () => mockRequest)
 
+// Teleport 渲染到 body，需要 attachTo 才能在 document 中找到元素
+const mountModal = (show: boolean) =>
+  mountWithApp(AddUrlTopModal, {
+    props: { show },
+    attachTo: document.body
+  })
+
 describe('AddUrlTopModal', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,55 +39,69 @@ describe('AddUrlTopModal', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    // 清理 Teleport 挂载到 body 的内容
+    document.body.innerHTML = ''
   })
 
-  it('show=false → v-show 隐藏', () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: false } })
-    const modal = wrapper.find('.bookmark-list-top-modals')
-    expect(modal.attributes('style') || '').toContain('display: none')
+  it('show=false → modal-backdrop 不渲染', () => {
+    mountModal(false)
+    expect(document.querySelector('.modal-backdrop')).toBeNull()
   })
 
-  it('show=true → InputBar 渲染', () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    expect(wrapper.findComponent({ name: 'InputBar' }).exists()).toBe(true)
+  it('show=true → modal-dialog 渲染', () => {
+    mountModal(true)
+    expect(document.querySelector('.modal-dialog')).not.toBeNull()
   })
 
-  it('addUrlText 空 → addUrlButtonEnable=false → InputBar disabled=true', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    const inputBar = wrapper.findComponent({ name: 'InputBar' })
-    expect(inputBar.props('disabled')).toBe(true)
-  })
-
-  it('addUrlText 是非 http 前缀 → disabled 仍 true', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    const inputBar = wrapper.findComponent({ name: 'InputBar' })
-    await inputBar.vm.$emit('update:text', 'foo bar')
+  it('addUrlText 空 → 提交按钮 disabled', async () => {
+    mountModal(true)
     await nextTick()
-    expect(inputBar.props('disabled')).toBe(true)
+    const btn = document.querySelector('.modal-btn-primary') as HTMLButtonElement
+    expect(btn?.disabled).toBe(true)
   })
 
-  it('addUrlText 含 https:// → disabled=false', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    const inputBar = wrapper.findComponent({ name: 'InputBar' })
-    await inputBar.vm.$emit('update:text', 'https://example.com')
+  it('addUrlText 是非 http 前缀 → 提交按钮仍 disabled', async () => {
+    mountModal(true)
     await nextTick()
-    expect(inputBar.props('disabled')).toBe(false)
+    const input = document.querySelector('.modal-input') as HTMLInputElement
+    input.value = 'foo bar'
+    input.dispatchEvent(new Event('input'))
+    await nextTick()
+    const btn = document.querySelector('.modal-btn-primary') as HTMLButtonElement
+    expect(btn?.disabled).toBe(true)
   })
 
-  it('addUrlText 含 http:// → disabled=false', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    const inputBar = wrapper.findComponent({ name: 'InputBar' })
-    await inputBar.vm.$emit('update:text', 'http://example.com')
+  it('addUrlText 含 https:// → 提交按钮 enabled', async () => {
+    mountModal(true)
     await nextTick()
-    expect(inputBar.props('disabled')).toBe(false)
+    const input = document.querySelector('.modal-input') as HTMLInputElement
+    input.value = 'https://example.com'
+    input.dispatchEvent(new Event('input'))
+    await nextTick()
+    const btn = document.querySelector('.modal-btn-primary') as HTMLButtonElement
+    expect(btn?.disabled).toBe(false)
+  })
+
+  it('addUrlText 含 http:// → 提交按钮 enabled', async () => {
+    mountModal(true)
+    await nextTick()
+    const input = document.querySelector('.modal-input') as HTMLInputElement
+    input.value = 'http://example.com'
+    input.dispatchEvent(new Event('input'))
+    await nextTick()
+    const btn = document.querySelector('.modal-btn-primary') as HTMLButtonElement
+    expect(btn?.disabled).toBe(false)
   })
 
   it('confirm → request().post + emit addUrlSuccess + emit update:show false', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: true } })
-    const inputBar = wrapper.findComponent({ name: 'InputBar' })
-    await inputBar.vm.$emit('update:text', 'https://example.com')
+    const wrapper = mountModal(true)
     await nextTick()
-    await inputBar.vm.$emit('confirm')
+    const input = document.querySelector('.modal-input') as HTMLInputElement
+    input.value = 'https://example.com'
+    input.dispatchEvent(new Event('input'))
+    await nextTick()
+    const btn = document.querySelector('.modal-btn-primary') as HTMLButtonElement
+    btn.click()
     await flushPromises()
     expect(mockPost).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -92,11 +114,20 @@ describe('AddUrlTopModal', () => {
     expect(wrapper.emitted('update:show')).toBeTruthy()
   })
 
-  it('show false→true 切换 → nextTick 调 inputbar.focus（不抛错即覆盖 watch）', async () => {
-    const wrapper = mountWithApp(AddUrlTopModal, { props: { show: false } })
+  it('show false→true 切换 → 不抛错（watch focus 覆盖）', async () => {
+    const wrapper = mountModal(false)
     await wrapper.setProps({ show: true })
     await nextTick()
     await nextTick()
     expect(wrapper.exists()).toBe(true)
+  })
+
+  it('关闭按钮 click → emit update:show false', async () => {
+    const wrapper = mountModal(true)
+    await nextTick()
+    const closeBtn = document.querySelector('.modal-close') as HTMLButtonElement
+    closeBtn.click()
+    await nextTick()
+    expect(wrapper.emitted('update:show')).toBeTruthy()
   })
 })

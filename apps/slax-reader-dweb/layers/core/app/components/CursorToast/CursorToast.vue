@@ -39,9 +39,18 @@ const onAfterLeave = () => {
 
 <style lang="scss" scoped>
 .cursor-toast {
-  // bg-#0b0a23 深蓝紫底反色 toast 专属底色，保留
-  --style: select-none max-w-md min-w-140px flex-center rounded-6px bg-#0b0a23 flex-wrap whitespace-break-spaces text-center color-white overflow-hidden text-ellipsis py-6px
-    px-16px text-(meta) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
+  --style: select-none max-w-md min-w-140px flex-center flex-wrap whitespace-break-spaces text-center overflow-hidden text-ellipsis;
+  padding: 6px 14px;
+  /* 暖色深底：与设计系统暖色调一致，保持高对比 */
+  background: rgba(20, 18, 15, 0.9);
+  color: #f5f2ec;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--slax-radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: var(--slax-fs-meta);
+  line-height: 1.4;
 
   span {
     --style: w-full max-h-10 overflow-hidden text-ellipsis whitespace-nowrap;

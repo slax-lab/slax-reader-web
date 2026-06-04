@@ -257,97 +257,90 @@ describe('Article/Selection/modal MarkModal', () => {
       }
     }
 
-    it('containerDom 缺失：早返不创建 panel', () => {
+    it('containerDom 缺失：早返不派发事件', () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const modal = new MarkModal(buildConfig({ containerDom: undefined as unknown as HTMLDivElement }))
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 50 })
-      expect(document.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
+      expect(dispatchSpy).not.toHaveBeenCalled()
     })
 
-    it('正常路径：创建 panel 容器 + 设置 currentPanel + 注册 listener', async () => {
+    it('正常路径：inline 模式派发 slax:open-comment-panel 事件（kind=existing）', async () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const config = buildConfig()
       const modal = new MarkModal(config)
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 50 })
-      const panel = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container') as HTMLElement
-      expect(panel).not.toBeNull()
-      expect(modal.currentPanel).not.toBeNull()
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'slax:open-comment-panel' }))
+      // inline 模式不创建 CE panel 容器
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
       await flushPromises()
     })
 
-    it('已有 panel：先 remove 再创建（保持 1 个）', async () => {
+    it('已有 panel：inline 模式每次都派发事件（不创建 CE panel）', async () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const config = buildConfig()
       const modal = new MarkModal(config)
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0 })
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0 })
+      expect(dispatchSpy).toHaveBeenCalledTimes(2)
       const list = config.containerDom!.querySelectorAll('.slax-reader-article-selection-panel-container')
-      expect(list.length).toBe(1)
+      expect(list.length).toBe(0)
     })
 
-    it('dismiss listener：触发后从 DOM 移除 panel + currentPanel=null + 调 dismissCallback', async () => {
+    it('dismiss listener：inline 模式不创建 CE panel，dismissCallback 不被调用', async () => {
       const config = buildConfig()
       const modal = new MarkModal(config)
       const dismissCallback = vi.fn()
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0, dismissCallback })
-      const panelEl = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container > *') as HTMLElement
-      panelEl.dispatchEvent(new Event('dismiss'))
-      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
-      expect(modal.currentPanel).toBeNull()
-      expect(dismissCallback).toHaveBeenCalledTimes(1)
+      // inline 模式直接 return，不挂载 CE panel，dismissCallback 不会被调用
+      expect(dismissCallback).not.toHaveBeenCalled()
     })
 
-    it('action listener：触发后调 actionCallback(type, meta)', async () => {
+    it('action listener：inline 模式不创建 CE panel，actionCallback 不被调用', async () => {
       const config = buildConfig()
       const modal = new MarkModal(config)
       const actionCallback = vi.fn()
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0, actionCallback })
-      const panelEl = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container > *') as HTMLElement
-      const fakeEvent = new MouseEvent('click')
-      const meta = { comment: 'c', info: buildInfo(), event: fakeEvent }
-      panelEl.dispatchEvent(new CustomEvent('action', { detail: [MenuType.Comment, meta] as unknown as Record<string, unknown> }))
-      expect(actionCallback).toHaveBeenCalledWith(MenuType.Comment, meta)
+      // inline 模式直接 return，不挂载 CE panel
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
+      expect(actionCallback).not.toHaveBeenCalled()
     })
 
-    it('commentDelete listener：触发后调 commentDeleteCallback(id, markUid)', async () => {
+    it('commentDelete listener：inline 模式不创建 CE panel，commentDeleteCallback 不被调用', async () => {
       const config = buildConfig()
       const modal = new MarkModal(config)
       const commentDeleteCallback = vi.fn()
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0, commentDeleteCallback })
-      const panelEl = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container > *') as HTMLElement
-      panelEl.dispatchEvent(new CustomEvent('commentDelete', { detail: [{ id: 'c1', markUid: 'm1' }] as unknown as Record<string, unknown> }))
-      expect(commentDeleteCallback).toHaveBeenCalledWith('c1', 'm1')
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
+      expect(commentDeleteCallback).not.toHaveBeenCalled()
     })
 
-    it('locationUpdate listener：更新 panel 容器 top/left 样式', () => {
+    it('locationUpdate listener：inline 模式不创建 CE panel，无 panel 容器', () => {
       const config = buildConfig()
       const modal = new MarkModal(config)
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0 })
-      const panelContainer = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container') as HTMLElement
-      const panelEl = panelContainer.firstElementChild as HTMLElement
-      panelEl.dispatchEvent(new CustomEvent('locationUpdate', { detail: [{ x: 123, y: 456 }] as unknown as Record<string, unknown> }))
-      expect(panelContainer.style.left).toBe('123px')
-      expect(panelContainer.style.top).toBe('456px')
+      const panelContainer = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')
+      expect(panelContainer).toBeNull()
     })
 
-    it('selection 为空：使用 fallbackYOffset 设置初始 top', () => {
+    it('selection 为空：inline 模式派发事件，不设置 panel top', () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const config = buildConfig()
       const modal = new MarkModal(config)
       window.getSelection()?.removeAllRanges()
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 99 })
-      const panel = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container') as HTMLElement
-      expect(panel.style.top).toBe('99px')
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'slax:open-comment-panel' }))
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
     })
 
-    it('windowResize listener：触发后调用 panelElement.maxHeightUpdate', async () => {
+    it('windowResize listener：inline 模式不创建 CE panel', async () => {
       const config = buildConfig()
       const modal = new MarkModal(config)
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0 })
-      const panelEl = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container > *') as HTMLElement & {
-        maxHeightUpdate: ReturnType<typeof vi.fn>
-      }
-      panelEl.dispatchEvent(new Event('windowResize'))
-      expect(panelEl.maxHeightUpdate).toHaveBeenCalled()
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
     })
 
-    it('selection 含真实 range：用 range.getBoundingClientRect 计算初始 topOffset', () => {
+    it('selection 含真实 range：inline 模式派发事件，不创建 CE panel', () => {
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
       const config = buildConfig()
       const p = document.createElement('p')
       p.textContent = 'rangetext'
@@ -355,19 +348,13 @@ describe('Article/Selection/modal MarkModal', () => {
       const range = document.createRange()
       range.setStart(p.firstChild!, 0)
       range.setEnd(p.firstChild!, 5)
-      // 给 range 一个非零 rect
-      Object.defineProperty(range, 'getBoundingClientRect', {
-        value: () => ({ top: 200, left: 100, right: 200, bottom: 220, width: 100, height: 20, x: 100, y: 200, toJSON: () => ({}) }),
-        configurable: true
-      })
       const sel = window.getSelection()!
       sel.removeAllRanges()
       sel.addRange(range)
       const modal = new MarkModal(config)
       modal.showPanel({ info: buildInfo(), fallbackYOffset: 0 })
-      const panel = config.containerDom!.querySelector('.slax-reader-article-selection-panel-container') as HTMLElement
-      // top = rect.top - containerRect.top - 50 = 200 - 0 - 50 = 150
-      expect(panel.style.top).toBe('150px')
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'slax:open-comment-panel' }))
+      expect(config.containerDom!.querySelector('.slax-reader-article-selection-panel-container')).toBeNull()
     })
   })
 

@@ -1,56 +1,65 @@
 <template>
   <div class="tags-header">
     <template v-if="!selectTagId">
-      <div class="tags-grids">
-        <div class="add tag-item">
-          <div class="tag-add" v-if="!isAddingTag" @click="addTagClick">
-            <i class="h-10px w-10px bg-[length:10px_10px] bg-[url('@images/tiny-plus-icon.png')] bg-contain"></i>
-            <span>{{ t('component.tags_header.add_tag') }}</span>
-          </div>
-          <div class="tag-input" v-else>
-            <input
-              ref="tagInput"
-              type="text"
-              :disabled="isAddingTagLoading"
-              v-model="addingTagName"
-              :placeholder="t('component.tags_header.add_tag_placeholder')"
-              @compositionstart="compositionstart"
-              @compositionend="compositionend"
-              v-on-key-stroke:Escape,Enter="[onKeyDown, { eventName: 'keydown' }]"
-            />
-            <i class="seperator"></i>
-            <button v-if="!isAddingTagLoading">{{ t('common.operate.add') }}</button>
-            <div class="i-svg-spinners:90-ring w-48px color-#f4c982" v-else></div>
-          </div>
+      <!-- 添加标签行 -->
+      <div class="tags-add-row">
+        <div class="tag-add" v-if="!isAddingTag" @click="addTagClick">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>{{ t('component.tags_header.add_tag') }}</span>
+        </div>
+        <div class="tag-input-wrap" v-else>
+          <input
+            ref="tagInput"
+            type="text"
+            :disabled="isAddingTagLoading"
+            v-model="addingTagName"
+            :placeholder="t('component.tags_header.add_tag_placeholder')"
+            @compositionstart="compositionstart"
+            @compositionend="compositionend"
+            v-on-key-stroke:Escape,Enter="[onKeyDown, { eventName: 'keydown' }]"
+          />
+          <button v-if="!isAddingTagLoading" @click="saveTag" class="tag-input-confirm">
+            {{ t('common.operate.add') }}
+          </button>
+          <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" v-else></div>
         </div>
       </div>
-      <div class="tags-grids">
+
+      <!-- 加载中 -->
+      <div class="tags-loading" v-if="isTagLoading">
+        <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)"></div>
+        <span>{{ $t('component.tags_header.loading') }}</span>
+      </div>
+
+      <!-- 标签列表 -->
+      <div class="tags-list">
         <TransitionGroup name="opacity">
-          <div class="tag-item group" v-for="tag in tags" :key="tag.id">
-            <div class="tag-cell" @click="selectTag(tag)">
-              <span class="tag-name">{{ tag.show_name }}</span>
-              <i class="ai" v-if="tag.system"></i>
-            </div>
-            <div class="tag-operate min-w-30px group-hover:!opacity-100">
-              <button @click="editTagClick(tag)" v-if="!tag.system">
-                <img src="@images/button-edit-outline-icon.png" />
-              </button>
-            </div>
+          <div class="tag-item" v-for="tag in tags" :key="tag.id">
+            <button class="tag-chip" :class="{ system: tag.system }" @click="selectTag(tag)">
+              <span>{{ tag.show_name }}</span>
+              <i class="ai-badge" v-if="tag.system"></i>
+            </button>
+            <button class="tag-edit-btn" v-if="!tag.system" @click="editTagClick(tag)" :title="t('common.operate.edit')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
           </div>
         </TransitionGroup>
       </div>
-      <div class="tags-grids" v-if="isTagLoading">
-        <div class="loading">
-          <div class="i-svg-spinners:90-ring w-24px color-#f4c982"></div>
-          <span>{{ $t('component.tags_header.loading') }}</span>
-        </div>
-      </div>
     </template>
-    <div class="selected-tag" v-else>
-      <div class="tag-header">
-        <button class="bg-[length:16px_16px] bg-[url('@images/button-navigate-back.png')] bg-center" @click="unselectTag"></button>
-        <span>{{ $t('component.tags_header.filter_tag_title', { title: filterTagName || '' }) }} </span>
-      </div>
+
+    <!-- 已选标签：显示返回 + 标签名 -->
+    <div class="selected-tag-header" v-else>
+      <button class="back-btn" @click="unselectTag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>{{ $t('component.tags_header.filter_tag_title', { title: filterTagName || '' }) }}</span>
+      </button>
     </div>
   </div>
 </template>
@@ -195,6 +204,7 @@ const saveTag = async () => {
 
   isAddingTag.value = false
   isAddingTagLoading.value = false
+  addingTagName.value = ''
 
   if (!tags.value.find(tag => tag.id === res.id)) {
     tags.value.push(res)
@@ -238,115 +248,206 @@ const compositionend = () => {
 
 <style lang="scss" scoped>
 .tags-header {
-  .tags-grids {
-    --style: 'px-54px grid gap-y-16px max-lg:(grid-cols-1) grid-cols-2 gap-x-63px not-first:pt-16px';
+  padding-bottom: 16px;
+}
 
-    &:has(.add) {
-      --style: pt-24px;
-    }
+// 添加标签行
+.tags-add-row {
+  margin-bottom: 16px;
+  user-select: none;
+}
 
-    .tag-item {
-      --style: flex items-center justify-between p-0 select-none;
+.tag-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px dashed color-mix(in srgb, var(--slax-accent) 35%, transparent);
+  border-radius: 999px;
+  background: var(--slax-accent-bg);
+  color: var(--slax-accent);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
 
-      &.add {
-        --style: pr-46px;
-      }
-
-      .tag-add {
-        // bg-#a28d6414 / #a28d6430 tags 金黄系按钮底（褐金 8% / 19% 透明），保留
-        --style: 'py-10px px-16px rounded-6px bg-#a28d6414 flex-1 flex items-center cursor-pointer transition-colors duration-normal hover:bg-#a28d6430';
-        span {
-          --style: ml-12px text-(meta #a28d64) line-height-16px;
-        }
-      }
-
-      .tag-input {
-        --style: border-(1px solid #f4c982) rounded-6px p-0 flex-1 flex items-center justify-between cursor-pointer transition-all duration-normal;
-
-        input {
-          --style: flex-1 min-w-0 px-16px py-10px text-(meta #a28d64) line-height-16px font-500 bg-transparent;
-
-          &::placeholder,
-          &::-webkit-input-placeholder {
-            --style: text-(meta #a28d64) font-400;
-          }
-        }
-
-        .seperator {
-          --style: w-1px h-14px bg-border shrink-0;
-        }
-
-        button {
-          --style: 'shrink-0 px-12px text-(meta #a28d64) font-500 line-height-16px h-full transition-transfrom duration-normal hover:scale-105 active:scale-110';
-        }
-      }
-
-      .tag-cell {
-        --style: border-(1px solid #e4d6ba) rounded-6px px-16px py-10px flex-1 flex items-center justify-between cursor-pointer transition-all duration-normal overflow-hidden;
-
-        span {
-          --style: text-(meta #a28d64) line-height-16px text-ellipsis overflow-hidden whitespace-nowrap;
-        }
-
-        &:has(.ai) {
-          // #e4d6ba4d / #333333ad tags 金黄 AI 标签弱化边框 + 黑色 68% 文字，保留
-          --style: border-#e4d6ba4d;
-          span {
-            --style: text-#333333ad;
-          }
-        }
-
-        &:hover {
-          --style: '!border-(#f4c982)';
-        }
-
-        .ai {
-          --style: bg-contain w-16px h-16px shrink-0;
-          background-image: url('@images/cell-ai-style-icon.png');
-        }
-      }
-
-      .tag-operate {
-        --style: ml-16px shrink-0 rounded-full flex-center select-none transition-opacity duration-normal opacity-0;
-        button {
-          --style: 'rounded-full w-30px h-30px border-(1px solid #e4d6ba) flex-center transition-transform duration-normal not-first:ml-5px';
-
-          &:hover {
-            --style: scale-110;
-          }
-
-          &:active {
-            --style: scale-115;
-          }
-          img {
-            --style: w-16px h-16px object-fit;
-          }
-        }
-      }
-    }
-
-    .loading {
-      --style: 'flex items-center max-md:(justify-center)';
-
-      span {
-        --style: ml-10px text-(meta #a28d64);
-      }
-    }
+  &:hover {
+    border-color: var(--slax-accent);
+    background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
   }
 
-  .selected-tag {
-    --style: px-24px;
-    .tag-header {
-      --style: flex items-center py-24px border-b-(1px solid #ecf0f5);
+  svg {
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+}
 
-      button {
-        --style: w-16px h-16px;
-      }
+.tag-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--slax-accent);
+  border-radius: 999px;
+  background: var(--slax-accent-bg);
+  box-shadow: 0 0 0 3px var(--slax-accent-bg);
+  max-width: 320px;
 
-      span {
-        --style: ml-14px text-(txt 16px) line-height-20px font-500;
-      }
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    color: var(--slax-text);
+    font-family: inherit;
+
+    &::placeholder {
+      color: var(--slax-text-light);
     }
+  }
+}
+
+.tag-input-confirm {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  background: var(--slax-accent);
+  color: var(--slax-btn-text);
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.12s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// 加载中
+.tags-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+
+  span {
+    font-family: var(--slax-font-serif);
+    font-size: var(--slax-fs-body);
+    font-weight: 500;
+    color: var(--slax-text-muted);
+  }
+}
+
+// 标签列表：flex wrap 胶囊布局
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--slax-border);
+  border-radius: 999px;
+  background: var(--slax-surface);
+  color: var(--slax-text-muted);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--slax-accent) 40%, transparent);
+    background: var(--slax-accent-bg);
+    color: var(--slax-text);
+  }
+
+  &.system {
+    opacity: 0.65;
+  }
+}
+
+.ai-badge {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url('@images/cell-ai-style-icon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.tag-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--slax-border);
+  border-radius: 50%;
+  background: var(--slax-surface-solid);
+  color: var(--slax-text-light);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.12s;
+
+  .tag-item:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    border-color: var(--slax-accent);
+    color: var(--slax-accent);
+    background: var(--slax-accent-bg);
+  }
+}
+
+// 已选标签 header
+.selected-tag-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--slax-border);
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius-sm);
+  background: transparent;
+  color: var(--slax-text-muted);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--slax-surface);
+    color: var(--slax-text);
+    border-color: color-mix(in srgb, var(--slax-accent) 30%, var(--slax-border));
+  }
+
+  span {
+    font-weight: 500;
+    color: var(--slax-text);
   }
 }
 </style>

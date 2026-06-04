@@ -94,7 +94,7 @@ describe('composables/bookmark/useArticle', () => {
     it('updateStarred：BookmarkDetail 路径调 request.post 更新 starred', async () => {
       const detail = ref({ bookmark_id: 7, alias_title: '', title: 'B', starred: 'unstar', trashed_at: null })
       const r = useArticleDetail(detail as never)
-      await r.updateStarred?.(true)
+      await r.updateStarred.value?.(true)
       expect(mockPost).toHaveBeenCalledWith({
         url: '/v1/bookmark/star',
         body: { bookmark_id: 7, status: 'star' }
@@ -104,7 +104,7 @@ describe('composables/bookmark/useArticle', () => {
     it('updateStarred：ShareBookmarkDetail 路径返回 undefined（不允许调）', () => {
       const detail = ref({ share_info: { share_code: 'sc' }, title: 'X' })
       const r = useArticleDetail(detail as never)
-      expect(r.updateStarred).toBeUndefined()
+      expect(r.updateStarred.value).toBeUndefined()
     })
   })
 })

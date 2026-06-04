@@ -1,71 +1,106 @@
 <template>
   <div>
-    <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
-      <DetailLayout v-if="canView || isInvalidBookmark" ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
-        <template v-slot:panel>
-          <BookmarkPanel v-show="canView" :types="bookmarkPanelTypes" @panelClick="panelClick" />
-        </template>
-        <template v-if="!!isTrashedBookmark" v-slot:tips>
-          <TopTips
-            :isShow="!!isTrashedBookmark"
-            :tipsText="$t('page.bookmarks_detail.trash_bookmark_tips', { date: bookmarkTrashDate })"
-            :buttonText="$t('page.bookmarks_detail.trash_bookmark_restore')"
-            :background-color="'#FCF4E8'"
-            @clickButton="trashBookmark(false)"
-          />
-        </template>
-        <template v-slot:header>
-          <div class="header">
-            <div class="left">
-              <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
-              <ClientOnly><ProIcon /></ClientOnly>
-            </div>
-            <div class="right" v-if="!isTrashedBookmark && !isInvalidBookmark">
-              <UserNotification :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-              <ShareBubbleTips>
-                <button class="share" @click="shareUrl"></button>
-              </ShareBubbleTips>
-              <DotsMenu v-if="!menuLoading" :actions="menuActions" @action="menuClick" />
-              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
-            </div>
-          </div>
-        </template>
-        <template v-if="detail" v-slot:detail>
-          <div class="detail">
-            <BookmarkArticle ref="bookmarkArticle" :detail="detail" @screen-lock-update="screenLockUpdate" @bookmark-update="bookmarkUpdate" @chat-bot-quote="chatBotQuote" />
-            <div class="archive" v-if="!isArchieved">
-              <button @click="convienceArchiveClick">
-                <template v-if="!convienceArchiving">
-                  <img src="@images/panel-item-archive.png" alt="" /> <span>{{ $t('common.operate.archive') }}</span>
-                </template>
-                <template v-else>
-                  <div class="archive-loading">
-                    <div class="i-svg-spinners:90-ring text-brand"></div>
-                  </div>
-                </template>
+    <SnapshotDetailLayout v-if="canView || isInvalidBookmark" ref="snapshotLayout" class="bookmark-detail" @close-panel="activePanel = null">
+      <template #topbar>
+        <SnapshotTopBar>
+          <template #left>
+            <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
+          </template>
+          <template #theme-switcher>
+            <ClientOnly><ThemeSwitcher /></ClientOnly>
+          </template>
+          <template #right>
+            <template v-if="!isTrashedBookmark && !isInvalidBookmark">
+              <button class="topbar-share-btn" :title="$t('common.operate.share')" @click="shareUrl">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+                </svg>
               </button>
-            </div>
-          </div>
-        </template>
-      </DetailLayout>
-      <template v-if="canView">
-        <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <ClientOnly>
-            <AISummaries
-              v-if="bmId"
-              :bookmarkId="bmId"
-              :is-appeared="summariesExpanded"
-              :content-selector="'.bookmark-detail .detail'"
-              @navigated-text="navigateToText"
-              @dismiss="summariesExpanded = false"
-            />
-          </ClientOnly>
-        </SidebarLayout>
-        <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
-          <ChatBot ref="chatbot" :bookmarkId="bmId" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
-        </SidebarLayout>
+              <SnapshotMoreMenu v-if="!menuLoading" :actions="moreMenuActions" @action="moreMenuClick" />
+              <div v-else class="i-svg-spinners:90-ring text-txt w-1em"></div>
+            </template>
+          </template>
+        </SnapshotTopBar>
       </template>
-    </div>
+
+      <template #tips>
+        <TopTips
+          v-if="!!isTrashedBookmark"
+          :isShow="!!isTrashedBookmark"
+          :tipsText="$t('page.bookmarks_detail.trash_bookmark_tips', { date: bookmarkTrashDate })"
+          :buttonText="$t('page.bookmarks_detail.trash_bookmark_restore')"
+          :background-color="'#FCF4E8'"
+          @clickButton="trashBookmark(false)"
+        />
+      </template>
+
+      <BookmarkArticle
+        v-if="detail && canView"
+        ref="bookmarkArticle"
+        :detail="detail"
+        @screen-lock-update="screenLockUpdate"
+        @bookmark-update="bookmarkUpdate"
+        @chat-bot-quote="chatBotQuote"
+      />
+
+      <template #right-edge-toolbar>
+        <SnapshotRightEdgeToolbar v-if="canView" v-model="activePanel" :panel-open="activePanel !== null" />
+      </template>
+
+      <template #bottom-toolbar>
+        <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
+      </template>
+
+      <template #side-panel>
+        <SnapshotSidePanel v-if="canView" :active-tab="activePanel" @update:active-tab="activePanel = $event">
+          <template #ai>
+            <ClientOnly>
+              <SnapshotAIPanel v-if="bmId" :bookmark-id="bmId" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
+            </ClientOnly>
+          </template>
+          <template #chat>
+            <SnapshotChatPanel
+              v-if="!isSubscriptionExpired"
+              ref="chatbot"
+              :bookmarkId="bmId"
+              :is-appeared="activePanel === 'chat'"
+              @dismiss="activePanel = null"
+              @find-quote="findQuote"
+            />
+          </template>
+          <template #comment>
+            <ClientOnly>
+              <div class="comment-panel-wrap">
+                <SnapshotCommentList
+                  :infos="commentInfos"
+                  :active-info-id="activeInfoId"
+                  :allow-action="true"
+                  :user-list="detail?.marks?.user_list"
+                  @card-click="onCommentCardClick"
+                  @reply="onCommentReply"
+                  @reply-stroke="onReplyStroke"
+                />
+                <SnapshotCommentComposer
+                  :allow-action="true"
+                  :article-selection="bookmarkArticleSelection"
+                  :pending-selection="pendingSelection"
+                  :pending-quote="pendingQuote"
+                  :active-info-id="activeInfoId"
+                  :infos="commentInfos"
+                  :reply-to-uid="replyToUid"
+                  @sent="onCommentSent"
+                  @cancel-reply="onCancelReply"
+                />
+              </div>
+            </ClientOnly>
+          </template>
+        </SnapshotSidePanel>
+      </template>
+    </SnapshotDetailLayout>
+
     <ClientOnly>
       <div class="status" v-if="!canView || isInvalidBookmark">
         <div class="loading" v-if="loading">
@@ -91,15 +126,18 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
-import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
-import DotsMenu, { type DotsMenuActionItem } from '#layers/core/app/components/DotsMenu.vue'
-import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
-import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
-import ShareBubbleTips from '#layers/core/app/components/Tips/ShareBubbleTips.vue'
+import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
+import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
+import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
+import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
+import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
+import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
+import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
+import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
+import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
 
 import { formatDate } from '@commons/utils/date'
@@ -107,33 +145,50 @@ import { RequestError } from '@commons/utils/request'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkDetail, BookmarkParseStatus, type EmptyBookmarkResp } from '@commons/types/interface'
-import { vResizeObserver } from '@vueuse/components'
+import type { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showEditNameModal, showShareConfigModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
+import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
+import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
 const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
 
-const detailLayout = ref<InstanceType<typeof DetailLayout>>()
-const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
-const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
-
 const bmId = Number(router.params.id)
 const detail = ref<BookmarkDetail>()
-const convienceArchiving = ref(false)
 
-const bookmarkArticle = ref<typeof BookmarkArticle>()
-const bookmarkDetail = ref<HTMLDivElement>()
-const chatbot = ref<InstanceType<typeof ChatBot>>()
+// 从 detail 派生加星状态（供 BottomToolbar 消费）
+// 用空对象兜底，避免 useArticleDetail 内 isBookmarkDetail 对 undefined 执行 'in' 操作符报错
+const detailForArticle = computed(() => (detail.value ?? {}) as BookmarkArticleDetail)
+const { isStarred, allowStarred, updateStarred } = useArticleDetail(detailForArticle)
+
+const bookmarkArticle = ref<InstanceType<typeof BookmarkArticle>>()
+const chatbot = ref<InstanceType<typeof SnapshotChatPanel>>()
 const isInvalidBookmark = ref(false)
 
+// 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）
+// Vue proxyRefs 自动解包：bookmarkArticle.value?.articleSelection 直接是 DwebArticleSelection | null
+const bookmarkArticleSelection = computed(() => bookmarkArticle.value?.articleSelection ?? null)
+
+const commentInfos = computed(() => bookmarkArticleSelection.value?.markItemInfos?.value ?? [])
+
 const menuLoading = ref(false)
-const menuActions = ref<DotsMenuActionItem[]>([
-  { id: 'edit_title', name: t('common.operate.edit_title') },
-  { id: 'trash', name: t('common.operate.menu_trash') }
+
+const moreMenuActions = computed<MoreMenuAction[]>(() => [
+  {
+    id: 'edit_title',
+    label: t('common.operate.edit_title'),
+    icon: `<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>`
+  },
+  {
+    id: 'feedback',
+    label: t('common.operate.feedback'),
+    icon: `<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>`
+  }
 ])
 
 const isTrashedBookmark = computed(() => {
@@ -156,15 +211,96 @@ const isArchieved = computed(() => {
   return !(!detail.value || detail.value?.archived === 'inbox')
 })
 
-const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
-  return [
-    BookmarkPanelType.AI,
-    BookmarkPanelType.CHATBOT,
-    ...(isTrashedBookmark.value ? [] : [!isArchieved.value ? BookmarkPanelType.ARCHIVE : BookmarkPanelType.UNARCHIVE]),
-    BookmarkPanelType.TOP,
-    BookmarkPanelType.FEEDBACK
-  ]
+// Phase 3：activePanel 替代旧 bookmarkPanelTypes + panelClick 双状态
+const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+
+// 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
+const { panelOpen } = useSnapshotLayout()
+watch(activePanel, (val, oldVal) => {
+  // showAnalyzed/showChatbot 返回 false 表示被登录或订阅校验拦截
+  // 此时回退 activePanel，避免侧栏按钮高亮但内容被拦截的状态
+  if (val === 'ai' && !showAnalyzed()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
+  if (val === 'chat' && !showChatbot()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
+  panelOpen.value = val !== null
 })
+
+// Phase 5：评论面板联动（必须在 activePanel 声明之后）
+const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
+  activePanel,
+  articleSelection: bookmarkArticleSelection
+})
+
+const replyToUid = ref<string | null>(null)
+
+const onCommentCardClick = (infoId: string) => {
+  flashMarkByInfoId(infoId)
+}
+
+const onCommentReply = (comment: { markUid: string }) => {
+  const infos = bookmarkArticleSelection.value?.markItemInfos?.value ?? []
+  for (const info of infos) {
+    const found = info.comments.some(c => c.markUid === comment.markUid || c.children?.some(ch => ch.markUid === comment.markUid))
+    if (found) {
+      activeInfoId.value = info.id
+      replyToUid.value = comment.markUid
+      break
+    }
+  }
+}
+
+const onReplyStroke = (infoId: string) => {
+  activeInfoId.value = infoId
+  replyToUid.value = null
+}
+
+const onCommentSent = (infoId: string) => {
+  focusByInfoId(infoId)
+}
+
+const onCancelReply = () => {
+  pendingSelection.value = null
+  pendingQuote.value = null
+  activeInfoId.value = null
+  replyToUid.value = null
+}
+
+// SVG icon 字符串
+const archiveIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>`
+const starIconOff = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`
+
+const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [
+  {
+    id: 'archive',
+    icon: archiveIcon,
+    label: t('common.operate.archive'),
+    active: isArchieved.value,
+    visible: !isTrashedBookmark.value
+  },
+  {
+    id: 'star',
+    icon: starIconOff,
+    label: t('common.operate.star'),
+    active: isStarred.value,
+    visible: allowStarred.value
+  }
+])
+
+const bottomToolbarAction = async (action: BottomToolbarAction) => {
+  if (action.id === 'archive') {
+    await archiveBookmark(isArchieved.value)
+  } else if (action.id === 'star') {
+    await starBookmark(!isStarred.value)
+  } else if (action.id === 'top') {
+    backToTop()
+  }
+}
 
 const loadBookmark = async () => {
   if (loading.value) {
@@ -202,52 +338,29 @@ const loadBookmark = async () => {
   checkStatusInterval()
 }
 
-const {
-  user,
-  isSubscriptionExpired,
-  resizeAnimated,
-  summariesExpanded,
-  botExpanded,
-  contentXOffset,
-  isNeedResized,
-  onResizeObserver,
-  showAnalyzed,
-  showChatbot,
-  chatBotQuote,
-  showFeedback,
-  backToTop,
-  screenLockUpdate,
-  navigateToNotification,
-  navigateToBookmarks,
-  navigateToText
-} = useBookmark({
-  detailLayout,
-  summariesSidebar,
-  botSidebar,
-  bookmarkDetail,
-  chatbot,
-  typeOptions: () => {
-    return {
-      type: BookmarkType.Normal,
-      title: detail.value?.alias_title || detail.value?.title || t('page.bookmarks_detail.no_title'),
-      bmId: bmId
-    }
-  },
-  initialRequestTask: async () => {
-    await loadBookmark()
-  },
-  initialTasksCompleted: () => {
-    nextTick(() => {
-      if (!isSubscriptionExpired.value && user.value && !detailLayout.value?.isSmallScreen() && !isNeedResized.value) {
-        showChatbot()
+const { user, isSubscriptionExpired, showAnalyzed, showChatbot, chatBotQuote, showFeedback, backToTop, screenLockUpdate, navigateToNotification, navigateToBookmarks } =
+  useBookmark({
+    chatbot,
+    typeOptions: () => {
+      return {
+        type: BookmarkType.Normal,
+        title: detail.value?.alias_title || detail.value?.title || t('page.bookmarks_detail.no_title'),
+        bmId: bmId
       }
-
-      setTimeout(() => {
-        resizeAnimated.value = true
-      }, 0)
-    })
-  }
-})
+    },
+    initialRequestTask: async () => {
+      await loadBookmark()
+    },
+    initialTasksCompleted: () => {
+      nextTick(() => {
+        // 桌面态默认打开 comment tab（snapshot.md §4.3）
+        const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+        if (!isMobile) {
+          activePanel.value = 'comment'
+        }
+      })
+    }
+  })
 
 const checkStatusInterval = () => {
   if (!detail.value || detail.value.status !== BookmarkParseStatus.PENDING) {
@@ -337,15 +450,9 @@ const archiveBookmark = async (isCancel: boolean) => {
 }
 
 const convienceArchiveClick = async () => {
-  if (convienceArchiving.value) {
-    return
-  }
-
-  convienceArchiving.value = true
   await archiveBookmark(false)
   setTimeout(() => {
     navigateTo('/bookmarks')
-    convienceArchiving.value = false
   }, 1000)
 }
 
@@ -353,22 +460,64 @@ const findQuote = (quote: QuoteData) => {
   bookmarkArticle.value?.findQuote(quote)
 }
 
-const menuClick = async (action: DotsMenuActionItem) => {
+const starBookmark = async (isStar: boolean) => {
+  if (!updateStarred.value) return
+  try {
+    await updateStarred.value(isStar)
+    postChannelMessage('star', { id: bmId, cancel: !isStar })
+    Toast.showToast({
+      text: t(!isStar ? 'common.tips.unstar_success' : 'common.tips.star_success'),
+      type: ToastType.Success
+    })
+  } catch (e) {
+    console.log(e)
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+  }
+}
+
+const moreMenuClick = async (action: MoreMenuAction) => {
   const { id } = action
   if (id === 'edit_title') {
-    const bookmark = detail.value
-    if (!bookmark) {
-      return
-    }
-
-    showEditNameModal({
-      bookmarkId: bookmark.bookmark_id || 0,
-      name: bookmark.title,
-      aliasName: bookmark.alias_title,
-      callback: (name: string) => {
-        bookmark.alias_title = name
+    // contenteditable 内联编辑标题
+    const titleEl = document.querySelector('.bookmark-detail .article-title') as HTMLElement
+    if (!titleEl) return
+    titleEl.setAttribute('contenteditable', 'true')
+    titleEl.focus()
+    const range = document.createRange()
+    range.selectNodeContents(titleEl)
+    const sel = window.getSelection()
+    sel?.removeAllRanges()
+    sel?.addRange(range)
+    const finish = async () => {
+      titleEl.removeAttribute('contenteditable')
+      titleEl.removeEventListener('blur', finish)
+      titleEl.removeEventListener('keydown', onKey)
+      const newTitle = titleEl.textContent?.trim() || ''
+      if (newTitle && detail.value && newTitle !== (detail.value.alias_title || detail.value.title)) {
+        const bookmark = detail.value
+        menuLoading.value = true
+        try {
+          await request().post({ url: RESTMethodPath.BOOKMARK_ALIAS_TITLE, body: { bookmark_id: bookmark.bookmark_id, alias_title: newTitle } })
+          bookmark.alias_title = newTitle
+        } finally {
+          menuLoading.value = false
+        }
       }
-    })
+    }
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault()
+        titleEl.blur()
+      }
+      if (ev.key === 'Escape') {
+        titleEl.textContent = detail.value?.alias_title || detail.value?.title || ''
+        titleEl.blur()
+      }
+    }
+    titleEl.addEventListener('blur', finish)
+    titleEl.addEventListener('keydown', onKey)
+  } else if (id === 'feedback') {
+    showFeedback()
   } else if (id === 'trash') {
     menuLoading.value = true
     await trashBookmark(true)
@@ -376,27 +525,8 @@ const menuClick = async (action: DotsMenuActionItem) => {
   }
 }
 
-const panelClick = (type: BookmarkPanelType) => {
-  switch (type) {
-    case BookmarkPanelType.AI:
-      showAnalyzed()
-      break
-    case BookmarkPanelType.CHATBOT:
-      showChatbot()
-      break
-    case BookmarkPanelType.ARCHIVE:
-      archiveBookmark(false)
-      break
-    case BookmarkPanelType.UNARCHIVE:
-      archiveBookmark(true)
-      break
-    case BookmarkPanelType.TOP:
-      backToTop()
-      break
-    case BookmarkPanelType.FEEDBACK:
-      showFeedback()
-      break
-  }
+const panelClick = (_type: BookmarkPanelType) => {
+  // Phase 3 后由 SnapshotRightEdgeToolbar + SnapshotBottomToolbar 接管，此函数保留供 spec stub 兼容
 }
 </script>
 
@@ -406,62 +536,34 @@ const panelClick = (type: BookmarkPanelType) => {
   // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
   --slax-header-height: var(--slax-header-h-snapshot);
 
-  --style: w-full relative flex justify-center items-start bg-surface-solid;
+  --style: w-full relative flex justify-center items-start;
 
-  .header {
-    --style: h-full flex justify-between items-center;
-
-    .left {
-      --style: flex items-center justify-start;
-      .app-name {
-        --style: text-(body #16b998) font-bold line-height-22px;
-      }
-
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-    }
-
-    .right {
-      --style: pr-20px flex-center;
-
-      & > *:not(:first-child) {
-        --style: ml-16px;
-      }
-
-      .share {
-        --style: 'w-16px h-16px hover:(scale-105) active:(scale-110) bg-cover';
-        background-image: url('@images/tiny-share-icon.png');
-      }
-    }
+  .app-name {
+    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    color: var(--slax-text);
   }
 
-  .archive {
-    --style: 'flex-center pb-60px max-md:(flex) md:(hidden)';
-    button {
-      --style: relative w-200px h-48px rounded-3xl bg-white border-(1px solid #6a6e8333) flex-center cursor-auto;
+  .topbar-share-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--slax-text-light);
+    background: transparent;
 
-      &:not(:has(.archive-loading)) {
-        --style: 'hover:(opacity-90 scale-105) transition-all duration-normal cursor-pointer';
-      }
-
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-
-      img {
-        --style: w-20px h-20px;
-      }
-
-      span {
-        --style: text-(meta txt) font-bold line-height-18px;
-      }
-
-      .archive-loading {
-        --style: flex-center text-slate absolute inset-0;
-      }
+    &:hover {
+      color: var(--slax-text);
+      background: var(--slax-accent-bg);
     }
   }
+}
+
+.comment-panel-wrap {
+  --style: h-full flex flex-col overflow-hidden;
 }
 
 .status {
@@ -484,5 +586,14 @@ const panelClick = (type: BookmarkPanelType) => {
 <style lang="scss">
 html {
   --style: bg-surface-solid;
+}
+/* 详情页阅读界面保留更暖的渐变光斑（#fff4e0），其余页面用全局 :root 的 #faf5eb。
+ * 只正向命中 light（含 color-mode 注入前的无属性首屏态），不写 :not 黑名单——
+ * 这样将来新增主题时它们自动落到各自 :root token，无需回来逐个详情页补排除。
+ * 特异性 (0,2,0) > 全局 light 的 :root (0,1,0)，覆盖不依赖源码顺序。 */
+:root[data-slax-theme='light'],
+:root:not([data-slax-theme]) {
+  --slax-grad-a: #fff4e0;
+  --slax-grad-b: #faecdc;
 }
 </style>

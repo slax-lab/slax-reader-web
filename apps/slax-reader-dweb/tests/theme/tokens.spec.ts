@@ -27,6 +27,7 @@ const ROOT_REQUIRED_TOKENS = [
   '--slax-selection',
   '--slax-shadow-warm',
   '--slax-shadow-sm',
+  '--slax-shadow-modal',
   '--slax-radius',
   '--slax-radius-sm',
   '--slax-grad-a',
@@ -48,6 +49,9 @@ const THEME_REQUIRED_TOKENS = [
   '--slax-danger',
   '--slax-border',
   '--slax-selection',
+  '--slax-shadow-warm',
+  '--slax-shadow-sm',
+  '--slax-shadow-modal',
   '--slax-grad-a',
   '--slax-grad-b'
 ]
@@ -56,6 +60,9 @@ const ROOT_ONLY_TOKENS = [
   '--slax-header-height',
   '--slax-content-min-w',
   '--slax-side-panel-w',
+  '--slax-side-panel-min-w',
+  '--slax-side-panel-max-w',
+  '--slax-push-amount',
   '--slax-fs-display',
   '--slax-fs-h2',
   '--slax-fs-brand',
@@ -151,5 +158,14 @@ describe('theme.tokens.css 静态校验', () => {
       expect(eink, `eink 必须 override ${t}`).toContain(t)
     }
     expect(eink, 'eink --slax-blur 必须为 none').toMatch(/--slax-blur:\s*none/)
+  })
+
+  it("[data-slax-theme='eink'] 块必须把三档阴影 token 全部置 none", () => {
+    // E-ink 无阴影是硬规则；shadow-modal 含字面投影 0 20px 60px，
+    // 若 eink 不显式置 none 会回落到 light 值，在墨水屏渲染出投影
+    const eink = extractBlock("[data-slax-theme='eink']")
+    expect(eink, 'eink --slax-shadow-warm 必须为 none').toMatch(/--slax-shadow-warm:\s*none/)
+    expect(eink, 'eink --slax-shadow-sm 必须为 none').toMatch(/--slax-shadow-sm:\s*none/)
+    expect(eink, 'eink --slax-shadow-modal 必须为 none').toMatch(/--slax-shadow-modal:\s*none/)
   })
 })

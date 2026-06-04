@@ -48,9 +48,7 @@ const buttonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="
     opacity: 0;
     margin-left: 12px;
     padding-right: 12px;
-    font-family:
-      PingFangSC,
-      PingFang SC;
+    font-family: inherit;
     font-weight: 400;
     font-size: 14px;
     color: #dbdfe8;

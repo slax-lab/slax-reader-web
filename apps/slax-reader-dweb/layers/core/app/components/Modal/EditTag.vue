@@ -17,13 +17,26 @@
             @compositionend="compositionend"
           ></textarea>
         </div>
-        <div class="bottom">
+
+        <!-- 正常态底部：保存 + 删除 -->
+        <div class="bottom" v-if="!confirmingDelete">
+          <button class="delete-btn" @click="confirmingDelete = true">{{ t('common.operate.delete') }}</button>
           <button @click="submitTagName">{{ t('common.operate.save') }}</button>
         </div>
+
+        <!-- 二次确认态底部：确认删除 -->
+        <div class="bottom confirm-delete" v-else>
+          <span class="confirm-text">{{ t('component.edit_tag.delete_confirm') }}</span>
+          <div class="confirm-actions">
+            <button class="cancel-btn" @click="confirmingDelete = false">{{ t('common.operate.cancel') }}</button>
+            <button class="danger-btn" @click="deleteTag">{{ t('common.operate.confirm') }}</button>
+          </div>
+        </div>
+
         <Transition name="opacity">
           <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
-            <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
+            <div class="i-svg-spinners:180-ring-with-bg text-accent text-3xl"></div>
           </div>
         </Transition>
       </div>
@@ -49,6 +62,7 @@ const isLocked = useScrollLock(window)
 const appear = ref(false)
 const editname = ref('')
 const compositionAppear = ref(false)
+const confirmingDelete = ref(false)
 
 isLocked.value = true
 
@@ -151,76 +165,237 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .edit-tag-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: transparent;
+  transition: background 0.2s;
+
   &.appear {
-    // #0f141999 通用 UI 蒙层（深灰半透），保留
-    --style: bg-#0f141999;
+    background: color-mix(in srgb, var(--slax-text) 22%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
-button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
-}
-
 .modal-content {
-  --style: bg-surface rounded-2 p-24px w-480px select-none mb-10 relative overflow-hidden;
+  width: 480px;
+  max-width: 100%;
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 24px 64px color-mix(in srgb, var(--slax-accent) 16%, transparent),
+    inset 0 1px 0 var(--slax-inset-hi);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 
   .header {
-    --style: flex justify-between items-center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
     span {
-      --style: text-(aux txt-light) line-height-18px;
+      font-family: var(--slax-font-serif);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--slax-text);
+      letter-spacing: 0.01em;
     }
 
-    button {
-      --style: w-16px h-16px;
+    button.close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: var(--slax-radius-sm);
+      cursor: pointer;
+      color: var(--slax-text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--slax-surface);
+        color: var(--slax-text);
+        transform: none;
+        opacity: 1;
+      }
+
       img {
-        --style: w-full;
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
       }
     }
   }
 
   .content {
-    --style: mt-16px flex flex-col items-center justify-stretch;
-    textarea {
-      --style: w-full h-60px rounded-2 border-(1px solid #3333330d) text-(meta txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
+    margin-bottom: 20px;
 
-      &::placeholder,
-      &::-webkit-input-placeholder {
-        --style: text-(meta txt-light);
+    textarea {
+      width: 100%;
+      height: 72px;
+      padding: 10px 14px;
+      border: 1px solid var(--slax-border);
+      border-radius: var(--slax-radius-sm);
+      background: var(--slax-surface);
+      color: var(--slax-text);
+      font-size: 13px;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+
+      &:focus {
+        border-color: var(--slax-accent);
+        box-shadow: 0 0 0 3px var(--slax-accent-bg);
+      }
+
+      &::placeholder {
+        color: var(--slax-text-light);
       }
     }
   }
 
   .bottom {
-    --style: mt-20px flex justify-end items-center;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
 
-    & > * {
-      --style: 'not-first:ml-32px';
-    }
-
-    button:not(.delete) {
-      // #16B998 品牌绿（slax 主色）保存按钮底色，保留
-      --style: flex-center w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
+    button:not(.delete-btn):not(.cancel-btn):not(.danger-btn) {
+      padding: 8px 18px;
+      background: var(--slax-accent);
+      color: var(--slax-btn-text);
+      border: none;
+      border-radius: var(--slax-radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
 
       &:hover {
-        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
-        --style: bg-#14a689;
+        opacity: 0.9;
+        transform: translateY(-1px);
       }
 
       &:active {
-        --style: scale-105;
+        transform: scale(0.97);
+      }
+    }
+
+    .delete-btn {
+      padding: 0;
+      background: transparent;
+      color: var(--slax-text-light);
+      border: none;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color 0.12s;
+
+      &:hover {
+        color: var(--slax-danger);
+      }
+    }
+  }
+
+  .confirm-delete {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--slax-border);
+
+    .confirm-text {
+      font-size: 13px;
+      color: var(--slax-danger);
+      line-height: 1.5;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .cancel-btn {
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--slax-border);
+      border-radius: var(--slax-radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--slax-text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--slax-surface);
+        color: var(--slax-text);
+      }
+    }
+
+    .danger-btn {
+      padding: 7px 14px;
+      background: var(--slax-danger);
+      color: #fff;
+      border: none;
+      border-radius: var(--slax-radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
       }
     }
   }
 }
 
+// 加载遮罩
+.absolute {
+  position: absolute;
+}
+.inset-0 {
+  inset: 0;
+}
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+
 .modal-leave-to,
 .modal-enter-from {
-  --style: opacity-0 -translate-y-25px;
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
 }
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-normal ease-in-out;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>

@@ -1,4 +1,4 @@
-import type { Linter } from 'eslint'
+import type { ESLint, Linter } from 'eslint'
 import config from '../../eslint.config'
 import typescriptParser from '@typescript-eslint/parser'
 import unocss from '@unocss/eslint-plugin'
@@ -22,7 +22,8 @@ const dwebConfig: Linter.Config[] = [
   {
     plugins: {
       'simple-import-sort': simpleImportSort,
-      '@unocss': unocss
+      // @unocss/eslint-plugin 的 configs 类型不满足 ESLint Plugin 的索引签名（上游类型定义问题），断言收口
+      '@unocss': unocss as unknown as ESLint.Plugin
     },
     rules: {
       '@unocss/order': 'warn',

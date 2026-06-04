@@ -1,74 +1,111 @@
 <template>
   <div>
-    <div class="bookmark-detail" ref="bookmarkDetail" v-resize-observer="[onResizeObserver, {}]">
-      <DetailLayout ref="detailLayout" :content-x-offset="contentXOffset" :animated="resizeAnimated">
-        <template v-slot:panel>
-          <BookmarkPanel v-show="detail" :types="bookmarkPanelTypes" @panelClick="panelClick" />
-        </template>
-        <template v-slot:tips>
-          <ClientOnly>
-            <TopTips
-              v-show="detail"
-              :is-show="true"
-              :button-enabled="isShowTransferButton"
-              :tipsText="shareText"
-              :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
-              :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
-              :background-color="'#EDF8F2'"
-              @clickButton="transferSaveClick"
-            >
-              <template #left>
-                <img class="user-icon" v-if="!detail?.user_info?.avatar" src="@images/user-default-avatar.png" alt="" />
-                <img class="user-icon" v-else :src="detail.user_info.avatar" alt="" />
-              </template>
-            </TopTips>
-          </ClientOnly>
-        </template>
-        <template v-slot:header>
-          <div class="header">
-            <div class="left">
-              <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
-              <ClientOnly><ProIcon /></ClientOnly>
-            </div>
-            <ClientOnly>
-              <UserNotification v-if="user" :iconStyle="UserNotificationIconStyle.TINY" @checkAll="navigateToNotification" />
-            </ClientOnly>
-          </div>
-        </template>
-        <template v-slot:detail>
-          <BookmarkArticle
-            v-if="detail"
-            ref="bookmarkArticle"
-            :detail="detail"
-            :marks="marks"
-            @screen-lock-update="screenLockUpdate"
-            @bookmark-update="bookmarkUpdate"
-            @chat-bot-quote="chatBotQuote"
-          />
-          <ClientOnly>
-            <div class="login">
-              <GoogleLoginButton ref="googleLoginBtn" v-if="!user" :redirect="redirectHref" />
-            </div>
-          </ClientOnly>
-        </template>
-      </DetailLayout>
+    <SnapshotDetailLayout class="bookmark-detail" @close-panel="activePanel = null">
+      <template #topbar>
+        <SnapshotTopBar>
+          <template #left>
+            <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
+          </template>
+          <template #theme-switcher>
+            <ClientOnly><ThemeSwitcher /></ClientOnly>
+          </template>
+          <template #right>
+            <SnapshotSharePopover />
+            <SnapshotMoreMenu :actions="moreMenuActions" @action="moreMenuClick" />
+          </template>
+        </SnapshotTopBar>
+      </template>
+
+      <template #tips>
+        <ClientOnly>
+          <TopTips
+            v-show="detail"
+            :is-show="true"
+            :button-enabled="isShowTransferButton"
+            :tipsText="shareText"
+            :buttonText="isShowTransferButton === undefined ? '' : isShowTransferButton ? $t('page.share_detail.transfer_save') : $t('page.share_detail.transfered_save')"
+            :buttonTextColor="isShowTransferButton ? '#5490C2' : 'txt-light'"
+            :background-color="'#EDF8F2'"
+            @clickButton="transferSaveClick"
+          >
+            <template #left>
+              <img class="user-icon" v-if="!detail?.user_info?.avatar" src="@images/user-default-avatar.png" alt="" />
+              <img class="user-icon" v-else :src="detail.user_info.avatar" alt="" />
+            </template>
+          </TopTips>
+        </ClientOnly>
+      </template>
+
+      <BookmarkArticle
+        v-if="detail"
+        ref="bookmarkArticle"
+        :detail="detail"
+        :marks="marks"
+        @screen-lock-update="screenLockUpdate"
+        @bookmark-update="bookmarkUpdate"
+        @chat-bot-quote="chatBotQuote"
+      />
       <ClientOnly>
-        <SidebarLayout v-model:show="summariesExpanded" width="504px" ref="summariesSidebar" :animated="resizeAnimated">
-          <ClientOnly>
-            <AISummaries
-              :share-code="shareCode"
-              :is-appeared="summariesExpanded"
-              :content-selector="'.bookmark-detail .detail'"
-              @navigated-text="navigateToText"
-              @dismiss="summariesExpanded = false"
-            />
-          </ClientOnly>
-        </SidebarLayout>
-        <SidebarLayout v-if="!isSubscriptionExpired" v-model:show="botExpanded" width="504px" ref="botSidebar" :animated="resizeAnimated">
-          <ChatBot ref="chatbot" :share-code="shareCode" :is-appeared="botExpanded" @dismiss="botExpanded = false" @find-quote="findQuote" />
-        </SidebarLayout>
+        <div class="login">
+          <GoogleLoginButton ref="googleLoginBtn" v-if="!user" :redirect="redirectHref" />
+        </div>
       </ClientOnly>
-    </div>
+
+      <template #right-edge-toolbar>
+        <SnapshotRightEdgeToolbar v-if="detail" v-model="activePanel" :panel-open="activePanel !== null" />
+      </template>
+
+      <template #bottom-toolbar>
+        <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
+      </template>
+
+      <template #side-panel>
+        <SnapshotSidePanel v-if="detail" :active-tab="activePanel" @update:active-tab="activePanel = $event">
+          <template #ai>
+            <ClientOnly>
+              <SnapshotAIPanel :share-code="shareCode" :is-appeared="activePanel === 'ai'" @dismiss="activePanel = null" />
+            </ClientOnly>
+          </template>
+          <template #chat>
+            <SnapshotChatPanel
+              v-if="!isSubscriptionExpired"
+              ref="chatbot"
+              :share-code="shareCode"
+              :is-appeared="activePanel === 'chat'"
+              @dismiss="activePanel = null"
+              @find-quote="findQuote"
+            />
+          </template>
+          <template #comment>
+            <ClientOnly>
+              <div class="comment-panel-wrap">
+                <SnapshotCommentList
+                  :infos="commentInfos"
+                  :active-info-id="activeInfoId"
+                  :allow-action="!!detail?.share_info?.allow_action"
+                  :user-list="marks?.user_list"
+                  @card-click="onCommentCardClick"
+                  @reply="onCommentReply"
+                  @reply-stroke="onReplyStroke"
+                />
+                <SnapshotCommentComposer
+                  :allow-action="!!detail?.share_info?.allow_action"
+                  :article-selection="bookmarkArticleSelection"
+                  :pending-selection="pendingSelection"
+                  :pending-quote="pendingQuote"
+                  :active-info-id="activeInfoId"
+                  :infos="commentInfos"
+                  :reply-to-uid="replyToUid"
+                  @sent="onCommentSent"
+                  @cancel-reply="onCancelReply"
+                />
+              </div>
+            </ClientOnly>
+          </template>
+        </SnapshotSidePanel>
+      </template>
+    </SnapshotDetailLayout>
+
     <ClientOnly>
       <div class="status" v-if="loading">
         <div class="loading" v-if="loading">
@@ -81,14 +118,20 @@
 </template>
 
 <script lang="ts" setup>
-import AISummaries from '#layers/core/app/components/AISummaries.vue'
 import BookmarkArticle from '#layers/core/app/components/Article/BookmarkArticle.vue'
-import BookmarkPanel, { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.vue'
-import ChatBot from '#layers/core/app/components/Chat/ChatBot.vue'
+import ThemeSwitcher from '#layers/core/app/components/global/ThemeSwitcher.vue'
 import GoogleLoginButton from '#layers/core/app/components/GoogleLoginButton.vue'
-import DetailLayout from '#layers/core/app/components/Layouts/DetailLayout.vue'
-import SidebarLayout from '#layers/core/app/components/Layouts/SidebarLayout.vue'
-import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
+import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDetailLayout.vue'
+import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
+import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
+import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
+import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
+import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
+import SnapshotMoreMenu, { type MoreMenuAction } from '#layers/core/app/components/Snapshot/SnapshotMoreMenu.vue'
+import SnapshotRightEdgeToolbar from '#layers/core/app/components/Snapshot/SnapshotRightEdgeToolbar.vue'
+import SnapshotSharePopover from '#layers/core/app/components/Snapshot/SnapshotSharePopover.vue'
+import SnapshotTopBar from '#layers/core/app/components/Snapshot/SnapshotTopBar.vue'
 import TopTips from '#layers/core/app/components/Tips/TopTips.vue'
 
 import { formatDate } from '@commons/utils/date'
@@ -97,19 +140,17 @@ import { extractHTMLTextContent } from '@commons/utils/parse'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
-import { vResizeObserver } from '@vueuse/components'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
+import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
+import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
 const { t } = useI18n()
 const router = useRoute()
 const loading = ref(false)
 
 const config = useRuntimeConfig().public
-const detailLayout = ref<InstanceType<typeof DetailLayout>>()
-const summariesSidebar = ref<InstanceType<typeof SidebarLayout>>()
-const botSidebar = ref<InstanceType<typeof SidebarLayout>>()
 
 const googleLoginBtn = ref<InstanceType<typeof GoogleLoginButton>>()
 const shareCode = String(router.params.id)
@@ -117,8 +158,12 @@ const detail = ref<ShareBookmarkDetail>()
 const marks = ref<MarkDetail>()
 
 const bookmarkArticle = ref<InstanceType<typeof BookmarkArticle>>()
-const bookmarkDetail = ref<HTMLDivElement>()
-const chatbot = ref<InstanceType<typeof ChatBot>>()
+const chatbot = ref<InstanceType<typeof SnapshotChatPanel>>()
+
+// 从 BookmarkArticle 暴露的 articleSelection 实例（Phase 5 评论面板）
+const bookmarkArticleSelection = computed(() => bookmarkArticle.value?.articleSelection ?? null)
+
+const commentInfos = computed(() => bookmarkArticleSelection.value?.markItemInfos?.value ?? [])
 
 const isShowTransferButton = ref<boolean>()
 
@@ -129,9 +174,72 @@ const shareText = computed(() => {
   })
 })
 
-const bookmarkPanelTypes = computed<BookmarkPanelType[]>(() => {
-  return [BookmarkPanelType.AI, BookmarkPanelType.CHATBOT, BookmarkPanelType.TOP, BookmarkPanelType.FEEDBACK]
+const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
+
+// Phase 3：activePanel + BottomToolbar（s 页仅 top 按钮）
+const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+
+// 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
+const { panelOpen } = useSnapshotLayout()
+watch(activePanel, (val, oldVal) => {
+  if (val === 'ai' && !showAnalyzed()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
+  if (val === 'chat' && !showChatbot()) {
+    activePanel.value = oldVal ?? null
+    return
+  }
+  panelOpen.value = val !== null
 })
+
+// Phase 5：评论面板联动（必须在 activePanel 声明之后）
+const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
+  activePanel,
+  articleSelection: bookmarkArticleSelection
+})
+
+const replyToUid = ref<string | null>(null)
+
+const onCommentCardClick = (infoId: string) => {
+  flashMarkByInfoId(infoId)
+}
+
+const onCommentReply = (comment: { markUid: string }) => {
+  const infos = bookmarkArticleSelection.value?.markItemInfos?.value ?? []
+  for (const info of infos) {
+    const found = info.comments.some(c => c.markUid === comment.markUid || c.children?.some(ch => ch.markUid === comment.markUid))
+    if (found) {
+      activeInfoId.value = info.id
+      replyToUid.value = comment.markUid
+      break
+    }
+  }
+}
+
+const onReplyStroke = (infoId: string) => {
+  activeInfoId.value = infoId
+  replyToUid.value = null
+}
+
+const onCommentSent = (infoId: string) => {
+  focusByInfoId(infoId)
+}
+
+const onCancelReply = () => {
+  pendingSelection.value = null
+  pendingQuote.value = null
+  activeInfoId.value = null
+  replyToUid.value = null
+}
+
+const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`
+
+const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [{ id: 'top', icon: topIcon, label: t('common.operate.top') }])
+
+const bottomToolbarAction = (action: BottomToolbarAction) => {
+  if (action.id === 'top') backToTop()
+}
 
 const defineSeo = () => {
   if (!detail.value) {
@@ -248,12 +356,6 @@ const {
   user,
   isSubscriptionExpired,
   redirectHref,
-  resizeAnimated,
-  summariesExpanded,
-  botExpanded,
-  contentXOffset,
-  isNeedResized,
-  onResizeObserver,
   showAnalyzed,
   showChatbot,
   chatBotQuote,
@@ -262,13 +364,8 @@ const {
   loginVerify,
   screenLockUpdate,
   navigateToNotification,
-  navigateToBookmarks,
-  navigateToText
+  navigateToBookmarks
 } = useBookmark({
-  detailLayout,
-  summariesSidebar,
-  botSidebar,
-  bookmarkDetail,
   chatbot,
   typeOptions: () => {
     return {
@@ -290,13 +387,11 @@ const {
     }
 
     nextTick(() => {
-      if (!isSubscriptionExpired.value && user.value && !detailLayout.value?.isSmallScreen() && !isNeedResized.value) {
-        showChatbot()
+      // 桌面态默认打开 comment tab（snapshot.md §4.3）
+      const isMobile = window.innerWidth <= 768
+      if (!isMobile) {
+        activePanel.value = 'comment'
       }
-
-      setTimeout(() => {
-        resizeAnimated.value = true
-      }, 0)
     })
   }
 })
@@ -355,20 +450,9 @@ const transferSaveClick = () => {
     })
 }
 
-const panelClick = (type: BookmarkPanelType) => {
-  switch (type) {
-    case BookmarkPanelType.AI:
-      showAnalyzed()
-      break
-    case BookmarkPanelType.CHATBOT:
-      showChatbot()
-      break
-    case BookmarkPanelType.TOP:
-      backToTop()
-      break
-    case BookmarkPanelType.FEEDBACK:
-      showFeedback()
-      break
+const moreMenuClick = (action: MoreMenuAction) => {
+  if (action.id === 'feedback') {
+    showFeedback()
   }
 }
 </script>
@@ -379,7 +463,7 @@ const panelClick = (type: BookmarkPanelType) => {
   // 通过 override --slax-header-height 让本页的 DetailLayout .header-container（h-header）拿到 52
   --slax-header-height: var(--slax-header-h-snapshot);
 
-  --style: w-full min-h-screen relative flex justify-center items-start bg-surface-solid;
+  --style: w-full min-h-screen relative flex justify-center items-start;
 
   .user-icon {
     --style: 'rounded-full border-(1px txt-btn solid) w-24px h-24px relative overflow-hidden cursor-pointer transition-transform duration-normal hover:scale-102 active:scale-105';
@@ -388,24 +472,18 @@ const panelClick = (type: BookmarkPanelType) => {
     }
   }
 
-  .header {
-    --style: h-full flex justify-between items-center;
-
-    .left {
-      --style: flex items-center justify-start;
-      .app-name {
-        --style: text-(body #16b998) font-bold line-height-22px;
-      }
-
-      & > * {
-        --style: 'not-first:ml-8px';
-      }
-    }
+  .app-name {
+    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    color: var(--slax-text);
   }
 
   .login {
     --style: flex-center mt-0 pb-170px;
   }
+}
+
+.comment-panel-wrap {
+  --style: h-full flex flex-col overflow-hidden;
 }
 
 .status {
@@ -421,5 +499,14 @@ const panelClick = (type: BookmarkPanelType) => {
 <style lang="scss">
 html {
   --style: bg-surface-solid;
+}
+/* 详情页阅读界面保留更暖的渐变光斑（#fff4e0），其余页面用全局 :root 的 #faf5eb。
+ * 只正向命中 light（含 color-mode 注入前的无属性首屏态），不写 :not 黑名单——
+ * 这样将来新增主题时它们自动落到各自 :root token，无需回来逐个详情页补排除。
+ * 特异性 (0,2,0) > 全局 light 的 :root (0,1,0)，覆盖不依赖源码顺序。 */
+:root[data-slax-theme='light'],
+:root:not([data-slax-theme]) {
+  --slax-grad-a: #fff4e0;
+  --slax-grad-b: #faecdc;
 }
 </style>

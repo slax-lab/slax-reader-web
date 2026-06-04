@@ -41,21 +41,27 @@ useHead({
 
 .delete-account-notice {
   main {
-    --style: py-40px px-20px bg-#fcffff flex-center flex-col;
+    --style: py-40px px-20px flex-center flex-col;
+    background: var(--slax-bg);
 
     .language-tabs {
       --style: flex justify-center items-center gap-12px mb-32px w-full;
 
       .language-tab {
-        --style: py-10px px-24px border-none bg-transparent rounded-20px cursor-pointer text-15px font-500 color-#999999 transition-all duration-250 ease line-height-1
-          whitespace-nowrap min-w-100px text-center h-40px inline-flex items-center justify-center;
+        --style: py-10px px-24px border-none bg-transparent rounded-20px cursor-pointer text-15px font-500 line-height-1 whitespace-nowrap min-w-100px text-center h-40px
+          inline-flex items-center justify-center;
+        color: var(--slax-text-muted);
+        transition: all var(--slax-dur-normal);
 
         &:hover {
-          --style: color-#16b998 transform-scale-105;
+          color: var(--slax-accent);
+          --style: transform-scale-105;
         }
 
         &.active {
-          --style: bg-#16b9981f color-#16b998 font-600;
+          background: var(--slax-accent-bg);
+          color: var(--slax-accent);
+          --style: font-600;
         }
       }
     }

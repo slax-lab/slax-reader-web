@@ -1,38 +1,30 @@
 <template>
-  <div class="bookmark-item clickable" @click="jumpToOriginal(highlight)">
-    <div v-if="highlight.title" class="article-header">
-      <div class="article-title">
-        <time>{{ dateString(highlight.created_at) }}</time>
-      </div>
-    </div>
-
-    <div class="content-wrapper">
-      <div class="content-container">
-        <div class="content">
-          <template v-if="highlight.type === 'mark'">
-            <div class="cell-title stroke">{{ getContent(highlight) }}</div>
-          </template>
-          <template v-else-if="highlight.type === 'comment'">
-            <div class="cell-title">{{ highlight.comment }}</div>
-            <div class="quote-content">
-              {{ getContent(highlight) }}
-            </div>
-          </template>
-          <template v-else-if="highlight.type === 'reply'">
-            <div class="cell-title">{{ highlight.comment }}</div>
-            <div class="quote-content" :class="{ deleted: highlight.parent_comment_deleted }">
-              {{ !highlight.parent_comment_deleted ? highlight.parent_comment : $t('page.bookmarks_index.content_deleted') }}
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <div class="item-footer">
-      <img src="@images/tiny-href-gray-icon.png" alt="" />
+  <!-- 划线卡片：对齐 demo .highlight-card 结构 -->
+  <div class="highlight-card" @click="jumpToOriginal(highlight)">
+    <!-- 来源文章标题 -->
+    <div class="highlight-source" v-if="highlight.title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+      </svg>
       <span>{{ highlight.title }}</span>
-      <span class="source">{{ $t('page.bookmarks_index.view_original') }}</span>
     </div>
+
+    <!-- 划线引用块 -->
+    <blockquote class="highlight-quote" v-if="highlight.type === 'mark' || highlight.type === 'comment' || highlight.type === 'reply'">
+      {{ getContent(highlight) }}
+    </blockquote>
+
+    <!-- 笔记/评论文字 -->
+    <p class="highlight-note" v-if="highlight.type === 'comment' && highlight.comment">
+      {{ highlight.comment }}
+    </p>
+    <p class="highlight-note" v-else-if="highlight.type === 'reply' && highlight.comment">
+      {{ highlight.comment }}
+    </p>
+
+    <!-- 时间 -->
+    <div class="highlight-meta">{{ dateString(highlight.created_at) }}</div>
   </div>
 </template>
 
@@ -76,69 +68,80 @@ const jumpToOriginal = (item: HighlightItem) => {
     default:
       jumpUrl = `/bookmarks/${item.source_id}?highlight=${item.id}`
   }
-  pwaOpen({
-    url: jumpUrl
-  })
+  pwaOpen({ url: jumpUrl })
 }
 </script>
 
 <style lang="scss" scoped>
-.bookmark-item {
-  --style: 'bg-surface rounded-8px py-16px px-24px select-none not-first:(mt-10px)';
+.highlight-card {
+  padding: 16px 18px;
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
 
-  .article-header {
-    .article-title {
-      --style: text-(tag txt-light) line-height-17px;
-    }
-  }
-
-  .content-wrapper {
-    --style: pt-8px;
-    .content-container {
-      .content {
-        --style: flex flex-col justify-start items-start;
-        .cell-title {
-          --style: inline-block text-(meta txt truncate) line-height-22px font-500 max-w-full;
-        }
-
-        .stroke {
-          // #f6af69 是 mark 系列划线色（与 mark.css 同源），保留
-          --style: pb-2px border-b-(1.5px solid #f6af69);
-        }
-
-        .quote-content {
-          --style: pl-8px w-full text-(meta txt-light ellipsis) line-height-22px border-l-(2px solid border) overflow-hidden whitespace-nowrap;
-
-          &.deleted {
-            --style: pl-0 border-0 line-through;
-          }
-        }
-
-        div + div {
-          --style: mt-8px;
-        }
-      }
-    }
-  }
-
-  .item-footer {
-    --style: mt-19px flex items-center;
-    img {
-      --style: object-contain w-16px h-16px;
-    }
-
-    span {
-      --style: ml-4px text-(meta txt ellipsis) line-height-22px overflow-hidden whitespace-nowrap;
-    }
-
-    .source {
-      // #5490C2 是来源链接的蓝色辅助色，保留
-      --style: 'max-md:(hidden) shrink-0 text-#5490C2 ml-auto pl-10px';
-    }
+  &:hover {
+    border-color: color-mix(in srgb, var(--slax-accent) 25%, transparent);
+    box-shadow:
+      0 2px 8px color-mix(in srgb, var(--slax-accent) 5%, transparent),
+      inset 0 1px 0 var(--slax-inset-hi);
+    transform: translateY(-1px);
   }
 }
 
-.clickable {
-  --style: 'cursor-pointer transition-all duration-normal hover:(scale-101) active:(scale-103)';
+.highlight-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--slax-text-light);
+  letter-spacing: 0.02em;
+  align-self: flex-start;
+  transition: color 0.15s;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+  }
+
+  &:hover {
+    color: var(--slax-accent);
+  }
+}
+
+.highlight-quote {
+  margin: 0;
+  padding: 7px 10px 7px 11px;
+  border-left: 3px solid var(--slax-accent);
+  background: var(--slax-accent-bg);
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--slax-text-muted);
+}
+
+.highlight-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--slax-text);
+}
+
+.highlight-meta {
+  font-size: 12px;
+  color: var(--slax-text-light);
+  font-weight: 300;
 }
 </style>

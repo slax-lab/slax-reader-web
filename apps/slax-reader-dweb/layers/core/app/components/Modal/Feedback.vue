@@ -6,26 +6,37 @@
           <span v-if="title || href">{{ t('component.feedback.title') }}</span>
           <span v-else>{{ t('component.feedback.name') }}</span>
           <button class="close" @click="closeModal">
-            <img src="@images/button-dialog-close.png" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
         <div class="content">
           <div class="title" v-if="title">{{ title }}</div>
-          <div class="link" v-if="href">
+          <a class="link" v-if="href" :href="href" target="_blank" rel="noopener noreferrer">
+            <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
             <span>{{ href }}</span>
-          </div>
+          </a>
           <textarea v-model="feedback" :placeholder="t('component.feedback.placeholder')"></textarea>
         </div>
         <div class="bottom">
           <div class="follow-up" v-show="email" @click="allowFollowUp = !allowFollowUp">
-            <button :class="{ selected: allowFollowUp }"></button>
+            <span class="checkbox" :class="{ selected: allowFollowUp }">
+              <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
             <span>{{ t('component.feedback.follow_up', { email }) }}</span>
           </div>
           <button class="submit" :class="{ disabled: feedback.length === 0 }" @click="submitFeedback">{{ t('common.operate.submit') }}</button>
         </div>
         <Transition name="opacity">
           <div class="loading" v-show="isLoading">
-            <div class="i-svg-spinners:180-ring-with-bg text-5xl text-emerald"></div>
+            <div class="i-svg-spinners:180-ring-with-bg text-accent text-5xl"></div>
           </div>
         </Transition>
       </div>
@@ -129,30 +140,38 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 
 <style lang="scss" scoped>
 .feedback-modal {
-  --style: fixed inset-0 z-100 bg-transparent flex-center transition-colors duration-normal;
+  --style: fixed inset-0 z-200 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
-    // #0f141999 通用 UI 蒙层（深灰半透），保留
-    --style: bg-#0f141999;
+    // 遵循 DESIGN.md 第八节弹窗遮罩规范
+    background: rgba(15, 20, 25, 0.6);
+    backdrop-filter: blur(4px);
   }
 }
 
-button {
-  --style: 'hover:(scale-103 opacity-90) active:(scale-105) transition-all duration-normal';
-}
-
 .modal-content {
-  --style: relative bg-surface rounded-2 p-24px w-480px select-none overflow-hidden mb-10;
+  --style: relative p-24px w-480px select-none overflow-hidden mb-10;
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: var(--slax-shadow-modal);
 
   .header {
     --style: relative z-1 flex justify-between items-center;
     span {
-      --style: text-(aux txt-light) line-height-18px;
+      font-family: var(--slax-font-serif);
+      font-size: var(--slax-fs-card);
+      font-weight: 500;
+      color: var(--slax-text);
+      line-height: 1.4;
     }
 
-    button {
-      --style: w-16px h-16px;
-      img {
-        --style: w-full;
+    button.close {
+      --style: flex-center w-28px h-28px rounded-sm transition-all duration-normal;
+      color: var(--slax-text-light);
+
+      &:hover {
+        background: var(--slax-surface);
+        color: var(--slax-text);
       }
     }
   }
@@ -160,11 +179,25 @@ button {
   .content {
     --style: mt-16px flex flex-col items-center justify-stretch;
     .title {
-      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all font-[' PingFangSC ']';
+      --style: 'w-full text-(meta ellipsis txt) line-height-21px font-medium overflow-hidden line-clamp-2 break-all';
     }
 
     .link {
-      --style: w-full text-(#5490c2 15px) line-height-21px;
+      --style: w-full flex items-center gap-8px px-12px py-8px rounded-sm text-aux line-height-18px overflow-hidden transition-colors duration-normal;
+      background: var(--slax-accent-bg);
+      color: var(--slax-accent);
+
+      .link-icon {
+        --style: w-14px h-14px flex-shrink-0;
+      }
+
+      span {
+        --style: flex-1 truncate;
+      }
+
+      &:hover {
+        background: color-mix(in srgb, var(--slax-accent) 12%, transparent);
+      }
     }
 
     .title + .link {
@@ -176,7 +209,14 @@ button {
     }
 
     textarea {
-      --style: w-full h-120px rounded-2 border-(1px solid #3333330d) text-(meta txt) bg-surface-solid line-height-22px py-12px px-16px resize-none outline-none;
+      --style: w-full h-120px rounded-2 text-(meta txt) line-height-22px py-12px px-16px resize-none outline-none transition-all duration-normal;
+      background: var(--slax-surface-solid);
+      border: 1px solid var(--slax-border);
+
+      &:focus {
+        border-color: color-mix(in srgb, var(--slax-accent) 40%, var(--slax-border));
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--slax-accent) 12%, transparent);
+      }
 
       &::placeholder,
       &::-webkit-input-placeholder {
@@ -191,51 +231,57 @@ button {
     .follow-up {
       --style: flex items-center justify-start flex-1 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer;
 
-      button {
-        --style: shrink-0 border-(1px solid #3333331a) bg-surface-solid w-12px h-12px rounded-3px transition-transform duration-normal;
+      .checkbox {
+        --style: shrink-0 w-14px h-14px rounded-3px flex-center transition-all duration-fast;
+        background: transparent;
+        border: 1px solid var(--slax-border);
+
+        .tick {
+          --style: w-9px h-9px opacity-0 transition-opacity duration-fast;
+          color: var(--slax-accent);
+        }
 
         &.selected {
-          --style: 'bg-center bg-[length:7px_6px] border-1';
-          background-image: url('@images/tiny-tick-outline-icon.png');
-        }
+          background: var(--slax-accent-bg);
+          border-color: var(--slax-accent-soft);
 
-        &:hover {
-          --style: scale-105;
-        }
-
-        &:active {
-          --style: scale-110;
+          .tick {
+            --style: opacity-70;
+          }
         }
       }
 
+      &:hover .checkbox:not(.selected) {
+        border-color: var(--slax-accent-soft);
+      }
+
       span {
-        --style: ml-5px text-(txt 14px) line-height-22px overflow-hidden text-ellipsis;
+        --style: ml-8px text-(txt 14px) line-height-22px overflow-hidden text-ellipsis;
       }
     }
 
     .submit {
-      // #16B998 品牌绿（slax 主色）提交按钮底色，保留
-      --style: flex-center shrink-0 w-100px h-40px bg-#16B998 rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
+      --style: flex-center shrink-0 w-100px h-40px rounded-2 text-(meta txt-btn) font-semibold line-height-40px transition-all duration-normal;
+      background: var(--slax-accent);
 
       &.disabled {
-        // #ccc 通用 UI 灰禁用底色，保留
-        --style: 'bg-#ccc cursor-not-allowed hover:(scale-100)';
+        --style: 'cursor-not-allowed opacity-35';
       }
 
       &:not(.disabled):hover {
-        // #14a689 品牌绿（slax 主色）按钮悬停态，保留
-        --style: bg-#14a689;
+        --style: -translate-y-1px;
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-accent) 20%, transparent);
       }
 
       &:not(.disabled):active {
-        --style: scale-105;
+        --style: translate-y-0 scale-98;
       }
     }
   }
 
   .loading {
-    // #ffffff40 反色体系浅白加载遮罩，保留
-    --style: absolute inset-0 bg-#ffffff40 flex-center;
+    --style: absolute inset-0 flex-center;
+    background: color-mix(in srgb, var(--slax-surface-solid) 80%, transparent);
   }
 }
 
@@ -246,6 +292,7 @@ button {
 
 .modal-enter-active,
 .modal-leave-active {
-  --style: transition-all duration-normal ease-in-out;
+  --style: transition-all duration-normal;
+  transition-timing-function: var(--slax-ease-spring);
 }
 </style>

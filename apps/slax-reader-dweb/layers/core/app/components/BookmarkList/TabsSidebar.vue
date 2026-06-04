@@ -1,20 +1,32 @@
 <template>
-  <div class="tabs" ref="tabs">
-    <button class="group" v-for="(tabItem, index) in tabList" :key="tabItem.type" :class="{ highlighted: tabType === tabItem.type }" @click="inboxClick(tabItem.type, index)">
-      <img :src="tabType === tabItem.type ? tabItem.highlightedIcon : tabItem.icon" />
-      <span class="text group-hover:scale-105">{{ tabItem.title }}</span>
+  <!-- 竖向导航侧边栏：替代原横向 tab 列表 -->
+  <nav class="tabs-sidebar" ref="sidebarEl">
+    <!-- 主导航项 -->
+    <button v-for="(item, index) in tabList" :key="item.type" class="sidebar-item" :class="{ active: tabType === item.type }" @click="inboxClick(item.type, index)" type="button">
+      <!-- inline SVG icon，不依赖图片文件 -->
+      <svg class="item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.iconPath" />
+      <span>{{ item.title }}</span>
     </button>
-  </div>
-  <div class="tabs">
-    <button class="group trash" :class="{ highlighted: tabType === 'trashed' }" @click="inboxClick('trashed')">
-      <span class="text group-hover:scale-105"><i></i> {{ $t('page.bookmarks_index.Trash') }}</span>
+
+    <!-- 分隔线 -->
+    <div class="sidebar-divider" />
+
+    <!-- 废纸篓 -->
+    <button class="sidebar-item" :class="{ active: tabType === 'trashed' }" @click="inboxClick('trashed')" type="button">
+      <svg class="item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+      </svg>
+      <span>{{ $t('page.bookmarks_index.Trash') }}</span>
     </button>
-  </div>
+  </nav>
 </template>
 
 <script setup lang="ts">
+// BookmarkTabTypes 和 TabIconPaths 由 Nuxt auto-import 注入
+// 不显式 import，以便 fork 对 useBookmarkRelative 的 override 能通过 layer 优先级生效
 const { t } = useI18n()
-const tabs = ref<HTMLElement>()
+const sidebarEl = ref<HTMLElement>()
 
 defineProps({
   tabType: {
@@ -24,46 +36,22 @@ defineProps({
 })
 
 const emits = defineEmits(['changeTab'])
-const images = import.meta.glob('@images/tab-*-normal-icon.png', { eager: true, query: '?url', import: 'default' })
-const highlightedImages = import.meta.glob('@images/tab-*-highlighted-icon.png', { eager: true, query: '?url', import: 'default' })
-const tabList = ref<{ type: string; title: string; icon: string; highlightedIcon: string }[]>([])
 
-onMounted(() => {
-  tabList.value = BookmarkTabTypes.map(type => {
-    const imageName = `tab-${type}-normal-icon.png`
-    const highlightedImageName = `tab-${type}-highlighted-icon.png`
-
-    let tabIconUrl = ''
-    for (const filePath in images) {
-      if (filePath.endsWith(imageName)) {
-        tabIconUrl = images[filePath] as string
-        break
-      }
-    }
-
-    let tabHighlightedIconUrl = ''
-    for (const filePath in highlightedImages) {
-      if (filePath.endsWith(highlightedImageName)) {
-        tabHighlightedIconUrl = highlightedImages[filePath] as string
-        break
-      }
-    }
-
-    return {
-      type,
-      title: t(`page.bookmarks_index.${type}`),
-      icon: new URL(tabIconUrl, import.meta.url).href,
-      highlightedIcon: new URL(tabHighlightedIconUrl, import.meta.url).href
-    }
-  })
-})
+const tabList = computed(() =>
+  BookmarkTabTypes.map(type => ({
+    type,
+    title: t(`page.bookmarks_index.${type}`),
+    iconPath: TabIconPaths[type] ?? ''
+  }))
+)
 
 const inboxClick = (type: string, index?: number) => {
   emits('changeTab', type, index)
 }
 
+// 供父组件调用，用于 scrollIntoView 定位
 const getAllButtons = () => {
-  return tabs.value?.querySelectorAll('button') || []
+  return sidebarEl.value?.querySelectorAll('button') || []
 }
 
 defineExpose({
@@ -72,43 +60,52 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.tabs {
-  --style: 'w-full flex flex-col whitespace-nowrap max-md:(m-0 flex-row p-12px px-16px overflow-x-auto)';
+.tabs-sidebar {
+  --style: w-full flex flex-col;
+  padding: 40px 16px 24px;
+  gap: 4px;
+}
 
-  &::-webkit-scrollbar {
-    --style: hidden;
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--slax-radius-sm, 8px);
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--slax-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+
+  &:hover {
+    color: var(--slax-text);
+    background: var(--slax-accent-bg);
   }
 
-  & > * {
-    --style: 'not-first:mt-8px max-md:(not-first:(m-0))';
+  &.active {
+    color: var(--slax-accent);
+    font-weight: 500;
+    background: var(--slax-accent-bg);
   }
+}
 
-  button {
-    --style: 'py-8px px-16px rounded-full text-(meta txt-light) line-height-20px font-medium text-align-left transition-transform duration-normal max-md:(text-align-center px-24px) flex items-center';
+.item-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
 
-    &.highlighted {
-      // #16B998 / #16b9980f 是当前品牌绿 + 6% 半透明背景，激活态保留
-      --style: 'text-#16B998 bg-#16b9980f max-md:(bg-transparent)';
-    }
-
-    img {
-      --style: 'mr-10px w-16px h-16px object-contain max-md:(hidden)';
-    }
-
-    span {
-      --style: inline-block transition-all duration-normal inline-flex items-center;
-    }
+  .active & {
+    opacity: 1;
   }
+}
 
-  .trash {
-    i {
-      --style: inline-block w-16px h-16px bg-contain mr-10px;
-      background-image: url('@images/tiny-delete-blue-fill-icon.png');
-    }
-  }
-
-  &:has(.trash) {
-    --style: 'mt-8px mb-60px max-md:(hidden)';
-  }
+.sidebar-divider {
+  height: 1px;
+  background: var(--slax-border);
+  margin: 12px 14px;
 }
 </style>

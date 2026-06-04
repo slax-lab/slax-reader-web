@@ -18,7 +18,7 @@
         <Transition name="opacity">
           <!-- #f5f5f355 通用 UI 浅灰加载遮罩，保留 -->
           <div class="absolute inset-0 flex items-center justify-center bg-#f5f5f355" v-show="isLoading">
-            <div class="i-svg-spinners:180-ring-with-bg text-3xl text-emerald"></div>
+            <div class="i-svg-spinners:180-ring-with-bg text-accent text-3xl"></div>
           </div>
         </Transition>
       </div>

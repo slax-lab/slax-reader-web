@@ -1,4 +1,4 @@
-// BookmarkList/BookmarkHighlightCell 组件单测
+// BookmarkList/BookmarkHighlightCell 组件单测（新版 highlight-card 结构）
 // props: highlight (HighlightItem)
 // click → jumpToOriginal → pwaOpen
 // dateString format / getContent 多分支：content 空 → approx_source.exact / 非空 → filter+map+join
@@ -38,27 +38,27 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
   })
 
   describe('渲染', () => {
-    it('mount → .bookmark-item.clickable + 标题渲染', () => {
+    it('mount → .highlight-card + 来源标题渲染', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, { props: { highlight: baseHighlight } })
-      expect(wrapper.find('.bookmark-item.clickable').exists()).toBe(true)
-      expect(wrapper.find('.item-footer span').text()).toBe('Bookmark Title')
+      expect(wrapper.find('.highlight-card').exists()).toBe(true)
+      expect(wrapper.find('.highlight-source span').text()).toBe('Bookmark Title')
     })
 
-    it('type=mark → .stroke 渲染 highlight 内容拼接', () => {
+    it('type=mark → .highlight-quote 渲染 highlight 内容拼接', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, { props: { highlight: baseHighlight } })
-      expect(wrapper.find('.stroke').exists()).toBe(true)
-      expect(wrapper.find('.stroke').text()).toBe('highlighted text')
+      expect(wrapper.find('.highlight-quote').exists()).toBe(true)
+      expect(wrapper.find('.highlight-quote').text()).toBe('highlighted text')
     })
 
-    it('type=comment → 渲染 comment + quote-content', () => {
+    it('type=comment → 渲染 highlight-quote + highlight-note(comment)', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, type: 'comment', comment: 'My comment' } }
       })
-      expect(wrapper.find('.cell-title').text()).toBe('My comment')
-      expect(wrapper.find('.quote-content').exists()).toBe(true)
+      expect(wrapper.find('.highlight-quote').exists()).toBe(true)
+      expect(wrapper.find('.highlight-note').text()).toBe('My comment')
     })
 
-    it('type=reply + 父评论存在 → 渲染父评论', () => {
+    it('type=reply + 父评论存在 → 渲染 highlight-quote + highlight-note(reply)', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: {
           highlight: {
@@ -70,11 +70,11 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
           }
         }
       })
-      expect(wrapper.find('.cell-title').text()).toBe('My reply')
-      expect(wrapper.find('.quote-content').text()).toBe('Original comment')
+      expect(wrapper.find('.highlight-note').text()).toBe('My reply')
+      expect(wrapper.find('.highlight-quote').exists()).toBe(true)
     })
 
-    it('type=reply + parent_comment_deleted=true → quote-content 添加 deleted class', () => {
+    it('type=reply + parent_comment_deleted=true → highlight-quote 仍渲染（内容来自 getContent）', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: {
           highlight: {
@@ -85,14 +85,15 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
           }
         }
       })
-      expect(wrapper.find('.quote-content.deleted').exists()).toBe(true)
+      // 新版不再有 deleted class，但 highlight-quote 仍渲染
+      expect(wrapper.find('.highlight-quote').exists()).toBe(true)
     })
 
-    it('title 空 → article-header 不渲染', () => {
+    it('title 空 → highlight-source 不渲染', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, title: '' } }
       })
-      expect(wrapper.find('.article-header').exists()).toBe(false)
+      expect(wrapper.find('.highlight-source').exists()).toBe(false)
     })
   })
 
@@ -101,7 +102,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, content: [] } }
       })
-      expect(wrapper.find('.stroke').text()).toBe('fallback exact')
+      expect(wrapper.find('.highlight-quote').text()).toBe('fallback exact')
     })
 
     it('content 含 image type → image 被过滤', () => {
@@ -117,7 +118,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
           }
         }
       })
-      expect(wrapper.find('.stroke').text()).toBe('AB')
+      expect(wrapper.find('.highlight-quote').text()).toBe('AB')
     })
 
     it('content 含 \\n / \\t → 被剔除', () => {
@@ -129,7 +130,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
           }
         }
       })
-      expect(wrapper.find('.stroke').text()).toBe('ABC')
+      expect(wrapper.find('.highlight-quote').text()).toBe('ABC')
     })
   })
 
@@ -138,7 +139,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, source_type: 'share', source_id: 'SHR' } }
       })
-      await wrapper.find('.bookmark-item').trigger('click')
+      await wrapper.find('.highlight-card').trigger('click')
       expect(mockPwaOpen).toHaveBeenCalledWith({ url: '/s/SHR?highlight=1' })
     })
 
@@ -146,7 +147,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, source_type: 'collection', source_id: 'COL' } }
       })
-      await wrapper.find('.bookmark-item').trigger('click')
+      await wrapper.find('.highlight-card').trigger('click')
       expect(mockPwaOpen).toHaveBeenCalledWith({ url: '/c/COL?highlight=1' })
     })
 
@@ -154,7 +155,7 @@ describe('BookmarkList/BookmarkHighlightCell', () => {
       const wrapper = mountWithApp(BookmarkHighlightCell, {
         props: { highlight: { ...baseHighlight, source_type: 'bookmark', source_id: 100 } }
       })
-      await wrapper.find('.bookmark-item').trigger('click')
+      await wrapper.find('.highlight-card').trigger('click')
       expect(mockPwaOpen).toHaveBeenCalledWith({ url: '/bookmarks/100?highlight=1' })
     })
   })

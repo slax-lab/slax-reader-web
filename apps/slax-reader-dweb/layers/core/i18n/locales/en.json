@@ -57,17 +57,20 @@
       "comment": "Comment",
       "confirm": "Confirm",
       "copy": "Copy",
+      "copy_link": "Copy Link",
       "delete": "Delete",
       "delete_line": "Clear",
       "download": "Download",
       "edit": "Edit",
       "edit_title": "Edit title",
+      "feedback": "Feedback",
       "forward": "Forward",
       "like": "Like",
       "line": "Highlight",
       "loading": "Loading...",
       "login": "Login",
       "menu_trash": "Trash",
+      "more": "More",
       "off": "OFF",
       "on": "ON",
       "payment": {
@@ -84,8 +87,11 @@
       "save": "Save",
       "search": "Search",
       "share": "Share",
+      "share_twitter": "Share on X",
       "snapshot": "Snapshot",
       "submit": "Submit",
+      "send": "Send",
+      "star": "Star",
       "subscribe": "Subscribe",
       "summary_refresh": "Re-generate",
       "top": "Top",
@@ -93,7 +99,8 @@
       "unarchive": "Unarchive",
       "unsubscribe": "Unsubscribe",
       "view_source": "Source",
-      "view_source_all": "View all"
+      "view_source_all": "View all",
+      "close": "Close"
     },
     "payment": {
       "completed": "Payment Completed",
@@ -151,8 +158,14 @@
       "add_url": {
         "button": "Add",
         "placeholder": "Paste the link you want to add here",
-        "title": "Add URL"
+        "title": "Add URL",
+        "invalid_url": "Please enter a valid URL starting with http:// or https://"
       }
+    },
+    "ai_panel": {
+      "outline_label": "Outline",
+      "overview_label": "Overview",
+      "retry": "Failed to load, click to retry"
     },
     "ai_summaries": {
       "click_to_expand": "Click any circle to explore more details",
@@ -202,6 +215,7 @@
       "access_complete": "Access complete",
       "access_failed": "Access failed:",
       "accessing_token": "Accessing",
+      "empty_desc": "Chat with AI to deeply understand the article.",
       "generating_question": "Generating question...",
       "hello": "Hello, I am the Slax Reader AI assistant:",
       "now_accessing": "Accessing...",
@@ -238,7 +252,8 @@
     },
     "edit_tag": {
       "delete": "Delete tag",
-      "title": "Edit tag"
+      "title": "Edit tag",
+      "delete_confirm": "Delete this tag? This cannot be undone."
     },
     "feedback": {
       "follow_up": "Allow follow-up at {email}",
@@ -355,7 +370,8 @@
       "back": "Back",
       "empty": "No related content found",
       "placeholder": "Enter what you want to find",
-      "semantic_relative": "Semantic related {value}%"
+      "semantic_relative": "Semantic related {value}%",
+      "found_count": "Found {count} results for"
     },
     "share_bubble_tips": {
       "text": "Share with friends"
@@ -370,6 +386,14 @@
       },
       "revoke_tips": "Shared link access been revoked",
       "title": "Share"
+    },
+    "snapshot_chat": {
+      "copied": "Copied",
+      "empty_desc": "Or select text in the article to start a conversation",
+      "empty_title": "Ask AI to understand this article",
+      "suggestion_1": "What is the core argument of this article?",
+      "suggestion_2": "What concepts are worth exploring further?",
+      "suggestion_3": "What are the author's main arguments?"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",
@@ -445,7 +469,19 @@
       "processing": "Content is being processed, please wait...",
       "share_bookmark_tips": "Shared by { user } on { date }",
       "trash_bookmark_restore": "Restore to Inbox",
-      "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days."
+      "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days.",
+      "shared_via": "Shared via",
+      "try_free": "Try free",
+      "comment_all": "Comment on article",
+      "comments": "Comments",
+      "no_comments": "No comments yet",
+      "just_now": "Just now",
+      "minutes_ago": "{n} min ago",
+      "hours_ago": "{n} hr ago",
+      "reply_to": "Reply to",
+      "cancel_quote": "Cancel quote",
+      "comment_placeholder": "Write your thoughts...",
+      "send_hint": "Enter to send · Shift+Enter for newline"
     },
     "bookmarks_index": {
       "Trash": "Trash",
@@ -458,11 +494,38 @@
       "inbox": "Inbox",
       "more": "Load more",
       "new_topic": "Input tag (less than 30 characters)...",
-      "no_more": "No more",
+      "no_more": "— end of list —",
       "starred": "Starred",
       "topics": "Tags",
       "trash_no_more": "Bookmarks in the trash for over 7 days will be permanently deleted.",
-      "view_original": "View original"
+      "view_original": "View original",
+      "search_placeholder": "Search articles…",
+      "search_history_title": "Recent searches",
+      "search_history_clear": "Clear",
+      "search_back": "Back",
+      "layout_card": "Card view",
+      "layout_text": "Text view",
+      "add_article": "Add article",
+      "date_group_format": "{month} {year}",
+      "last_updated_at": "Updated {time}",
+      "just_now": "just now",
+      "minutes_ago": "{n}m ago",
+      "hours_ago": "{n}h ago",
+      "days_ago": "{n}d ago",
+      "empty_starred_title": "No starred articles yet",
+      "empty_starred_desc": "Click the star icon on any article to save your favorites here",
+      "empty_topics_title": "No topics yet",
+      "empty_topics_desc": "Tag your saved articles and they will be grouped into topics automatically",
+      "empty_highlights_title": "No highlights yet",
+      "empty_highlights_desc": "Select text in any article to highlight it — all your highlights appear here",
+      "empty_archive_title": "Archive is empty",
+      "empty_archive_desc": "Archived articles are hidden from your inbox but remain searchable",
+      "empty_trash_title": "Trash is empty",
+      "empty_trash_desc": "Deleted articles are kept here for 7 days before being permanently removed",
+      "empty_collections_title": "No collection content",
+      "empty_collections_desc": "Select a collection to view its articles",
+      "empty_notifications_title": "No notifications",
+      "empty_notifications_desc": "New comments and replies will appear here"
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"
@@ -631,7 +694,8 @@
     "share_detail": {
       "share_text": "{user} shared on {date}",
       "transfer_save": "Collect Link",
-      "transfered_save": "Collected"
+      "transfered_save": "Collected",
+      "marks_visible": "Show highlights"
     },
     "slug": {
       "back_home": "Go back home",
@@ -679,6 +743,7 @@
       "import_progress": "Import progress",
       "import_third_party_data": "Import third-party data",
       "import_time": "Import time",
+      "no_import_records": "No import records yet",
       "language": "Language:",
       "language_en": "En",
       "language_zh": "Chinese",

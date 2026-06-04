@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <div class="absolute inset-0 flex items-center justify-center" v-if="loading">
-      <div class="i-svg-spinners:180-ring-with-bg text-5xl text-emerald"></div>
+      <div class="i-svg-spinners:180-ring-with-bg text-accent text-5xl"></div>
     </div>
   </div>
 </template>

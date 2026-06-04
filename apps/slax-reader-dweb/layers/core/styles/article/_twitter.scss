@@ -68,7 +68,8 @@
         }
 
         .quote-title {
-          --style: 'font-bold !text-(meta #333)';
+          --style: 'font-bold !text-meta';
+          color: var(--slax-text-muted);
         }
 
         img + .quote-title {
@@ -77,7 +78,8 @@
       }
 
       .quote-description {
-        --style: mt-10px text-(meta #555);
+        --style: mt-10px text-meta;
+        color: var(--slax-text-light);
       }
 
       .quote-media {

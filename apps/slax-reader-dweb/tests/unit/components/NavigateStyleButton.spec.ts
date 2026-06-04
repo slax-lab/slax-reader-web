@@ -9,11 +9,12 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { describe, expect, it } from 'vitest'
 
 describe('NavigateStyleButton', () => {
-  it('渲染 .navigate-style-button + title 文案 + 右箭头 img', () => {
+  it('渲染 .navigate-style-button + title 文案 + 右箭头 SVG（无旧 img）', () => {
     const wrapper = mountWithApp(NavigateStyleButton, { props: { title: 'Edit' } })
     expect(wrapper.find('.navigate-style-button').exists()).toBe(true)
-    expect(wrapper.find('.content span').text()).toContain('Edit')
-    expect(wrapper.find('.content img').exists()).toBe(true)
+    expect(wrapper.find('.nav-title').text()).toContain('Edit')
+    expect(wrapper.find('.nav-arrow').exists()).toBe(true)
+    expect(wrapper.find('img').exists()).toBe(false)
   })
 
   it('loading=false → clickable class 添加', () => {

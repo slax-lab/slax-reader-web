@@ -57,17 +57,20 @@
       "comment": "评论",
       "confirm": "确定",
       "copy": "复制",
+      "copy_link": "复制链接",
       "delete": "删除",
       "delete_line": "删除划线",
       "download": "下载",
       "edit": "修改",
       "edit_title": "修改标题",
+      "feedback": "反馈",
       "forward": "转发",
       "like": "点赞",
       "line": "划线",
       "loading": "加载中...",
       "login": "登录",
       "menu_trash": "移出收藏",
+      "more": "更多",
       "off": "已关闭",
       "on": "已开启",
       "payment": {
@@ -84,8 +87,11 @@
       "save": "保存",
       "search": "搜索",
       "share": "分享",
+      "share_twitter": "分享到 X",
       "snapshot": "快照",
       "submit": "提交",
+      "send": "发送",
+      "star": "加星",
       "subscribe": "订阅",
       "summary_refresh": "重新生成",
       "top": "回到顶部",
@@ -93,7 +99,8 @@
       "unarchive": "取消归档",
       "unsubscribe": "取消订阅",
       "view_source": "查看",
-      "view_source_all": "查看全部"
+      "view_source_all": "查看全部",
+      "close": "关闭"
     },
     "payment": {
       "completed": "已完成支付",
@@ -151,8 +158,14 @@
       "add_url": {
         "button": "添加",
         "placeholder": "将你想要添加的链接粘贴到这里",
-        "title": "添加链接"
+        "title": "添加链接",
+        "invalid_url": "请粘贴有效的文章链接，需以 http:// 或 https:// 开头"
       }
+    },
+    "ai_panel": {
+      "outline_label": "全文解析",
+      "overview_label": "全文概要",
+      "retry": "加载失败，点击重试"
     },
     "ai_summaries": {
       "click_to_expand": "点击彩色圆点可展开/收起节点",
@@ -202,6 +215,7 @@
       "access_complete": "访问完成",
       "access_failed": "访问失败",
       "accessing_token": "访问中",
+      "empty_desc": "与 AI 对话，深入理解文章内容。",
       "generating_question": "生成问题中...",
       "hello": "你好，我是 Slax Reader AI 助手：",
       "now_accessing": "正在访问中...",
@@ -238,7 +252,8 @@
     },
     "edit_tag": {
       "delete": "删除该标签",
-      "title": "修改标签"
+      "title": "修改标签",
+      "delete_confirm": "确认删除该标签？此操作不可撤销"
     },
     "feedback": {
       "follow_up": "允许通过 {email} 跟进",
@@ -355,7 +370,8 @@
       "back": "返回",
       "empty": "没有找到相关内容",
       "placeholder": "输入你要查找的内容",
-      "semantic_relative": "语义相关 {value}%"
+      "semantic_relative": "语义相关 {value}%",
+      "found_count": "找到 {count} 篇包含"
     },
     "share_bubble_tips": {
       "text": "把内容分享给好友"
@@ -370,6 +386,14 @@
       },
       "revoke_tips": "分享链接已撤销",
       "title": "分享"
+    },
+    "snapshot_chat": {
+      "copied": "已复制",
+      "empty_desc": "或在正文中划选片段直接发起对话",
+      "empty_title": "向 AI 提问，深入理解文章内容",
+      "suggestion_1": "这篇文章的核心观点是什么？",
+      "suggestion_2": "有哪些值得深入了解的概念？",
+      "suggestion_3": "作者的主要论据是什么？"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "以后不再提醒",
@@ -445,7 +469,19 @@
       "processing": "内容正在处理，请稍后 ···",
       "share_bookmark_tips": "由 { user } 分享于 { date }",
       "trash_bookmark_restore": "移回 Inbox",
-      "trash_bookmark_tips": "书签于 { date } 被放入废纸篓. 7天后将会被删除."
+      "trash_bookmark_tips": "书签于 { date } 被放入废纸篓. 7天后将会被删除.",
+      "shared_via": "分享自",
+      "try_free": "免费试用",
+      "comment_all": "评论全文",
+      "comments": "评论",
+      "no_comments": "暂无评论",
+      "just_now": "刚刚",
+      "minutes_ago": "{n} 分钟前",
+      "hours_ago": "{n} 小时前",
+      "reply_to": "回复",
+      "cancel_quote": "取消引用",
+      "comment_placeholder": "写下你的想法...",
+      "send_hint": "Enter 发送 · Shift+Enter 换行"
     },
     "bookmarks_index": {
       "Trash": "回收站",
@@ -458,11 +494,38 @@
       "inbox": "收件箱",
       "more": "加载更多",
       "new_topic": "输入不超过30个字符的新标签...",
-      "no_more": "没有更多了",
+      "no_more": "— 已到达内容尽头 —",
       "starred": "星标",
       "topics": "话题",
       "trash_no_more": "移到回收站的书签超过 7 天会被永久删除。",
-      "view_original": "查看原文"
+      "view_original": "查看原文",
+      "search_placeholder": "搜索文章…",
+      "search_history_title": "最近搜索",
+      "search_history_clear": "清空",
+      "search_back": "返回",
+      "layout_card": "卡片视图",
+      "layout_text": "文字视图",
+      "add_article": "添加文章",
+      "date_group_format": "{year} 年 {month} 月",
+      "last_updated_at": "最近更新于 {time}",
+      "just_now": "刚刚",
+      "minutes_ago": "{n} 分钟前",
+      "hours_ago": "{n} 小时前",
+      "days_ago": "{n} 天前",
+      "empty_starred_title": "还没有星标文章",
+      "empty_starred_desc": "在文章列表中点击星标图标，收藏你最喜欢的内容",
+      "empty_topics_title": "还没有话题",
+      "empty_topics_desc": "给收藏的文章打标签，内容会自动聚合成话题",
+      "empty_highlights_title": "还没有划线",
+      "empty_highlights_desc": "在文章中选中文字即可标注，所有划线会汇聚在这里",
+      "empty_archive_title": "归档区还是空的",
+      "empty_archive_desc": "处理完的文章可以归档收存，不会出现在收件箱，但仍可被搜索到",
+      "empty_trash_title": "回收站是空的",
+      "empty_trash_desc": "删除的文章会在这里暂存 7 天，过期后会被自动清除",
+      "empty_collections_title": "还没有合集内容",
+      "empty_collections_desc": "选择一个合集，查看其中收录的文章",
+      "empty_notifications_title": "暂无通知",
+      "empty_notifications_desc": "当有新的评论或回复时，通知会出现在这里"
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"
@@ -631,7 +694,8 @@
     "share_detail": {
       "share_text": "{user} 分享于 {date}",
       "transfer_save": "转存",
-      "transfered_save": "已转存"
+      "transfered_save": "已转存",
+      "marks_visible": "划线评论可见"
     },
     "slug": {
       "back_home": "回到首页",
@@ -679,6 +743,7 @@
       "import_progress": "导入进度",
       "import_third_party_data": "导入第三方数据",
       "import_time": "导入时间",
+      "no_import_records": "暂无导入记录",
       "language": "界面语言:",
       "language_en": "EN",
       "language_zh": "中文",

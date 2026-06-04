@@ -1,36 +1,27 @@
 <template>
-  <div class="bookmark-article" ref="bookmarkArticle" :class="{ articleStyle }">
-    <div class="title">
-      <span class="text">{{ title }}</span>
-    </div>
-    <div class="desc">
-      <button
-        v-if="allowStarred"
-        class="star bg-[length:13.5px_13.5px] bg-[url('@images/tiny-star-disable.png')] bg-center"
-        :class="{ enabled: isStarred }"
-        @click="e => starBookmark(e, !isStarred)"
-      ></button>
-      <span class="text" v-if="detail.byline">{{ detail.byline }}</span>
-      <span class="text">{{ dateString }}</span>
-      <i class="seperator"></i>
-      <button @click="websiteClick">{{ `${urlString}` }}</button>
-    </div>
-    <div class="tags">
-      <BookmarkTags :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
-    </div>
-    <div class="article-detail" ref="articleDetail" :class="{ [articleStyle]: true }">
+  <div class="bookmark-article snapshot" ref="bookmarkArticle" :class="{ [articleStyle]: true }">
+    <header class="article-header">
+      <SnapshotArticleSource v-if="detail.target_url" :url="detail.target_url" />
+      <div class="article-divider" />
+      <h1 class="article-title">{{ title }}</h1>
+      <div class="article-info">
+        <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
+        <time class="article-date">{{ dateString }}</time>
+      </div>
+      <BookmarkTags class="article-tags" :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
+    </header>
+    <!-- 保留 .article-detail ref + articleStyle class，processors 管道 / mark 绘制依赖 -->
+    <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
-    <div class="end">
-      <div class="line"></div>
-      <span class="ml-2">{{ $t('page.bookmarks_detail.no_more') }}</span>
-      <div class="line"></div>
-    </div>
+    <SnapshotArticleFooter />
   </div>
 </template>
 
 <script lang="ts" setup>
 import BookmarkTags from '#layers/core/app/components/BookmarkTags.vue'
+import SnapshotArticleFooter from '#layers/core/app/components/Snapshot/SnapshotArticleFooter.vue'
+import SnapshotArticleSource from '#layers/core/app/components/Snapshot/SnapshotArticleSource.vue'
 
 import { urlHttpString } from '@commons/utils/string'
 
@@ -89,14 +80,13 @@ const extraListeners: (() => void)[] = []
 const { bookmarkId, shareCode, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
 const collection = computed(() => {
-  try {
-    if (typeof (globalThis as any).isCollectionBookmarkDetail === 'function' && (globalThis as any).isCollectionBookmarkDetail(detail.value)) {
-      return {
-        code: (detail.value as any).collection_info.collection_code,
-        cb_id: (detail.value as any).collection_info.cb_id
-      }
+  const d = detail.value as any
+  if (d && 'collection_info' in d && d.collection_info) {
+    return {
+      code: d.collection_info.collection_code,
+      cb_id: d.collection_info.cb_id
     }
-  } catch (error) {}
+  }
   return undefined
 })
 const articleStyle = computed(() => {
@@ -110,8 +100,8 @@ const articleStyle = computed(() => {
   return ArticleStyle.Default
 })
 
-let articleSelection: DwebArticleSelection | null = null
-
+// shallowRef：ArticleSelection 实例自身管理内部响应性，不需要深响应代理
+const articleSelectionRef = shallowRef<DwebArticleSelection | null>(null)
 watch(
   () => props.marks,
   value => {
@@ -150,7 +140,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   try {
-    articleSelection?.closeMonitor()
+    articleSelectionRef.value?.closeMonitor()
     extraListeners.forEach(listener => listener())
   } finally {
   }
@@ -232,7 +222,7 @@ const handleHTML = async () => {
 }
 
 const handleDrawMark = async () => {
-  if (!articleSelection && bookmarkArticle.value && articleDetail.value) {
+  if (!articleSelectionRef.value && bookmarkArticle.value && articleDetail.value) {
     const config = {
       shareCode: shareCode || '',
       bookmarkId: bookmarkId || 0,
@@ -272,22 +262,22 @@ const handleDrawMark = async () => {
 
     const modal = new MarkModal(config)
 
-    articleSelection = new DwebArticleSelection(config, dependencies, modal)
+    articleSelectionRef.value = new DwebArticleSelection(config, dependencies, modal)
   }
 
-  if (!articleSelection) {
+  if (!articleSelectionRef.value) {
     return
   }
 
   const promise = []
   if ('marks' in detail.value) {
-    promise.push(articleSelection?.drawMark(detail.value.marks))
+    promise.push(articleSelectionRef.value?.drawMark(detail.value.marks))
   } else if (props.marks) {
-    promise.push(articleSelection?.drawMark(props.marks))
+    promise.push(articleSelectionRef.value?.drawMark(props.marks))
   }
 
-  if (promise.length > 0 && !articleSelection.isMonitoring) {
-    articleSelection?.startMonitor()
+  if (promise.length > 0 && !articleSelectionRef.value.isMonitoring) {
+    articleSelectionRef.value?.startMonitor()
   }
 
   await Promise.all(promise).then(() => {
@@ -296,12 +286,12 @@ const handleDrawMark = async () => {
 }
 
 const starBookmark = async (event: MouseEvent, isStar: boolean) => {
-  if (!bookmarkId || !updateStarred) {
+  if (!bookmarkId || !updateStarred.value) {
     return
   }
 
   try {
-    await updateStarred(isStar)
+    await updateStarred.value(isStar)
 
     postChannelMessage('star', { id: bookmarkId, cancel: !isStar })
 
@@ -321,118 +311,212 @@ const starBookmark = async (event: MouseEvent, isStar: boolean) => {
 }
 
 const findQuote = (quote: QuoteData) => {
-  articleSelection?.findQuote(quote)
+  articleSelectionRef.value?.findQuote(quote)
 }
 
 defineExpose({
-  findQuote
+  findQuote,
+  articleSelection: articleSelectionRef
 })
 </script>
 
 <style lang="scss" scoped>
-.bookmark-article {
-  --style: relative -mb-10px;
+.bookmark-article.snapshot {
+  --style: relative;
+  // 正文容器宽度与 padding（snapshot §2.2）
+  // padding-top: 76px 是从页面顶部算的，已有 52px header padding，故此处只需 24px
+  width: var(--slax-content-w);
+  max-width: 100%;
+  padding: 24px 24px 0;
 
-  .title {
-    --style: text-h2 text-txt font-semibold line-height-36px line-clamp-2;
+  @media (max-width: 768px) {
+    // H5: 64px - 48px header = 16px
+    padding: 16px 16px 0;
   }
 
-  .desc {
-    --style: flex items-center mt-16px;
+  // 清零旧 DetailLayout .detail-container mt-32px 叠加
+  :deep(.detail-container) {
+    margin-top: 0;
+  }
+}
 
-    .star {
-      --style: shrink-0 -mt-1px w-16px h-16px;
+.article-header {
+  display: flex;
+  flex-direction: column;
+}
 
-      &.enabled {
-        background-image: url('@images/tiny-star-enable.png');
-      }
+.article-divider {
+  height: 1px;
+  background: var(--slax-border);
+  margin: 20px 0 24px;
+}
+
+.article-title {
+  font-family: var(--slax-font-serif);
+  font-size: var(--slax-fs-display);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  color: var(--slax-text);
+  margin: 0 0 20px;
+  border-radius: 4px;
+  outline: none;
+  transition: box-shadow 0.15s;
+
+  &[contenteditable='true'] {
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--slax-accent) 50%, transparent);
+    padding: 2px 6px;
+    margin-left: -6px;
+    cursor: text;
+  }
+}
+
+.article-info {
+  --style: flex items-center flex-wrap gap-x-16px gap-y-4px;
+
+  .article-author {
+    font-size: 14px;
+    color: var(--slax-text-muted);
+    font-weight: 400;
+  }
+
+  .article-date {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--slax-text-light);
+  }
+}
+
+.article-tags {
+  margin-top: 20px;
+  padding-bottom: 8px;
+}
+
+// .article-body 是 snapshot 样式钩子，叠加在 .article-detail 上（不替换）
+.article-detail.article-body {
+  // 清零旧 mt-24px，由容器 padding 控制间距
+  margin-top: 0 !important;
+  padding-top: 28px;
+
+  *::selection {
+    --style: 'bg-#ffd99933';
+  }
+
+  // 正文排版
+  :deep(.html-text) {
+    p {
+      font-size: var(--slax-fs-body);
+      line-height: 1.85;
     }
-    .text {
-      --style: 'text-(meta txt-light ellipsis) line-height-20px not-first:ml-10px shrink-0 overflow-hidden max-w-200px whitespace-nowrap';
+
+    h2 {
+      font-family: var(--slax-font-serif);
+      font-size: var(--slax-fs-h2);
+      font-weight: 500;
+      margin-top: 48px;
     }
 
-    .seperator {
-      --style: 'mx-8px w-1px h-10px bg-border flex-shrink-0';
+    img {
+      border-radius: var(--slax-radius-sm);
+      margin: 32px auto;
     }
 
-    button {
-      --style: 'text-(meta txt-light ellipsis) line-height-20px hover:(underline underline-txt-light) shrink-1 overflow-hidden whitespace-nowrap';
+    blockquote {
+      border-left: 2px solid var(--slax-accent-soft);
+      padding: 4px 20px;
+      color: var(--slax-text-muted);
+      font-style: italic;
+    }
+
+    .img-caption {
+      font-size: var(--slax-fs-aux);
+      font-weight: 300;
+      color: var(--slax-text-light);
+      text-align: center;
     }
   }
 
-  .tags {
-    --style: mt-16px;
+  &:deep(slax-mark.hl-flash) {
+    text-decoration-color: var(--slax-accent);
+    animation: hl-flash 5s ease-out;
   }
 
-  .article-detail {
-    *::selection {
-      // bg-#ffd99933 文本选区暖黄高亮（与 mark 高亮系同源），保留
-      --style: 'bg-#ffd99933';
+  @keyframes hl-flash {
+    0% {
+      background: color-mix(in srgb, var(--slax-accent) 22%, transparent);
     }
-
-    &:deep(slax-mark) {
-      --style: color-inherit relative transition-colors duration-normal;
-
-      &.comment {
-        --style: 'cursor-pointer';
-        border-bottom: 1.5px dashed #f6af69 !important;
-      }
-
-      &.stroke {
-        --style: 'cursor-pointer';
-        border-bottom: 1.5px dashed #f6af69 !important;
-      }
-
-      &.self-stroke {
-        border-bottom: 1.5px solid #f6af69 !important;
-      }
-
-      &.highlighted {
-        // bg-#FCF4E8 mark 高亮浅米色底（与 mark.css 同源），保留
-        --style: 'bg-#FCF4E8';
-      }
-
-      &:has(img) {
-        --style: p-0px relative inline-block;
-        &.comment {
-          border: 2px dashed #f6af69 !important;
-        }
-
-        &.stroke {
-          border: 2px solid #f6af69 !important;
-        }
-
-        &::after {
-          content: '···';
-          // bg-#f6af69ee mark 评论小圆点暖橙底（与 mark 系强调色同源），保留
-          --style: absolute h-25px w-25px px-0px rounded-full bg-#f6af69ee -right-5px -top-5px line-height-25px text-txt-btn text-meta text-align-center transition-transform
-            duration-normal;
-        }
-
-        slax-mark {
-          --style: '!p-0';
-          &::after {
-            --style: content-none;
-          }
-        }
-      }
-
-      slax-mark {
-        --style: '!border-none ';
-      }
+    100% {
+      background: var(--slax-accent-bg);
     }
   }
 
-  .end {
-    --style: text-(tag txt-light) select-none py-60px flex-center;
-    .line {
-      // #a8b1cd3d 是带蓝调的半透明分隔线，与 token border（黑色 8% 透明）质感不同，保留
-      --style: w-36px h-1px bg-#a8b1cd3d;
+  // 划线样式 token 化（普通详情页生效路径；iframe 路径走 mark.css）
+  &:deep(slax-mark) {
+    color: inherit;
+    transition: all var(--slax-dur-normal);
+  }
+
+  &:deep(slax-mark.stroke) {
+    cursor: pointer;
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
+    box-decoration-break: clone;
+  }
+
+  &:deep(slax-mark.self-stroke) {
+    cursor: pointer;
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
+    box-decoration-break: clone;
+  }
+
+  &:deep(slax-mark.comment) {
+    cursor: pointer;
+    text-decoration: underline dashed;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
+    box-decoration-break: clone;
+  }
+
+  &:deep(slax-mark:hover) {
+    text-decoration-color: var(--slax-accent);
+    background: var(--slax-accent-bg);
+  }
+
+  &:deep(slax-mark.highlighted) {
+    --style: 'bg-#FCF4E8';
+  }
+
+  &:deep(slax-mark:has(img).stroke),
+  &:deep(slax-mark:has(img).comment) {
+    border: 1.5px solid var(--slax-accent);
+    text-decoration: none;
+  }
+
+  &:deep(slax-mark:has(img)) {
+    --style: p-0px relative inline-block;
+
+    &::after {
+      content: '···';
+      --style: absolute h-25px w-25px px-0px rounded-full -right-5px -top-5px line-height-25px text-txt-btn text-meta text-align-center transition-transform duration-normal;
+      background-color: color-mix(in srgb, var(--slax-accent) 93%, transparent);
     }
 
-    span {
-      --style: mx-12px;
+    slax-mark {
+      --style: '!p-0';
+      &::after {
+        --style: content-none;
+      }
     }
+  }
+
+  &:deep(slax-mark slax-mark) {
+    --style: '!border-none';
   }
 }
 </style>

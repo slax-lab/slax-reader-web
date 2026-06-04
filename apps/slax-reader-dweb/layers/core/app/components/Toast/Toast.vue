@@ -36,50 +36,80 @@ const onAfterLeave = () => {
 
 <style lang="scss" scoped>
 .text-toast {
-  --style: select-none max-w-md min-w-140px flex-center rounded-6px bg-black bg-opacity-50 flex-wrap whitespace-break-spaces text-center color-white overflow-hidden text-ellipsis
-    py-6px px-16px text-(meta) line-height-20px shadow-[0px_20px_30px_0px_#0000000a];
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 360px;
+  min-width: 120px;
+  padding: 8px 16px;
+  border-radius: var(--slax-radius-sm);
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 4px 16px color-mix(in srgb, var(--slax-accent) 8%, transparent);
+  color: var(--slax-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  user-select: none;
+  backdrop-filter: var(--slax-blur);
+  -webkit-backdrop-filter: var(--slax-blur);
 
   &.success {
-    // #16b998 品牌绿边框/文字 + #E7FAF6 浅绿底，成功 toast，保留
-    --style: border-(1px solid #16b998) bg-#E7FAF6 text-(#16b998);
+    border-color: color-mix(in srgb, var(--slax-accent) 30%, transparent);
+    color: var(--slax-accent);
+    background: color-mix(in srgb, var(--slax-accent) 6%, var(--slax-surface-solid));
   }
 
   &.error {
-    // #f4c982 浅橙边框 + #FFF6E7 黄底 + #f19943 橙文，错误 toast，保留
-    --style: border-(1px solid #f4c982) bg-#FFF6E7 text-(#f19943);
+    border-color: color-mix(in srgb, var(--slax-danger) 30%, transparent);
+    color: var(--slax-danger);
+    background: var(--slax-danger-bg);
   }
 
   span {
-    --style: w-full max-h-10 overflow-hidden text-ellipsis whitespace-nowrap;
+    width: 100%;
+    max-height: 2.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
   }
 }
 
 .toast-leave-to {
-  --style: -translate-y-full;
+  transform: translateY(-8px);
 }
 
 .toast-enter-from {
-  --style: translate-y-full;
+  transform: translateY(8px);
 }
 
 .toast-leave-to,
 .toast-enter-from {
-  --style: opacity-0;
+  opacity: 0;
 }
 
 .toast-enter-active,
 .toast-leave-active {
-  --style: transition-all duration-normal ease-in-out;
+  transition: all var(--slax-dur-normal) ease;
 }
 </style>
 
 <!-- eslint-disable vue-scoped-css/enforce-style-type -->
 <style lang="scss">
 .toast.toast-start {
-  --style: fixed top-0 left-1/2 -translate-x-1/2 flex items-center flex-col pt-6px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 6px;
 
-  & > * {
-    --style: 'not-first:mt-6px';
+  & > * + * {
+    margin-top: 6px;
   }
 }
 </style>

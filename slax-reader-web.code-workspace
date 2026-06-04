@@ -35,7 +35,8 @@
     "i18n-ally.sortKeys": true,
     "i18n-ally.namespace": true,
     "i18n-ally.enabledParsers": ["ts", "js", "json"],
-    "i18n-ally.enabledFrameworks": ["vue"]
+    "i18n-ally.enabledFrameworks": ["vue"],
+    "claudeCode.allowDangerouslySkipPermissions": true
   },
   "extensions": {
     "recommendations": ["lokalise.i18n-ally", "antfu.unocss", "vue.volar", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]

@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="settings-card">
     <div class="title">{{ $t('page.user.third_party_binding') }}</div>
     <div class="info">
       <div class="binding">
@@ -53,10 +53,17 @@ const bindTelegram = async () => {
 </script>
 
 <style lang="scss" scoped>
-section {
-  --style: 'mt-48px not-first:mt-60px';
+.settings-card {
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+  box-shadow: inset 0 1px 0 var(--slax-inset-hi);
+  padding: 24px;
+
   .title {
-    --style: font-600 text-(h2 #0f1419) line-height-33px text-left select-none;
+    font-family: var(--slax-font-serif);
+    color: var(--slax-text);
+    --style: font-600 text-h2 line-height-33px text-left select-none;
   }
 
   .info {

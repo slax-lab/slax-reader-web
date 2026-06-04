@@ -84,9 +84,6 @@ export const phase4ExcludeAdditions = [
   'layers/core/app/components/Article/CEComponents/tweet/TweetUserInfo.ce.vue',
   'layers/core/app/components/Article/CEComponents/tweet/TweetQuoteInfo.ce.vue',
 
-  // === 1 废弃路径专属（RawWebPanel.vue，仅 w/sw 页用）
-  'layers/core/app/components/RawWebPanel.vue',
-
   // === 占位 / 纯导出 / 类型文件（无可测可执行代码）
   'layers/core/app/components/global/HomepagePlanSection.vue',
   'layers/core/app/components/global/CollectionHeader.vue',
@@ -114,8 +111,6 @@ export const phase4ExcludeAdditions = [
   // 注意：vitest exclude 用 picomatch，方括号是字符类元字符，需要用 glob 通配（**/path/?...）规避
   'layers/core/app/pages/auth.vue',
   'layers/core/app/pages/login.vue',
-  'layers/core/app/pages/contact.vue',
-  'layers/core/app/pages/download.vue',
   'layers/core/app/pages/guide.vue',
   'layers/core/app/pages/user.vue',
   // [lang].vue / [id].vue / [...slug].vue：方括号在 picomatch 是字符类，escape 不可移植；
@@ -223,12 +218,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     functions: 85,
     statements: 80
   },
-  'layers/core/app/composables/bookmark/useWebBookmark.ts': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/composables/bookmark/useCommon.ts': {
     lines: 80,
     branches: 70,
@@ -266,23 +255,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     branches: 70,
     functions: 85,
     statements: 80
-  },
-  // 废弃路径降级阈值（iframe + SW liveproxy 真实浏览器才能跑通的 ~40% 行）
-  'layers/core/app/pages/w/[id].vue': {
-    lines: 50,
-    branches: 40,
-    functions: 50,
-    statements: 50
-  },
-  // 第四期 Sprint C.1.1（2026-05-26）：sw/[id].vue 11 用例保底覆盖
-  // 实测 lines 51.97 / branches 33.68 / functions 50 / statements 53.47
-  // branches 33.68 < 40 因 navigator.serviceWorker / iframe.contentDocument 多个早返分支
-  // 真实浏览器才能跑到；降到 50/30/50/50 接受废弃路径状态
-  'layers/core/app/pages/sw/[id].vue': {
-    lines: 50,
-    branches: 30,
-    functions: 50,
-    statements: 50
   },
 
   // ===== components 单文件 =====
@@ -428,12 +400,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 3
-  'layers/core/app/components/AppHeader.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/components/Modal/EditName.vue': {
     lines: 80,
     branches: 70,
@@ -474,12 +440,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 5
-  'layers/core/app/components/AppFooter.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/components/GoogleLoginButton.vue': {
     lines: 80,
     branches: 70,

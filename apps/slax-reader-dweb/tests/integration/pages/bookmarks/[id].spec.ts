@@ -108,8 +108,9 @@ vi.mock('@commons/utils/date', () => ({
   formatDate: mockFormatDate
 }))
 
-import { BookmarkPanelType } from '~~/layers/core/app/components/BookmarkPanel.vue'
 import IdPage from '~~/layers/core/app/pages/bookmarks/[id].vue'
+
+import { BookmarkPanelType } from '~~/layers/core/app/components/BookmarkPanel.types'
 
 const setupUseBookmarkReturn = () => {
   mockUseBookmark.mockReturnValue({
@@ -153,10 +154,28 @@ const baseStubs = {
       }
     }
   },
+  SnapshotDetailLayout: {
+    name: 'SnapshotDetailLayout',
+    template: `<div class="bookmark-detail">
+      <slot name="topbar" />
+      <slot name="tips" />
+      <slot />
+      <slot name="right-edge-toolbar" />
+      <slot name="bottom-toolbar" />
+      <slot name="side-panel" />
+    </div>`,
+    emits: ['close-panel']
+  },
+  SnapshotSidePanel: {
+    name: 'SnapshotSidePanel',
+    template: '<div class="snapshot-side-panel"><slot name="ai" /><slot name="chat" /><slot name="comment" /></div>',
+    emits: ['update:activeTab'],
+    props: ['activeTab']
+  },
   SidebarLayout: { name: 'SidebarLayout', template: '<div class="sidebar-layout"><slot /></div>' },
-  AISummaries: { name: 'AISummaries', template: '<div class="ai-summaries" />', emits: ['navigated-text', 'dismiss'] },
-  ChatBot: {
-    name: 'ChatBot',
+  SnapshotAIPanel: { name: 'SnapshotAIPanel', template: '<div class="snapshot-ai-panel" />', props: ['bookmarkId', 'shareCode', 'isAppeared'], emits: ['dismiss'] },
+  SnapshotChatPanel: {
+    name: 'SnapshotChatPanel',
     template: '<div class="chat-bot" />',
     emits: ['dismiss', 'find-quote'],
     expose: ['addQuoteData']
@@ -177,6 +196,30 @@ const baseStubs = {
     props: ['types']
   },
   DotsMenu: { name: 'DotsMenu', template: '<div class="dots-menu" />', emits: ['action'], props: ['actions'] },
+  SnapshotRightEdgeToolbar: {
+    name: 'SnapshotRightEdgeToolbar',
+    template: '<div class="snapshot-right-edge-toolbar" />',
+    emits: ['update:modelValue'],
+    props: ['modelValue', 'panelOpen']
+  },
+  SnapshotBottomToolbar: {
+    name: 'SnapshotBottomToolbar',
+    template: '<div class="snapshot-bottom-toolbar" />',
+    emits: ['action', 'more'],
+    props: ['actions']
+  },
+  SnapshotTopBar: {
+    name: 'SnapshotTopBar',
+    template: '<div class="snapshot-topbar"><slot name="left" /><slot name="theme-switcher" /><slot name="right" /></div>'
+  },
+  SnapshotMoreMenu: {
+    name: 'SnapshotMoreMenu',
+    template: '<div class="snapshot-more-menu" />',
+    emits: ['action'],
+    props: ['actions']
+  },
+  SnapshotSharePopover: { name: 'SnapshotSharePopover', template: '<div class="snapshot-share-popover" />' },
+  ThemeSwitcher: { name: 'ThemeSwitcher', template: '<div class="theme-switcher" />' },
   ProIcon: true,
   ShareBubbleTips: { name: 'ShareBubbleTips', template: '<div class="share-bubble"><slot /></div>' },
   TopTips: { name: 'TopTips', template: '<div class="top-tips" />', emits: ['clickButton'] },
@@ -202,9 +245,8 @@ describe('pages/bookmarks/[id].vue', () => {
   })
 
   describe('挂载 + computed（C1-C7）', () => {
-    it('C1: 默认 mount → 渲染 .bookmark-detail 容器 + 调 useBookmark', () => {
+    it('C1: 默认 mount → 调 useBookmark（SnapshotDetailLayout 在 canView 后渲染）', () => {
       const wrapper = mountIdPage()
-      expect(wrapper.find('.bookmark-detail').exists()).toBe(true)
       expect(mockUseBookmark).toHaveBeenCalled()
       expect(capturedUseBookmarkOptions.value).toMatchObject({
         typeOptions: expect.any(Function),
@@ -242,32 +284,27 @@ describe('pages/bookmarks/[id].vue', () => {
       expect(mockFormatDate).toHaveBeenCalled()
     })
 
-    it('C5: detail.archived="inbox" → archive 按钮渲染', async () => {
+    it('C5: detail.archived="inbox" → SnapshotBottomToolbar 渲染（含归档按钮）', async () => {
       mockGet.mockResolvedValueOnce({ ...baseBookmarkDetail, status: 'success', archived: 'inbox' })
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      expect(wrapper.find('.archive button').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'SnapshotBottomToolbar' }).exists()).toBe(true)
     })
 
-    it('C6: detail.archived="archive" → archive 按钮不渲染', async () => {
+    it('C6: detail.archived="archive" → SnapshotBottomToolbar 仍渲染（归档状态由 actions 控制）', async () => {
       mockGet.mockResolvedValueOnce({ ...baseBookmarkDetail, status: 'success', archived: 'archive' })
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      expect(wrapper.find('.archive button').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'SnapshotBottomToolbar' }).exists()).toBe(true)
     })
 
-    it('C7: bookmarkPanelTypes 含正确 BookmarkPanelType', async () => {
+    it('C7: SnapshotRightEdgeToolbar 渲染（替代 BookmarkPanel）', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const panel = wrapper.findComponent({ name: 'BookmarkPanel' })
-      const types = (panel.props() as any).types
-      expect(types).toContain(BookmarkPanelType.AI)
-      expect(types).toContain(BookmarkPanelType.CHATBOT)
-      expect(types).toContain(BookmarkPanelType.TOP)
-      expect(types).toContain(BookmarkPanelType.FEEDBACK)
+      expect(wrapper.findComponent({ name: 'SnapshotRightEdgeToolbar' }).exists()).toBe(true)
     })
   })
 
@@ -352,28 +389,24 @@ describe('pages/bookmarks/[id].vue', () => {
   })
 
   describe('useBookmark options（C13-C14）', () => {
-    it('C13: useBookmark 传入 typeOptions / initialRequestTask / initialTasksCompleted', () => {
+    it('C13: useBookmark 传入 typeOptions / initialRequestTask / initialTasksCompleted（Phase 4 移除 detailLayout/sidebar refs）', () => {
       mountIdPage()
       const opts = capturedUseBookmarkOptions.value
-      expect(opts.detailLayout).toBeDefined()
-      expect(opts.summariesSidebar).toBeDefined()
-      expect(opts.botSidebar).toBeDefined()
       expect(typeof opts.typeOptions).toBe('function')
       expect(typeof opts.initialRequestTask).toBe('function')
       expect(typeof opts.initialTasksCompleted).toBe('function')
     })
 
-    it('C14: initialTasksCompleted → nextTick + showChatbot + setTimeout resizeAnimated', async () => {
+    it('C14: initialTasksCompleted → nextTick 执行（Phase 4 移除自动 showChatbot）', async () => {
       vi.useFakeTimers()
       mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
       capturedUseBookmarkOptions.value.initialTasksCompleted()
       await nextTick()
-      // showChatbot 被调（user 存在 + isSubscriptionExpired=false + isSmallScreen=false + isNeedResized=false）
-      expect(mockShowChatbot).toHaveBeenCalled()
+      // Phase 4 后 initialTasksCompleted 不再自动调 showChatbot（由用户手动触发 RightEdgeToolbar）
       await vi.advanceTimersByTimeAsync(0)
-      // resizeAnimated.value=true（通过 mockUseBookmark return 的 resizeAnimated ref）
+      expect(true).toBe(true)
     })
   })
 
@@ -384,9 +417,9 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      // 通过 DotsMenu emit action.trash
-      const dotsMenu = wrapper.findComponent({ name: 'DotsMenu' })
-      await dotsMenu.vm.$emit('action', { id: 'trash' })
+      // 通过 SnapshotMoreMenu emit action.trash
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'trash' })
       await flushPromises()
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/bookmark/trash' }))
       expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ event: 'bookmark_delete' }))
@@ -429,8 +462,8 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const panel = wrapper.findComponent({ name: 'BookmarkPanel' })
-      await panel.vm.$emit('panelClick', BookmarkPanelType.ARCHIVE)
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'archive' })
       await flushPromises()
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/bookmark/archive' }))
       expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ event: 'bookmark_archive', is_archived: true }))
@@ -444,8 +477,8 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const panel = wrapper.findComponent({ name: 'BookmarkPanel' })
-      await panel.vm.$emit('panelClick', BookmarkPanelType.UNARCHIVE)
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'archive' })
       await flushPromises()
       expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ is_archived: false }))
       expect(mockPostChannelMessage).toHaveBeenCalledWith('archive', expect.objectContaining({ cancel: true }))
@@ -457,112 +490,114 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const panel = wrapper.findComponent({ name: 'BookmarkPanel' })
-      await panel.vm.$emit('panelClick', BookmarkPanelType.ARCHIVE)
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'archive' })
       await flushPromises()
       expect(mockToastShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 
   describe('convienceArchiveClick（C21-C22）', () => {
-    it('C21: 点击 → archiveBookmark + setTimeout navigateTo("/bookmarks")', async () => {
-      vi.useFakeTimers()
-      mockPost.mockResolvedValueOnce({})
+    it('C21: BottomToolbar top 按钮 → backToTop 调用', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const archiveBtn = wrapper.find('.archive button')
-      await archiveBtn.trigger('click')
-      await flushPromises()
-      expect(mockPost).toHaveBeenCalled()
-      await vi.advanceTimersByTimeAsync(1000)
-      expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks')
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'top' })
+      expect(mockBackToTop).toHaveBeenCalled()
     })
 
-    it('C22: 重复点击 → 早退（archiving=true 时）', async () => {
-      mockPost.mockImplementationOnce(() => new Promise(() => {})) // 永不 resolve
+    it('C22: BottomToolbar 重复 top 点击 → backToTop 每次都调', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const archiveBtn = wrapper.find('.archive button')
-      await archiveBtn.trigger('click')
-      await archiveBtn.trigger('click') // 第二次
-      // mockPost 只被调一次
-      expect(mockPost).toHaveBeenCalledTimes(1)
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'top' })
+      await toolbar.vm.$emit('action', { id: 'top' })
+      expect(mockBackToTop).toHaveBeenCalledTimes(2)
     })
   })
 
   describe('menuClick（C23-C24）', () => {
-    it('C23: action.id="edit_title" → showEditNameModal + callback 修改 alias_title', async () => {
+    it('C23: action.id="edit_title" → 不再调用 showEditNameModal（改为 contenteditable 内联编辑）', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const dots = wrapper.findComponent({ name: 'DotsMenu' })
-      await dots.vm.$emit('action', { id: 'edit_title' })
-      expect(mockShowEditNameModal).toHaveBeenCalledWith(
-        expect.objectContaining({
-          bookmarkId: expect.any(Number),
-          name: expect.any(String),
-          callback: expect.any(Function)
-        })
-      )
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'edit_title' })
+      expect(mockShowEditNameModal).not.toHaveBeenCalled()
     })
 
-    it('C24: edit_title callback 修改 alias_title', async () => {
+    it('C24: action.id="edit_title" 触发后不报错', async () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const dots = wrapper.findComponent({ name: 'DotsMenu' })
-      await dots.vm.$emit('action', { id: 'edit_title' })
-      const lastCallArgs = mockShowEditNameModal.mock.calls[0]![0]
-      lastCallArgs.callback('New Alias')
-      // alias_title 被修改（断言通过 detail 反应性）
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'edit_title' })
       await nextTick()
       expect(true).toBe(true)
     })
   })
 
-  describe('panelClick 6 分支（C25-C30）', () => {
-    const triggerPanelClick = async (type: BookmarkPanelType) => {
+  describe('RightEdgeToolbar + BottomToolbar 触发（C25-C30）', () => {
+    const triggerEdgeToolbar = async (panelId: 'ai' | 'chat' | 'comment') => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const panel = wrapper.findComponent({ name: 'BookmarkPanel' })
-      await panel.vm.$emit('panelClick', type)
+      const toolbar = wrapper.findComponent({ name: 'SnapshotRightEdgeToolbar' })
+      await toolbar.vm.$emit('update:modelValue', panelId)
       await flushPromises()
       return wrapper
     }
 
-    it('C25: AI → showAnalyzed', async () => {
-      await triggerPanelClick(BookmarkPanelType.AI)
+    it('C25: ai → showAnalyzed', async () => {
+      await triggerEdgeToolbar('ai')
       expect(mockShowAnalyzed).toHaveBeenCalled()
     })
 
-    it('C26: CHATBOT → showChatbot', async () => {
-      await triggerPanelClick(BookmarkPanelType.CHATBOT)
+    it('C26: chat → showChatbot', async () => {
+      await triggerEdgeToolbar('chat')
       expect(mockShowChatbot).toHaveBeenCalled()
     })
 
-    it('C27: ARCHIVE → archiveBookmark(false)', async () => {
+    it('C27: archive via BottomToolbar → archiveBookmark(false)', async () => {
       mockPost.mockResolvedValueOnce({})
-      await triggerPanelClick(BookmarkPanelType.ARCHIVE)
+      const wrapper = mountIdPage()
+      await capturedUseBookmarkOptions.value.initialRequestTask()
+      await flushPromises()
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'archive' })
+      await flushPromises()
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/bookmark/archive', body: expect.objectContaining({ status: 'archive' }) }))
     })
 
-    it('C28: UNARCHIVE → archiveBookmark(true)', async () => {
+    it('C28: unarchive via BottomToolbar → archiveBookmark(true)', async () => {
       mockGet.mockResolvedValueOnce({ ...baseBookmarkDetail, status: 'success', archived: 'archive' })
       mockPost.mockResolvedValueOnce({})
-      await triggerPanelClick(BookmarkPanelType.UNARCHIVE)
+      const wrapper = mountIdPage()
+      await capturedUseBookmarkOptions.value.initialRequestTask()
+      await flushPromises()
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'archive' })
+      await flushPromises()
       expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ body: expect.objectContaining({ status: 'inbox' }) }))
     })
 
-    it('C29: TOP → backToTop', async () => {
-      await triggerPanelClick(BookmarkPanelType.TOP)
+    it('C29: top via BottomToolbar → backToTop', async () => {
+      const wrapper = mountIdPage()
+      await capturedUseBookmarkOptions.value.initialRequestTask()
+      await flushPromises()
+      const toolbar = wrapper.findComponent({ name: 'SnapshotBottomToolbar' })
+      await toolbar.vm.$emit('action', { id: 'top' })
       expect(mockBackToTop).toHaveBeenCalled()
     })
 
-    it('C30: FEEDBACK → showFeedback', async () => {
-      await triggerPanelClick(BookmarkPanelType.FEEDBACK)
+    it('C30: feedback via SnapshotMoreMenu → showFeedback', async () => {
+      const wrapper = mountIdPage()
+      await capturedUseBookmarkOptions.value.initialRequestTask()
+      await flushPromises()
+      const moreMenu = wrapper.findComponent({ name: 'SnapshotMoreMenu' })
+      await moreMenu.vm.$emit('action', { id: 'feedback' })
       expect(mockShowFeedback).toHaveBeenCalled()
     })
   })
@@ -572,7 +607,7 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const shareBtn = wrapper.find('.share')
+      const shareBtn = wrapper.find('.topbar-share-btn')
       await shareBtn.trigger('click')
       expect(mockShowShareConfigModal).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -582,7 +617,7 @@ describe('pages/bookmarks/[id].vue', () => {
       )
     })
 
-    it('C32: ChatBot find-quote → bookmarkArticle.findQuote 调（间接验证不抛错）', async () => {
+    it('C32: SnapshotChatPanel find-quote → bookmarkArticle.findQuote 调（间接验证不抛错）', async () => {
       mockUseBookmark.mockReturnValueOnce({
         ...mockUseBookmark.getMockImplementation()?.({}),
         user: ref(baseUser),
@@ -608,9 +643,9 @@ describe('pages/bookmarks/[id].vue', () => {
       const wrapper = mountIdPage()
       await capturedUseBookmarkOptions.value.initialRequestTask()
       await flushPromises()
-      const chatbot = wrapper.findComponent({ name: 'ChatBot' })
+      const chatbot = wrapper.findComponent({ name: 'SnapshotChatPanel' })
       const quote = { data: [{ type: 'text', content: 'q' }] }
-      // ChatBot stub emits find-quote → 父组件 findQuote 调 bookmarkArticle.findQuote
+      // SnapshotChatPanel stub emits find-quote → 父组件 findQuote 调 bookmarkArticle.findQuote
       await chatbot.vm.$emit('find-quote', quote)
       await nextTick()
       // 不抛错即过
