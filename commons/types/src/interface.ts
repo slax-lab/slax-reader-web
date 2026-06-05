@@ -136,54 +136,47 @@ export interface InlineBookmarkDetail {
   owner_user_id: number
 }
 
-export interface ShareBookmarkDetail {
-  byline: string
-  content: string
+// 各类书签详情（普通/分享/合集/快照）的公共字段基类。
+export interface BaseBookmarkDetail {
+  title: string
+  target_url: string
+  host_url: string
   content_icon: string
   content_cover: string
-  content_word_count: number
-  created_at: string
-  description: string
-  host_url: string
-  published_at: string
-  site_name: string
-  target_url: string
-  title: string
-  share_info: ShareInfo
+  content: string
   marks: MarkDetail
   tags: BookmarkTag[]
-  user_info: {
-    nick_name: string
-    avatar: string
-    show_userinfo: boolean
-  }
+  content_word_count?: number
+  description?: string
+  byline?: string
+  created_at?: string
+  published_at?: string
+}
+
+// 分享/合集详情共用的作者展示信息。
+export interface BookmarkOwnerInfo {
+  nick_name: string
+  avatar: string
+  show_userinfo: boolean
+}
+
+export interface ShareBookmarkDetail extends BaseBookmarkDetail {
+  site_name: string
+  share_info: ShareInfo
+  user_info: BookmarkOwnerInfo
   user_id: number
 }
 
-export interface BookmarkDetail {
+export interface BookmarkDetail extends BaseBookmarkDetail {
   bookmark_id?: number
-  title: string
   alias_title: string
-  host_url: string
-  target_url: string
-  content_icon: string
-  content_cover: string
-  content_word_count?: number
-  content: string
-  description?: string
-  byline?: string
   private_user?: number
   status: BookmarkParseStatus
-  created_at?: string
   updated_at?: string
-  published_at?: string
   user_id: number
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
-  marks: MarkDetail
-  tags: BookmarkTag[]
   trashed_at: string | null
-  type: 'shortcut' | 'article'
 }
 
 export interface BookmarkTag {
