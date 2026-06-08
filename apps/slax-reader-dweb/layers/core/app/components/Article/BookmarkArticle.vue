@@ -8,7 +8,7 @@
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
       </div>
-      <BookmarkTags class="article-tags" :bookmarkId="bookmarkId || 0" :tags="detail.tags" :readonly="!allowTagged" />
+      <BookmarkTags class="article-tags" :bookmarkId="bookmarkId || 0" :bookmarkUid="bookmarkUid" :tags="detail.tags" :readonly="!allowTagged" />
     </header>
     <!-- 保留 .article-detail ref + articleStyle class，processors 管道 / mark 绘制依赖 -->
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
@@ -77,7 +77,7 @@ const articleDetail = ref<HTMLDivElement>()
 const isHandledHTML = ref(false)
 const extraListeners: (() => void)[] = []
 
-const { bookmarkId, shareCode, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
+const { bookmarkId, shareCode, bookmarkUid, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
 const collection = computed(() => {
   try {
@@ -245,6 +245,7 @@ const handleDrawMark = async () => {
       environmentAdapter: new DwebEnvironmentAdapter(),
       bookmarkProvider: new DwebBookmarkProvider({
         bookmarkId: bookmarkId || 0,
+        bookmarkUid: bookmarkUid || undefined,
         shareCode: shareCode || '',
         collection: collection?.value,
         ownerUserId: bookmarkUserId.value
