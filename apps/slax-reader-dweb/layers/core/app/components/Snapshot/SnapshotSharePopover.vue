@@ -1,46 +1,102 @@
 <template>
-  <div class="share-popover-wrap" ref="wrapEl">
+  <div class="share-menu-wrap" ref="wrapEl">
     <button class="share-btn" :class="{ active: isOpen }" :title="$t('common.operate.share')" @click.stop="toggle">
-      <!-- 三圆点连线 share icon -->
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5" />
-        <circle cx="3" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
-        <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5" />
-        <line x1="4.89" y1="6.93" x2="11.11" y2="3.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="4.89" y1="9.07" x2="11.11" y2="12.07" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      <!-- 三圆点连线 share icon（对齐 snapshot 设计稿：24 viewBox / 17px） -->
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
       </svg>
     </button>
     <Transition name="popover">
       <div v-if="isOpen" class="share-popover" v-on-click-outside="close">
         <button class="popover-item" @click="copyLink">
-          <span class="item-icon">🔗</span>
           <span>{{ $t('common.operate.copy_link') }}</span>
+          <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
         </button>
         <button class="popover-item" @click="shareTwitter">
-          <span class="item-icon">𝕏</span>
           <span>{{ $t('common.operate.share_twitter') }}</span>
+          <svg class="item-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
         </button>
-        <div class="popover-divider" />
-        <div class="popover-toggle-row">
-          <span class="toggle-label">{{ $t('page.share_detail.marks_visible') }}</span>
-          <button class="toggle-btn" :class="{ on: marksVisible }" :aria-pressed="marksVisible" @click="marksVisible = !marksVisible">
-            <span class="toggle-knob" />
-          </button>
-        </div>
+        <!-- 「划线评论可见」为 owner 专属（canManageShare）；非 owner 不显示 -->
+        <template v-if="canManageShare">
+          <div class="popover-divider" />
+          <div class="share-check" :class="{ checked: marksVisible }">
+            <span
+              class="share-check-box"
+              role="checkbox"
+              tabindex="0"
+              :aria-checked="marksVisible"
+              @click="toggleMarksVisible"
+              @keydown.enter.prevent="toggleMarksVisible"
+              @keydown.space.prevent="toggleMarksVisible"
+            >
+              <svg class="share-check-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span>{{ $t('page.share_detail.marks_visible') }}</span>
+          </div>
+        </template>
       </div>
     </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { RESTMethodPath } from '@commons/types/const'
 import { vOnClickOutside } from '@vueuse/components'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useExclusivePopover } from '#layers/core/app/composables/useExclusivePopover'
 
+const props = defineProps<{
+  // 公开快照页 /b/[id]：owner 才显示「划线评论可见」开关并落库；非 owner 不传 / 传 false
+  bookmarkUid?: string
+  canManageShare?: boolean
+}>()
+
 const { t } = useI18n()
 
 const { isOpen, toggle, close } = useExclusivePopover()
-const marksVisible = ref(true)
+const marksVisible = ref(false)
+// 保留从后端拿到的 show_userinfo，update 时回传避免被覆盖
+const shareShowUserinfo = ref(false)
+
+type ShareConfig = { allow_action: boolean; show_comment_line: boolean; show_userinfo: boolean; share_code: string }
+
+// owner 进入时拉取当前分享配置，初始化开关
+onMounted(async () => {
+  if (!props.canManageShare || !props.bookmarkUid) return
+  try {
+    const res = await request().get<ShareConfig>({ url: RESTMethodPath.EXISTS_SHARE_BOOKMARK, query: { bookmark_uid: props.bookmarkUid } })
+    marksVisible.value = !!res?.allow_action
+    shareShowUserinfo.value = !!res?.show_userinfo
+  } catch {
+    /* 拉取失败保持默认关闭 */
+  }
+})
+
+// 切换「划线评论可见」：allow_comment & allow_line 同时设为开关状态（经 allow_action 落库）
+const toggleMarksVisible = async () => {
+  if (!props.bookmarkUid) return
+  const next = !marksVisible.value
+  marksVisible.value = next
+  try {
+    await request().post({
+      url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
+      body: { bookmark_uid: props.bookmarkUid, allow_action: next, show_comment_line: next, show_userinfo: shareShowUserinfo.value }
+    })
+  } catch {
+    marksVisible.value = !next // 回滚
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+  }
+}
 
 const copyLink = async () => {
   try {
@@ -60,12 +116,14 @@ const shareTwitter = () => {
 </script>
 
 <style lang="scss" scoped>
-.share-popover-wrap {
+.share-menu-wrap {
   --style: relative;
 }
 
+// 对齐 snapshot 设计稿 .topbar-icon：34×34、8px 圆角、hover accent-bg
 .share-btn {
-  --style: 'w-28px h-28px flex items-center justify-center rounded-sm cursor-pointer transition-colors duration-fast';
+  --style: 'w-34px h-34px flex items-center justify-center rounded-8px cursor-pointer transition-all duration-fast';
+  border: none;
   color: var(--slax-text-light);
   background: transparent;
 
@@ -78,61 +136,74 @@ const shareTwitter = () => {
 
 .share-popover {
   --style: absolute z-200 top-full right-0 mt-8px;
-  min-width: 200px;
-  padding: 4px;
+  min-width: 220px;
+  padding: 6px;
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
-  border-radius: var(--slax-radius-sm);
-  box-shadow: var(--slax-shadow-warm);
+  border-radius: var(--slax-radius);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 12px 36px color-mix(in srgb, var(--slax-accent) 12%, transparent);
 
   .popover-item {
-    --style: 'w-full px-16px py-10px flex items-center gap-10px rounded-sm cursor-pointer transition-colors duration-fast text-left';
-    color: var(--slax-text);
-    font-size: var(--slax-fs-aux);
+    --style: 'w-full flex items-center justify-between gap-12px rounded-8px cursor-pointer transition-all text-left';
+    padding: 9px 12px;
+    color: var(--slax-text-muted);
+    font-size: 14px;
+    font-family: inherit;
     background: transparent;
+    border: none;
 
     &:hover {
       background: var(--slax-accent-bg);
+      color: var(--slax-text);
     }
 
     .item-icon {
-      font-size: 14px;
-      width: 20px;
-      text-align: center;
+      width: 15px;
+      height: 15px;
+      opacity: 0.75;
+      flex-shrink: 0;
     }
   }
 
   .popover-divider {
-    --style: my-4px mx-8px;
+    --style: my-6px mx-4px;
     height: 1px;
     background: var(--slax-border);
   }
 
-  .popover-toggle-row {
-    --style: px-16px py-10px flex items-center justify-between gap-12px;
+  .share-check {
+    --style: flex items-center gap-10px select-none;
+    padding: 9px 12px;
+    color: var(--slax-text-muted);
+    font-size: 13px;
 
-    .toggle-label {
-      font-size: var(--slax-fs-aux);
-      color: var(--slax-text-muted);
-    }
+    .share-check-box {
+      --style: 'w-14px h-14px flex items-center justify-center flex-none rounded-3px cursor-pointer transition-all';
+      border: 1px solid var(--slax-border);
+      background: transparent;
 
-    .toggle-btn {
-      --style: relative flex-none w-32px h-18px rounded-full cursor-pointer transition-colors duration-normal;
-      background: var(--slax-border);
-
-      &.on {
-        background: var(--slax-accent);
-      }
-
-      .toggle-knob {
-        --style: absolute top-2px w-14px h-14px rounded-full transition-transform duration-normal;
-        left: 2px;
-        background: white;
+      &:hover {
+        border-color: var(--slax-accent-soft);
       }
     }
 
-    .toggle-btn.on .toggle-knob {
-      transform: translateX(14px);
+    &.checked .share-check-box {
+      background: var(--slax-accent-bg);
+      border-color: var(--slax-accent-soft);
+    }
+
+    .share-check-tick {
+      width: 9px;
+      height: 9px;
+      color: var(--slax-accent);
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+
+    &.checked .share-check-tick {
+      opacity: 0.7;
     }
   }
 }
