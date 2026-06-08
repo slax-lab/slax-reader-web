@@ -121,6 +121,16 @@ const props = defineProps({
     type: String,
     required: false
   },
+  // 公开快照页 /b/[id]：后端 bookmark_uid（= user_bookmark_uuid）
+  bookmarkUid: {
+    type: String,
+    required: false
+  },
+  // 默认大纲（如快照 SSR 数据已带 outline，则直接使用、不再请求接口）
+  defaultOutline: {
+    type: String,
+    required: false
+  },
   isAppeared: {
     type: Boolean,
     required: false,
@@ -130,8 +140,8 @@ const props = defineProps({
 
 defineEmits(['dismiss'])
 
-// overview 仅在有 bookmarkId 时支持；shareCode 场景（分享页）不支持通过 shareCode 获取
-const overviewSupported = computed(() => !!props.bookmarkId)
+// overview 支持 bookmarkId 或 bookmarkUid；shareCode 场景（分享页）不支持 overview
+const overviewSupported = computed(() => !!props.bookmarkId || !!props.bookmarkUid)
 
 // ── overview 状态 ──
 const overviewContent = ref('')
@@ -219,6 +229,7 @@ const loadOverview = async () => {
       body: {
         ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined),
         force: false
       }
     })
@@ -293,7 +304,8 @@ const loadOutline = async () => {
       url: RESTMethodPath.BOOKMARK_AI_SUMMARIES_LIST,
       query: {
         ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
-        ...(props.shareCode ? { share_code: props.shareCode } : undefined)
+        ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined)
       }
     })
 
@@ -312,6 +324,7 @@ const loadOutline = async () => {
       body: {
         ...(props.bookmarkId ? { bm_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined),
         force: false
       }
     })
@@ -354,7 +367,13 @@ watch(
     }
 
     if (!outlineDone.value && !outlineLoading.value) {
-      loadOutline()
+      // 已带默认 outline（如快照 SSR 数据）则直接用，不再请求接口
+      if (props.defaultOutline) {
+        outlineText.value = processOutlineAnchors(extractMarkdownFromText(props.defaultOutline) || props.defaultOutline)
+        outlineDone.value = true
+      } else {
+        loadOutline()
+      }
     }
   },
   {
