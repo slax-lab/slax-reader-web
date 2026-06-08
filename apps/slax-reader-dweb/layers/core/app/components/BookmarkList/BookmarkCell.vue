@@ -253,8 +253,16 @@ const clickCache = () => {
     return
   }
 
+  // 快照页已迁移至公开页 /b/[id]，用 bookmark_user_uuid 作为路由标识（不再用数字 id）
+  const uuid = bookmark.value.bookmark_user_uuid
+  if (!uuid) {
+    // 数据缺该标识时降级打开原文，避免跳到 /b/undefined
+    clickHref()
+    return
+  }
+
   pwaOpen({
-    url: '/bookmarks/' + String(bookmark.value.id)
+    url: '/b/' + uuid
   })
 }
 
@@ -287,6 +295,11 @@ const clickEdit = () => {
     editingTitle.value = bookmark.value.alias_title || bookmark.value.title
     nextTick(() => {
       handleInput()
+      if (input.value) {
+        input.value.focus()
+        const end = input.value.value.length
+        input.value.setSelectionRange(end, end)
+      }
     })
   }
 }

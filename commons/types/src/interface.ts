@@ -78,6 +78,8 @@ export interface CollectionInfo {
 
 export interface BookmarkItem {
   id: number
+  // 公开快照页 /b/[id] 的路由标识（= 后端 user_bookmark_uuid）。列表单元格点击标题跳转 /b/{bookmark_user_uuid}
+  bookmark_user_uuid?: string
   title: string
   alias_title: string
   host_url: string
