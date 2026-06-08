@@ -55,6 +55,11 @@ const props = defineProps({
     type: Number,
     required: false
   },
+  // 公开快照页 /b/[id]：后端 bookmark_uid（= user_bookmark_uuid），owner 可对自己文章增删标签
+  bookmarkUid: {
+    type: String,
+    required: false
+  },
   tags: {
     type: Array as PropType<BookmarkTag[]>,
     required: true
@@ -127,14 +132,14 @@ const searchingTags = async () => {
 }
 
 const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
-  if (!props.bookmarkId) return
+  if (!props.bookmarkId && !props.bookmarkUid) return
   const { tagName, tagId } = params
   if (!tagName && !tagId) return
   if (tagName && tagId) return
   isAddingLoading.value = true
   const res = await request().post<BookmarkTag>({
     url: RESTMethodPath.ADD_BOOKMARK_TAG,
-    body: { bookmark_id: props.bookmarkId, tag_id: tagId, tag_name: tagName }
+    body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId, tag_name: tagName }
   })
   if (res) {
     bookmarkTags.value.push(res)
@@ -145,10 +150,10 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
 }
 
 const deleteBookmarkTag = async (tagId: number) => {
-  if (!props.bookmarkId) return
+  if (!props.bookmarkId && !props.bookmarkUid) return
   request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_BOOKMARK_TAG,
-    body: { bookmark_id: props.bookmarkId, tag_id: tagId }
+    body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId }
   })
   const index = bookmarkTags.value.findIndex(tag => tag.id === tagId)
   if (index > -1) bookmarkTags.value.splice(index, 1)
