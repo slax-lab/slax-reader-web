@@ -13,6 +13,13 @@ export interface IBookmarkProvider {
   getBookmarkId(): Promise<number>
 
   /**
+   * 获取书签 UUID（可选，dweb 公开快照页 /b/[id] 特有）
+   * 对应后端 user_bookmark_uuid，用于公开快照页按 bookmark_uid 读写 marks
+   * @returns 书签 UUID，如果不存在返回 undefined
+   */
+  getBookmarkUid?(): string | undefined
+
+  /**
    * 获取分享码（可选，dweb特有）
    * @returns 分享码，如果不存在返回undefined
    */

@@ -7,12 +7,14 @@ import type { IBookmarkProvider } from '@slax-reader/selection/adapters'
  */
 export class DwebBookmarkProvider implements IBookmarkProvider {
   private bookmarkId?: number
+  private bookmarkUid?: string
   private shareCode?: string
   private collection?: { code: string; cb_id: number }
   private ownerUserId?: number
 
-  constructor(config: { bookmarkId?: number; shareCode?: string; collection?: { code: string; cb_id: number }; ownerUserId?: number }) {
+  constructor(config: { bookmarkId?: number; bookmarkUid?: string; shareCode?: string; collection?: { code: string; cb_id: number }; ownerUserId?: number }) {
     this.bookmarkId = config.bookmarkId
+    this.bookmarkUid = config.bookmarkUid
     this.shareCode = config.shareCode
     this.collection = config.collection
     this.ownerUserId = config.ownerUserId
@@ -23,6 +25,10 @@ export class DwebBookmarkProvider implements IBookmarkProvider {
       throw new Error('BookmarkId is not configured')
     }
     return this.bookmarkId
+  }
+
+  getBookmarkUid(): string | undefined {
+    return this.bookmarkUid
   }
 
   getShareCode(): string | undefined {
