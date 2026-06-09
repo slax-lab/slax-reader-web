@@ -506,7 +506,7 @@
       "layout_card": "Card view",
       "layout_text": "Text view",
       "add_article": "Add article",
-      "date_group_format": "{month} {year}",
+      "date_group_format": "{monthName} {year}",
       "last_updated_at": "Updated {time}",
       "just_now": "just now",
       "minutes_ago": "{n}m ago",
@@ -667,11 +667,6 @@
           "subtitle": "She is a gentle inquirer, a well-read scholar, and a challenger full of personality",
           "title": "AI Assistant"
         }
-      },
-      "slogan": {
-        "free_button": "Start Free",
-        "subtitle": "Your permanent library that saves, understands, and networks your content with others.",
-        "title": "Read Smarter Connect Deeper"
       }
     },
     "quickStart": {

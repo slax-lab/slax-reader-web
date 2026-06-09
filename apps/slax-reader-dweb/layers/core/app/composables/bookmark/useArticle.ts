@@ -12,7 +12,10 @@ export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
   })
 
   const allowTagged = computed(() => {
-    return isBookmarkDetail(detail.value) && !detail.value.trashed_at
+    if (isBookmarkDetail(detail.value)) return !detail.value.trashed_at
+    // 公开快照页 /b/[id]：仅文章作者本人（owner）可增删标签
+    if (isSnapshotBookmarkDetail(detail.value)) return allowAction.value
+    return false
   })
 
   const isStarred = computed(() => {
@@ -21,6 +24,8 @@ export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
 
   const bookmarkId = isBookmarkDetail(detail.value) ? detail.value.bookmark_id : undefined
   const shareCode = isShareBookmarkDetail(detail.value) ? detail.value.share_info.share_code : undefined
+  // 公开快照页 /b/[id]：用 bookmark_uuid（后端 bookmark_uid）读写 marks
+  const bookmarkUid = isSnapshotBookmarkDetail(detail.value) ? detail.value.bookmark_uuid : undefined
 
   // updateStarred 用 computed 包裹，确保 detail 加载后能正确返回函数而非 undefined
   const updateStarred = computed(() => {
@@ -42,6 +47,7 @@ export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
   return {
     bookmarkId,
     shareCode,
+    bookmarkUid,
     title,
     isStarred,
     allowStarred,

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isH5 && !panelOpen" class="edge-toolbar">
+  <div v-if="!isH5 && !panelOpen && buttons.length > 0" class="edge-toolbar">
     <template v-for="(btn, idx) in buttons" :key="btn.id">
       <div v-if="idx > 0" class="edge-sep" />
       <button class="edge-btn" :class="{ active: modelValue === btn.id }" :title="btn.label" @click="toggle(btn.id)">
@@ -11,36 +11,22 @@
 </template>
 
 <script lang="ts" setup>
-type PanelId = 'ai' | 'chat' | 'comment'
+import { resolveSnapshotPanels, type SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 
 const props = defineProps<{
-  modelValue: PanelId | null
+  modelValue: SnapshotPanelId | null
   panelOpen?: boolean
+  // 展示的面板子集，不传则全部
+  panels?: SnapshotPanelId[]
 }>()
 
 const emits = defineEmits<{
-  'update:modelValue': [value: PanelId | null]
+  'update:modelValue': [value: SnapshotPanelId | null]
 }>()
 
-const buttons: { id: PanelId; label: string; icon: string }[] = [
-  {
-    id: 'ai',
-    label: 'AI 解析',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2l.5 4 4 .5-4 .5-.5 4-.5-4-4-.5 4-.5z"/><path d="M15 12l.5 3 3 .5-3 .5-.5 3-.5-3-3-.5 3-.5z"/></svg>`
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>`
-  },
-  {
-    id: 'comment',
-    label: '评论',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
-  }
-]
+const buttons = computed(() => resolveSnapshotPanels(props.panels))
 
-const toggle = (id: PanelId) => {
+const toggle = (id: SnapshotPanelId) => {
   emits('update:modelValue', props.modelValue === id ? null : id)
 }
 

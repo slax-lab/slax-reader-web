@@ -111,6 +111,8 @@ export const phase4ExcludeAdditions = [
   // 注意：vitest exclude 用 picomatch，方括号是字符类元字符，需要用 glob 通配（**/path/?...）规避
   'layers/core/app/pages/auth.vue',
   'layers/core/app/pages/login.vue',
+  'layers/core/app/pages/contact.vue',
+  'layers/core/app/pages/download.vue',
   'layers/core/app/pages/guide.vue',
   'layers/core/app/pages/user.vue',
   // [lang].vue / [id].vue / [...slug].vue：方括号在 picomatch 是字符类，escape 不可移植；
@@ -400,6 +402,12 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 3
+  'layers/core/app/components/AppHeader.vue': {
+    lines: 80,
+    branches: 70,
+    functions: 85,
+    statements: 80
+  },
   'layers/core/app/components/Modal/EditName.vue': {
     lines: 80,
     branches: 70,
@@ -440,6 +448,12 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 5
+  'layers/core/app/components/AppFooter.vue': {
+    lines: 80,
+    branches: 70,
+    functions: 85,
+    statements: 80
+  },
   'layers/core/app/components/GoogleLoginButton.vue': {
     lines: 80,
     branches: 70,

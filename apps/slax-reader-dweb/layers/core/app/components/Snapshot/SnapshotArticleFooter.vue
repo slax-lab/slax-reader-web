@@ -2,13 +2,18 @@
   <footer class="article-footer">
     <div class="article-footer-text">
       {{ $t('page.bookmarks_detail.shared_via') }}
-      <strong>Slax Reader</strong>
+      <strong>{{ via || 'Slax Reader' }}</strong>
       · <a class="article-footer-link" href="https://slax.com/reader/" target="_blank" rel="noopener noreferrer">{{ $t('page.bookmarks_detail.try_free') }}</a>
     </div>
   </footer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+// via 为空回退 "Slax Reader"；/b/[id] 传入 owner 昵称显示 "Shared via {owner}"
+defineProps<{
+  via?: string
+}>()
+</script>
 
 <style lang="scss" scoped>
 .article-footer {

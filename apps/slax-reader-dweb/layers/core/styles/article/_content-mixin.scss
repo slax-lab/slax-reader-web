@@ -24,13 +24,82 @@
 
   /* 表格类 */
   table {
-    --style: '!w-full border-separate border border-spacing-5px border-(1px solid border)';
+    --style: '!w-full my-24px';
+    border-collapse: separate; // separate 模型下圆角才生效
+    border-spacing: 0; // 去掉间距，避免双线缝隙
+    border: 1px solid var(--slax-border);
+    border-radius: var(--slax-radius-sm);
+    background: var(--slax-surface-solid);
+    box-shadow: var(--slax-shadow-sm); // 轻微抬升；eink 下 token 为 none
+    font-size: var(--slax-fs-meta);
+    line-height: 1.6;
+    overflow: hidden;
   }
 
+  // 表格标题：居中弱化
+  table caption {
+    padding-bottom: 8px;
+    color: var(--slax-text-light);
+    font-size: var(--slax-fs-aux);
+    text-align: center;
+  }
+
+  // 单元格只画下/右内线，外框交给 table，避免双线
   th,
-  tr,
   td {
-    --style: text-align-left border-(1px solid border);
+    --style: text-align-left;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--slax-border);
+    border-right: 1px solid var(--slax-border);
+    color: var(--slax-text-muted);
+    vertical-align: top;
+    font-variant-numeric: tabular-nums; // 数字等宽便于对齐
+  }
+
+  th:last-child,
+  td:last-child {
+    border-right: none;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  // 表头：浅底加重，用更实的下边线与正文分隔
+  th {
+    background: var(--slax-surface);
+    border-bottom-width: 2px;
+    color: var(--slax-text);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  // 行首列加重，作横向阅读锚点
+  tbody td:first-child {
+    color: var(--slax-text);
+    font-weight: 500;
+  }
+
+  // 斑马纹：偶数行淡底，便于逐行扫描
+  tbody tr:nth-child(even) td {
+    background: var(--slax-accent-bg);
+  }
+
+  // separate 模型下手动补四角圆角，让底色贴合外框
+  thead tr:first-child th:first-child,
+  tr:first-child td:first-child {
+    border-top-left-radius: var(--slax-radius-sm);
+  }
+  thead tr:first-child th:last-child,
+  tr:first-child td:last-child {
+    border-top-right-radius: var(--slax-radius-sm);
+  }
+  tr:last-child td:first-child {
+    border-bottom-left-radius: var(--slax-radius-sm);
+  }
+  tr:last-child td:last-child {
+    border-bottom-right-radius: var(--slax-radius-sm);
   }
 
   /* 链接类 */

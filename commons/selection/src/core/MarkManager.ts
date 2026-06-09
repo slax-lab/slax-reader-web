@@ -279,10 +279,12 @@ export class MarkManager extends Base {
     const markUid = info.stroke.find(item => item.userId === userId)?.mark_uid
     if (!markUid) return
 
-    const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+    // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错
+    const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
+    const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
     await this.httpClient.post({
       url: RESTMethodPath.DELETE_MARK,
-      body: { bm_id: bookmarkId, mark_uid: markUid }
+      body: { bm_id: bookmarkId, bookmark_uid: bookmarkUid, mark_uid: markUid }
     })
 
     info.stroke = info.stroke.filter(item => item.userId !== userId)
@@ -333,10 +335,12 @@ export class MarkManager extends Base {
     }
 
     try {
-      const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+      // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错
+      const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
+      const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
       await this.httpClient.post({
         url: RESTMethodPath.DELETE_MARK,
-        body: { bm_id: bookmarkId, mark_uid: markUid }
+        body: { bm_id: bookmarkId, bookmark_uid: bookmarkUid, mark_uid: markUid }
       })
 
       await removeMarkOrComment()
@@ -659,15 +663,18 @@ export class MarkManager extends Base {
    */
   private async saveMarkSelectContent(value: MarkPathItem[], type: BackendMarkType, approx?: MarkPathApprox, comment?: string, replyToUid?: string) {
     try {
-      const bookmarkId = await this.bookmarkProvider.getBookmarkId()
+      const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
       const shareCode = this.bookmarkProvider.getShareCode?.()
       const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
+      // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错或发出被后端优先解析的伪造 bm_id:0
+      const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
 
       const res = await this.httpClient.post<{ mark_uid: string; root_uid: string }>({
         url: RESTMethodPath.ADD_MARK,
         body: {
           share_code: shareCode,
           bm_id: bookmarkId,
+          bookmark_uid: bookmarkUid,
           comment,
           type,
           source: value,

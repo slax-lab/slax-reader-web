@@ -18,7 +18,7 @@ type BookmarkFilter = ReturnType<typeof useBookmarkFilter>
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
 
 export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>) => {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   const bookmarks = ref<BookmarkItem[]>([])
   const highlights = ref<HighlightItem[]>([])
@@ -48,7 +48,8 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
             type: 'group',
             label: t('page.bookmarks_index.date_group_format', {
               year: date.getFullYear(),
-              month: date.getMonth() + 1
+              month: date.getMonth() + 1,
+              monthName: date.toLocaleString(locale.value, { month: 'long' })
             }),
             key: groupKey
           })

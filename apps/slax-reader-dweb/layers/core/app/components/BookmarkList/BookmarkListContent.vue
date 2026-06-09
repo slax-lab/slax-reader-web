@@ -3,7 +3,7 @@
   <div class="bookmarks">
     <template v-if="['highlights', 'notifications'].indexOf(filterStatus) === -1">
       <TransitionGroup :name="loading ? '' : 'opacity'" @after-leave="emit('transition-leave')">
-        <template v-for="item in groupedBookmarks" :key="item.type === 'group' ? item.key : item.bookmark.id">
+        <template v-for="item in displayItems" :key="item.type === 'group' ? item.key : item.bookmark.id">
           <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
           <BookmarkCell
             v-else
@@ -36,6 +36,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
@@ -46,7 +48,7 @@ import type { BookmarkItem, HighlightItem, UserNotificationMessageItem } from '@
 // 日期分组条目类型（与 useBookmarkData 的 groupedBookmarks 一致）
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
 
-defineProps<{
+const props = defineProps<{
   filterStatus: string
   groupedBookmarks: GroupedItem[]
   highlights: HighlightItem[]
@@ -55,6 +57,9 @@ defineProps<{
   loading: boolean
   filterCollectionCode: string
 }>()
+
+// 文字视图下不按月分段：过滤掉日期分组标签，仅保留书签
+const displayItems = computed<GroupedItem[]>(() => (props.listMode === 'text' ? props.groupedBookmarks.filter(item => item.type !== 'group') : props.groupedBookmarks))
 
 const emit = defineEmits<{
   delete: [id: number]

@@ -137,6 +137,8 @@ const props = defineProps<{
   bookmarkId?: number
   shareCode?: string
   collection?: { code: string; cbId: number }
+  // /b/[id] 的 bookmark_uid
+  bookmarkUid?: string
   isAppeared?: boolean
   closeButtonHidden?: boolean
 }>()
@@ -156,6 +158,8 @@ const botParams: ChatBotParams = (() => {
     return { shareCode: props.shareCode }
   } else if (props.collection) {
     return { collection: props.collection }
+  } else if (props.bookmarkUid) {
+    return { bookmarkUid: props.bookmarkUid }
   } else {
     return { bookmarkId: 0 }
   }

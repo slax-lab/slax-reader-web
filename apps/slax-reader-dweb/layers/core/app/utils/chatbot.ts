@@ -23,7 +23,7 @@ export enum ChatResponseType {
   STATUS_UPDATE = 'STATUS_UPDATE'
 }
 
-export type ChatBotParams = { bookmarkId: number } | { shareCode: string } | { collection: { code: string; cbId: number } }
+export type ChatBotParams = { bookmarkId: number } | { shareCode: string } | { collection: { code: string; cbId: number } } | { bookmarkUid: string }
 
 export type ChatResponseFunctionData =
   | {
@@ -60,6 +60,7 @@ export class ChatBot {
   bookmarkId?: number
   shareCode?: string
   collection?: { code: string; cbId: number }
+  bookmarkUid?: string
   responseCallback?: (params: { type: ChatResponseType; data: ChatResponseData }) => void
   chatStatusUpdateHandler?: (isChatting: boolean) => void
 
@@ -70,6 +71,8 @@ export class ChatBot {
       this.shareCode = params.shareCode
     } else if ('collection' in params) {
       this.collection = params.collection
+    } else if ('bookmarkUid' in params) {
+      this.bookmarkUid = params.bookmarkUid
     }
 
     this.responseCallback = responseCallback
@@ -279,6 +282,7 @@ export class ChatBot {
       return {
         bm_id: this.bookmarkId ? this.bookmarkId : undefined,
         share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkUid ? { bookmark_uid: this.bookmarkUid } : {}),
         ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages,
         quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined
@@ -287,6 +291,7 @@ export class ChatBot {
       return {
         bm_id: this.bookmarkId ? this.bookmarkId : undefined,
         share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkUid ? { bookmark_uid: this.bookmarkUid } : {}),
         ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages: [{ role: 'assistant', tool_calls: [{ id: '1', type: 'function', function: { name: 'generateQuestion' } }] }]
       }
@@ -294,6 +299,7 @@ export class ChatBot {
       return {
         bm_id: this.bookmarkId ? this.bookmarkId : undefined,
         share_code: this.shareCode ? this.shareCode : undefined,
+        ...(this.bookmarkUid ? { bookmark_uid: this.bookmarkUid } : {}),
         ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages: [
           {

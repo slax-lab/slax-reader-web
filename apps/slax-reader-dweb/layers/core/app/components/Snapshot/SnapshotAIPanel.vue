@@ -121,9 +121,21 @@ const props = defineProps({
     type: String,
     required: false
   },
-  collection: {
-    type: Object as PropType<{ code: string; cbId: number }>,
+  // /b/[id] 的 bookmark_uid
+  bookmarkUid: {
+    type: String,
     required: false
+  },
+  // SSR 已带 outline 时直接用
+  defaultOutline: {
+    type: String,
+    required: false
+  },
+  // overview 是否可用，默认 true；/b/[id] 非 owner 传 false 隐藏（后端 owner-only）
+  overviewEnabled: {
+    type: Boolean,
+    required: false,
+    default: true
   },
   isAppeared: {
     type: Boolean,
@@ -134,8 +146,8 @@ const props = defineProps({
 
 defineEmits(['dismiss'])
 
-// overview 仅在有 bookmarkId 时支持；shareCode 场景（分享页）不支持通过 shareCode 获取
-const overviewSupported = computed(() => !!props.bookmarkId)
+// overview 支持 bookmarkId/bookmarkUid，shareCode 不支持；enabled 为 false 时隐藏（owner-only）
+const overviewSupported = computed(() => props.overviewEnabled && (!!props.bookmarkId || !!props.bookmarkUid))
 
 // ── overview 状态 ──
 const overviewContent = ref('')
@@ -223,6 +235,7 @@ const loadOverview = async () => {
       body: {
         ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined),
         force: false
       }
     })
@@ -298,7 +311,7 @@ const loadOutline = async () => {
       query: {
         ...(props.bookmarkId ? { bookmark_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
-        ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined)
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined)
       }
     })
 
@@ -317,7 +330,7 @@ const loadOutline = async () => {
       body: {
         ...(props.bookmarkId ? { bm_id: props.bookmarkId } : undefined),
         ...(props.shareCode ? { share_code: props.shareCode } : undefined),
-        ...(props.collection ? { collection_code: props.collection.code, cb_id: props.collection.cbId } : undefined),
+        ...(props.bookmarkUid ? { bookmark_uid: props.bookmarkUid } : undefined),
         force: false
       }
     })
@@ -360,7 +373,13 @@ watch(
     }
 
     if (!outlineDone.value && !outlineLoading.value) {
-      loadOutline()
+      // 已带默认 outline 则直接用，不再请求接口
+      if (props.defaultOutline) {
+        outlineText.value = processOutlineAnchors(extractMarkdownFromText(props.defaultOutline) || props.defaultOutline)
+        outlineDone.value = true
+      } else {
+        loadOutline()
+      }
     }
   },
   {
