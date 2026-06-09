@@ -25,18 +25,18 @@
   /* 表格类 */
   table {
     --style: '!w-full my-24px';
-    border-collapse: separate; // 配合 border-radius：圆角只在 separate 模型下生效
-    border-spacing: 0; // 去掉原 5px 间距带来的「双线 + 缝隙」原始观感
+    border-collapse: separate; // separate 模型下圆角才生效
+    border-spacing: 0; // 去掉间距，避免双线缝隙
     border: 1px solid var(--slax-border);
     border-radius: var(--slax-radius-sm);
     background: var(--slax-surface-solid);
-    box-shadow: var(--slax-shadow-sm); // 轻微抬升，使表格从正文中浮起；eink 下 token 为 none
+    box-shadow: var(--slax-shadow-sm); // 轻微抬升；eink 下 token 为 none
     font-size: var(--slax-fs-meta);
     line-height: 1.6;
     overflow: hidden;
   }
 
-  // 表格标题：作为整表说明，居中弱化
+  // 表格标题：居中弱化
   table caption {
     padding-bottom: 8px;
     color: var(--slax-text-light);
@@ -44,7 +44,7 @@
     text-align: center;
   }
 
-  // 单元格：只画下/右内线，外框交给 table，避免边框叠加成双线
+  // 单元格只画下/右内线，外框交给 table，避免双线
   th,
   td {
     --style: text-align-left;
@@ -53,7 +53,7 @@
     border-right: 1px solid var(--slax-border);
     color: var(--slax-text-muted);
     vertical-align: top;
-    font-variant-numeric: tabular-nums; // 数字等宽，纵向对齐更整齐
+    font-variant-numeric: tabular-nums; // 数字等宽便于对齐
   }
 
   th:last-child,
@@ -65,7 +65,7 @@
     border-bottom: none;
   }
 
-  // 表头：浅底 + 加重文字 + 字距，并用更实的下边线与正文分隔
+  // 表头：浅底加重，用更实的下边线与正文分隔
   th {
     background: var(--slax-surface);
     border-bottom-width: 2px;
@@ -75,18 +75,18 @@
     white-space: nowrap;
   }
 
-  // 行首列作为行标签略加重，建立横向阅读锚点
+  // 行首列加重，作横向阅读锚点
   tbody td:first-child {
     color: var(--slax-text);
     font-weight: 500;
   }
 
-  // 斑马纹：偶数行加极淡暖底，长表更易逐行扫描
+  // 斑马纹：偶数行淡底，便于逐行扫描
   tbody tr:nth-child(even) td {
     background: var(--slax-accent-bg);
   }
 
-  // separate 模型下手动给四角单元格补圆角，使底色贴合外框圆角（无需额外包裹元素）
+  // separate 模型下手动补四角圆角，让底色贴合外框
   thead tr:first-child th:first-child,
   tr:first-child td:first-child {
     border-top-left-radius: var(--slax-radius-sm);

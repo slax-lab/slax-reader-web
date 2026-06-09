@@ -1,9 +1,4 @@
-// 快照详情页侧栏面板的单一来源：右侧 edge toolbar 按钮与 side panel tab 共用同一份
-// 定义（id / 文案 / 图标），避免两处重复维护。
-//
-// 页面通过 `panels` prop 传入要启用的 id 子集来灵活裁剪（如非 owner 不显示 Chat）；
-// 不传则默认全部启用，保持既有页面行为不变。后续若按权限 / 订阅 / 实验位再做调整，
-// 只需改页面侧的 computed，组件与注册表无需变动。
+// 侧栏面板单一来源：edge toolbar 与 side panel tab 共用；页面用 panels prop 裁剪子集（如非 owner 隐藏 Chat），不传则全部
 
 export type SnapshotPanelId = 'ai' | 'chat' | 'comment'
 
@@ -32,7 +27,7 @@ export const SNAPSHOT_PANELS: SnapshotPanelDef[] = [
   }
 ]
 
-// 按传入的 id 列表过滤并保持注册表顺序；未传（undefined）时返回全部。
+// 按 id 过滤并保持注册表顺序；未传时返回全部
 export function resolveSnapshotPanels(ids?: SnapshotPanelId[]): SnapshotPanelDef[] {
   if (!ids) return SNAPSHOT_PANELS
   const allow = new Set(ids)

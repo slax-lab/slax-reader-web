@@ -55,7 +55,7 @@ const props = defineProps({
     type: Number,
     required: false
   },
-  // 公开快照页 /b/[id]：后端 bookmark_uid（= user_bookmark_uuid），owner 可对自己文章增删标签
+  // /b/[id] owner 用 bookmark_uid 增删标签
   bookmarkUid: {
     type: String,
     required: false

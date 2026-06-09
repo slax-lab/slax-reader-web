@@ -66,8 +66,7 @@ const props = defineProps({
     type: Object as PropType<MarkDetail>,
     required: false
   },
-  // 底部 footer "Shared via X" 中的署名。留空回退 "Slax Reader"（默认）；
-  // /b/[id] 快照页传入文章 owner 昵称。
+  // footer "Shared via X" 署名：留空回退 Slax Reader，/b/[id] 传入 owner 昵称
   footerVia: {
     type: String,
     required: false,

@@ -1,7 +1,7 @@
 <template>
   <div class="share-menu-wrap" ref="wrapEl">
     <button class="share-btn" :class="{ active: isOpen }" :title="$t('common.operate.share')" @click.stop="toggle">
-      <!-- 三圆点连线 share icon（对齐 snapshot 设计稿：24 viewBox / 17px） -->
+      <!-- 三圆点连线 share icon -->
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="18" cy="5" r="3" />
         <circle cx="6" cy="12" r="3" />
@@ -24,7 +24,7 @@
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
         </button>
-        <!-- 「划线评论可见」为 owner 专属（canManageShare）；非 owner 不显示 -->
+        <!-- 「划线评论可见」owner 专属，非 owner 不显示 -->
         <template v-if="canManageShare">
           <div class="popover-divider" />
           <div class="share-check" :class="{ checked: marksVisible }">
@@ -56,7 +56,7 @@ import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useExclusivePopover } from '#layers/core/app/composables/useExclusivePopover'
 
 const props = defineProps<{
-  // 公开快照页 /b/[id]：owner 才显示「划线评论可见」开关并落库；非 owner 不传 / 传 false
+  // /b/[id] owner 才显示「划线评论可见」开关并落库
   bookmarkUid?: string
   canManageShare?: boolean
 }>()
@@ -65,7 +65,7 @@ const { t } = useI18n()
 
 const { isOpen, toggle, close } = useExclusivePopover()
 const marksVisible = ref(false)
-// 保留从后端拿到的 show_userinfo，update 时回传避免被覆盖
+// 缓存 show_userinfo，update 时回传避免被覆盖
 const shareShowUserinfo = ref(false)
 
 type ShareConfig = { allow_action: boolean; show_comment_line: boolean; show_userinfo: boolean; share_code: string }
@@ -82,7 +82,7 @@ onMounted(async () => {
   }
 })
 
-// 切换「划线评论可见」：allow_comment & allow_line 同时设为开关状态（经 allow_action 落库）
+// 切换「划线评论可见」，经 allow_action 落库
 const toggleMarksVisible = async () => {
   if (!props.bookmarkUid) return
   const next = !marksVisible.value
@@ -120,7 +120,7 @@ const shareTwitter = () => {
   --style: relative;
 }
 
-// 对齐 snapshot 设计稿 .topbar-icon：34×34、8px 圆角、hover accent-bg
+// 对齐设计稿 .topbar-icon
 .share-btn {
   --style: 'w-34px h-34px flex items-center justify-center rounded-8px cursor-pointer transition-all duration-fast';
   border: none;

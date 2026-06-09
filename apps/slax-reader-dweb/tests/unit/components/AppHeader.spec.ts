@@ -1,9 +1,4 @@
-// AppHeader 组件单测
-// 主要 setup 行为：
-//  - useAppHeader({ showHomeLinks, extraLinks }) 拿 navLinks/auxiliaryLinks
-//  - onMounted addLog → analyticsLog({ event: 'homepage_view', section: <由 location.pathname 决定> })
-//  - showMobileSidebar ref + 触发 hamburger / close
-//  - handleStartFree → showMobileSidebar=false + auxiliaryLinks.startFree.action()
+// AppHeader 组件单测：覆盖渲染、analyticsLog、移动端 sidebar 交互与 handleStartFree
 import AppHeader from '~~/layers/core/app/components/AppHeader.vue'
 
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -79,7 +74,7 @@ describe('AppHeader', () => {
 
   describe('analyticsLog', () => {
     it('onMounted → analyticsLog 调，section 由 pathname 决定', () => {
-      // happy-dom 默认 pathname 通常是 /
+      // happy-dom 默认 pathname 为 /
       mountWithApp(AppHeader)
       expect(mockAnalyticsLog).toHaveBeenCalledWith({
         event: 'homepage_view',
@@ -88,7 +83,7 @@ describe('AppHeader', () => {
     })
 
     it('pathname=/pricing → section=pricing', () => {
-      // 通过 vi.stubGlobal 替换 window.location 难度大；改为 spyOn pathname
+      // 直接覆写 pathname，避免替换整个 window.location
       const orig = window.location.pathname
       Object.defineProperty(window.location, 'pathname', { value: '/pricing', configurable: true })
       mountWithApp(AppHeader)

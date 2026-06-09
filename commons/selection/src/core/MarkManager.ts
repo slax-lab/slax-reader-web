@@ -279,7 +279,7 @@ export class MarkManager extends Base {
     const markUid = info.stroke.find(item => item.userId === userId)?.mark_uid
     if (!markUid) return
 
-    // 后端删除仅按 mark_uid + 作者本人鉴权；互斥取标识，公开快照页跳过 getBookmarkId 以免抛错
+    // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错
     const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
     const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
     await this.httpClient.post({
@@ -335,7 +335,7 @@ export class MarkManager extends Base {
     }
 
     try {
-      // 后端删除仅按 mark_uid + 作者本人鉴权；互斥取标识，公开快照页跳过 getBookmarkId 以免抛错
+      // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错
       const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
       const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
       await this.httpClient.post({
@@ -666,8 +666,7 @@ export class MarkManager extends Base {
       const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
       const shareCode = this.bookmarkProvider.getShareCode?.()
       const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
-      // 互斥取标识：仅当无 bookmarkUid 时才取 bm_id（getBookmarkId 在未配置时会 throw，
-      // 公开快照页只有 bookmarkUid，故跳过以免抛错 / 发出伪造的 bm_id:0 被后端优先解析）
+      // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错或发出被后端优先解析的伪造 bm_id:0
       const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
 
       const res = await this.httpClient.post<{ mark_uid: string; root_uid: string }>({

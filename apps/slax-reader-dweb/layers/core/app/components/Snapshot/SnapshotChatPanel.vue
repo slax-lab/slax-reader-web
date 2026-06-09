@@ -137,7 +137,7 @@ const props = defineProps<{
   bookmarkId?: number
   shareCode?: string
   collection?: { code: string; cbId: number }
-  // 公开快照页 /b/[id]：后端 bookmark_uid（= user_bookmark_uuid）
+  // /b/[id] 的 bookmark_uid
   bookmarkUid?: string
   isAppeared?: boolean
   closeButtonHidden?: boolean

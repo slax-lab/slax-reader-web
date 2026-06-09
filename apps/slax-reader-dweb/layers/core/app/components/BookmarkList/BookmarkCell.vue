@@ -253,10 +253,10 @@ const clickCache = () => {
     return
   }
 
-  // 快照页已迁移至公开页 /b/[id]，用 bookmark_user_uuid 作为路由标识（不再用数字 id）
+  // 跳转公开页 /b/[id]，用 bookmark_user_uuid 作路由标识
   const uuid = bookmark.value.bookmark_user_uuid
   if (!uuid) {
-    // 数据缺该标识时降级打开原文，避免跳到 /b/undefined
+    // 缺标识时降级打开原文，避免跳到 /b/undefined
     clickHref()
     return
   }

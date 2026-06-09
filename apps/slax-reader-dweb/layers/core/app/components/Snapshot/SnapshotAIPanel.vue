@@ -121,19 +121,17 @@ const props = defineProps({
     type: String,
     required: false
   },
-  // 公开快照页 /b/[id]：后端 bookmark_uid（= user_bookmark_uuid）
+  // /b/[id] 的 bookmark_uid
   bookmarkUid: {
     type: String,
     required: false
   },
-  // 默认大纲（如快照 SSR 数据已带 outline，则直接使用、不再请求接口）
+  // SSR 已带 outline 时直接用
   defaultOutline: {
     type: String,
     required: false
   },
-  // overview（全文概要）是否可用。默认 true 保持既有页面行为；
-  // 公开快照页 /b/[id] 的 overview 后端按 bookmark_uid 仅 owner 可解析，
-  // 非 owner 传 false 以隐藏该区块（避免空载/报错），outline 不受影响。
+  // overview 是否可用，默认 true；/b/[id] 非 owner 传 false 隐藏（后端 owner-only）
   overviewEnabled: {
     type: Boolean,
     required: false,
@@ -148,8 +146,7 @@ const props = defineProps({
 
 defineEmits(['dismiss'])
 
-// overview 支持 bookmarkId 或 bookmarkUid；shareCode 场景（分享页）不支持 overview。
-// overviewEnabled 为 false 时强制隐藏（/b/[id] 非 owner：overview 后端 owner-only）。
+// overview 支持 bookmarkId/bookmarkUid，shareCode 不支持；enabled 为 false 时隐藏（owner-only）
 const overviewSupported = computed(() => props.overviewEnabled && (!!props.bookmarkId || !!props.bookmarkUid))
 
 // ── overview 状态 ──
@@ -376,7 +373,7 @@ watch(
     }
 
     if (!outlineDone.value && !outlineLoading.value) {
-      // 已带默认 outline（如快照 SSR 数据）则直接用，不再请求接口
+      // 已带默认 outline 则直接用，不再请求接口
       if (props.defaultOutline) {
         outlineText.value = processOutlineAnchors(extractMarkdownFromText(props.defaultOutline) || props.defaultOutline)
         outlineDone.value = true

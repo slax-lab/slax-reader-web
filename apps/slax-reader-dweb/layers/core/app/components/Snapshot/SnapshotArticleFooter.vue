@@ -9,8 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-// via 为空时回退到 "Slax Reader"（/bookmarks/[id]、/s/[id]、/c/[id] 的默认行为）；
-// /b/[id] 快照页传入文章 owner 昵称，底部显示 "Shared via {owner}"。
+// via 为空回退 "Slax Reader"；/b/[id] 传入 owner 昵称显示 "Shared via {owner}"
 defineProps<{
   via?: string
 }>()

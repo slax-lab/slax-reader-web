@@ -16,7 +16,7 @@ import { resolveSnapshotPanels, type SnapshotPanelId } from '#layers/core/app/co
 const props = defineProps<{
   modelValue: SnapshotPanelId | null
   panelOpen?: boolean
-  // 要展示的面板 id 子集（顺序以注册表为准）；不传则全部展示。
+  // 展示的面板子集，不传则全部
   panels?: SnapshotPanelId[]
 }>()
 
