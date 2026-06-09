@@ -35,37 +35,22 @@
 </template>
 
 <script lang="ts" setup>
+import { resolveSnapshotPanels, type SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
-type TabId = 'ai' | 'chat' | 'comment'
-
 const props = defineProps<{
-  activeTab: TabId | null
+  activeTab: SnapshotPanelId | null
+  // 要展示的面板 id 子集（顺序以注册表为准）；不传则全部展示。
+  panels?: SnapshotPanelId[]
 }>()
 
 defineEmits<{
-  'update:activeTab': [tab: TabId | null]
+  'update:activeTab': [tab: SnapshotPanelId | null]
 }>()
 
 const { panelWidth, isDragging, startDrag } = useSnapshotLayout()
 
-const tabs: { id: TabId; label: string; icon: string }[] = [
-  {
-    id: 'ai',
-    label: 'AI 解析',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2l.5 4 4 .5-4 .5-.5 4-.5-4-4-.5 4-.5z"/><path d="M15 12l.5 3 3 .5-3 .5-.5 3-.5-3-3-.5 3-.5z"/></svg>`
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>`
-  },
-  {
-    id: 'comment',
-    label: '评论',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
-  }
-]
+const tabs = computed(() => resolveSnapshotPanels(props.panels))
 </script>
 
 <style lang="scss" scoped>
