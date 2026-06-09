@@ -506,7 +506,7 @@
       "layout_card": "Card view",
       "layout_text": "Text view",
       "add_article": "Add article",
-      "date_group_format": "{month} {year}",
+      "date_group_format": "{monthName} {year}",
       "last_updated_at": "Updated {time}",
       "just_now": "just now",
       "minutes_ago": "{n}m ago",
