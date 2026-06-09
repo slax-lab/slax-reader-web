@@ -75,6 +75,8 @@
 </template>
 
 <script lang="ts" setup>
+definePageMeta({ alias: ['/'] })
+
 import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopModal.vue'
 import BookmarkListContent from '#layers/core/app/components/BookmarkList/BookmarkListContent.vue'
 import BookmarksContentHeader from '#layers/core/app/components/BookmarkList/BookmarksContentHeader.vue'
