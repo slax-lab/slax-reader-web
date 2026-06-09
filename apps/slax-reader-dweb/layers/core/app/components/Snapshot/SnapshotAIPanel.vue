@@ -131,6 +131,14 @@ const props = defineProps({
     type: String,
     required: false
   },
+  // overview（全文概要）是否可用。默认 true 保持既有页面行为；
+  // 公开快照页 /b/[id] 的 overview 后端按 bookmark_uid 仅 owner 可解析，
+  // 非 owner 传 false 以隐藏该区块（避免空载/报错），outline 不受影响。
+  overviewEnabled: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
   isAppeared: {
     type: Boolean,
     required: false,
@@ -140,8 +148,9 @@ const props = defineProps({
 
 defineEmits(['dismiss'])
 
-// overview 支持 bookmarkId 或 bookmarkUid；shareCode 场景（分享页）不支持 overview
-const overviewSupported = computed(() => !!props.bookmarkId || !!props.bookmarkUid)
+// overview 支持 bookmarkId 或 bookmarkUid；shareCode 场景（分享页）不支持 overview。
+// overviewEnabled 为 false 时强制隐藏（/b/[id] 非 owner：overview 后端 owner-only）。
+const overviewSupported = computed(() => props.overviewEnabled && (!!props.bookmarkId || !!props.bookmarkUid))
 
 // ── overview 状态 ──
 const overviewContent = ref('')
