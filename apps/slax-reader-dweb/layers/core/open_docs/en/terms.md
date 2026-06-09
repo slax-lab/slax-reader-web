@@ -12,6 +12,19 @@ Slax Reader is intended for your personal, non-commercial use. Any use of Slax R
 
 The content, design, and software of Slax Reader are protected by international copyright and trademark laws. You may not copy, reproduce, or distribute any part of Slax Reader without our express written consent.
 
+## Content Caching and Copyright
+
+Slax Reader allows users to save and share cached copies (snapshots) of web content for personal reading. These snapshots are not indexed by search engines and include attribution links pointing back to the original source.
+
+We respect the rights of copyright holders. If you are a copyright owner and believe that a snapshot infringes your rights, you may submit a takedown request by emailing **reader@slax.com**. To help us process your request, please include the following information:
+
+- The URL of the original content
+- The Slax Reader snapshot URL
+- Your contact information
+- A statement of your copyright claim and that you are the rights holder or authorized to act on their behalf
+
+We are committed to reviewing and responding to valid requests promptly.
+
 ## Open Source Software
 
 Slax Reader is built on open source software. You are allowed to access, modify, and distribute the source code under the terms of the specific open source license. However, the distribution of the modified application on platforms such as the App Store is strictly prohibited.
