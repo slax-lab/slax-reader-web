@@ -14,7 +14,7 @@
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
-    <SnapshotArticleFooter />
+    <SnapshotArticleFooter :via="footerVia" />
   </div>
 </template>
 
@@ -65,6 +65,13 @@ const props = defineProps({
   marks: {
     type: Object as PropType<MarkDetail>,
     required: false
+  },
+  // 底部 footer "Shared via X" 中的署名。留空回退 "Slax Reader"（默认）；
+  // /b/[id] 快照页传入文章 owner 昵称。
+  footerVia: {
+    type: String,
+    required: false,
+    default: ''
   }
 })
 
