@@ -10,13 +10,13 @@
       <p v-if="mainComment.comment" class="comment-reply">{{ mainComment.comment }}</p>
 
       <div class="comment-meta">
-        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
-          {{ $t('common.operate.reply') }}
-        </button>
         <span>
           <span class="comment-author">{{ mainComment.username }}</span>
           <template v-if="mainComment.createdAt"> · {{ formatRelativeTime(mainComment.createdAt) }}</template>
         </span>
+        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
+          {{ $t('common.operate.reply') }}
+        </button>
       </div>
 
       <!-- 子评论 -->
@@ -44,13 +44,13 @@
       <blockquote v-if="hasSource" class="comment-quote">{{ quoteText }}</blockquote>
       <span v-else class="comment-scope-badge">{{ $t('page.bookmarks_detail.comment_all') }}</span>
       <div class="comment-meta">
-        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
-          {{ $t('common.operate.reply') }}
-        </button>
         <span v-if="strokeUser">
           <span class="comment-author">{{ strokeUser.username }}</span>
           <template v-if="strokeUser.createdAt"> · {{ formatRelativeTime(strokeUser.createdAt) }}</template>
         </span>
+        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
+          {{ $t('common.operate.reply') }}
+        </button>
       </div>
     </template>
   </article>
@@ -170,7 +170,7 @@ const formatRelativeTime = (date: Date | string | undefined) => {
 
   .comment-meta {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     margin-top: 10px;
