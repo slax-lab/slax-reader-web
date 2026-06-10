@@ -47,12 +47,12 @@ defineExpose({
 
 <style lang="scss" scoped>
 .apple-login-button {
-  --style: 'w-300px h-48px flex-center';
+  --style: 'w-full h-44px flex-center';
   background: var(--slax-surface-solid);
-  border: 1px solid var(--slax-border);
+  border: 1px solid var(--slax-border-strong);
   border-radius: var(--slax-radius-sm);
   cursor: pointer;
-  transition: all var(--slax-dur-normal);
+  transition: all var(--slax-dur-fast);
 
   & > * {
     --style: 'not-first:ml-8px';
@@ -66,10 +66,12 @@ defineExpose({
   }
 
   &:hover {
-    background: var(--slax-surface);
-    border-color: color-mix(in srgb, var(--slax-text-light) 40%, var(--slax-border));
-    transform: translateY(-1px);
-    box-shadow: var(--slax-shadow-sm);
+    border-color: var(--slax-accent-soft);
+    background: var(--slax-accent-bg);
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 }
 </style>
