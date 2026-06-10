@@ -41,25 +41,15 @@ const onAfterLeave = () => {
   justify-content: center;
   max-width: 360px;
   min-width: 120px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: var(--slax-radius-sm);
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
-  box-shadow:
-    var(--slax-shadow-warm),
-    0 4px 16px color-mix(in srgb, var(--slax-accent) 8%, transparent);
-  color: var(--slax-text-muted);
-  font-size: 13px;
+  box-shadow: var(--slax-shadow-warm);
+  color: var(--slax-text);
+  font-size: 14px;
   line-height: 1.5;
   user-select: none;
-  backdrop-filter: var(--slax-blur);
-  -webkit-backdrop-filter: var(--slax-blur);
-
-  &.success {
-    border-color: color-mix(in srgb, var(--slax-accent) 30%, transparent);
-    color: var(--slax-accent);
-    background: color-mix(in srgb, var(--slax-accent) 6%, var(--slax-surface-solid));
-  }
 
   &.error {
     border-color: color-mix(in srgb, var(--slax-danger) 30%, transparent);
