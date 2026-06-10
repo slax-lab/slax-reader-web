@@ -4,7 +4,10 @@
       <template #topbar>
         <SnapshotTopBar>
           <template #left>
-            <button class="app-name" @click="navigateToBookmarks">Slax Reader</button>
+            <button class="app-name" @click="navigateToBookmarks">
+              <img src="@images/icon-logo-bookmark.png" width="22" height="22" alt="" />
+              Slax Reader
+            </button>
           </template>
           <template #theme-switcher>
             <ClientOnly><ThemeSwitcher /></ClientOnly>
@@ -473,8 +476,16 @@ const moreMenuClick = (action: MoreMenuAction) => {
   }
 
   .app-name {
-    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    --style: 'flex items-center gap-10px text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
     color: var(--slax-text);
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    img {
+      flex-shrink: 0;
+      display: block;
+    }
   }
 
   .login {

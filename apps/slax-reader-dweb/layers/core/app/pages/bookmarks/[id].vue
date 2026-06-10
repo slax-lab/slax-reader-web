@@ -4,7 +4,10 @@
       <template #topbar>
         <SnapshotTopBar>
           <template #left>
-            <button class="app-name" @click="navigateToBookmarks">{{ $t('common.app.name') }}</button>
+            <button class="app-name" @click="navigateToBookmarks">
+              <img src="@images/icon-logo-bookmark.png" width="22" height="22" alt="" />
+              {{ $t('common.app.name') }}
+            </button>
           </template>
           <template #theme-switcher>
             <ClientOnly><ThemeSwitcher /></ClientOnly>
@@ -273,6 +276,7 @@ const onCancelReply = () => {
 // SVG icon 字符串
 const archiveIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>`
 const starIconOff = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+const starIconOn = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
 const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`
 
 const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [
@@ -285,7 +289,7 @@ const bottomToolbarActions = computed<BottomToolbarAction[]>(() => [
   },
   {
     id: 'star',
-    icon: starIconOff,
+    icon: isStarred.value ? starIconOn : starIconOff,
     label: t('common.operate.star'),
     active: isStarred.value,
     visible: allowStarred.value
@@ -539,8 +543,16 @@ const panelClick = (_type: BookmarkPanelType) => {
   --style: w-full relative flex justify-center items-start;
 
   .app-name {
-    --style: 'text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
+    --style: 'flex items-center gap-10px text-brand font-serif font-500 line-height-28px cursor-pointer transition-opacity duration-fast hover:opacity-80';
     color: var(--slax-text);
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    img {
+      flex-shrink: 0;
+      display: block;
+    }
   }
 
   .topbar-share-btn {
