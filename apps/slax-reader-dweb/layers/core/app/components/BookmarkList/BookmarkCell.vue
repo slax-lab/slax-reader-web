@@ -553,7 +553,7 @@ const starBookmark = async (isStar: boolean) => {
 // 序号：衬线字体，右对齐，固定宽度
 .article-num {
   font-family: var(--slax-font-serif);
-  font-size: 12px;
+  font-size: 15px;
   color: var(--slax-text-light);
   min-width: 24px;
   padding-top: 2px;
@@ -567,7 +567,7 @@ const starBookmark = async (isStar: boolean) => {
 .article-body {
   flex: 1;
   min-width: 0;
-  padding-right: 28px;
+  padding-right: 24px;
 }
 
 // 标题外层容器：控制截断，让 button 宽度由文字决定
@@ -587,7 +587,7 @@ const starBookmark = async (isStar: boolean) => {
   border: none;
   padding: 0;
   font-family: var(--slax-font-serif);
-  font-size: 15px;
+  font-size: 17px;
   color: var(--slax-text);
   line-height: 1.45;
   letter-spacing: -0.01em;
@@ -624,7 +624,7 @@ const starBookmark = async (isStar: boolean) => {
   display: block;
   width: 100%;
   font-family: var(--slax-font-serif);
-  font-size: 15px;
+  font-size: 17px;
   color: var(--slax-text);
   line-height: 1.45;
   margin-bottom: 8px;
@@ -644,14 +644,14 @@ const starBookmark = async (isStar: boolean) => {
 .article-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: nowrap;
   overflow: visible;
 }
 
 // 日期
 .article-date {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--slax-text-light);
   font-weight: 300;
   flex-shrink: 0;
@@ -660,7 +660,7 @@ const starBookmark = async (isStar: boolean) => {
 
 // 来源标签：胶囊形，点击跳转原链接
 .article-source {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--slax-text-muted);
   background: var(--slax-accent-bg);
   padding: 2px 10px;

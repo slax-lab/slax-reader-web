@@ -15,7 +15,7 @@ defineProps<{ label: string }>()
 }
 
 .date-group-label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--slax-text-light);
   font-weight: 400;
   padding: 16px 4px 8px;

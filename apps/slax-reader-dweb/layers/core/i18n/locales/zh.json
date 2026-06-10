@@ -270,7 +270,9 @@
       "apple_login": "通过 Apple 登录",
       "google_login": "Google 登录",
       "share_page_login_tips": "你还没有登录，登录成功后才可进行相关操作",
-      "title": "创建你的账号，来了解一下我们吧~"
+      "title": "创建你的账号，来了解一下我们吧~",
+      "tos_prefix": "登录即代表你同意",
+      "tos_and": "与"
     },
     "notification_cell": {
       "comment_title": "{username} 发表了评论：",

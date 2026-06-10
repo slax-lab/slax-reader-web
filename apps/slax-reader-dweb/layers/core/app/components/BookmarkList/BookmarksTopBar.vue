@@ -5,6 +5,7 @@
       <!-- 左侧：品牌名 + 主题切换 -->
       <div class="topbar-left">
         <button class="topbar-logo" @click="navigateTo('/bookmarks')" type="button">
+          <img src="@images/icon-logo-bookmark.png" width="24" height="24" alt="Slax Reader" />
           {{ $t('common.app.name') }}
         </button>
         <ClientOnly><ThemeSwitcher /></ClientOnly>
@@ -66,7 +67,13 @@ const onSearch = (keyword: string) => {
 
 .topbar-logo {
   // 品牌名：衬线字体，demo 用 var(--text) 深色而非 accent 橙色
-  --style: font-serif font-500 text-brand text-txt cursor-pointer bg-transparent border-none p-0;
+  --style: flex items-center gap-10px font-serif font-500 text-brand text-txt cursor-pointer bg-transparent border-none p-0;
+  letter-spacing: -0.02em;
+
+  img {
+    flex-shrink: 0;
+    display: block;
+  }
 }
 
 .topbar-right {

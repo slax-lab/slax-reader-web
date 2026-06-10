@@ -29,6 +29,7 @@
   --slax-danger-bg: rgba(204, 68, 68, 0.06);
   --slax-selection: rgba(180, 88, 55, 0.15);
   --slax-border: rgba(26, 24, 20, 0.08);
+  --slax-border-strong: rgba(26, 24, 20, 0.16);
 
   /* 阴影 */
   --slax-shadow-warm: 0 8px 32px rgba(180, 88, 55, 0.08);
@@ -133,6 +134,7 @@
   --slax-danger-bg: rgba(224, 112, 112, 0.1);
   --slax-selection: rgba(212, 118, 79, 0.2);
   --slax-border: rgba(255, 251, 244, 0.08);
+  --slax-border-strong: rgba(255, 251, 244, 0.16);
 
   --slax-shadow-warm: 0 8px 32px rgba(0, 0, 0, 0.25);
   --slax-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -165,6 +167,7 @@
   --slax-danger-bg: #eeeeee;
   --slax-selection: #dddddd;
   --slax-border: #cccccc;
+  --slax-border-strong: #999999;
 
   --slax-shadow-warm: none;
   --slax-shadow-sm: none;
