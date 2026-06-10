@@ -26,6 +26,7 @@ export const isBookmarkDetail = (detail: BookmarkArticleDetail): detail is Bookm
 export const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is ShareBookmarkDetail => 'share_info' in detail
 export const isBookmarkBrief = (detail: WebBookmarkArticleDetail): detail is BookmarkBriefDetail => 'target_url' in detail && 'created_at' in detail && 'updated_at' in detail
 export const isInlineBookmarkDetail = (detail: WebBookmarkArticleDetail): detail is InlineBookmarkDetail => 'share_info' in detail && 'user_info' in detail
+export const isSnapshotBookmarkDetail = (detail: BookmarkArticleDetail) => false
 
 export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 
