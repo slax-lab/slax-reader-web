@@ -1,5 +1,9 @@
 <template>
-  <div class="auth-card">
+  <div class="auth-card" :class="{ 'has-invite': hasInvite }">
+    <!-- 邀请段：通过 invite 插槽注入，与登录段共用同一张卡片 -->
+    <div v-if="$slots.invite" class="invite-section">
+      <slot name="invite" />
+    </div>
     <div class="login-section">
       <!-- Logo -->
       <div class="auth-logo">
@@ -42,6 +46,11 @@ const props = defineProps({
   affcode: {
     type: String,
     default: ''
+  },
+  // 是否存在邀请段：为真时卡片描边换 accent-soft 并下推登录段
+  hasInvite: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -67,6 +76,33 @@ if (route.query.from === 'homepage') {
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
   box-shadow: var(--slax-shadow-warm);
+  position: relative;
+
+  // 邀请态：卡片描边换 accent-soft
+  &.has-invite {
+    border-color: var(--slax-accent-soft);
+  }
+}
+
+// 邀请段：与登录段共用同一张卡片，底部 divider 分隔（内容由 invite 插槽注入）
+.invite-section {
+  padding: 0 32px 24px;
+  position: relative;
+  text-align: center;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 0;
+    height: 1px;
+    background: var(--slax-border);
+  }
+
+  @media (max-width: 540px) {
+    padding: 18px 20px 16px;
+  }
 }
 
 .login-section {
@@ -75,6 +111,15 @@ if (route.query.from === 'homepage') {
 
   @media (max-width: 540px) {
     padding: 28px 20px 24px;
+  }
+}
+
+// 有邀请段时下推登录段顶部留白
+.auth-card.has-invite .login-section {
+  padding-top: 32px;
+
+  @media (max-width: 540px) {
+    padding-top: 24px;
   }
 }
 
