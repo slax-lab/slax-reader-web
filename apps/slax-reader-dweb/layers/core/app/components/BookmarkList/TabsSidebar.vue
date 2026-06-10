@@ -4,7 +4,7 @@
     <!-- 主导航项 -->
     <button v-for="(item, index) in tabList" :key="item.type" class="sidebar-item" :class="{ active: tabType === item.type }" @click="inboxClick(item.type, index)" type="button">
       <!-- inline SVG icon，不依赖图片文件 -->
-      <svg class="item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.iconPath" />
+      <svg class="item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.iconPath" />
       <span>{{ item.title }}</span>
     </button>
 
@@ -13,7 +13,7 @@
 
     <!-- 废纸篓 -->
     <button class="sidebar-item" :class="{ active: tabType === 'trashed' }" @click="inboxClick('trashed')" type="button">
-      <svg class="item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg class="item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <polyline points="3 6 5 6 21 6" />
         <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
       </svg>
@@ -74,7 +74,7 @@ defineExpose({
   border-radius: var(--slax-radius-sm, 8px);
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--slax-text-muted);
   cursor: pointer;
   transition: all 0.15s;
