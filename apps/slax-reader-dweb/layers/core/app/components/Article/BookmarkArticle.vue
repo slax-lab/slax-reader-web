@@ -31,6 +31,7 @@ import type { WebProcessorContext } from './processors'
 import {
   AnchorProcessor,
   ArticleStyle,
+  ClassIsolationProcessor,
   DetailsProcessor,
   DOMPipeline,
   IFrameProcessor,
@@ -210,6 +211,8 @@ const handleHTML = async () => {
   }
 
   const pipeline = new DOMPipeline()
+    // 最前：把正文残留的外来 class 前缀化，隔离 UnoCSS 全局原子类误伤（详见 ClassIsolationProcessor）
+    .register(new ClassIsolationProcessor())
     .register(new WechatHeaderProcessor())
     .register(new ImageProcessor())
     .register(new SvgProcessor())
