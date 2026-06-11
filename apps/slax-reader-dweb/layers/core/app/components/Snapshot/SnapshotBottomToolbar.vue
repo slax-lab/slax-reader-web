@@ -7,23 +7,22 @@
         <span v-if="!isNarrow" class="btn-label">{{ action.label }}</span>
       </button>
     </template>
-    <template v-if="isH5Mobile">
-      <div class="toolbar-sep" />
-      <button class="toolbar-btn" :title="$t('common.operate.more')" @click="$emit('more')">
-        <span class="btn-icon">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="3" cy="8" r="1.5" fill="currentColor" />
-            <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-            <circle cx="13" cy="8" r="1.5" fill="currentColor" />
-          </svg>
-        </span>
-        <span v-if="!isNarrow" class="btn-label">{{ $t('common.operate.more') }}</span>
-      </button>
+    <!-- 小屏：边缘侧栏隐藏，AI/Chat/评论 聚合到底部栏（对齐 snapshot demo 的 .bottom-tool.h5-only） -->
+    <template v-if="isH5Mobile && panelButtons.length > 0">
+      <template v-for="(panel, pIdx) in panelButtons" :key="panel.id">
+        <div v-if="pIdx > 0 || visibleActions.length > 0" class="toolbar-sep" />
+        <button class="toolbar-btn" :class="{ active: activePanel === panel.id }" :title="panel.label" @click="$emit('panel', panel.id)">
+          <span class="btn-icon" v-html="panel.icon" />
+          <span v-if="!isNarrow" class="btn-label">{{ panel.label }}</span>
+        </button>
+      </template>
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { resolveSnapshotPanels, type SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
+
 export interface BottomToolbarAction {
   id: string
   icon: string
@@ -34,14 +33,18 @@ export interface BottomToolbarAction {
 
 const props = defineProps<{
   actions: BottomToolbarAction[]
+  // 小屏底部栏聚合的侧栏面板子集（不传则全部）；与右侧 edge toolbar 同源
+  panels?: SnapshotPanelId[]
+  activePanel?: SnapshotPanelId | null
 }>()
 
 defineEmits<{
   action: [action: BottomToolbarAction]
-  more: []
+  panel: [id: SnapshotPanelId]
 }>()
 
 const visibleActions = computed(() => props.actions.filter(a => a.visible !== false))
+const panelButtons = computed(() => resolveSnapshotPanels(props.panels))
 
 // H5 断点：≤768px 显示「更多」按钮；≤600px 只显图标
 const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
