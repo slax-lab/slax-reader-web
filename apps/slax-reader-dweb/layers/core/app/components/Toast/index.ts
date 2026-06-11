@@ -23,7 +23,8 @@ const showToast = (options: { text: string; type?: ToastType }) => {
     toastElement = document.createElement('div')
     toastElement.classList.add('toast')
     toastElement.classList.add('toast-start')
-    toastElement.style.setProperty('z-index', `${100}`)
+    // Toast 必须盖过所有弹窗/模态（全站 z-index 最高到 1000，含 feedback-modal 的 z-200），故取远高于其上的值
+    toastElement.style.setProperty('z-index', `${9999}`)
     document.body.appendChild(toastElement)
   }
 

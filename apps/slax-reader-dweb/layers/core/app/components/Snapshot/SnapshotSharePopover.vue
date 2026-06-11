@@ -74,7 +74,23 @@ type ShareConfig = { allow_action: boolean; show_comment_line: boolean; show_use
 onMounted(async () => {
   if (!props.canManageShare || !props.bookmarkUid) return
   try {
-    const res = await request().get<ShareConfig>({ url: RESTMethodPath.EXISTS_SHARE_BOOKMARK, query: { bookmark_uid: props.bookmarkUid } })
+    let res = await request().get<ShareConfig>({ url: RESTMethodPath.EXISTS_SHARE_BOOKMARK, query: { bookmark_uid: props.bookmarkUid } })
+
+    // share_code 为空表示尚未开启分享：立刻以「全部开启」异步落库（不等待返回），
+    // 同时本地手动拼一个全开的 res 走下面的初始化逻辑（参考 ShareModal）
+    if (res && (res.share_code ?? '').length === 0) {
+      request()
+        .post({
+          url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
+          body: { bookmark_uid: props.bookmarkUid, allow_action: true, show_comment_line: true, show_userinfo: true }
+        })
+        .catch(() => {
+          /* 异步落库，失败忽略 */
+        })
+
+      res = { ...res, allow_action: true, show_comment_line: true, show_userinfo: true }
+    }
+
     marksVisible.value = !!res?.allow_action
     shareShowUserinfo.value = !!res?.show_userinfo
   } catch {

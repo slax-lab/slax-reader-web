@@ -54,7 +54,15 @@
       </template>
 
       <template #bottom-toolbar>
-        <SnapshotBottomToolbar v-if="canView && !isTrashedBookmark" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
+        <!-- 小屏：边缘侧栏隐藏，底部栏聚合 AI/Chat/评论；面板 sheet 打开时隐藏底部栏避免重叠 -->
+        <SnapshotBottomToolbar
+          v-if="canView && !isTrashedBookmark"
+          v-show="!(isH5 && activePanel)"
+          :actions="bottomToolbarActions"
+          :active-panel="activePanel"
+          @action="bottomToolbarAction"
+          @panel="onBottomPanel"
+        />
       </template>
 
       <template #side-panel>
@@ -218,7 +226,13 @@ const isArchieved = computed(() => {
 const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
-const { panelOpen } = useSnapshotLayout()
+const { panelOpen, isH5 } = useSnapshotLayout()
+
+// 小屏底部栏点击面板：切换 activePanel（经下面的 watch 走登录/订阅校验）
+const onBottomPanel = (id: 'ai' | 'chat' | 'comment') => {
+  activePanel.value = activePanel.value === id ? null : id
+}
+
 watch(activePanel, (val, oldVal) => {
   // showAnalyzed/showChatbot 返回 false 表示被登录或订阅校验拦截
   // 此时回退 activePanel，避免侧栏按钮高亮但内容被拦截的状态

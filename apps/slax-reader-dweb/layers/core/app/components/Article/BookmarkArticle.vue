@@ -14,7 +14,7 @@
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
-    <SnapshotArticleFooter :via="footerVia" />
+    <SnapshotArticleFooter :via="footerVia" :show-via="footerShowVia" />
   </div>
 </template>
 
@@ -31,6 +31,7 @@ import type { WebProcessorContext } from './processors'
 import {
   AnchorProcessor,
   ArticleStyle,
+  ClassIsolationProcessor,
   DetailsProcessor,
   DOMPipeline,
   IFrameProcessor,
@@ -71,6 +72,12 @@ const props = defineProps({
     type: String,
     required: false,
     default: ''
+  },
+  // footer 左侧署名段是否展示；owner 访问自己的快照时传 false 隐藏
+  footerShowVia: {
+    type: Boolean,
+    required: false,
+    default: true
   }
 })
 
@@ -210,6 +217,8 @@ const handleHTML = async () => {
   }
 
   const pipeline = new DOMPipeline()
+    // 最前：把正文残留的外来 class 前缀化，隔离 UnoCSS 全局原子类误伤（详见 ClassIsolationProcessor）
+    .register(new ClassIsolationProcessor())
     .register(new WechatHeaderProcessor())
     .register(new ImageProcessor())
     .register(new SvgProcessor())
@@ -489,6 +498,18 @@ defineExpose({
     text-decoration-thickness: 1.5px;
     text-underline-offset: 6px;
     box-decoration-break: clone;
+  }
+
+  // 同一处既有划线又有评论时，划线（实线）样式覆盖评论（虚线）——对齐 demo「划线和评论都用实线」。
+  // 多一个 class 把特异性抬过上面的 .comment，且本规则在后，双重保证生效。
+  &:deep(slax-mark.comment.stroke) {
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+  }
+
+  &:deep(slax-mark.comment.self-stroke) {
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
   }
 
   &:deep(slax-mark:hover) {
