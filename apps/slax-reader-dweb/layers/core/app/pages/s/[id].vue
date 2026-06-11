@@ -59,7 +59,14 @@
       </template>
 
       <template #bottom-toolbar>
-        <SnapshotBottomToolbar v-if="detail" :actions="bottomToolbarActions" @action="bottomToolbarAction" @more="activePanel = 'comment'" />
+        <SnapshotBottomToolbar
+          v-if="detail"
+          v-show="!(isH5 && activePanel)"
+          :actions="bottomToolbarActions"
+          :active-panel="activePanel"
+          @action="bottomToolbarAction"
+          @panel="onBottomPanel"
+        />
       </template>
 
       <template #side-panel>
@@ -183,7 +190,13 @@ const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', labe
 const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
-const { panelOpen } = useSnapshotLayout()
+const { panelOpen, isH5 } = useSnapshotLayout()
+
+// 小屏底部栏点击面板：切换 activePanel（经下面的 watch 走登录/订阅校验）
+const onBottomPanel = (id: 'ai' | 'chat' | 'comment') => {
+  activePanel.value = activePanel.value === id ? null : id
+}
+
 watch(activePanel, (val, oldVal) => {
   if (val === 'ai' && !showAnalyzed()) {
     activePanel.value = oldVal ?? null
