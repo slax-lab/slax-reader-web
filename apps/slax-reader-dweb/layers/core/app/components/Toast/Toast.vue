@@ -54,7 +54,9 @@ const onAfterLeave = () => {
   &.error {
     border-color: color-mix(in srgb, var(--slax-danger) 30%, transparent);
     color: var(--slax-danger);
-    background: var(--slax-danger-bg);
+    // 不用半透明的 --slax-danger-bg：toast 可能浮在反馈弹窗等暗色模态之上会糊成一片，
+    // 改为把 danger 实色混入不透明 surface-solid，得到带红调但完全不透明的底色（各主题自适应）
+    background: color-mix(in srgb, var(--slax-danger) 12%, var(--slax-surface-solid));
   }
 
   span {
