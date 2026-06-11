@@ -254,7 +254,7 @@ const clickCache = () => {
   }
 
   // 跳转公开页 /b/[id]，用 bookmark_user_uuid 作路由标识
-  const uuid = bookmark.value.bookmark_user_uuid
+  const uuid = bookmark.value.bookmark_user_uuid || bookmark.value.id
   if (!uuid) {
     // 缺标识时降级打开原文，避免跳到 /b/undefined
     clickHref()
