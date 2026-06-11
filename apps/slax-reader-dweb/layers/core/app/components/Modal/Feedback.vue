@@ -69,7 +69,8 @@ const version = config.public.appVersion
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const feedback = ref('')
-const allowFollowUp = ref(false)
+// 默认勾选「允许后续跟进」，方便用户被回复（用户可手动取消）
+const allowFollowUp = ref(true)
 
 isLocked.value = true
 
