@@ -463,11 +463,11 @@ watch(
   --style: text-(14px txt);
   line-height: 1.6;
 
-  // h1/h2 → 章节标题（Playfair serif，对齐 demo .panel-section-title）
+  // h1/h2 → 章节标题（Playfair serif，对齐 demo .panel-section-title：18px / 500）
   :deep(h1),
   :deep(h2) {
     font-family: var(--slax-font-serif);
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--slax-text);
     margin: 16px 0 12px;
@@ -552,11 +552,12 @@ watch(
     }
   }
 
-  // hover 颜色单独用更高特异性选择器覆盖 MarkdownText 的 !important 白字
-  // MarkdownText 用 --un-text-opacity: 1 + color: rgb(255 255 255 / var(--un-text-opacity))，
-  // 仅覆盖 color 属性不够，必须同时把 --un-text-opacity 置 0 让白色透明
-  :deep(.markdown-text .markdown-content .slax_link:hover) {
-    --un-text-opacity: 0 !important;
+  // hover 颜色覆盖 MarkdownText 的 !important 白字（深蓝灰底白字是 chat 等场景的反色态，
+  // 但本面板锚点是绿色 chip，白字会看不清）。注意：.panel-outline-text 这个 class 就挂在
+  // MarkdownText 根节点（即 .markdown-text 本身），故不能写 `.markdown-text .markdown-content`
+  // ——那是「后代」选择器，永远匹配不到同一节点。直接从 .markdown-content 起选，并用 a.slax_link
+  // 把特异性抬到 (0,5,1) 压过 MarkdownText 的 (0,5,0)。
+  :deep(.markdown-content a.slax_link:hover) {
     color: var(--slax-accent) !important;
   }
 

@@ -137,18 +137,18 @@ const displayCards = computed((): DisplayCard[] => {
   line-height: 1.4;
 }
 
+// 对齐 demo 的 .panel-title-count：accent 淡底 + accent 文字的软标签，而非实心彩底白字
 .comment-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
-  font-size: var(--slax-fs-tag);
-  font-weight: 500;
-  background: var(--slax-accent);
-  color: white;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  background: var(--slax-accent-bg);
+  color: var(--slax-accent);
 }
 
 .comment-empty {
