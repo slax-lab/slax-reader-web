@@ -14,7 +14,7 @@
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
-    <SnapshotArticleFooter :via="footerVia" />
+    <SnapshotArticleFooter :via="footerVia" :show-via="footerShowVia" />
   </div>
 </template>
 
@@ -72,6 +72,12 @@ const props = defineProps({
     type: String,
     required: false,
     default: ''
+  },
+  // footer 左侧署名段是否展示；owner 访问自己的快照时传 false 隐藏
+  footerShowVia: {
+    type: Boolean,
+    required: false,
+    default: true
   }
 })
 
