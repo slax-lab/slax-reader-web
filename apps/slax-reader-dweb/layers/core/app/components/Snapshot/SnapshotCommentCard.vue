@@ -156,14 +156,16 @@ const formatRelativeTime = (date: Date | string | undefined) => {
     border-left: 3px solid var(--slax-accent);
     background: var(--slax-accent-bg);
     border-radius: 0 4px 4px 0;
-    font-size: 12px;
-    line-height: 1.65;
+    // 对齐 demo .comment-quote：13px / line-height 1.8
+    font-size: 13px;
+    line-height: 1.8;
     color: var(--slax-text-muted);
   }
 
   .comment-reply {
     margin: 10px 0 0;
-    font-size: 13px;
+    // 对齐 demo .comment-reply：14px / line-height 1.65
+    font-size: 14px;
     line-height: 1.65;
     color: var(--slax-text);
   }
