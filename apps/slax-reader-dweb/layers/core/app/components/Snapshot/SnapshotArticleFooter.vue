@@ -1,6 +1,6 @@
 <template>
   <footer class="article-footer">
-    <div class="article-footer-text">
+    <div class="article-footer-text" v-if="showVia">
       {{ $t('page.bookmarks_detail.shared_via') }}
       <strong>{{ via || 'Slax Reader' }}</strong>
       · <a class="article-footer-link" href="https://slax.com/reader/" target="_blank" rel="noopener noreferrer">{{ $t('page.bookmarks_detail.try_free') }}</a>
@@ -29,9 +29,14 @@
 <script lang="ts" setup>
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 
-defineProps<{
-  via?: string
-}>()
+withDefaults(
+  defineProps<{
+    via?: string
+    // 左侧「Shared via …」署名段是否展示；owner 看自己的快照时不需要，传 false 隐藏
+    showVia?: boolean
+  }>(),
+  { showVia: true }
+)
 
 const { t } = useI18n()
 
