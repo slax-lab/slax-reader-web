@@ -71,11 +71,12 @@ export class MarkModal extends Base implements IMarkModal {
 
   showMenus = (options: {
     event: MouseEvent | TouchEvent
+    isStroked?: boolean
     callback?: (type: MenuType, event: MouseEvent) => void
     positionCallback?: (position: { x: number; y: number }) => void
     noActionCallback?: () => void
   }) => {
-    const { event, callback, positionCallback, noActionCallback } = options
+    const { event, isStroked, callback, positionCallback, noActionCallback } = options
     const { containerDom, allowAction } = this.config
 
     if (!containerDom || this.isPanelExist(containerDom)) {
@@ -127,7 +128,8 @@ export class MarkModal extends Base implements IMarkModal {
 
     const menusElement = new ArticleSelectionMenusElement({
       allowAction,
-      dark: !!isInIframe
+      dark: !!isInIframe,
+      isStroked: !!isStroked
     })
 
     const onDismiss = () => {

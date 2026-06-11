@@ -3,7 +3,7 @@ import { getElementFullSelector } from '@commons/utils/dom'
 import { getUUID } from './tools'
 import { ArticleSelection as BaseArticleSelection, type IMarkModal } from '@slax-reader/selection'
 import type { SelectionDependencies } from '@slax-reader/selection/adapters'
-import type { MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
+import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
 
 /**
  * Dweb端ArticleSelection扩展
@@ -49,7 +49,13 @@ export class DwebArticleSelection extends BaseArticleSelection {
       const markInfoItem = this.markItemInfos.value.find(infoItem => this.manager.checkMarkSourceIsSame(infoItem.source, source))
       if (markInfoItem) {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
-        this.manager.showPanel()
+        // 精确选中一条已有划线：弹出选区菜单（划线项变「删除划线」），让用户能取消划线；
+        // 纯评论、无划线的标记仍直接打开评论侧栏。
+        if (markInfoItem.stroke.length > 0) {
+          this.showExistingMarkMenus(e, markInfoItem)
+        } else {
+          this.manager.showPanel()
+        }
         return
       }
 
@@ -143,6 +149,40 @@ export class DwebArticleSelection extends BaseArticleSelection {
         }
       })
     }, 0)
+  }
+
+  /**
+   * 精确命中已有划线时的选区菜单：复制 / 删除划线 / 评论 / Chat。
+   * 与新选区菜单（handleMouseUp 内联块）分开，避免误改已存在标记的 id 语义。
+   */
+  private showExistingMarkMenus(e: MouseEvent | TouchEvent, info: MarkItemInfo) {
+    let menusY = 0
+    this.modal.showMenus({
+      event: e,
+      isStroked: true,
+      callback: (type: MenuType, event: MouseEvent) => {
+        if (type === ('stroke_delete' as MenuType)) {
+          this.manager.deleteStroke(info)
+        } else if (type === ('copy' as MenuType)) {
+          this.manager.copyMarkedText({ source: info.source, approx: info.approx, event })
+        } else if (type === ('comment' as MenuType)) {
+          // 已有标记追加评论：打开评论侧栏（inline 下派发 existing 事件），保留选区
+          this.manager.showPanel({ fallbackYOffset: menusY })
+          return
+        } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
+          const quote: QuoteData = { source: { id: info.id }, data: this.createQuote(info.source, info.approx) }
+          this.config.postQuoteDataHandler(quote)
+          this.findQuote(quote)
+        }
+
+        this.clearSelection()
+      },
+      positionCallback: ({ y }) => (menusY = y),
+      noActionCallback: () => {
+        this.manager.updateCurrentMarkItemInfo(null)
+        this.manager.clearSelectContent()
+      }
+    })
   }
 
   /**

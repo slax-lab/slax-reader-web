@@ -491,6 +491,18 @@ defineExpose({
     box-decoration-break: clone;
   }
 
+  // 同一处既有划线又有评论时，划线（实线）样式覆盖评论（虚线）——对齐 demo「划线和评论都用实线」。
+  // 多一个 class 把特异性抬过上面的 .comment，且本规则在后，双重保证生效。
+  &:deep(slax-mark.comment.stroke) {
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+  }
+
+  &:deep(slax-mark.comment.self-stroke) {
+    text-decoration: underline solid;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
+  }
+
   &:deep(slax-mark:hover) {
     text-decoration-color: var(--slax-accent);
     background: var(--slax-accent-bg);
