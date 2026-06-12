@@ -435,6 +435,8 @@ export interface ImportProcessResp {
   reason: string
   created_at: string
   count: number
+  success_total: number
+  failed_total: number
 }
 
 export interface BookmarkChangelog {
