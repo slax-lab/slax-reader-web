@@ -52,6 +52,8 @@ enum RESTMethodPath {
   DELETE_USER_TAG = '/v1/tag/delete',
   IMPORT_THIRD_PARTY_DATA = '/v1/bookmark/import',
   IMPORT_THIRD_PARTY_DATA_PROGRESS = '/v1/bookmark/import_status',
+  IMPORT_FAILURE_LIST = '/v1/bookmark/import_failed',
+  IMPORT_FAILURE_DELETE = '/v1/bookmark/import/batch_delete',
   HIGHLIGHT_LIST = '/v1/mark/list',
   SEARCH_CONTENT = '/v1/bookmark/search',
   CONNECT_MESSAGE = '/v1/user/messages',
