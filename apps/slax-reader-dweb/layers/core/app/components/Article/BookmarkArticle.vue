@@ -8,7 +8,17 @@
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
       </div>
-      <BookmarkTags class="article-tags" :bookmarkId="bookmarkId || 0" :bookmarkUid="bookmarkUid" :tags="detail.tags" :readonly="!allowTagged" />
+      <!-- 视图差异：ready 门控（默认 true = 现状）；tagsBookmarkUuid 仅 local-first 注入时非空（触发本地标签库），
+           effAllowTagged 允许 inject 强制放开标签编辑（local-first 离线） -->
+      <BookmarkTags
+        v-if="ready"
+        class="article-tags"
+        :bookmarkId="bookmarkId || 0"
+        :bookmarkUid="bookmarkUid"
+        :bookmarkUuid="adapters.tagsBookmarkUuid"
+        :tags="detail.tags ?? []"
+        :readonly="!effAllowTagged"
+      />
     </header>
     <!-- 保留 .article-detail ref + articleStyle class，processors 管道 / mark 绘制依赖 -->
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
@@ -23,41 +33,18 @@ import BookmarkTags from '#layers/core/app/components/BookmarkTags.vue'
 import SnapshotArticleFooter from '#layers/core/app/components/Snapshot/SnapshotArticleFooter.vue'
 import SnapshotArticleSource from '#layers/core/app/components/Snapshot/SnapshotArticleSource.vue'
 
-import { urlHttpString } from '@commons/utils/string'
-
 import 'katex/dist/katex.css'
 import { registerComponents } from './CEComponents'
-import type { WebProcessorContext } from './processors'
-import {
-  AnchorProcessor,
-  ArticleStyle,
-  ClassIsolationProcessor,
-  DetailsProcessor,
-  DOMPipeline,
-  IFrameProcessor,
-  ImageProcessor,
-  ListProcessor,
-  PhotoSwipeProcessor,
-  SpanProcessor,
-  SvgProcessor,
-  TweetProcessor,
-  VideoProcessor,
-  WechatHeaderProcessor,
-  WechatVideoProcessor
-} from './processors'
-import { DwebBookmarkProvider, DwebEnvironmentAdapter, DwebHttpClient, DwebI18nService, DwebToastService, DwebUserProvider } from './Selection/adapters'
-import { DwebArticleSelection } from './Selection/DwebArticleSelection'
-import { MarkModal } from './Selection/modal'
-import { type MarkDetail, MarkType } from '@commons/types/interface'
-import type { SelectionConfig } from '@slax-reader/selection'
+import { ArticleStyle } from './processors'
+import { ArticleSelectionAdaptersKey } from './Selection/injection'
+import type { MarkDetail } from '@commons/types/interface'
 import { formatDate } from '@vueuse/core'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import CursorToast from '#layers/core/app/components/CursorToast'
-import Preview from '#layers/core/app/components/ImagePreview'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
+import { useArticleSelection } from '#layers/core/app/composables/bookmark/useArticleSelection'
 
-const route = useRoute()
 const props = defineProps({
   detail: {
     type: Object as PropType<BookmarkArticleDetail>,
@@ -78,31 +65,32 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: true
+  },
+  // 视图/数据窄 prop：门控 BookmarkTags 渲染与首屏 mark 绘制时机。默认 true = 现状；
+  // local-first 传 localReady，未就绪前不渲染标签 / 不画 mark。
+  ready: {
+    type: Boolean,
+    required: false,
+    default: true
   }
 })
 
 const emits = defineEmits(['screenLockUpdate', 'bookmarkUpdate', 'chatBotQuote'])
 
+// 行为依赖注入：默认空对象 = 纯 DwebHttpClient / detail 推导权限 / detail.marks（现状）
+const adapters = inject(ArticleSelectionAdaptersKey, {})
+
 const { t } = useI18n()
 const { detail } = toRefs(props)
 const bookmarkArticle = ref<HTMLDivElement>()
 const articleDetail = ref<HTMLDivElement>()
-const isHandledHTML = ref(false)
-const extraListeners: (() => void)[] = []
 
-const { bookmarkId, shareCode, bookmarkUid, title, isStarred, allowStarred, allowAction, allowTagged, bookmarkUserId, updateStarred } = useArticleDetail(detail)
+// useArticleDetail 只在组件调用一次，字段同时供模板与 composable 使用，避免重复实例化
+const { bookmarkId, shareCode, bookmarkUid, title, allowTagged, allowAction, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
-const collection = computed(() => {
-  try {
-    if (typeof (globalThis as any).isCollectionBookmarkDetail === 'function' && (globalThis as any).isCollectionBookmarkDetail(detail.value)) {
-      return {
-        code: (detail.value as any).collection_info.collection_code,
-        cb_id: (detail.value as any).collection_info.cb_id
-      }
-    }
-  } catch (error) {}
-  return undefined
-})
+// 标签可编辑：inject 可强制放开（local-first 离线），默认回退 detail 推导的 allowTagged
+const effAllowTagged = computed(() => adapters.allowActionOverride ?? allowTagged.value)
+
 const articleStyle = computed(() => {
   const content = props.detail.content || ''
   if (content.indexOf('<slax-photo-swipe-topic>') === 0) {
@@ -114,17 +102,6 @@ const articleStyle = computed(() => {
   return ArticleStyle.Default
 })
 
-// shallowRef：ArticleSelection 实例自身管理内部响应性，不需要深响应代理
-const articleSelectionRef = shallowRef<DwebArticleSelection | null>(null)
-watch(
-  () => props.marks,
-  value => {
-    if (value && isHandledHTML.value) {
-      handleDrawMark()
-    }
-  }
-)
-
 const dateString = computed(() => {
   const date = detail.value.published_at ?? detail.value.created_at ?? ''
   if (!date || date.length === 0) {
@@ -134,173 +111,39 @@ const dateString = computed(() => {
   return formatDate(new Date(date), 'YYYY-MM-DD')
 })
 
-const urlString = computed(() => {
-  return urlHttpString(detail.value.target_url)
-})
-
 const articleHTML = computed(() => {
   return detail.value.content?.replace(/<img/g, '<img loading="lazy"') || ''
 })
 
+// 重逻辑（selection 初始化 / HTML 管道 / 绘制 / 生命周期）唯一来源
+const { articleSelectionRef, handleHTML, findQuote, cleanup } = useArticleSelection({
+  detail,
+  containerDom: bookmarkArticle,
+  monitorDom: articleDetail,
+  marks: toRef(props, 'marks'),
+  ready: toRef(props, 'ready'),
+  articleStyle,
+  adapters,
+  onChatBotQuote: (data: QuoteData) => emits('chatBotQuote', data),
+  onScreenLockUpdate: (locked: boolean) => emits('screenLockUpdate', locked),
+  bookmarkId,
+  shareCode,
+  bookmarkUid,
+  allowAction,
+  bookmarkUserId
+})
+
+// 单一触发：只调 handleHTML()，它置 htmlReady → composable 内 watch 统一触发 draw，
+// 不再 .then(handleDrawMark)，杜绝双触发重复包裹 DOM。
 onMounted(() => {
   registerComponents()
 
   nextTick(() => {
-    handleHTML().then(() => {
-      handleDrawMark()
-    })
+    handleHTML()
   })
 })
 
-onUnmounted(() => {
-  try {
-    articleSelectionRef.value?.closeMonitor()
-    extraListeners.forEach(listener => listener())
-  } finally {
-  }
-})
-
-const jumpToHighLight = () => {
-  const highlightUid = route.query.highlight as string
-  if (!highlightUid) return
-
-  const marks = detail.value.marks || props.marks || []
-  let mark = marks.mark_list?.find(item => item.uuid === highlightUid)
-  if (!mark) return
-
-  if (mark.type === MarkType.REPLY) {
-    const rootUid = mark.root_uid
-    mark = marks.mark_list?.find(item => item.uuid === rootUid)
-    if (!mark) return
-  }
-
-  for (const source of mark.source) {
-    if (source.type === 'image') {
-      const paths = source.path.split('>')
-      const tailIdx = paths.length - 1
-      const newPath = [...paths.slice(0, tailIdx), ' slax-mark ', paths[tailIdx]]
-      source.path = newPath.join('>')
-    }
-
-    const element = document.querySelector(source.path)
-    if (element) {
-      element.scrollIntoView({ behavior: 'auto', block: 'center' })
-      setTimeout(() => {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 500)
-
-      break
-    }
-  }
-
-  navigateTo({ path: route.path, query: {} })
-}
-
-const websiteClick = () => {
-  window.open(`${urlString.value}`)
-}
-
-const handleHTML = async () => {
-  const container = articleDetail.value
-  if (!container) return
-
-  const context: WebProcessorContext = {
-    container,
-    url: new URL(detail.value.target_url),
-    articleStyle: articleStyle.value,
-    callbacks: {
-      screenLockUpdate: locked => emits('screenLockUpdate', locked),
-      showImagePreview: opts => Preview.showImagePreview(opts),
-      websiteClick
-    },
-    cleanups: extraListeners
-  }
-
-  const pipeline = new DOMPipeline()
-    // 最前：把正文残留的外来 class 前缀化，隔离 UnoCSS 全局原子类误伤（详见 ClassIsolationProcessor）
-    .register(new ClassIsolationProcessor())
-    .register(new WechatHeaderProcessor())
-    .register(new ImageProcessor())
-    .register(new SvgProcessor())
-    .register(new ListProcessor())
-    .register(new AnchorProcessor())
-    .register(new VideoProcessor())
-    .register(new IFrameProcessor())
-    .register(new WechatVideoProcessor())
-    .register(new DetailsProcessor())
-    .register(new SpanProcessor())
-    .register(new PhotoSwipeProcessor())
-    .register(new TweetProcessor())
-
-  await pipeline.run(context)
-
-  isHandledHTML.value = true
-}
-
-const handleDrawMark = async () => {
-  if (!articleSelectionRef.value && bookmarkArticle.value && articleDetail.value) {
-    const config = {
-      shareCode: shareCode || '',
-      bookmarkId: bookmarkId || 0,
-      collection: collection?.value,
-      allowAction: allowAction.value,
-      ownerUserId: bookmarkUserId.value,
-      containerDom: bookmarkArticle.value,
-      monitorDom: articleDetail.value,
-      postQuoteDataHandler: (data: QuoteData) => {
-        emits('chatBotQuote', data)
-      }
-    } as SelectionConfig
-
-    const dependencies = {
-      userProvider: new DwebUserProvider(),
-      httpClient: new DwebHttpClient(),
-      toastService: new DwebToastService(),
-      i18nService: new DwebI18nService(),
-      environmentAdapter: new DwebEnvironmentAdapter(),
-      bookmarkProvider: new DwebBookmarkProvider({
-        bookmarkId: bookmarkId || 0,
-        bookmarkUid: bookmarkUid || undefined,
-        shareCode: shareCode || '',
-        collection: collection?.value,
-        ownerUserId: bookmarkUserId.value
-      }),
-      refFactory: ref,
-      getMarkType: (type: 'comment' | 'reply' | 'line') => {
-        if (type === 'comment') {
-          return !!config.iframe ? MarkType.ORIGIN_COMMENT : MarkType.COMMENT
-        } else if (type === 'reply') {
-          return MarkType.REPLY
-        } else {
-          return !!config.iframe ? MarkType.ORIGIN_LINE : MarkType.LINE
-        }
-      }
-    }
-
-    const modal = new MarkModal(config)
-
-    articleSelectionRef.value = new DwebArticleSelection(config, dependencies, modal)
-  }
-
-  if (!articleSelectionRef.value) {
-    return
-  }
-
-  const promise = []
-  if ('marks' in detail.value) {
-    promise.push(articleSelectionRef.value?.drawMark(detail.value.marks))
-  } else if (props.marks) {
-    promise.push(articleSelectionRef.value?.drawMark(props.marks))
-  }
-
-  if (promise.length > 0 && !articleSelectionRef.value.isMonitoring) {
-    articleSelectionRef.value?.startMonitor()
-  }
-
-  await Promise.all(promise).then(() => {
-    jumpToHighLight()
-  })
-}
+onUnmounted(cleanup)
 
 const starBookmark = async (event: MouseEvent, isStar: boolean) => {
   if (!bookmarkId || !updateStarred.value) {
@@ -325,10 +168,6 @@ const starBookmark = async (event: MouseEvent, isStar: boolean) => {
       type: ToastType.Error
     })
   }
-}
-
-const findQuote = (quote: QuoteData) => {
-  articleSelectionRef.value?.findQuote(quote)
 }
 
 defineExpose({
