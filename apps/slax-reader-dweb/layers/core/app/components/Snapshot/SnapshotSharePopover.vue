@@ -27,17 +27,19 @@
         <!-- 「划线评论可见」owner 专属，非 owner 不显示 -->
         <template v-if="canManageShare">
           <div class="popover-divider" />
-          <div class="share-check" :class="{ checked: marksVisible }">
+          <div class="share-check" :class="{ checked: marksVisible, loading: marksLoading }">
             <span
               class="share-check-box"
               role="checkbox"
               tabindex="0"
               :aria-checked="marksVisible"
+              :aria-busy="marksLoading"
               @click="toggleMarksVisible"
               @keydown.enter.prevent="toggleMarksVisible"
               @keydown.space.prevent="toggleMarksVisible"
             >
-              <svg class="share-check-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <div v-if="marksLoading" class="i-svg-spinners:90-ring share-check-spinner" />
+              <svg v-else class="share-check-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </span>
@@ -64,45 +66,41 @@ const props = defineProps<{
 const { t } = useI18n()
 
 const { isOpen, toggle, close } = useExclusivePopover()
-const marksVisible = ref(false)
+const marksVisible = ref(true)
 // 缓存 show_userinfo，update 时回传避免被覆盖
-const shareShowUserinfo = ref(false)
+const shareShowUserinfo = ref(true)
+const configLoaded = ref(false)
+const marksLoading = ref(false)
 
 type ShareConfig = { allow_action: boolean; show_comment_line: boolean; show_userinfo: boolean; share_code: string }
 
-// owner 进入时拉取当前分享配置，初始化开关
-onMounted(async () => {
-  if (!props.canManageShare || !props.bookmarkUid) return
+const loadShareConfig = async () => {
+  if (configLoaded.value || !props.canManageShare || !props.bookmarkUid) return
+  marksLoading.value = true
   try {
-    let res = await request().get<ShareConfig>({ url: RESTMethodPath.EXISTS_SHARE_BOOKMARK, query: { bookmark_uid: props.bookmarkUid } })
-
-    // share_code 为空表示尚未开启分享：立刻以「全部开启」异步落库（不等待返回），
-    // 同时本地手动拼一个全开的 res 走下面的初始化逻辑（参考 ShareModal）
-    if (res && (res.share_code ?? '').length === 0) {
-      request()
-        .post({
-          url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
-          body: { bookmark_uid: props.bookmarkUid, allow_action: true, show_comment_line: true, show_userinfo: true }
-        })
-        .catch(() => {
-          /* 异步落库，失败忽略 */
-        })
-
-      res = { ...res, allow_action: true, show_comment_line: true, show_userinfo: true }
+    const res = await request().get<ShareConfig>({ url: RESTMethodPath.EXISTS_SHARE_BOOKMARK, query: { bookmark_uid: props.bookmarkUid } })
+    configLoaded.value = true
+    if (res) {
+      marksVisible.value = !!res.allow_action
+      shareShowUserinfo.value = !!res.show_userinfo
     }
-
-    marksVisible.value = !!res?.allow_action
-    shareShowUserinfo.value = !!res?.show_userinfo
   } catch {
-    /* 拉取失败保持默认关闭 */
+  } finally {
+    marksLoading.value = false
   }
+}
+
+watch(isOpen, open => {
+  if (open) loadShareConfig()
 })
 
 // 切换「划线评论可见」，经 allow_action 落库
 const toggleMarksVisible = async () => {
-  if (!props.bookmarkUid) return
+  if (!props.bookmarkUid || marksLoading.value) return
   const next = !marksVisible.value
   marksVisible.value = next
+  configLoaded.value = true
+  marksLoading.value = true
   try {
     await request().post({
       url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
@@ -111,6 +109,8 @@ const toggleMarksVisible = async () => {
   } catch {
     marksVisible.value = !next // 回滚
     Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+  } finally {
+    marksLoading.value = false
   }
 }
 
@@ -220,6 +220,17 @@ const shareTwitter = () => {
 
     &.checked .share-check-tick {
       opacity: 0.7;
+    }
+
+    .share-check-spinner {
+      width: 10px;
+      height: 10px;
+      color: var(--slax-accent);
+    }
+
+    &.loading .share-check-box {
+      cursor: default;
+      border-color: var(--slax-accent-soft);
     }
   }
 }
