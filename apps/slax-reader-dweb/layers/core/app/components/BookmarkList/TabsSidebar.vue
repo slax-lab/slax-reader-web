@@ -64,6 +64,16 @@ defineExpose({
   --style: w-full flex flex-col;
   padding: 40px 16px 24px;
   gap: 4px;
+
+  // ≤768：横向类型栏，居中排布
+  @media (max-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    width: max-content;
+    margin: 0 auto;
+    padding: 0;
+    gap: 24px;
+  }
 }
 
 .sidebar-item {
@@ -92,6 +102,42 @@ defineExpose({
     font-weight: 500;
     background: var(--slax-accent-bg);
   }
+
+  // ≤768：纯文字 tab，选中加下划线
+  @media (max-width: 768px) {
+    position: relative;
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    padding: 0;
+    gap: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--slax-text-light);
+    line-height: 44px;
+    white-space: nowrap;
+
+    &:hover {
+      background: transparent;
+      color: var(--slax-text-muted);
+    }
+
+    &.active {
+      background: transparent;
+      color: var(--slax-text);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        border-radius: 1px;
+        background: var(--slax-accent);
+      }
+    }
+  }
 }
 
 .item-icon {
@@ -101,11 +147,19 @@ defineExpose({
   .active & {
     opacity: 1;
   }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .sidebar-divider {
   height: 1px;
   background: var(--slax-border);
   margin: 12px 14px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 </style>
