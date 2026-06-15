@@ -528,7 +528,7 @@ const starBookmark = async (isStar: boolean) => {
   font-size: 17px;
   color: var(--slax-text);
   line-height: 1.45;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
