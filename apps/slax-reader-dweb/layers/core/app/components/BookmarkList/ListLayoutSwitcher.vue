@@ -34,6 +34,11 @@ const listMode = defineModel<'card' | 'text'>({ required: true })
 <style lang="scss" scoped>
 .page-toolbar {
   --style: flex items-center justify-between mb-16px px-4px;
+
+  // ≤768：隐藏布局切换器
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .page-subtitle {

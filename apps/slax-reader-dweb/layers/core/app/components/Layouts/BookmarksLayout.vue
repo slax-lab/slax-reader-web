@@ -59,9 +59,10 @@ defineExpose({
   --style: 'h-0 bg-transparent max-md:(opacity-100) md:(opacity-0)';
 }
 
-// 主体容器：顶部留出 header 高度，居中对齐
+// 主体容器：顶部留出 header 高度
+// ≤768 改 block：侧栏与列表纵向堆叠
 .layout {
-  --style: max-w-shell mx-auto flex;
+  --style: 'max-w-shell mx-auto flex max-md:(block)';
   padding-top: var(--slax-header-height);
 
   @media (max-width: 768px) {
@@ -82,9 +83,29 @@ defineExpose({
     display: none;
   }
 
+  // ≤768：竖向侧栏转为顶部横向类型栏
   @media (max-width: 768px) {
+    display: flex;
+    position: sticky;
     top: var(--slax-header-h-mobile);
-    height: calc(100vh - var(--slax-header-h-mobile));
+    z-index: 90;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: var(--slax-topbar-bg);
+    border-bottom: 1px solid var(--slax-border);
+    backdrop-filter: var(--slax-blur);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 
