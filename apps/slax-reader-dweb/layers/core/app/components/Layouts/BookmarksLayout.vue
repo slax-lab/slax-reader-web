@@ -60,7 +60,7 @@ defineExpose({
 }
 
 // 主体容器：顶部留出 header 高度
-// ≤768 改 block：侧栏与列表纵向堆叠
+// ≤768：侧栏与列表纵向堆叠
 .layout {
   --style: 'max-w-shell mx-auto flex max-md:(block)';
   padding-top: var(--slax-header-height);
@@ -83,7 +83,7 @@ defineExpose({
     display: none;
   }
 
-  // ≤768：竖向侧栏转为顶部横向类型栏
+  // ≤768：侧栏转顶部横向栏
   @media (max-width: 768px) {
     display: flex;
     position: sticky;

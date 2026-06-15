@@ -1,5 +1,5 @@
-// BookmarkCell 点击/跳转编排（从组件抽出）
-// 快照走 useBookmarkSnapshotRoute seam，fork 覆盖即可
+// BookmarkCell 点击/跳转编排
+// 快照走 seam，fork 可覆盖
 import { urlHttpString } from '@commons/utils/string'
 
 import { type BookmarkItem, BookmarkParseStatus } from '@commons/types/interface'
@@ -140,7 +140,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
     clickCache()
   }
 
-  // 点击整张卡片：编辑标题态不触发，其余复用标题点击逻辑（优先跳快照）
+  // 整卡点击：编辑态不触发，复用标题逻辑
   const clickCard = () => {
     if (isEditingTitle() || isRequesting()) {
       return
@@ -154,7 +154,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
     clickTitle,
     clickHref,
     clickCache,
-    // 埋点，组件内多处操作复用
+    // 埋点，多处复用
     trackListItemInteract
   }
 }

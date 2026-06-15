@@ -50,7 +50,7 @@ const props = defineProps<{
   filterCollectionCode: string
 }>()
 
-// ≤768 强制文字列表，大屏用配置值
+// ≤768 强制文字列表
 const isH5 = useMediaQuery('(max-width: 768px)')
 const effectiveMode = computed<'card' | 'text'>(() => (isH5.value ? 'text' : props.listMode))
 

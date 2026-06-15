@@ -139,7 +139,7 @@ const shareToTwitter = () => {
       height: 14px;
     }
 
-    // 复制成功气泡，样式同 chat-copied-tip
+    // 复制成功气泡
     .article-footer-copied-tip {
       position: absolute;
       bottom: 100%;

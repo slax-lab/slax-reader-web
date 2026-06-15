@@ -90,7 +90,7 @@ export class ClassIsolationProcessor implements DOMProcessor {
           const tokens = raw ? raw.split(/\s+/).filter(Boolean) : []
           const isKatexRoot = tokens.includes('katex')
 
-          // katex 子树内整体跳过，仅维护嵌套深度。
+          // katex 子树整体跳过，维护深度
           if (katexDepth > 0) {
             if (isKatexRoot) {
               katexDepth++

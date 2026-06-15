@@ -132,8 +132,7 @@ const cancelReply = () => {
   emits('cancel-reply')
 }
 
-// 已显示时点回复，v-autofocus 不再触发
-// 故命令式补聚焦
+// 已显示时点回复，命令式补聚焦
 watch(
   () => props.replyToUid,
   uid => {

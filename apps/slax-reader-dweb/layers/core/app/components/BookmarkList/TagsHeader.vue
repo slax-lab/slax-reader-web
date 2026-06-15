@@ -76,7 +76,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   selectTagId: {
-    // 本地标签 id 为 uuid 串，故联合 String
+    // 本地标签 id 为 uuid 串
     type: [Number, String],
     required: false
   },
@@ -98,7 +98,7 @@ const isAddingTagLoading = ref(false)
 const isAddingTag = ref(false)
 const compositionAppear = ref(false)
 const addingTagName = ref('')
-// tags 双轨：LF 走只读 computed，REST 走 restTags ref
+// tags 双轨：LF 只读 / REST ref
 const restTags = ref<BookmarkTag[]>([])
 const tags = computed<BookmarkTag[]>(() => (localActive ? userTags!.tags.value.filter(tg => !!tg.display) : restTags.value))
 const filterTagName = ref(props.selectTagName || '')
@@ -150,7 +150,7 @@ onMounted(() => {
   }
 })
 
-// 本地标签异步到达后刷新已选标签名
+// 本地标签到达后刷新已选名
 watch(tags, () => {
   if (props.selectTagId) updateSelectTag(props.selectTagId as number)
 })

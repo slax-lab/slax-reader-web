@@ -117,8 +117,8 @@ const props = defineProps({
 const { index, bookmark } = toRefs(props)
 const emits = defineEmits(['delete', 'archiveUpdate', 'aliasTitleUpdate', 'bookmarkUpdate'])
 
-// local-first 可写操作；inject=null（非 LF）则回退 REST。
-// local tab 下 bookmark.id 即本地 uuid。
+// local-first 可写；null 则回退 REST
+// local tab 下 id 即本地 uuid
 const lf = inject(LocalFirstAdapterKey, null)
 const lfActions = lf?.bookmarkActions?.() ?? null
 const lfKey = () => bookmark.value.id as unknown as string

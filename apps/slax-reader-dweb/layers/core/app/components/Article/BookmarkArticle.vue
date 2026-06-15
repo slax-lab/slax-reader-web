@@ -8,7 +8,7 @@
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
       </div>
-      <!-- ready 门控渲染；标签库/编辑权限可由 inject 覆写 -->
+      <!-- ready 门控；inject 可覆写 -->
       <BookmarkTags
         v-if="ready"
         class="article-tags"
@@ -65,8 +65,8 @@ const props = defineProps({
     required: false,
     default: true
   },
-  // 门控标签渲染与首屏绘制，默认 true
-  // LF 传 localReady，未就绪不渲染
+  // 门控渲染与绘制，默认 true
+  // LF 传 localReady
   ready: {
     type: Boolean,
     required: false,
@@ -87,7 +87,7 @@ const articleDetail = ref<HTMLDivElement>()
 // 仅调用一次，模板与 composable 共用
 const { bookmarkId, shareCode, bookmarkUid, title, allowTagged, allowAction, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
-// inject 可强制放开，默认回退 allowTagged
+// inject 可覆盖，回退 allowTagged
 const effAllowTagged = computed(() => adapters.allowActionOverride ?? allowTagged.value)
 
 const articleStyle = computed(() => {

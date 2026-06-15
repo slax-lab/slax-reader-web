@@ -62,8 +62,8 @@ const props = defineProps({
     required: false,
     default: ''
   },
-  // LF 本地标签 key（由 BookmarkArticle 注入）。
-  // 仅认 bookmarkUuid，不回退 bookmarkUid。
+  // LF 本地标签 key，BookmarkArticle 注入
+  // 仅认 bookmarkUuid
   bookmarkUuid: {
     type: String,
     required: false,
@@ -79,7 +79,7 @@ const props = defineProps({
   }
 })
 
-// 本地标签源 + catalog；null（非 LF）则走 REST。
+// 本地标签源 + catalog；null 走 REST
 const lf = inject(LocalFirstAdapterKey, null)
 const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null
 const localActive = !!tagSrc
@@ -88,7 +88,7 @@ const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 
-// 双轨：LF 走只读 computed，REST 走 rest* ref
+// 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
 const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
@@ -155,7 +155,7 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
   if (!tagName && !tagId) return
   if (tagName && tagId) return
 
-  // LF：本地建标签 + 关联，仅认 bookmarkUuid
+  // LF：本地建标签 + 关联
   if (tagSrc) {
     isAddingLoading.value = true
     try {
@@ -172,7 +172,8 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
     return
   }
 
-  // 非 LF REST：保留 bookmark_uid（owner 在 bookmarkId=0 时靠它增删）
+  // 非 LF REST：保留 bookmark_uid
+  // owner 在 bookmarkId=0 时靠它增删
   if (!props.bookmarkId && !props.bookmarkUid) return
   isAddingLoading.value = true
   const res = await request().post<BookmarkTag>({

@@ -18,7 +18,7 @@ export class DwebArticleSelection extends BaseArticleSelection {
     this.modal = modal
   }
 
-  /** 取消当前用户划线（保留评论） */
+  /** 取消本人划线，留评论 */
   async deleteStroke(info: MarkItemInfo) {
     await this.manager.deleteStroke(info)
   }

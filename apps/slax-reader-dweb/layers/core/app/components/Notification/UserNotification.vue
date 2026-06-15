@@ -47,8 +47,7 @@ export enum UserNotificationIconStyle {
 </script>
 
 <script lang="ts" setup>
-// 用 alias 而非相对路径：相对 import 会绕过 fork 的
-// NotificationCell alias 覆盖。
+// 用 alias，否则绕过 fork 覆盖
 import NotificationCell, { NotificationCellStyle } from '#layers/core/app/components/Notification/NotificationCell.vue'
 
 import { isSafari } from '@commons/utils/is'
@@ -76,8 +75,8 @@ const emits = defineEmits(['checkAll'])
 
 const notification = useNotification()
 
-// 未读数/列表来源 + 未读传输方式。
-// 默认 sw（upstream 原逻辑）；fork 下发 feed + rest。
+// 未读数/列表来源 + 传输方式
+// 默认 sw，fork 下发 feed + rest
 const lf = inject(LocalFirstAdapterKey, null)
 const rt = lf?.notificationRuntime?.() ?? { feed: null, unreadTransport: 'sw' as const }
 const feed = rt.feed
@@ -221,7 +220,7 @@ const checkAndQueryNotifications = async () => {
 }
 
 if (rt.unreadTransport === 'sw') {
-  // upstream 原逻辑：SW 推未读，不支持时 REST 拉一次
+  // upstream：SW 推未读，不支持则 REST
   if (notification.isSupportedNotification) {
     notification.registerWorker().then(res => {
       notification.onMessage(event => {
@@ -246,8 +245,8 @@ if (rt.unreadTransport === 'sw') {
       })
   }
 } else {
-  // fork 策略：仅注册 SW（Web Push），不推未读。
-  // 未读数走 feed（LF）或 REST（非 LF）。
+  // fork：仅注册 SW，不推未读
+  // 未读数走 feed 或 REST
   if (notification.isSupportedNotification) {
     notification.registerWorker().catch(error => console.error('[slax] registerWorker failed:', error))
   }

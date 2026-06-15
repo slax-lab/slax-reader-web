@@ -1,5 +1,5 @@
-// BookmarkArticle 划线/评论重逻辑唯一来源
-// 行为差异经 adapters 注入，默认=现状
+// 划线/评论重逻辑唯一来源
+// 行为差异经 adapters 注入
 import { computed, type Ref, ref, shallowRef, toValue, watch } from 'vue'
 
 import { urlHttpString } from '@commons/utils/string'
@@ -51,13 +51,12 @@ export interface UseArticleSelectionParams {
   adapters: ArticleSelectionAdapters
   onChatBotQuote: (data: QuoteData) => void
   onScreenLockUpdate: (locked: boolean) => void
-  // 组件传入一次，避免重复实例化
-  // 返回可能 undefined，故全部可选
+  // 组件传入一次，均可选
   bookmarkId?: number
   shareCode?: string
   bookmarkUid?: string
   allowAction: Ref<boolean>
-  // snapshot user_id 可能是 hash 串，故联合 string
+  // snapshot 可能是 hash 串
   bookmarkUserId: Ref<number | string>
 }
 
@@ -66,13 +65,13 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
 
   // shallowRef：实例自管响应性
   const articleSelectionRef = shallowRef<DwebArticleSelection | null>(null)
-  // pipeline 跑完置 true，同原 isHandledHTML
+  // pipeline 跑完置 true
   const htmlReady = ref(false)
   const isHandledHTML = htmlReady
   // processor 清理回调，unmount 时清
   const extraListeners: (() => void)[] = []
 
-  // 复制 upstream 原逻辑，不简化
+  // 复制 upstream 原逻辑
   const collection = computed(() => {
     try {
       if (typeof (globalThis as any).isCollectionBookmarkDetail === 'function' && (globalThis as any).isCollectionBookmarkDetail(p.detail.value)) {
@@ -94,7 +93,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     window.open(`${urlString.value}`)
   }
 
-  // HTML 管道：客户端 onMounted 后调用
+  // HTML 管道，onMounted 调用
   const handleHTML = async () => {
     const container = p.monitorDom.value
     if (!container) return
@@ -112,7 +111,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     }
 
     const pipeline = new DOMPipeline()
-      // 最前：前缀化外来 class，隔离 UnoCSS
+      // 最前：前缀化隔离 UnoCSS
       .register(new ClassIsolationProcessor())
       .register(new WechatHeaderProcessor())
       .register(new ImageProcessor())
@@ -133,7 +132,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
   }
 
   const handleDrawMark = async () => {
-    if (!p.ready.value) return // localReady 门控，默认 true 无影响
+    if (!p.ready.value) return // localReady 门控
     if (!articleSelectionRef.value && p.containerDom.value && p.monitorDom.value) {
       const config = {
         shareCode: p.shareCode || '',
@@ -159,8 +158,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
           bookmarkUid: p.bookmarkUid || undefined,
           shareCode: p.shareCode || '',
           collection: collection.value,
-          // snapshot 下可能是 hash 串
-          // 仅边界 cast 满足 number 类型
+          // 边界 cast：snapshot 可能 hash 串
           ownerUserId: effOwnerUserId.value as number | undefined
         }),
         refFactory: ref,
@@ -184,8 +182,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       return
     }
 
-    // 忠实复制现状，不做优化回退
-    // props→props.marks；默认→detail 原 if/else
+    // props→props.marks，否则走 detail
     const promise = []
     if (p.adapters.markSource === 'props') {
       promise.push(articleSelectionRef.value?.drawMark(p.marks.value ?? { mark_list: [], user_list: {} }))
@@ -204,7 +201,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     })
   }
 
-  // upstream 原样搬入，与现状逐字等价
+  // upstream 原样搬入
   const jumpToHighLight = () => {
     const highlightUid = route.query.highlight as string
     if (!highlightUid) return
@@ -241,8 +238,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     navigateTo({ path: route.path, query: {} })
   }
 
-  // 三个 watcher 带守卫，避免重复触发
-  // marks / ready / htmlReady 各触发 drawMark
+  // 三 watcher 带守卫触发 drawMark
   watch(
     () => p.marks.value,
     value => {
