@@ -1,13 +1,13 @@
 <template>
-  <!-- 卡片式书签条目：hover 浮起阴影，操作区 hover 显示 -->
-  <div class="article-card" :class="{ deleting: isDeleting }">
+  <!-- 卡片式书签条目：hover 浮起阴影，操作区 hover 显示；点击整卡跳快照 -->
+  <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }" @click="clickCard">
     <!-- 序号 -->
     <span class="article-num">{{ index !== undefined ? index + 1 : '' }}</span>
 
     <div class="article-body">
       <!-- 标题区：正常态为 button，编辑态为 input -->
       <div class="title-wrap">
-        <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click="clickTitle">
+        <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click.stop="clickTitle">
           {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
         </button>
         <input
@@ -36,7 +36,7 @@
         <!-- hover 操作区 -->
         <div class="article-actions">
           <!-- 编辑标题 -->
-          <button class="article-action" ref="editTitleButton" @click="clickEdit" type="button">
+          <button class="article-action" ref="editTitleButton" @click.stop="clickEdit" type="button">
             {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
           </button>
 
@@ -46,7 +46,7 @@
               v-if="['inbox', 'archive'].indexOf(bookmark.archived) !== -1 && !isArchiving"
               class="article-action"
               ref="archieveButton"
-              @click="archiveBookmark(bookmark.archived === 'inbox')"
+              @click.stop="archiveBookmark(bookmark.archived === 'inbox')"
               type="button"
             >
               {{ bookmark.archived === 'inbox' ? $t('common.operate.archive') : $t('common.operate.unarchive') }}
@@ -55,12 +55,12 @@
           </template>
 
           <!-- 删除（非废纸篓 + 非订阅） -->
-          <button v-if="!isTrashed && !isSubscribe" class="article-action danger" @click="clickDelete" type="button">
+          <button v-if="!isTrashed && !isSubscribe" class="article-action danger" @click.stop="clickDelete" type="button">
             {{ $t('common.operate.trashed') }}
           </button>
 
           <!-- 恢复（废纸篓） -->
-          <button v-if="isTrashed" class="article-action" ref="revertButton" @click="clickRevert" type="button">
+          <button v-if="isTrashed" class="article-action" ref="revertButton" @click.stop="clickRevert" type="button">
             {{ $t('common.operate.revert_to_inbox') }}
           </button>
         </div>
@@ -68,7 +68,7 @@
     </div>
 
     <!-- 星标按钮：绝对定位右侧（非废纸篓 + 非订阅） -->
-    <button v-if="!isTrashed && !isSubscribe" class="article-star" :class="{ active: isStarred }" @click="starBookmark(!isStarred)" type="button">
+    <button v-if="!isTrashed && !isSubscribe" class="article-star" :class="{ active: isStarred }" @click.stop="starBookmark(!isStarred)" type="button">
       <!-- 未星标：outline 星 -->
       <svg class="star-outline" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -212,6 +212,15 @@ const clickTitle = () => {
 
   // 优先跳快照页
   clickCache()
+}
+
+// 点击整张卡片：编辑标题态不触发，其余复用标题点击逻辑（优先跳快照）
+const clickCard = () => {
+  if (isEditingTitle.value || isRequesting.value) {
+    return
+  }
+
+  clickTitle()
 }
 
 const clickHref = () => {
@@ -531,6 +540,12 @@ const starBookmark = async (isStar: boolean) => {
   box-shadow: inset 0 1px 0 var(--slax-inset-hi, rgba(255, 255, 255, 0.06));
   transition: all 0.2s;
   max-height: 200px;
+  cursor: pointer;
+
+  // 编辑标题态：恢复默认光标，避免输入区显示手型
+  &.editing {
+    cursor: default;
+  }
 
   &:hover {
     box-shadow:
