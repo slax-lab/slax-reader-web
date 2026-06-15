@@ -58,9 +58,9 @@
 <script setup lang="ts">
 import ImportFailuresModal from './ImportFailuresModal.vue'
 
+import Toast, { ToastType } from '../Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { ImportProcessResp } from '@commons/types/interface'
-import Toast, { ToastType } from '../Toast'
 
 const progressData = ref<ImportProcessResp[]>([])
 const isLoading = ref(false)

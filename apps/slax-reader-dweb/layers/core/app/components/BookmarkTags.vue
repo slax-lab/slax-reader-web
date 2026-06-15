@@ -26,7 +26,13 @@
         </button>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
-            <input v-autofocus="{ enabled: isAddingTag }" type="text" :placeholder="$t('component.bookmark_tags.placeholder')" v-model="searchText" v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]" />
+            <input
+              v-autofocus="{ enabled: isAddingTag }"
+              type="text"
+              :placeholder="$t('component.bookmark_tags.placeholder')"
+              v-model="searchText"
+              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            />
             <div class="search-result">
               <div class="result-wrapper">
                 <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">

@@ -17,8 +17,8 @@
         <div class="modal-body">
           <div class="fixed left-0 top-0 z-100 h-0px w-full flex-center">
             <Transition name="list-loading">
-              <div class="h-30px w-30px translate-y-50px rounded-full bg-surface shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
-                <div class="i-svg-spinners:90-ring text-24px color-accent"></div>
+              <div class="bg-surface h-30px w-30px translate-y-50px rounded-full shadow-md flex-center -mt-30px" v-show="showRefreshLoading">
+                <div class="i-svg-spinners:90-ring color-accent text-24px"></div>
               </div>
             </Transition>
           </div>
@@ -81,7 +81,7 @@
                 </div>
               </div>
               <div class="loading-more" v-else-if="loading && !isDataEmpty">
-                <div class="i-svg-spinners:90-ring text-20px color-accent"></div>
+                <div class="i-svg-spinners:90-ring color-accent text-20px"></div>
                 <span>{{ $t('page.import_failures.loading_more') }}</span>
               </div>
               <div class="bottom-status" v-else-if="!loading && ending">
@@ -100,8 +100,8 @@
 </template>
 
 <script lang="ts" setup>
-import { RESTMethodPath } from '@commons/types/const'
 import Toast from '../Toast'
+import { RESTMethodPath } from '@commons/types/const'
 
 const props = defineProps<{
   importId: number

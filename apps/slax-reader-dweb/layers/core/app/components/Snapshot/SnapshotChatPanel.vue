@@ -3,13 +3,7 @@
     <!-- 标题（对齐 snapshot demo 的 .panel-title） -->
     <div class="chat-title">
       <span>Chat</span>
-      <OptionsBar
-        v-if="showModelSwitcher"
-        class="chat-model-switcher"
-        :options="MODEL_LABELS"
-        :default-selected-index="selectedModelIndex"
-        v-model:index="selectedModelIndex"
-      />
+      <OptionsBar v-if="showModelSwitcher" class="chat-model-switcher" :options="MODEL_LABELS" :default-selected-index="selectedModelIndex" v-model:index="selectedModelIndex" />
     </div>
     <!-- 消息流（含空态） -->
     <div class="chat-messages" :class="{ scrolled: isScrolled }" ref="messages" @scroll="onMessagesScroll">
