@@ -8,8 +8,7 @@
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
       </div>
-      <!-- 视图差异：ready 门控（默认 true = 现状）；tagsBookmarkUuid 仅 local-first 注入时非空（触发本地标签库），
-           effAllowTagged 允许 inject 强制放开标签编辑（local-first 离线） -->
+      <!-- ready 门控渲染；标签库/编辑权限可由 inject 覆写 -->
       <BookmarkTags
         v-if="ready"
         class="article-tags"
@@ -66,8 +65,8 @@ const props = defineProps({
     required: false,
     default: true
   },
-  // 视图/数据窄 prop：门控 BookmarkTags 渲染与首屏 mark 绘制时机。默认 true = 现状；
-  // local-first 传 localReady，未就绪前不渲染标签 / 不画 mark。
+  // 门控标签渲染与首屏绘制，默认 true
+  // LF 传 localReady，未就绪不渲染
   ready: {
     type: Boolean,
     required: false,
@@ -77,7 +76,7 @@ const props = defineProps({
 
 const emits = defineEmits(['screenLockUpdate', 'bookmarkUpdate', 'chatBotQuote'])
 
-// 行为依赖注入：默认空对象 = 纯 DwebHttpClient / detail 推导权限 / detail.marks（现状）
+// 行为注入，默认空=现状
 const adapters = inject(ArticleSelectionAdaptersKey, {})
 
 const { t } = useI18n()
@@ -85,10 +84,10 @@ const { detail } = toRefs(props)
 const bookmarkArticle = ref<HTMLDivElement>()
 const articleDetail = ref<HTMLDivElement>()
 
-// useArticleDetail 只在组件调用一次，字段同时供模板与 composable 使用，避免重复实例化
+// 仅调用一次，模板与 composable 共用
 const { bookmarkId, shareCode, bookmarkUid, title, allowTagged, allowAction, bookmarkUserId, updateStarred } = useArticleDetail(detail)
 
-// 标签可编辑：inject 可强制放开（local-first 离线），默认回退 detail 推导的 allowTagged
+// inject 可强制放开，默认回退 allowTagged
 const effAllowTagged = computed(() => adapters.allowActionOverride ?? allowTagged.value)
 
 const articleStyle = computed(() => {
@@ -115,7 +114,7 @@ const articleHTML = computed(() => {
   return detail.value.content?.replace(/<img/g, '<img loading="lazy"') || ''
 })
 
-// 重逻辑（selection 初始化 / HTML 管道 / 绘制 / 生命周期）唯一来源
+// 划线/评论重逻辑唯一来源
 const { articleSelectionRef, handleHTML, findQuote, cleanup } = useArticleSelection({
   detail,
   containerDom: bookmarkArticle,
@@ -133,8 +132,8 @@ const { articleSelectionRef, handleHTML, findQuote, cleanup } = useArticleSelect
   bookmarkUserId
 })
 
-// 单一触发：只调 handleHTML()，它置 htmlReady → composable 内 watch 统一触发 draw，
-// 不再 .then(handleDrawMark)，杜绝双触发重复包裹 DOM。
+// 只调 handleHTML，置 htmlReady
+// draw 由 composable watch 触发
 onMounted(() => {
   registerComponents()
 

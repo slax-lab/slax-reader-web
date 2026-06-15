@@ -1,7 +1,5 @@
-// BookmarkArticle 的「划线/评论」重逻辑唯一来源。
-// 抽取自 BookmarkArticle.vue（upstream 基线）的 selection 初始化 + HTML 管道 + 绘制 + 生命周期，
-// 使 fork 不再整份拷贝组件。行为差异（httpClient / 权限 / ownerUserId / marks 来源）全部经 adapters 注入，
-// 默认值 = 现状，保证上游消费页面零变化。
+// BookmarkArticle 划线/评论重逻辑唯一来源
+// 行为差异经 adapters 注入，默认=现状
 import { computed, type Ref, ref, shallowRef, toValue, watch } from 'vue'
 
 import { urlHttpString } from '@commons/utils/string'
@@ -45,36 +43,36 @@ export interface UseArticleSelectionParams {
   containerDom: Ref<HTMLDivElement | undefined>
   monitorDom: Ref<HTMLDivElement | undefined>
   marks: Ref<MarkDetail | undefined>
-  /** 门控：false 时不画。非 LF 默认 true，行为同现状 */
+  /** 门控：false 不画，默认 true */
   ready: Ref<boolean>
-  /** 供 HTML 管道用的文章样式（default / twitter / photo-swipe-topic） */
+  /** HTML 管道用的文章样式 */
   articleStyle: Ref<ArticleStyle>
-  /** 行为依赖注入（来自 inject，默认空对象 = 现状） */
+  /** 行为注入，默认空=现状 */
   adapters: ArticleSelectionAdapters
   onChatBotQuote: (data: QuoteData) => void
   onScreenLockUpdate: (locked: boolean) => void
-  // useArticleDetail 由组件调用一次后传入（避免重复实例化）。
-  // bookmarkId/shareCode/bookmarkUid 真实返回可能为 undefined（useArticle.ts:25-28），全部可选。
+  // 组件传入一次，避免重复实例化
+  // 返回可能 undefined，故全部可选
   bookmarkId?: number
   shareCode?: string
   bookmarkUid?: string
   allowAction: Ref<boolean>
-  // snapshot detail 的 user_id 可能是 hash 串，故联合 string（与 useBookmarkArticleRelative.bookmarkUserId 返回一致）
+  // snapshot user_id 可能是 hash 串，故联合 string
   bookmarkUserId: Ref<number | string>
 }
 
 export function useArticleSelection(p: UseArticleSelectionParams) {
   const route = useRoute()
 
-  // shallowRef：ArticleSelection 实例自身管理内部响应性，不需要深响应代理
+  // shallowRef：实例自管响应性
   const articleSelectionRef = shallowRef<DwebArticleSelection | null>(null)
-  // handleHTML() 完成后置 true（DOM pipeline 跑完）；语义同原 isHandledHTML
+  // pipeline 跑完置 true，同原 isHandledHTML
   const htmlReady = ref(false)
   const isHandledHTML = htmlReady
-  // DOM processor 注册的清理回调，归本 composable 所有（unmount 时连同 closeMonitor 一并清）
+  // processor 清理回调，unmount 时清
   const extraListeners: (() => void)[] = []
 
-  // collection：忠实复制 upstream 原逻辑（globalThis.isCollectionBookmarkDetail 守卫 + try/catch），不简化
+  // 复制 upstream 原逻辑，不简化
   const collection = computed(() => {
     try {
       if (typeof (globalThis as any).isCollectionBookmarkDetail === 'function' && (globalThis as any).isCollectionBookmarkDetail(p.detail.value)) {
@@ -87,7 +85,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     return undefined
   })
 
-  // 覆写点：默认回退现状（allowAction / bookmarkUserId）
+  // 覆写点：默认回退现状
   const effAllowAction = computed(() => p.adapters.allowActionOverride ?? p.allowAction.value)
   const effOwnerUserId = computed(() => toValue(p.adapters.ownerUserId) ?? p.bookmarkUserId.value)
 
@@ -96,7 +94,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     window.open(`${urlString.value}`)
   }
 
-  // ── HTML 管道（含 extraListeners；只在客户端 onMounted 后由组件调用，顶层不碰 document）──
+  // HTML 管道：客户端 onMounted 后调用
   const handleHTML = async () => {
     const container = p.monitorDom.value
     if (!container) return
@@ -114,7 +112,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     }
 
     const pipeline = new DOMPipeline()
-      // 最前：把正文残留的外来 class 前缀化，隔离 UnoCSS 全局原子类误伤（详见 ClassIsolationProcessor）
+      // 最前：前缀化外来 class，隔离 UnoCSS
       .register(new ClassIsolationProcessor())
       .register(new WechatHeaderProcessor())
       .register(new ImageProcessor())
@@ -135,14 +133,14 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
   }
 
   const handleDrawMark = async () => {
-    if (!p.ready.value) return // 原 fork 的 localReady 门控（默认 ready=true 时无影响）
+    if (!p.ready.value) return // localReady 门控，默认 true 无影响
     if (!articleSelectionRef.value && p.containerDom.value && p.monitorDom.value) {
       const config = {
         shareCode: p.shareCode || '',
         bookmarkId: p.bookmarkId || 0,
         collection: collection.value,
         allowAction: effAllowAction.value,
-        ownerUserId: effOwnerUserId.value, // 初始化「时刻」取值，之后不更新既有实例
+        ownerUserId: effOwnerUserId.value, // 取初始化时刻值，后不更新
         containerDom: p.containerDom.value,
         monitorDom: p.monitorDom.value,
         postQuoteDataHandler: (data: QuoteData) => {
@@ -161,8 +159,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
           bookmarkUid: p.bookmarkUid || undefined,
           shareCode: p.shareCode || '',
           collection: collection.value,
-          // bookmarkUserId 在 snapshot 详情下可能是 hash 串（detail.user_id），provider 字段类型为 number；
-          // 忠实保留现状运行时取值（LF=数值 userId / 非 LF 快照=hash 串原样透传），仅在边界 cast 满足类型。
+          // snapshot 下可能是 hash 串
+          // 仅边界 cast 满足 number 类型
           ownerUserId: effOwnerUserId.value as number | undefined
         }),
         refFactory: ref,
@@ -186,9 +184,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       return
     }
 
-    // 忠实复制现状取值，不做「优化回退」：
-    // markSource==='props'(local-first) → props.marks ?? 空集；
-    // 默认(detail) → upstream 原 if/else（key 存在就用 detail.marks，即使为 null，不回退 props.marks）。
+    // 忠实复制现状，不做优化回退
+    // props→props.marks；默认→detail 原 if/else
     const promise = []
     if (p.adapters.markSource === 'props') {
       promise.push(articleSelectionRef.value?.drawMark(p.marks.value ?? { mark_list: [], user_list: {} }))
@@ -207,8 +204,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     })
   }
 
-  // jumpToHighLight：upstream 原样搬入，内部 source 固定读 `detail.marks || props.marks || []`，
-  // 不改成 markSource 口径——保持与现状逐字等价。仅调用时机不变（drawMark 完成后）。
+  // upstream 原样搬入，与现状逐字等价
   const jumpToHighLight = () => {
     const highlightUid = route.query.highlight as string
     if (!highlightUid) return
@@ -245,10 +241,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     navigateTo({ path: route.path, query: {} })
   }
 
-  // watch（round 5：拆回带守卫，避免 marks=falsy / ready=false 时多触发）：
-  //  · marks watcher：value && isHandledHTML（= upstream marks watcher）
-  //  · ready watcher：ready && isHandledHTML（= fork localReady watcher；非 LF 下 ready 恒 true 不触发）
-  //  · htmlReady watcher：首绘由 false→true 单独触发一次（替代原 onMounted .then(handleDrawMark)）
+  // 三个 watcher 带守卫，避免重复触发
+  // marks / ready / htmlReady 各触发 drawMark
   watch(
     () => p.marks.value,
     value => {
