@@ -82,14 +82,17 @@
 </template>
 
 <script lang="ts" setup>
+import { inject } from 'vue'
+
 import { urlHttpString } from '@commons/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
-import { type BookmarkItem, BookmarkParseStatus, type EmptyBookmarkResp } from '@commons/types/interface'
+import { type BookmarkItem, type EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 import { formatDate } from '@vueuse/core'
-import { showSnapshotStatusModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { useBookmarkCellNavigation } from '#layers/core/app/composables/bookmark/useBookmarkCellNavigation'
+import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -113,7 +116,12 @@ const props = defineProps({
 
 const { index, bookmark } = toRefs(props)
 const emits = defineEmits(['delete', 'archiveUpdate', 'aliasTitleUpdate', 'bookmarkUpdate'])
-const route = useRoute()
+
+// local-first 可写操作；inject=null（非 LF）则回退 REST。
+// local tab 下 bookmark.id 即本地 uuid。
+const lf = inject(LocalFirstAdapterKey, null)
+const lfActions = lf?.bookmarkActions?.() ?? null
+const lfKey = () => bookmark.value.id as unknown as string
 const isDeleting = ref(false)
 const isStroking = ref(false)
 const isRetrying = ref(false)
@@ -129,28 +137,6 @@ const deleteButton = ref<HTMLButtonElement>()
 const isDeleteHovered = useElementHover(deleteButton)
 const revertButton = ref<HTMLButtonElement>()
 const isRevertHovered = useElementHover(revertButton)
-
-const getCurrentSection = (): 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications' => {
-  const filter = String(route.query.filter || 'inbox')
-  const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications'> = {
-    inbox: 'inbox',
-    starred: 'starred',
-    topics: 'topics',
-    archive: 'archive',
-    trashed: 'trash',
-    notifications: 'notifications'
-  }
-  return sectionMap[filter] || 'inbox'
-}
-
-const trackListItemInteract = (element: 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash') => {
-  analyticsLog({
-    event: 'bookmark_list_item_interact',
-    bookmark_id: bookmark.value.id,
-    element,
-    section: getCurrentSection()
-  })
-}
 
 const isTrashed = computed(() => {
   return !!props.bookmark.trashed_at
@@ -173,10 +159,6 @@ const dateString = computed(() => {
   return formatDate(new Date(date), 'YYYY-MM-DD')
 })
 
-const urlString = computed(() => {
-  return urlHttpString(bookmark.value.target_url)
-})
-
 const isStarred = computed(() => {
   return bookmark.value.starred === 'star'
 })
@@ -190,106 +172,16 @@ watch(
   }
 )
 
-const clickTitle = () => {
-  if (isDeleting.value || isStroking.value) {
-    return
-  }
-
-  trackListItemInteract('title')
-
-  if (props.isSubscribe) {
-    pwaOpen({
-      url: `/c/${props.collectionCode}/${bookmark.value.id}`,
-      target: '_blank'
-    })
-    return
-  }
-
-  if (bookmark.value.status !== 'success' || bookmark.value.type === 'shortcut') {
-    clickHref()
-    return
-  }
-
-  // 优先跳快照页
-  clickCache()
-}
-
-// 点击整卡复用标题逻辑，编辑态不触发
-const clickCard = () => {
-  if (isEditingTitle.value || isRequesting.value) {
-    return
-  }
-
-  clickTitle()
-}
-
-const clickHref = () => {
-  if (isRequesting.value) {
-    return
-  }
-
-  trackListItemInteract('orginal')
-
-  window.open(urlString.value, '_blank')
-}
-
-const clickCache = () => {
-  if (isRequesting.value) {
-    return
-  }
-
-  trackListItemInteract('snapshot')
-
-  if (bookmark.value.status !== BookmarkParseStatus.SUCCESS) {
-    const reminderKey = `snapshot_reminder_disabled_${bookmark.value.status}`
-    const isReminderDisabled = localStorage.getItem(reminderKey) === 'true'
-
-    if (!isReminderDisabled) {
-      showSnapshotStatusModal({
-        status: bookmark.value.status,
-        title: getSnapshotModalTitle(bookmark.value.status),
-        content: getSnapshotModalContent(bookmark.value.status),
-        onConfirm: (dontRemindAgain: boolean) => {
-          if (dontRemindAgain) {
-            localStorage.setItem(reminderKey, 'true')
-          }
-          clickHref()
-        }
-      })
-    } else {
-      clickHref()
-    }
-    return
-  }
-
-  // 跳转公开页 /b/[id]，用 bookmark_user_uuid 作路由标识
-  const uuid = bookmark.value.bookmark_user_uuid || bookmark.value.id
-  if (!uuid) {
-    // 缺标识时降级打开原文，避免跳到 /b/undefined
-    clickHref()
-    return
-  }
-
-  pwaOpen({
-    url: '/b/' + uuid
-  })
-}
-
-const getSnapshotModalTitle = (status: BookmarkParseStatus) => {
-  if (status === BookmarkParseStatus.FAILED) {
-    return t('component.snapshot_status_modal.failed_title')
-  } else {
-    return t('component.snapshot_status_modal.pending_title')
-  }
-}
-
-const getSnapshotModalContent = (status: BookmarkParseStatus) => {
-  if (status === BookmarkParseStatus.FAILED) {
-    return t('component.snapshot_status_modal.failed_content')
-  } else {
-    return t('component.snapshot_status_modal.pending_content')
-  }
-}
+// 点击/跳转逻辑抽到 composable；trackListItemInteract 一并复用
+const { clickCard, clickTitle, clickHref, trackListItemInteract } = useBookmarkCellNavigation({
+  bookmark,
+  isSubscribe: () => props.isSubscribe,
+  collectionCode: () => props.collectionCode,
+  isDeleting: () => isDeleting.value,
+  isStroking: () => isStroking.value,
+  isRequesting: () => isRequesting.value,
+  isEditingTitle: () => isEditingTitle.value
+})
 
 const clickEdit = () => {
   if (isRequesting.value) {
@@ -327,6 +219,15 @@ const archiveBookmark = async (archive: boolean) => {
 
   isArchiving.value = true
   try {
+    // LF：写本地，列表自动刷新，不 emit
+    if (lfActions) {
+      await lfActions.setArchive(lfKey(), archive)
+      Toast.showToast({ text: t(archive ? 'common.tips.archive_success' : 'common.tips.unarchive_success'), type: ToastType.Success })
+      analyticsLog({ event: 'bookmark_archive', is_archived: archive, source: 'inbox' })
+      isArchiving.value = false
+      return
+    }
+
     await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.BOOKMARK_ARCHIVE,
       body: {
@@ -401,6 +302,13 @@ const clickDelete = async (event: MouseEvent) => {
   }
 
   const id = bookmark.value.id
+
+  // LF：软删本地，列表自动移除
+  if (lfActions) {
+    await lfActions.setTrashed(lfKey(), true)
+    return
+  }
+
   request().post<EmptyBookmarkResp>({
     url: RESTMethodPath.TRASH_BOOKMARK,
     body: {
@@ -471,6 +379,13 @@ const updateBookmarkTitle = () => {
     return
   }
 
+  // LF：写本地别名，不 emit
+  if (lfActions) {
+    lfActions.setAliasTitle(lfKey(), editingTitle.value)
+    isEditingTitle.value = false
+    return
+  }
+
   const req = {
     bookmark_id: bookmark.value.id,
     alias_title: editingTitle.value
@@ -494,6 +409,14 @@ const starBookmark = async (isStar: boolean) => {
 
   const status = !isStar ? 'unstar' : 'star'
   try {
+    // LF：写本地收藏态，不 emit
+    if (lfActions) {
+      await lfActions.setStar(lfKey(), isStar)
+      analyticsLog({ event: 'bookmark_star', is_starred: isStar, source: 'inbox' })
+      Toast.showToast({ text: t(!isStar ? 'common.tips.unstar_success' : 'common.tips.star_success'), type: ToastType.Success })
+      return
+    }
+
     await request().post<{ bookmark_id: number; status: string }>({
       url: RESTMethodPath.BOOKMARK_STAR,
       body: {

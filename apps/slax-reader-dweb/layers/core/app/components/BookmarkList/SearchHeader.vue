@@ -89,13 +89,9 @@ const navigateBack = () => {
 }
 
 const navigateToBookmark = (result: SearchResultItem) => {
-  // 优先跳 /b/[uuid]，缺 uuid 降级旧页
-  if (result.bookmark_user_uuid) {
-    pwaOpen({ url: `/b/${result.bookmark_user_uuid}` })
-    return
-  }
-
-  pwaOpen({ url: `/bookmarks/${result.bookmark_id}` })
+  // 快照目标由 seam 统一决定（fork 覆盖跳 /b/）；缺标识回退 /bookmarks/[id]
+  const target = useBookmarkSnapshotRoute(result) ?? `/bookmarks/${result.bookmark_id}`
+  pwaOpen({ url: target })
 }
 
 const search = async (text: string) => {

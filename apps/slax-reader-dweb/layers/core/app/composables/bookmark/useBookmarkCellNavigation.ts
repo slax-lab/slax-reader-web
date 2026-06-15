@@ -1,0 +1,161 @@
+// BookmarkCell 的点击/跳转编排（从组件抽出）。快照目标取自 useBookmarkSnapshotRoute seam，
+// fork 覆盖该 seam 即可改写跳转，无需覆盖本文件。
+// 守卫态/展示态由组件以 getter 传入，保持响应式并沿用各处理函数各自的早退条件。
+import { urlHttpString } from '@commons/utils/string'
+
+import { type BookmarkItem, BookmarkParseStatus } from '@commons/types/interface'
+import { showSnapshotStatusModal } from '#layers/core/app/components/Modal'
+
+type ListSection = 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications'
+
+type InteractElement = 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash'
+
+export interface UseBookmarkCellNavigationOptions {
+  bookmark: Ref<BookmarkItem>
+  isSubscribe: () => boolean
+  collectionCode: () => string | undefined
+  isDeleting: () => boolean
+  isStroking: () => boolean
+  isRequesting: () => boolean
+  isEditingTitle: () => boolean
+}
+
+export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOptions) {
+  const { bookmark, isSubscribe, collectionCode, isDeleting, isStroking, isRequesting, isEditingTitle } = options
+
+  const { t } = useI18n()
+  const route = useRoute()
+
+  const getCurrentSection = (): ListSection => {
+    const filter = String(route.query.filter || 'inbox')
+    const sectionMap: Record<string, ListSection> = {
+      inbox: 'inbox',
+      starred: 'starred',
+      topics: 'topics',
+      archive: 'archive',
+      trashed: 'trash',
+      notifications: 'notifications'
+    }
+    return sectionMap[filter] || 'inbox'
+  }
+
+  const trackListItemInteract = (element: InteractElement) => {
+    analyticsLog({
+      event: 'bookmark_list_item_interact',
+      bookmark_id: bookmark.value.id,
+      element,
+      section: getCurrentSection()
+    })
+  }
+
+  const urlString = () => urlHttpString(bookmark.value.target_url)
+
+  const getSnapshotModalTitle = (status: BookmarkParseStatus) => {
+    if (status === BookmarkParseStatus.FAILED) {
+      return t('component.snapshot_status_modal.failed_title')
+    } else {
+      return t('component.snapshot_status_modal.pending_title')
+    }
+  }
+
+  const getSnapshotModalContent = (status: BookmarkParseStatus) => {
+    if (status === BookmarkParseStatus.FAILED) {
+      return t('component.snapshot_status_modal.failed_content')
+    } else {
+      return t('component.snapshot_status_modal.pending_content')
+    }
+  }
+
+  const clickHref = () => {
+    if (isRequesting()) {
+      return
+    }
+
+    trackListItemInteract('orginal')
+
+    window.open(urlString(), '_blank')
+  }
+
+  const clickCache = () => {
+    if (isRequesting()) {
+      return
+    }
+
+    trackListItemInteract('snapshot')
+
+    if (bookmark.value.status !== BookmarkParseStatus.SUCCESS) {
+      const reminderKey = `snapshot_reminder_disabled_${bookmark.value.status}`
+      const isReminderDisabled = localStorage.getItem(reminderKey) === 'true'
+
+      if (!isReminderDisabled) {
+        showSnapshotStatusModal({
+          status: bookmark.value.status,
+          title: getSnapshotModalTitle(bookmark.value.status),
+          content: getSnapshotModalContent(bookmark.value.status),
+          onConfirm: (dontRemindAgain: boolean) => {
+            if (dontRemindAgain) {
+              localStorage.setItem(reminderKey, 'true')
+            }
+            clickHref()
+          }
+        })
+      } else {
+        clickHref()
+      }
+      return
+    }
+
+    // 快照目标由 seam 决定（fork 覆盖跳 /b/）；缺标识降级打开原文
+    const target = useBookmarkSnapshotRoute(bookmark.value)
+    if (!target) {
+      clickHref()
+      return
+    }
+
+    pwaOpen({
+      url: target
+    })
+  }
+
+  const clickTitle = () => {
+    if (isDeleting() || isStroking()) {
+      return
+    }
+
+    trackListItemInteract('title')
+
+    if (isSubscribe()) {
+      pwaOpen({
+        url: `/c/${collectionCode()}/${bookmark.value.id}`,
+        target: '_blank'
+      })
+      return
+    }
+
+    if (bookmark.value.status !== 'success' || bookmark.value.type === 'shortcut') {
+      clickHref()
+      return
+    }
+
+    // 优先跳快照页
+    clickCache()
+  }
+
+  // 点击整张卡片：编辑标题态不触发，其余复用标题点击逻辑（优先跳快照）
+  const clickCard = () => {
+    if (isEditingTitle() || isRequesting()) {
+      return
+    }
+
+    clickTitle()
+  }
+
+  return {
+    clickCard,
+    clickTitle,
+    clickHref,
+    clickCache,
+    // section 埋点：组件内 archive/delete/star/编辑 等操作复用
+    trackListItemInteract
+  }
+}
