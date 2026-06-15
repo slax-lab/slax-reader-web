@@ -16,7 +16,7 @@
 
     <!-- 搜索结果列表 -->
     <div class="search-result-list" v-if="searchResults.length > 0">
-      <article v-for="result in searchResults" :key="result.bookmark_id" class="search-result-item" @click="navigateToBookmark(result.bookmark_id)">
+      <article v-for="result in searchResults" :key="result.bookmark_id" class="search-result-item" @click="navigateToBookmark(result)">
         <h3 class="search-result-title" v-html="result.highlight_title" />
         <p class="search-result-snippet" v-if="result.highlight_content">…<span v-html="result.highlight_content"></span>…</p>
         <div class="search-result-meta" v-if="result.type === 'vector'">
@@ -88,8 +88,14 @@ const navigateBack = () => {
   emits('searchStatusUpdate', false)
 }
 
-const navigateToBookmark = (bookmarkId: number) => {
-  pwaOpen({ url: `/bookmarks/${bookmarkId}` })
+const navigateToBookmark = (result: SearchResultItem) => {
+  // 优先跳公开快照页 /b/[uuid]，与正常书签列表保持一致；缺 uuid 时降级到旧页
+  if (result.bookmark_user_uuid) {
+    pwaOpen({ url: `/b/${result.bookmark_user_uuid}` })
+    return
+  }
+
+  pwaOpen({ url: `/bookmarks/${result.bookmark_id}` })
 }
 
 const search = async (text: string) => {

@@ -514,6 +514,8 @@
       "minutes_ago": "{n} 分钟前",
       "hours_ago": "{n} 小时前",
       "days_ago": "{n} 天前",
+      "months_ago": "{n} 个月前",
+      "years_ago": "{n} 年前",
       "empty_starred_title": "还没有星标文章",
       "empty_starred_desc": "在文章列表中点击星标图标，收藏你最喜欢的内容",
       "empty_topics_title": "还没有话题",

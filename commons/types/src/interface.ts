@@ -236,6 +236,7 @@ export interface SearchResultItem {
   fts_score: number
   final_score: number
   bookmark_id: number
+  bookmark_user_uuid?: string
   highlight_title: string
   highlight_content: string
   title?: string
