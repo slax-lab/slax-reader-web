@@ -21,7 +21,7 @@
             </svg>
             <span>{{ href }}</span>
           </a>
-          <textarea v-model="feedback" :placeholder="t('component.feedback.placeholder')"></textarea>
+          <textarea v-autofocus="{ enabled: appear }" v-model="feedback" :placeholder="t('component.feedback.placeholder')"></textarea>
         </div>
         <div class="bottom">
           <div class="follow-up" v-show="email" @click="allowFollowUp = !allowFollowUp">

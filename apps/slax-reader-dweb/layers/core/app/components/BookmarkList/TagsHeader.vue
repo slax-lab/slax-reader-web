@@ -11,7 +11,7 @@
         </div>
         <div class="tag-input-wrap" v-else>
           <input
-            ref="tagInput"
+            v-autofocus
             type="text"
             :disabled="isAddingTagLoading"
             v-model="addingTagName"
@@ -97,7 +97,6 @@ const isTagLoading = ref(false)
 const isAddingTagLoading = ref(false)
 const isAddingTag = ref(false)
 const compositionAppear = ref(false)
-const tagInput = ref<HTMLInputElement>()
 const addingTagName = ref('')
 // tags 双轨：LF 走只读 computed，REST 走 restTags ref
 const restTags = ref<BookmarkTag[]>([])
@@ -166,9 +165,7 @@ const updateSelectTag = (id: number | string) => {
 
 const addTagClick = () => {
   isAddingTag.value = true
-  nextTick(() => {
-    tagInput.value?.focus()
-  })
+  // 聚焦交由 v-autofocus 指令处理
 }
 
 const editTagClick = (tag: BookmarkTag) => {

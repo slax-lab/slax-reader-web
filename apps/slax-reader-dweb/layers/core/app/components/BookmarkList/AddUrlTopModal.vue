@@ -18,7 +18,7 @@
               <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
             </svg>
             <input
-              ref="urlInputEl"
+              v-autofocus
               type="url"
               class="modal-input"
               v-model="addUrlText"
@@ -56,7 +56,6 @@ import { RESTMethodPath } from '@commons/types/const'
 const show = defineModel('show')
 const emits = defineEmits(['addUrlSuccess'])
 
-const urlInputEl = ref<HTMLInputElement>()
 const addUrlText = ref('')
 const searchModalLoading = ref(false)
 const showError = ref(false)
@@ -67,7 +66,7 @@ watch(
     if (value) {
       addUrlText.value = ''
       showError.value = false
-      nextTick(() => urlInputEl.value?.focus())
+      // 聚焦交由 v-autofocus 指令处理
     }
   }
 )
