@@ -1,7 +1,16 @@
 <template>
   <div class="snapshot-chat-panel" ref="chat">
     <!-- 标题（对齐 snapshot demo 的 .panel-title） -->
-    <div class="chat-title">Chat</div>
+    <div class="chat-title">
+      <span>Chat</span>
+      <OptionsBar
+        v-if="showModelSwitcher"
+        class="chat-model-switcher"
+        :options="MODEL_LABELS"
+        :default-selected-index="selectedModelIndex"
+        v-model:index="selectedModelIndex"
+      />
+    </div>
     <!-- 消息流（含空态） -->
     <div class="chat-messages" :class="{ scrolled: isScrolled }" ref="messages" @scroll="onMessagesScroll">
       <!-- 空态 -->
@@ -123,6 +132,7 @@
 import QuestionMessage from '#layers/core/app/components/Chat/QuestionMessage.vue'
 import TipsMessage from '#layers/core/app/components/Chat/TipsMessage.vue'
 import DotLoading from '#layers/core/app/components/DotLoading.vue'
+import OptionsBar from '#layers/core/app/components/OptionsBar.vue'
 
 import { parseMarkdownText } from '@commons/utils/parse'
 import { getUUID } from '@commons/utils/random'
@@ -251,6 +261,23 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
     }
   }
 })
+
+const MODEL_OPTIONS = [
+  { label: 'Gemini 3 Flash Preview', id: 'gemini-3-flash-preview' },
+  { label: 'Gemini 3.5 Flash', id: 'gemini-3.5-flash' },
+  { label: 'Gemini 3.1 Flash Lite', id: 'gemini-3.1-flash-lite' }
+]
+const MODEL_LABELS = MODEL_OPTIONS.map(m => m.label)
+const selectedModelIndex = ref(0)
+const showModelSwitcher = useRuntimeConfig().public.slaxEnv !== 'production'
+
+watch(
+  selectedModelIndex,
+  index => {
+    bot.model = showModelSwitcher ? MODEL_OPTIONS[index]?.id : undefined
+  },
+  { immediate: true }
+)
 
 bot.chatStatusUpdateHandler = (chatting: boolean) => {
   isChatting.value = chatting
@@ -669,6 +696,10 @@ defineExpose({ addQuoteData, focusTextarea })
   // 标题（对齐 snapshot demo 的 .panel-title + 评论面板 header 规格）
   .chat-title {
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     font-family: var(--slax-font-serif);
     font-size: 18px;
     font-weight: 500;
@@ -676,6 +707,12 @@ defineExpose({ addQuoteData, focusTextarea })
     color: var(--slax-text);
     padding: 24px 24px 0;
     margin-bottom: 12px;
+
+    .chat-model-switcher {
+      font-family: var(--slax-font-sans);
+      font-size: 12px;
+      font-weight: 400;
+    }
   }
 
   .chat-messages {

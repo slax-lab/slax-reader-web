@@ -61,6 +61,7 @@ export class ChatBot {
   shareCode?: string
   collection?: { code: string; cbId: number }
   bookmarkUid?: string
+  model?: string
   responseCallback?: (params: { type: ChatResponseType; data: ChatResponseData }) => void
   chatStatusUpdateHandler?: (isChatting: boolean) => void
 
@@ -94,9 +95,12 @@ export class ChatBot {
       callBack((text: string, isDone: boolean) => {
         if (isDone) {
           for (const line of lineDecoder.flush()) {
+            if (isDoneSentinel(line)) continue
+
             const sse = sseDecoder.decode(line)
 
             if (sse) {
+              if (sse.data === '[DONE]') continue
               try {
                 const data = JSON.parse(sse.data) as ChatCompletionChunk
                 this.handleData(data)
@@ -124,9 +128,12 @@ export class ChatBot {
 
         const lines = lineDecoder.decode(text)
         for (const line of lines) {
+          if (isDoneSentinel(line)) continue
+
           const sse = sseDecoder.decode(line)
 
           if (sse) {
+            if (sse.data === '[DONE]') continue
             try {
               const data = JSON.parse(sse.data) as ChatCompletionChunk
               this.handleData(data)
@@ -285,7 +292,9 @@ export class ChatBot {
         ...(this.bookmarkUid ? { bookmark_uid: this.bookmarkUid } : {}),
         ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages,
-        quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined
+        quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined,
+        platform: this.getPlatform(),
+        ...(this.model ? { model: this.model } : {})
       }
     } else if (params.type === ChatParamsType.QUESTIONS) {
       return {
@@ -311,6 +320,14 @@ export class ChatBot {
     }
   }
 
+  private getPlatform(): 'mobile' | 'desktop' {
+    if (typeof window === 'undefined') return 'desktop'
+    const ua = window.navigator?.userAgent ?? ''
+
+    if (/^SlaxReader\/[\d.]+\s+Build\//.test(ua) || /^com\.slax\.reader\/[\d.]+\s+\(Android/.test(ua)) return 'mobile'
+    return window.innerWidth <= 768 ? 'mobile' : 'desktop'
+  }
+
   private updateChatStatus(isChatting: boolean) {
     this._isChatting = isChatting
     this.chatStatusUpdateHandler && this.chatStatusUpdateHandler(isChatting)
@@ -319,4 +336,9 @@ export class ChatBot {
 
 const t = (text: string) => {
   return useNuxtApp().$i18n.t(text)
+}
+
+const isDoneSentinel = (line: string): boolean => {
+  const normalized = line.replace(/\r$/, '').trim()
+  return normalized === '[DONE]' || normalized === 'data: [DONE]'
 }

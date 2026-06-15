@@ -35,7 +35,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       ...envConfig,
-      appVersion: pkg.version
+      appVersion: pkg.version,
+      slaxEnv: env
     }
   },
 
