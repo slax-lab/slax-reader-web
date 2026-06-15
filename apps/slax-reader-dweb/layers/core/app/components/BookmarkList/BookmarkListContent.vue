@@ -1,7 +1,7 @@
 <template>
-  <!-- 主列表内容：按 filterStatus 分发 书签（日期分组）/ 高亮 / 通知 三种列表 -->
+  <!-- 主列表内容：按 filterStatus 分发 书签（日期分组）/ 高亮 两种列表 -->
   <div class="bookmarks">
-    <template v-if="['highlights', 'notifications'].indexOf(filterStatus) === -1">
+    <template v-if="filterStatus !== 'highlights'">
       <TransitionGroup :name="loading ? '' : 'opacity'" @after-leave="emit('transition-leave')">
         <template v-for="item in displayItems" :key="item.type === 'group' ? item.key : item.bookmark.id">
           <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
@@ -25,13 +25,6 @@
         <BookmarkHighlightCell v-for="highlight in highlights" :key="highlight.id" :highlight="highlight" />
       </div>
     </template>
-    <template v-else-if="filterStatus === 'notifications'">
-      <div class="card-cells-wrapper">
-        <TransitionGroup :name="loading ? '' : 'opacity'" @after-leave="emit('transition-leave')">
-          <NotificationCell v-for="notification in notifications" :key="notification.id" :notification="notification" />
-        </TransitionGroup>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -41,9 +34,8 @@ import { computed } from 'vue'
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
-import NotificationCell from '#layers/core/app/components/Notification/NotificationCell.vue'
 
-import type { BookmarkItem, HighlightItem, UserNotificationMessageItem } from '@commons/types/interface'
+import type { BookmarkItem, HighlightItem } from '@commons/types/interface'
 
 // 日期分组条目类型（与 useBookmarkData 的 groupedBookmarks 一致）
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
@@ -52,7 +44,6 @@ const props = defineProps<{
   filterStatus: string
   groupedBookmarks: GroupedItem[]
   highlights: HighlightItem[]
-  notifications: UserNotificationMessageItem[]
   listMode: 'card' | 'text'
   loading: boolean
   filterCollectionCode: string

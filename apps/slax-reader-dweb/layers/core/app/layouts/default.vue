@@ -1,6 +1,6 @@
 <template>
   <div class="default-layout">
-    <NuxtPwaAssets />
+    <NuxtPwaAssets v-if="showPwaManifest" />
     <NuxtPage :keepalive="{ include: cacheRoutes }" />
   </div>
 </template>
@@ -12,6 +12,10 @@ import { getPreferredLanguage, isSlaxReaderApp } from '#layers/core/app/utils/en
 import { useUserStore } from '#layers/core/app/stores/user'
 
 const cacheRoutes = ['bookmarks']
+
+const route = useRoute()
+const showPwaManifest = computed(() => route.path === '/' || route.path === '/bookmarks')
+
 const userStore = useUserStore()
 const { locale, setLocale } = useI18n()
 const preferredLang = getPreferredLanguage()
