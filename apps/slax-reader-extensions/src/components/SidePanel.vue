@@ -496,9 +496,16 @@ const panelClick = async (panel: PanelItem) => {
         await addBookmark()
       }
 
+      // 兜底拉 brief 取 uuid，
+      // watcher 那次会被 isLoading 挡掉
+      if (bookmarkId.value !== 0 && !bookmarkBriefInfo.value?.bookmark_uid) {
+        await loadBriefDetail()
+      }
+
       modalContainer.value &&
         showShareConfigModal({
           bookmarkId: bookmarkId.value,
+          bookmarkUuid: bookmarkBriefInfo.value?.bookmark_uid ?? '',
           title: document.title,
           container: modalContainer.value
         })

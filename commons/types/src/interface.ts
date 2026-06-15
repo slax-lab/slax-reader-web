@@ -117,6 +117,8 @@ export interface BookmarkBriefDetail {
   published_at: Date
   marks: MarkDetail
   bookmark_id: number
+  // 用户书签 uuid，拼 /b/ 链接
+  bookmark_uid: string
   alias_title: string
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
