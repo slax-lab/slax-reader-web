@@ -14,9 +14,16 @@
           <span class="comment-author">{{ mainComment.username }}</span>
           <template v-if="mainComment.createdAt"> · {{ formatRelativeTime(mainComment.createdAt) }}</template>
         </span>
-        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
-          {{ $t('common.operate.reply') }}
-        </button>
+        <span v-if="allowAction" class="comment-meta-actions">
+          <!-- 自己的划线才显示，保留评论 -->
+          <button v-if="canUnhighlight" class="comment-unhighlight-trigger" @click.stop="$emit('cancel-highlight')">
+            {{ $t('common.operate.cancel_line') }}
+          </button>
+          <span v-if="canUnhighlight" class="comment-meta-divider" aria-hidden="true"></span>
+          <button class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
+            {{ $t('common.operate.reply') }}
+          </button>
+        </span>
       </div>
 
       <!-- 子评论 -->
@@ -48,9 +55,16 @@
           <span class="comment-author">{{ strokeUser.username }}</span>
           <template v-if="strokeUser.createdAt"> · {{ formatRelativeTime(strokeUser.createdAt) }}</template>
         </span>
-        <button v-if="allowAction" class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
-          {{ $t('common.operate.reply') }}
-        </button>
+        <span v-if="allowAction" class="comment-meta-actions">
+          <!-- 自己的划线才显示 -->
+          <button v-if="canUnhighlight" class="comment-unhighlight-trigger" @click.stop="$emit('cancel-highlight')">
+            {{ $t('common.operate.cancel_line') }}
+          </button>
+          <span v-if="canUnhighlight" class="comment-meta-divider" aria-hidden="true"></span>
+          <button class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
+            {{ $t('common.operate.reply') }}
+          </button>
+        </span>
       </div>
     </template>
   </article>
@@ -65,6 +79,8 @@ const props = defineProps<{
   comments: MarkCommentInfo[]
   isActive?: boolean
   allowAction?: boolean
+  // 有自己的划线时显示「取消划线」
+  canUnhighlight?: boolean
   quoteText?: string
   strokeUser?: { username: string; avatar?: string; createdAt?: Date | string }
 }>()
@@ -73,6 +89,7 @@ defineEmits<{
   'card-click': [infoId: string]
   reply: [comment: MarkCommentInfo]
   'reply-stroke': []
+  'cancel-highlight': []
 }>()
 
 const hasSource = computed(() => props.source.length > 0)
@@ -185,7 +202,20 @@ const formatRelativeTime = (date: Date | string | undefined) => {
       font-weight: 500;
     }
 
-    .comment-reply-trigger {
+    .comment-meta-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comment-meta-divider {
+      width: 1px;
+      height: 12px;
+      background: var(--slax-border);
+    }
+
+    .comment-reply-trigger,
+    .comment-unhighlight-trigger {
       background: none;
       border: none;
       padding: 0;
@@ -201,6 +231,11 @@ const formatRelativeTime = (date: Date | string | undefined) => {
         text-decoration: underline;
         text-underline-offset: 3px;
       }
+    }
+
+    // 取消划线用中性色
+    .comment-unhighlight-trigger {
+      color: var(--slax-text-light);
     }
   }
 

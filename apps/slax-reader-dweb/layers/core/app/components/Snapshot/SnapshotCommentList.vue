@@ -19,10 +19,12 @@
         :stroke-user="card.strokeUser"
         :is-active="activeInfoId === card.infoId"
         :allow-action="allowAction"
+        :can-unhighlight="card.canUnhighlight"
         :quote-text="card.quoteText"
         @card-click="$emit('card-click', $event)"
         @reply="$emit('reply', $event)"
         @reply-stroke="$emit('reply-stroke', card.infoId)"
+        @cancel-highlight="$emit('cancel-highlight', card.infoId)"
       />
     </div>
   </div>
@@ -33,11 +35,14 @@ import SnapshotCommentCard from './SnapshotCommentCard.vue'
 
 import type { UserList } from '@commons/types/interface'
 import type { MarkCommentInfo, MarkItemInfo, MarkPathItem } from '@slax-reader/selection/types'
+import { useUserStore } from '#layers/core/app/stores/user'
 
 const props = defineProps<{
   infos: MarkItemInfo[]
   activeInfoId: string | null
   allowAction?: boolean
+  // 页面级开关：是否允许取消划线
+  allowUnhighlight?: boolean
   userList?: UserList
 }>()
 
@@ -45,7 +50,10 @@ defineEmits<{
   'card-click': [infoId: string]
   reply: [comment: MarkCommentInfo]
   'reply-stroke': [infoId: string]
+  'cancel-highlight': [infoId: string]
 }>()
+
+const currentUserId = computed(() => useUserStore().userInfo?.userId ?? null)
 
 interface DisplayCard {
   infoId: string
@@ -53,6 +61,7 @@ interface DisplayCard {
   comments: MarkCommentInfo[]
   strokeUser: { username: string; avatar?: string; createdAt?: Date | string } | undefined
   quoteText: string
+  canUnhighlight: boolean
 }
 
 const totalCount = computed(() => {
@@ -97,15 +106,18 @@ const getQuoteText = (info: MarkItemInfo): string => {
 // - 纯划线（无评论）→ 1 张卡片
 const displayCards = computed((): DisplayCard[] => {
   const cards: DisplayCard[] = []
+  const uid = currentUserId.value
   for (const info of props.infos) {
     const strokeUser = getStrokeUser(info)
     const quoteText = getQuoteText(info)
+    // 有自己的划线且页面允许才显示
+    const canUnhighlight = !!props.allowUnhighlight && !!uid && info.stroke.some(s => s.userId === uid)
     if (info.comments.length > 0) {
       for (const comment of info.comments) {
-        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText })
+        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight })
       }
     } else {
-      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText })
+      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight })
     }
   }
   return cards
