@@ -22,12 +22,13 @@ const modalBootloader = (options: { ele: Component; container: HTMLDivElement; p
   return app
 }
 
-export const showShareConfigModal = (options: { bookmarkId: number; title: string; container: HTMLDivElement }) => {
+export const showShareConfigModal = (options: { bookmarkId: number; bookmarkUuid: string; title: string; container: HTMLDivElement }) => {
   const app = modalBootloader({
     ele: ShareModal,
     container: options.container,
     props: {
       bookmarkId: options.bookmarkId,
+      bookmarkUuid: options.bookmarkUuid,
       title: options.title,
       onDismiss: () => {
         app.unmount()

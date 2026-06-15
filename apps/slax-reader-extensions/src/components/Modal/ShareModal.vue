@@ -57,6 +57,11 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  // 用于拼接 /b/{uuid} 链接
+  bookmarkUuid: {
+    type: String,
+    required: true
+  },
   title: {
     type: String,
     required: true
@@ -75,17 +80,12 @@ const isShowTips = ref(false)
 const copyTitle = ref($t('component.share_modal.copy_link'))
 const shareLinkUrl = ref('')
 const deleteShareLinkUrl = ref('')
+// 不在 UI 暴露，update 时回传
+const showUserinfo = ref(true)
+// 单一开关，对齐 /b/[id]
 const options = ref<{ title: string; selected: boolean }[]>([
   {
     title: $t('component.share_modal.options.first'),
-    selected: true
-  },
-  {
-    title: $t('component.share_modal.options.second'),
-    selected: true
-  },
-  {
-    title: $t('component.share_modal.options.third'),
     selected: true
   }
 ])
@@ -130,11 +130,7 @@ const getShareInfo = async () => {
   }
 
   if (res.share_code.length === 0) {
-    await updateShare({
-      commentLine: true,
-      userInfo: true,
-      allowAction: true
-    })
+    await updateShare({ selected: true })
 
     isSwitched.value = true
     isLoading.value = false
@@ -144,31 +140,28 @@ const getShareInfo = async () => {
 
   isSwitched.value = res.share_code.length > 0
 
-  const [commentLine, userInfo, allowAction] = options.value
-  commentLine.selected = res.show_comment_line
-  userInfo.selected = res.show_userinfo
-  allowAction.selected = res.allow_action
+  const [highlights] = options.value
+  highlights.selected = res.show_comment_line
+  showUserinfo.value = res.show_userinfo
   if (isSwitched.value) {
-    shareLinkUrl.value = getShareUrl(res.share_code)
+    shareLinkUrl.value = getShareUrl()
   }
 
   isLoading.value = false
 }
 
-const updateShare = async (params?: { commentLine?: boolean; userInfo?: boolean; allowAction?: boolean }) => {
-  const [commentLine, userInfo, allowAction] = options.value
+const updateShare = async (params?: { selected?: boolean }) => {
+  const [highlights] = options.value
 
-  const showCommentLine = params?.commentLine ?? commentLine.selected
-  const showUserinfo = params?.userInfo ?? userInfo.selected
-  const allowActionSelected = params?.allowAction ?? allowAction.selected
+  const selected = params?.selected ?? highlights.selected
 
   const res = await request.post<ShareDetailInfo>({
     url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
     body: {
       bookmark_id: props.bookmarkId,
-      show_comment_line: showCommentLine,
-      show_userinfo: showUserinfo,
-      allow_action: allowActionSelected
+      show_comment_line: selected,
+      show_userinfo: showUserinfo.value,
+      allow_action: selected
     }
   })
 
@@ -182,12 +175,10 @@ const updateShare = async (params?: { commentLine?: boolean; userInfo?: boolean;
   }
 
   if (params) {
-    commentLine.selected = showCommentLine
-    userInfo.selected = showUserinfo
-    allowAction.selected = allowActionSelected
+    highlights.selected = selected
   }
 
-  shareLinkUrl.value = getShareUrl(res.share_code)
+  shareLinkUrl.value = getShareUrl()
 }
 
 const closeShare = async () => {
@@ -212,8 +203,8 @@ const closeShare = async () => {
   })
 }
 
-const getShareUrl = (hashcode: string) => {
-  return `${process.env.SHARE_BASE_URL}/s/${hashcode}`
+const getShareUrl = () => {
+  return `${process.env.SHARE_BASE_URL}/b/${props.bookmarkUuid}`
 }
 
 const closeModal = () => {
@@ -330,7 +321,7 @@ const optionClick = async (index: number) => {
         --style: px-12px py-10p h-full flex-1 overflow-hidden transition-all duration-250;
 
         span {
-          --style: relative text-(15px #333 ellipsis) line-height-21px select-all font-500;
+          --style: relative block w-full whitespace-nowrap overflow-hidden text-(15px #333 ellipsis) line-height-21px select-all font-500;
           &:before {
             --style: content-empty bg-#999 w-full h-1px absolute top-1/2 left-0 transition-all duration-250 opacity-0;
           }
