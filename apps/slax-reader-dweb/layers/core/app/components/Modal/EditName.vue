@@ -10,7 +10,7 @@
         </div>
         <div class="content">
           <div class="title" v-if="props.name">{{ props.name }}</div>
-          <textarea v-model="editname" :placeholder="t('component.edit_name_modal.placeholder')"></textarea>
+          <textarea v-autofocus="{ enabled: appear }" v-model="editname" :placeholder="t('component.edit_name_modal.placeholder')"></textarea>
         </div>
         <div class="bottom">
           <button @click="submitBookmarkName">{{ t('common.operate.save') }}</button>

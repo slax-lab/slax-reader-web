@@ -10,6 +10,7 @@
         </div>
         <div class="content">
           <textarea
+            v-autofocus="{ enabled: appear }"
             v-model="editname"
             :placeholder="tagName"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
