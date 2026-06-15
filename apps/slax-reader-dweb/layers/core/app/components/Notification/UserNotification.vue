@@ -47,13 +47,17 @@ export enum UserNotificationIconStyle {
 </script>
 
 <script lang="ts" setup>
-import NotificationCell, { NotificationCellStyle } from './NotificationCell.vue'
+// 用 alias 而非相对路径：相对 import 会绕过 fork 的
+// NotificationCell alias 覆盖。
+import NotificationCell, { NotificationCellStyle } from '#layers/core/app/components/Notification/NotificationCell.vue'
 
 import { isSafari } from '@commons/utils/is'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { UserNotificationMessageItem } from '@commons/types/interface'
 import { vOnClickOutside } from '@vueuse/components'
+import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
+import type { Ref } from 'vue'
 
 defineProps({
   bubbleXOffset: {
@@ -71,9 +75,17 @@ defineProps({
 const emits = defineEmits(['checkAll'])
 
 const notification = useNotification()
-const unreadCount = ref(0)
+
+// 未读数/列表来源 + 未读传输方式。
+// 默认 sw（upstream 原逻辑）；fork 下发 feed + rest。
+const lf = inject(LocalFirstAdapterKey, null)
+const rt = lf?.notificationRuntime?.() ?? { feed: null, unreadTransport: 'sw' as const }
+const feed = rt.feed
+const localEnabled = !!feed
+
+const unreadCount = feed ? feed.unreadCount : ref(0)
 const showMessageBubble = ref(false)
-const notifications = ref<UserNotificationMessageItem[]>([])
+const notifications = feed ? feed.items : ref<UserNotificationMessageItem[]>([])
 const loading = ref(false)
 const userNotification = ref<HTMLDivElement>()
 const notificationIcon = ref<HTMLDivElement>()
@@ -165,7 +177,12 @@ const clickOutSide = (event?: PointerEvent) => {
 const checkAll = async () => {
   emits('checkAll')
 
-  unreadCount.value = 0
+  if (feed) {
+    // 本地置已读，未读数响应式归零
+    await feed.markAllRead()
+  } else {
+    ;(unreadCount as Ref<number>).value = 0
+  }
   showMessageBubble.value = false
 }
 
@@ -178,7 +195,9 @@ const removeListener = () => {
 }
 
 const checkAndQueryNotifications = async () => {
-  if (!showMessageBubble.value || (!unreadCount.value && notifications.value.length)) {
+  if (localEnabled) return // LF：列表响应式，不拉取
+  const list = notifications as Ref<UserNotificationMessageItem[]>
+  if (!showMessageBubble.value || ((unreadCount as Ref<number>).value === 0 && list.value.length)) {
     return
   }
 
@@ -194,35 +213,53 @@ const checkAndQueryNotifications = async () => {
     })
 
     if (res) {
-      notifications.value = res || []
+      list.value = res || []
     }
   } finally {
     loading.value = false
   }
 }
 
-if (notification.isSupportedNotification) {
-  notification.registerWorker().then(res => {
-    notification.onMessage(event => {
-      console.log('event', event)
-      if (typeof event?.data === 'string') {
-        const data = JSON.parse(event?.data)
-        unreadCount.value = data?.unreadCount || 0
-      }
-    })
+if (rt.unreadTransport === 'sw') {
+  // upstream 原逻辑：SW 推未读，不支持时 REST 拉一次
+  if (notification.isSupportedNotification) {
+    notification.registerWorker().then(res => {
+      notification.onMessage(event => {
+        console.log('event', event)
+        if (typeof event?.data === 'string') {
+          const data = JSON.parse(event?.data)
+          ;(unreadCount as Ref<number>).value = data?.unreadCount || 0
+        }
+      })
 
-    notification.sendMessage({
-      type: 'ready'
+      notification.sendMessage({
+        type: 'ready'
+      })
     })
-  })
+  } else {
+    request()
+      .get<{ unread_count: number }>({
+        url: RESTMethodPath.GET_UNREAD_COUNT
+      })
+      .then(res => {
+        ;(unreadCount as Ref<number>).value = res?.unread_count || 0
+      })
+  }
 } else {
-  request()
-    .get<{ unread_count: number }>({
-      url: RESTMethodPath.GET_UNREAD_COUNT
-    })
-    .then(res => {
-      unreadCount.value = res?.unread_count || 0
-    })
+  // fork 策略：仅注册 SW（Web Push），不推未读。
+  // 未读数走 feed（LF）或 REST（非 LF）。
+  if (notification.isSupportedNotification) {
+    notification.registerWorker().catch(error => console.error('[slax] registerWorker failed:', error))
+  }
+  if (!localEnabled) {
+    request()
+      .get<{ unread_count: number }>({
+        url: RESTMethodPath.GET_UNREAD_COUNT
+      })
+      .then(res => {
+        ;(unreadCount as Ref<number>).value = res?.unread_count || 0
+      })
+  }
 }
 </script>
 
