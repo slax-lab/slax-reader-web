@@ -89,7 +89,7 @@ const navigateBack = () => {
 }
 
 const navigateToBookmark = (result: SearchResultItem) => {
-  // 优先跳公开快照页 /b/[uuid]，与正常书签列表保持一致；缺 uuid 时降级到旧页
+  // 优先跳 /b/[uuid]，缺 uuid 降级旧页
   if (result.bookmark_user_uuid) {
     pwaOpen({ url: `/b/${result.bookmark_user_uuid}` })
     return

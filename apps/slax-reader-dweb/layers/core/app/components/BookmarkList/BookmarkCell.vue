@@ -1,5 +1,5 @@
 <template>
-  <!-- 卡片式书签条目：hover 浮起阴影，操作区 hover 显示；点击整卡跳快照 -->
+  <!-- 卡片条目：点击整卡跳快照 -->
   <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }" @click="clickCard">
     <!-- 序号 -->
     <span class="article-num">{{ index !== undefined ? index + 1 : '' }}</span>
@@ -214,7 +214,7 @@ const clickTitle = () => {
   clickCache()
 }
 
-// 点击整张卡片：编辑标题态不触发，其余复用标题点击逻辑（优先跳快照）
+// 点击整卡复用标题逻辑，编辑态不触发
 const clickCard = () => {
   if (isEditingTitle.value || isRequesting.value) {
     return
@@ -542,7 +542,7 @@ const starBookmark = async (isStar: boolean) => {
   max-height: 200px;
   cursor: pointer;
 
-  // 编辑标题态：恢复默认光标，避免输入区显示手型
+  // 编辑态：恢复默认光标
   &.editing {
     cursor: default;
   }

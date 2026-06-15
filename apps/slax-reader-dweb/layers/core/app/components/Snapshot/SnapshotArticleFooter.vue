@@ -16,7 +16,7 @@
             <path d="M2,7.667 L1.333,7.667 C0.597,7.667 0,7.07 0,6.333 L0,1.333 C0,0.597 0.597,0 1.333,0 L6.333,0 C7.07,0 7.667,0.597 7.667,1.333 L7.667,2" />
           </g>
         </svg>
-        <!-- 复制成功就近气泡提示（沿用 SnapshotChatPanel 的 copied-tip 形态） -->
+        <!-- 复制成功就近气泡提示 -->
         <span v-if="copied" class="article-footer-copied-tip">{{ $t('component.share_modal.copy_success') }}</span>
       </button>
       <button class="article-footer-share-btn" title="Share to X / Twitter" @click="shareToTwitter">
@@ -42,7 +42,7 @@ withDefaults(
 
 const { t } = useI18n()
 
-// 复制成功后在按钮就近显示气泡提示（1.5s 自动消失），失败仍走全局 Toast
+// 成功就近气泡(1.5s)，失败走 Toast
 const copied = ref(false)
 let copiedTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -139,7 +139,7 @@ const shareToTwitter = () => {
       height: 14px;
     }
 
-    // 复制成功气泡：按钮正上方，不透明底 + accent 边框（同 SnapshotChatPanel .chat-copied-tip）
+    // 复制成功气泡，样式同 chat-copied-tip
     .article-footer-copied-tip {
       position: absolute;
       bottom: 100%;
