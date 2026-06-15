@@ -172,7 +172,7 @@ watch(
   }
 )
 
-// 点击/跳转逻辑抽到 composable；trackListItemInteract 一并复用
+// 点击/跳转逻辑抽到 composable
 const { clickCard, clickTitle, clickHref, trackListItemInteract } = useBookmarkCellNavigation({
   bookmark,
   isSubscribe: () => props.isSubscribe,

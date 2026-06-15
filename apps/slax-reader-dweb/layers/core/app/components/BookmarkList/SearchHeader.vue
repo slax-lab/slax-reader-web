@@ -89,7 +89,7 @@ const navigateBack = () => {
 }
 
 const navigateToBookmark = (result: SearchResultItem) => {
-  // 快照目标由 seam 统一决定（fork 覆盖跳 /b/）；缺标识回退 /bookmarks/[id]
+  // 快照走 seam；缺标识回退 /bookmarks/[id]
   const target = useBookmarkSnapshotRoute(result) ?? `/bookmarks/${result.bookmark_id}`
   pwaOpen({ url: target })
 }

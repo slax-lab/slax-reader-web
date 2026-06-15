@@ -1,6 +1,5 @@
-// BookmarkCell 的点击/跳转编排（从组件抽出）。快照目标取自 useBookmarkSnapshotRoute seam，
-// fork 覆盖该 seam 即可改写跳转，无需覆盖本文件。
-// 守卫态/展示态由组件以 getter 传入，保持响应式并沿用各处理函数各自的早退条件。
+// BookmarkCell 点击/跳转编排（从组件抽出）
+// 快照走 useBookmarkSnapshotRoute seam，fork 覆盖即可
 import { urlHttpString } from '@commons/utils/string'
 
 import { type BookmarkItem, BookmarkParseStatus } from '@commons/types/interface'
@@ -105,7 +104,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
       return
     }
 
-    // 快照目标由 seam 决定（fork 覆盖跳 /b/）；缺标识降级打开原文
+    // 缺标识降级打开原文
     const target = useBookmarkSnapshotRoute(bookmark.value)
     if (!target) {
       clickHref()
@@ -155,7 +154,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
     clickTitle,
     clickHref,
     clickCache,
-    // section 埋点：组件内 archive/delete/star/编辑 等操作复用
+    // 埋点，组件内多处操作复用
     trackListItemInteract
   }
 }
