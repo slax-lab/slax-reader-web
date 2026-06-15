@@ -16,6 +16,8 @@
             <path d="M2,7.667 L1.333,7.667 C0.597,7.667 0,7.07 0,6.333 L0,1.333 C0,0.597 0.597,0 1.333,0 L6.333,0 C7.07,0 7.667,0.597 7.667,1.333 L7.667,2" />
           </g>
         </svg>
+        <!-- 复制成功就近气泡提示（沿用 SnapshotChatPanel 的 copied-tip 形态） -->
+        <span v-if="copied" class="article-footer-copied-tip">{{ $t('component.share_modal.copy_success') }}</span>
       </button>
       <button class="article-footer-share-btn" title="Share to X / Twitter" @click="shareToTwitter">
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -40,10 +42,18 @@ withDefaults(
 
 const { t } = useI18n()
 
+// 复制成功后在按钮就近显示气泡提示（1.5s 自动消失），失败仍走全局 Toast
+const copied = ref(false)
+let copiedTimer: ReturnType<typeof setTimeout> | null = null
+
 const copyLink = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href)
-    Toast.showToast({ text: t('component.share_modal.copy_success'), type: ToastType.Success })
+    copied.value = true
+    if (copiedTimer) clearTimeout(copiedTimer)
+    copiedTimer = setTimeout(() => {
+      copied.value = false
+    }, 1500)
   } catch {
     Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
   }
@@ -105,6 +115,7 @@ const shareToTwitter = () => {
   }
 
   .article-footer-share-btn {
+    position: relative;
     width: 30px;
     height: 30px;
     display: flex;
@@ -126,6 +137,24 @@ const shareToTwitter = () => {
     svg {
       width: 14px;
       height: 14px;
+    }
+
+    // 复制成功气泡：按钮正上方，不透明底 + accent 边框（同 SnapshotChatPanel .chat-copied-tip）
+    .article-footer-copied-tip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--slax-accent);
+      background: var(--slax-surface-solid);
+      border: 1px solid color-mix(in srgb, var(--slax-accent) 30%, transparent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-text) 10%, transparent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
     }
   }
 }

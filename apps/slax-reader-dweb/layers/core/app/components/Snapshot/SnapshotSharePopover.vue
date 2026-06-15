@@ -117,9 +117,9 @@ const toggleMarksVisible = async () => {
 const copyLink = async () => {
   try {
     await navigator.clipboard.writeText(location.href)
-    Toast.showToast({ text: t('common.tips.copy_success'), type: ToastType.Success })
+    Toast.showToast({ text: t('component.share_modal.copy_success'), type: ToastType.Success })
   } catch {
-    Toast.showToast({ text: t('common.tips.copy_failed'), type: ToastType.Error })
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
   }
   close()
 }
