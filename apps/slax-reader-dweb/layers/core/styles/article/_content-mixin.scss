@@ -147,6 +147,9 @@
     code {
       --style: max-w-full block whitespace-pre;
       background: transparent;
+      border: none; // pre 内的 code 不需要边框
+      border-radius: 0;
+      padding: 0;
       font-family: 'Courier New', Courier, monospace !important;
 
       * {
