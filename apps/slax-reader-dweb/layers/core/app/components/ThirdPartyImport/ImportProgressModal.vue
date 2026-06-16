@@ -12,32 +12,36 @@
           </button>
         </div>
         <div class="progress-table" v-if="!isLoading">
-          <div class="table-header table-row">
-            <div class="col-platform">{{ $t('page.user.platform') }}</div>
-            <div class="col-status">{{ $t('page.user.status') }}</div>
-            <div class="col-count">{{ $t('page.user.url_count') }}</div>
-            <div class="col-batches">{{ $t('page.user.batches_progress') }}</div>
-            <div class="col-time">{{ $t('page.user.import_time') }}</div>
-          </div>
-          <div v-for="item in progressData" :key="item.id" class="table-row">
-            <div class="col-platform">
-              <img :src="getPlatformIcon(item.type)" :alt="item.type" />
-              <span>{{ item.type }}</span>
+          <div class="header-container">
+            <div class="header table-row">
+              <div class="platform">{{ $t('page.user.platform') }}</div>
+              <div class="status">{{ $t('page.user.status') }}</div>
+              <div class="count">{{ $t('page.user.url_count') }}</div>
+              <div class="success">{{ $t('page.user.success') }}</div>
+              <div class="failed">{{ $t('page.user.failed') }}</div>
+              <div class="time">{{ $t('page.user.import_time') }}</div>
             </div>
-            <div class="col-status">
-              <span :class="getStatusClass(item.status)">{{ getStatusText(item.status) }}</span>
-            </div>
-            <div class="col-count">{{ item.count }}</div>
-            <div class="col-batches">{{ Math.round((item.current_count / item.batch_count) * 100) }}%</div>
-            <div class="col-time">{{ formatDate(item.created_at) }}</div>
           </div>
-          <div class="empty-state" v-if="progressData.length === 0">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            <span>{{ $t('page.user.no_import_records') }}</span>
+          <div class="table-body">
+            <div v-for="item in progressData" :key="item.id" class="table-row">
+              <div class="platform">
+                <img :src="getPlatformIcon(item.type)" :alt="item.type" />
+                <span>{{ item.type }}</span>
+              </div>
+              <div class="status">
+                <span :class="getStatusClass(item.status)">{{ getStatusText(item) }}</span>
+              </div>
+              <div class="count">{{ item.count }}</div>
+              <div class="success">
+                <span class="success-count">{{ item.success_total || 0 }}</span>
+              </div>
+              <div class="failed">
+                <span class="failed-count" :class="{ clickable: item.failed_total > 0 }" @click="handleFailureClick(item)">
+                  {{ item.failed_total || 0 }}
+                </span>
+              </div>
+              <div class="time">{{ formatDate(item.created_at) }}</div>
+            </div>
           </div>
         </div>
         <div class="loading-container" v-else>
@@ -46,15 +50,32 @@
       </div>
     </div>
   </Teleport>
+
+  <!-- 导入失败列表Modal -->
+  <ImportFailuresModal v-if="showFailuresModal" :importId="selectedImportId" @close="closeFailuresModal" />
 </template>
 
 <script setup lang="ts">
+import ImportFailuresModal from './ImportFailuresModal.vue'
+
 import Toast, { ToastType } from '../Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { ImportProcessResp } from '@commons/types/interface'
 
 const progressData = ref<ImportProcessResp[]>([])
 const isLoading = ref(false)
+const showFailuresModal = ref(false)
+const selectedImportId = ref(0)
+
+const isLocked = useScrollLock(window)
+
+onMounted(() => {
+  isLocked.value = true
+})
+
+onUnmounted(() => {
+  isLocked.value = false
+})
 
 const getImportProgressData = async () => {
   isLoading.value = true
@@ -88,20 +109,28 @@ const getPlatformIcon = (platform: string) => {
   }
 }
 
-const getStatusText = (status: number) => {
-  return (
-    {
-      0: 'Pending',
-      1: 'Processing',
-      2: 'Failed',
-      3: 'Success'
-    }[status] ?? '-'
-  )
+const getStatusText = (item: ImportProcessResp) => {
+  const statusMap = {
+    0: 'Pending',
+    1: 'Processing',
+    2: 'Failed',
+    3: 'Complete'
+  }
+
+  const baseStatus = statusMap[item.status as keyof typeof statusMap] || 'Unknown'
+
+  // 如果是处理中状态，显示百分比
+  if (item.status === 1 && item.batch_count > 0) {
+    const percentage = Math.round((item.current_count / item.batch_count) * 100)
+    return `Processing (${percentage}%)`
+  }
+
+  return baseStatus
 }
 
 const getStatusClass = (status: number) => {
   return {
-    'status-success': status === 3,
+    'status-complete': status === 3,
     'status-pending': status === 0,
     'status-failed': status === 2,
     'status-processing': status === 1
@@ -112,6 +141,16 @@ const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleString()
 }
 
+const handleFailureClick = (item: ImportProcessResp) => {
+  selectedImportId.value = item.id
+  showFailuresModal.value = true
+}
+
+const closeFailuresModal = () => {
+  showFailuresModal.value = false
+  selectedImportId.value = 0
+}
+
 getImportProgressData()
 </script>
 
@@ -120,7 +159,7 @@ getImportProgressData()
   position: fixed;
   inset: 0;
   background: rgba(15, 20, 25, 0.6);
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--slax-blur);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,6 +177,18 @@ getImportProgressData()
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
@@ -184,28 +235,10 @@ getImportProgressData()
   padding: 48px 24px;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 48px 24px;
-  color: var(--slax-text-light);
-
-  svg {
-    opacity: 0.4;
-  }
-
-  span {
-    font-size: var(--slax-fs-aux);
-  }
-}
-
 .progress-table {
-  padding: 16px;
   overflow: auto;
   flex: 1;
+  padding: 16px;
 
   .table-row {
     display: grid;
@@ -213,10 +246,11 @@ getImportProgressData()
     padding: 10px 12px;
     border-radius: var(--slax-radius-sm);
     gap: 12px;
-    grid-template-columns: 180px 110px 90px 110px 1fr;
-    min-width: 600px;
+    grid-template-columns: 140px 130px 70px 90px 70px 120px;
+    min-width: 620px;
+    border: 1px solid transparent;
 
-    &.table-header {
+    &.header {
       font-size: var(--slax-fs-aux);
       color: var(--slax-text-muted);
       font-weight: 500;
@@ -224,10 +258,11 @@ getImportProgressData()
       margin-bottom: 4px;
     }
 
-    &:not(.table-header) {
+    &:not(.header) {
       font-size: var(--slax-fs-aux);
       color: var(--slax-text);
       transition: background var(--slax-dur-normal);
+      margin-bottom: 6px;
 
       &:hover {
         background: var(--slax-surface);
@@ -235,7 +270,14 @@ getImportProgressData()
     }
   }
 
-  .col-platform {
+  .header-container {
+    background: var(--slax-surface-solid);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .platform {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -246,34 +288,113 @@ getImportProgressData()
       object-fit: contain;
       border-radius: 4px;
     }
+
+    span {
+      font-weight: 500;
+      color: var(--slax-text);
+      font-size: var(--slax-fs-aux);
+    }
   }
 
-  .col-status {
+  .status {
     span {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 2px 8px;
       border-radius: 999px;
       font-size: var(--slax-fs-tag);
       font-weight: 500;
 
-      &.status-success {
+      &.status-complete {
         background: rgba(30, 142, 62, 0.1);
         color: #1e8e3e;
       }
-
       &.status-pending {
         background: rgba(242, 153, 74, 0.1);
         color: #f2994a;
       }
-
       &.status-failed {
         background: color-mix(in srgb, var(--slax-danger) 10%, transparent);
         color: var(--slax-danger);
       }
-
       &.status-processing {
         background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
         color: var(--slax-accent);
+        animation: pulse 2s infinite;
+      }
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .success {
+    .success-count {
+      color: #1e8e3e;
+      font-weight: 600;
+      font-size: var(--slax-fs-aux);
+    }
+  }
+
+  .failed {
+    .failed-count {
+      color: var(--slax-danger);
+      font-weight: 600;
+      font-size: var(--slax-fs-aux);
+
+      &.clickable {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .count {
+    text-align: center;
+    font-weight: 500;
+    color: var(--slax-text);
+    font-size: var(--slax-fs-aux);
+  }
+
+  .time {
+    color: var(--slax-text-light);
+    font-size: var(--slax-fs-tag);
+    font-weight: 400;
+  }
+}
+
+@media (max-width: 1024px) {
+  .modal-content {
+    width: 95vw;
+  }
+
+  .progress-table {
+    .table-row {
+      grid-template-columns: 1fr 100px 60px 70px 60px 100px;
+      gap: 10px;
+      min-width: auto;
+
+      .platform {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+
+        img {
+          width: 18px;
+          height: 18px;
+        }
+
+        span {
+          font-size: 11px;
+        }
       }
     }
   }

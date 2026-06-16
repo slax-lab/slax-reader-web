@@ -117,6 +117,8 @@ export interface BookmarkBriefDetail {
   published_at: Date
   marks: MarkDetail
   bookmark_id: number
+  // 用户书签 uuid，拼 /b/ 链接
+  bookmark_uid: string
   alias_title: string
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
@@ -236,6 +238,7 @@ export interface SearchResultItem {
   fts_score: number
   final_score: number
   bookmark_id: number
+  bookmark_user_uuid?: string
   highlight_title: string
   highlight_content: string
   title?: string
@@ -435,6 +438,8 @@ export interface ImportProcessResp {
   reason: string
   created_at: string
   count: number
+  success_total: number
+  failed_total: number
 }
 
 export interface BookmarkChangelog {

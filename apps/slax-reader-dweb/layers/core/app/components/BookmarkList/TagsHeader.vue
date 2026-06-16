@@ -11,7 +11,7 @@
         </div>
         <div class="tag-input-wrap" v-else>
           <input
-            ref="tagInput"
+            v-autofocus
             type="text"
             :disabled="isAddingTagLoading"
             v-model="addingTagName"
@@ -41,7 +41,7 @@
               <span>{{ tag.show_name }}</span>
               <i class="ai-badge" v-if="tag.system"></i>
             </button>
-            <button class="tag-edit-btn" v-if="!tag.system" @click="editTagClick(tag)" :title="t('common.operate.edit')">
+            <button class="tag-edit-btn" v-if="!tag.system && !localActive" @click="editTagClick(tag)" :title="t('common.operate.edit')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -70,12 +70,14 @@ import type { BookmarkTag } from '@commons/types/interface'
 import { vOnKeyStroke } from '@vueuse/components'
 import { showEditTagModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const { t } = useI18n()
 
 const props = defineProps({
   selectTagId: {
-    type: Number,
+    // 本地标签 id 为 uuid 串
+    type: [Number, String],
     required: false
   },
   selectTagName: {
@@ -86,13 +88,19 @@ const props = defineProps({
 
 const emits = defineEmits(['select-tag'])
 
+// 用户标签源；null（非 LF）则走 REST。
+const lf = inject(LocalFirstAdapterKey, null)
+const userTags = lf?.userTagSource?.() ?? null
+const localActive = !!userTags
+
 const isTagLoading = ref(false)
 const isAddingTagLoading = ref(false)
 const isAddingTag = ref(false)
 const compositionAppear = ref(false)
-const tagInput = ref<HTMLInputElement>()
 const addingTagName = ref('')
-const tags = ref<BookmarkTag[]>([])
+// tags 双轨：LF 只读 / REST ref
+const restTags = ref<BookmarkTag[]>([])
+const tags = computed<BookmarkTag[]>(() => (localActive ? userTags!.tags.value.filter(tg => !!tg.display) : restTags.value))
 const filterTagName = ref(props.selectTagName || '')
 
 watch(
@@ -105,6 +113,7 @@ watch(
 )
 
 const loadUserTags = async () => {
+  if (localActive) return // LF：tags 由响应式驱动
   if (isTagLoading.value) {
     return
   }
@@ -120,10 +129,10 @@ const loadUserTags = async () => {
       type: ToastType.Error
     })
   } else {
-    tags.value = res.filter(tag => !!tag.display)
+    restTags.value = res.filter(tag => !!tag.display)
 
     if (props.selectTagId) {
-      updateSelectTag(props.selectTagId)
+      updateSelectTag(props.selectTagId as number)
     }
   }
 
@@ -141,7 +150,12 @@ onMounted(() => {
   }
 })
 
-const updateSelectTag = (id: number) => {
+// 本地标签到达后刷新已选名
+watch(tags, () => {
+  if (props.selectTagId) updateSelectTag(props.selectTagId as number)
+})
+
+const updateSelectTag = (id: number | string) => {
   if (id) {
     filterTagName.value = tags.value.find(tag => tag.id === id)?.show_name || ''
   } else {
@@ -151,9 +165,7 @@ const updateSelectTag = (id: number) => {
 
 const addTagClick = () => {
   isAddingTag.value = true
-  nextTick(() => {
-    tagInput.value?.focus()
-  })
+  // 聚焦交由 v-autofocus 指令处理
 }
 
 const editTagClick = (tag: BookmarkTag) => {
@@ -172,7 +184,7 @@ const editTagClick = (tag: BookmarkTag) => {
         return
       }
 
-      tags.value = tags.value.filter(tag => tag.id !== id)
+      restTags.value = restTags.value.filter(tag => tag.id !== id)
     }
   })
 }
@@ -185,6 +197,19 @@ const saveTag = async () => {
   const tagName = addingTagName.value.trim()
   if (!tagName.length) {
     isAddingTag.value = false
+    return
+  }
+
+  // LF：本地新建标签
+  if (userTags) {
+    isAddingTagLoading.value = true
+    try {
+      await userTags.create(tagName)
+    } finally {
+      isAddingTag.value = false
+      isAddingTagLoading.value = false
+      addingTagName.value = ''
+    }
     return
   }
 
@@ -206,8 +231,8 @@ const saveTag = async () => {
   isAddingTagLoading.value = false
   addingTagName.value = ''
 
-  if (!tags.value.find(tag => tag.id === res.id)) {
-    tags.value.push(res)
+  if (!restTags.value.find(tag => tag.id === res.id)) {
+    restTags.value.push(res)
   }
 }
 

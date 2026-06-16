@@ -19,10 +19,14 @@
         :stroke-user="card.strokeUser"
         :is-active="activeInfoId === card.infoId"
         :allow-action="allowAction"
+        :can-unhighlight="card.canUnhighlight"
+        :can-delete-comment="card.canDeleteComment"
         :quote-text="card.quoteText"
         @card-click="$emit('card-click', $event)"
         @reply="$emit('reply', $event)"
         @reply-stroke="$emit('reply-stroke', card.infoId)"
+        @cancel-highlight="$emit('cancel-highlight', card.infoId)"
+        @delete-comment="$emit('delete-comment', card.infoId, $event)"
       />
     </div>
   </div>
@@ -33,11 +37,14 @@ import SnapshotCommentCard from './SnapshotCommentCard.vue'
 
 import type { UserList } from '@commons/types/interface'
 import type { MarkCommentInfo, MarkItemInfo, MarkPathItem } from '@slax-reader/selection/types'
+import { useUserStore } from '#layers/core/app/stores/user'
 
 const props = defineProps<{
   infos: MarkItemInfo[]
   activeInfoId: string | null
   allowAction?: boolean
+  // 页面级开关：是否允许取消划线
+  allowUnhighlight?: boolean
   userList?: UserList
 }>()
 
@@ -45,7 +52,11 @@ defineEmits<{
   'card-click': [infoId: string]
   reply: [comment: MarkCommentInfo]
   'reply-stroke': [infoId: string]
+  'cancel-highlight': [infoId: string]
+  'delete-comment': [infoId: string, comment: MarkCommentInfo]
 }>()
+
+const currentUserId = computed(() => useUserStore().userInfo?.userId ?? null)
 
 interface DisplayCard {
   infoId: string
@@ -53,22 +64,26 @@ interface DisplayCard {
   comments: MarkCommentInfo[]
   strokeUser: { username: string; avatar?: string; createdAt?: Date | string } | undefined
   quoteText: string
+  canUnhighlight: boolean
+  canDeleteComment: boolean
 }
 
 const totalCount = computed(() => {
   return props.infos.reduce((acc, info) => {
-    const countComments = (comments: MarkCommentInfo[]): number => comments.reduce((sum, c) => sum + 1 + countComments(c.children ?? []), 0)
+    // 已删除评论不计数
+    const countComments = (comments: MarkCommentInfo[]): number => comments.reduce((sum, c) => sum + (c.isDeleted ? 0 : 1) + countComments(c.children ?? []), 0)
     return acc + countComments(info.comments)
   }, 0)
 })
 
 const getStrokeUser = (info: MarkItemInfo) => {
   if (!props.userList || !info.stroke.length) return undefined
-  const userId = info.stroke[0]?.userId
+  const stroke = info.stroke[0]
+  const userId = stroke?.userId
   if (!userId) return undefined
   const user = props.userList[String(userId)]
   if (!user) return undefined
-  return { username: user.username, avatar: user.avatar }
+  return { username: user.username, avatar: user.avatar, createdAt: stroke?.createdAt }
 }
 
 const getQuoteText = (info: MarkItemInfo): string => {
@@ -97,15 +112,24 @@ const getQuoteText = (info: MarkItemInfo): string => {
 // - 纯划线（无评论）→ 1 张卡片
 const displayCards = computed((): DisplayCard[] => {
   const cards: DisplayCard[] = []
+  const uid = currentUserId.value
   for (const info of props.infos) {
     const strokeUser = getStrokeUser(info)
     const quoteText = getQuoteText(info)
-    if (info.comments.length > 0) {
-      for (const comment of info.comments) {
-        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText })
+    // 有自己的划线且页面允许才显示
+    const canUnhighlight = !!props.allowUnhighlight && !!uid && info.stroke.some(s => s.userId === uid)
+    // 已删除评论不展示
+    const liveComments = info.comments.filter(c => !c.isDeleted)
+    if (liveComments.length > 0) {
+      for (const comment of liveComments) {
+        // 本人纯评论才显示删除
+        const canDeleteComment = !canUnhighlight && !!uid && comment.userId === uid
+        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight, canDeleteComment })
       }
-    } else {
-      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText })
+    } else if (info.stroke.length > 0) {
+      // 评论全删且无划线时整条不展示，
+      // 避免残留空引用卡
+      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight, canDeleteComment: false })
     }
   }
   return cards

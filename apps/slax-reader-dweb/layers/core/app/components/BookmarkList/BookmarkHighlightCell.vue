@@ -56,19 +56,9 @@ const getContent = (item: HighlightItem) => {
         .replaceAll('\t', '')
 }
 
+const { highlightRoute } = useSlaxRoutes()
 const jumpToOriginal = (item: HighlightItem) => {
-  let jumpUrl = ''
-  switch (item.source_type) {
-    case 'share':
-      jumpUrl = `/s/${item.source_id}?highlight=${item.id}`
-      break
-    case 'collection':
-      jumpUrl = `/c/${item.source_id}?highlight=${item.id}`
-      break
-    default:
-      jumpUrl = `/bookmarks/${item.source_id}?highlight=${item.id}`
-  }
-  pwaOpen({ url: jumpUrl })
+  pwaOpen({ url: highlightRoute(item) })
 }
 </script>
 

@@ -18,6 +18,11 @@ export class DwebArticleSelection extends BaseArticleSelection {
     this.modal = modal
   }
 
+  /** 取消本人划线，留评论 */
+  async deleteStroke(info: MarkItemInfo) {
+    await this.manager.deleteStroke(info)
+  }
+
   /**
    * 重写handleMouseUp以实现dweb特定的选择处理逻辑
    */

@@ -26,7 +26,13 @@
         </button>
         <Transition name="opacity">
           <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
-            <input type="text" :placeholder="$t('component.bookmark_tags.placeholder')" v-model="searchText" v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]" />
+            <input
+              v-autofocus="{ enabled: isAddingTag }"
+              type="text"
+              :placeholder="$t('component.bookmark_tags.placeholder')"
+              v-model="searchText"
+              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            />
             <div class="search-result">
               <div class="result-wrapper">
                 <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
@@ -49,16 +55,25 @@
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
+import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const props = defineProps({
   bookmarkId: {
     type: Number,
     required: false
   },
-  // /b/[id] owner 用 bookmark_uid 增删标签
+  // /b owner 走 REST 增删标签用
   bookmarkUid: {
     type: String,
-    required: false
+    required: false,
+    default: ''
+  },
+  // LF 本地标签 key，BookmarkArticle 注入
+  // 仅认 bookmarkUuid
+  bookmarkUuid: {
+    type: String,
+    required: false,
+    default: ''
   },
   tags: {
     type: Array as PropType<BookmarkTag[]>,
@@ -70,12 +85,21 @@ const props = defineProps({
   }
 })
 
+// 本地标签源 + catalog；null 走 REST
+const lf = inject(LocalFirstAdapterKey, null)
+const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null
+const localActive = !!tagSrc
+
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 
-const bookmarkTags = ref<BookmarkTag[]>(props.tags || [])
-const searchTags = ref<BookmarkTag[]>([])
+// 双轨：LF 只读 / REST ref
+const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
+const restSearchTags = ref<BookmarkTag[]>([])
+// 本地首查未返回前沿用 SSR/REST tags，避免切换瞬间闪空
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive && !tagSrc!.isLoading?.value ? tagSrc!.tags.value : restBookmarkTags.value))
+const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
@@ -97,7 +121,8 @@ const searchResultTags = computed(() => {
 watch(
   () => props.tags,
   newTags => {
-    bookmarkTags.value = newTags
+    if (localActive) return // LF：不接 props.tags
+    restBookmarkTags.value = newTags
   },
   { deep: true }
 )
@@ -124,39 +149,67 @@ watch(
 onMounted(() => {})
 
 const searchingTags = async () => {
+  if (localActive) return // LF：searchTags 走 userTags
   if (isAddingLoading.value) return
   isAddingLoading.value = true
   const res = await request().get<BookmarkTag[]>({ url: RESTMethodPath.TAG_LIST })
-  if (res) searchTags.value = res
+  if (res) restSearchTags.value = res
   isAddingLoading.value = false
 }
 
 const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
-  if (!props.bookmarkId && !props.bookmarkUid) return
   const { tagName, tagId } = params
   if (!tagName && !tagId) return
   if (tagName && tagId) return
+
+  // LF：本地建标签 + 关联
+  if (tagSrc) {
+    isAddingLoading.value = true
+    try {
+      let tagUuid = tagId ? String(tagId) : ''
+      if (!tagUuid && tagName) {
+        const created = await tagSrc.createUserTag(tagName)
+        tagUuid = String(created.id)
+      }
+      if (tagUuid) await tagSrc.add(props.bookmarkUuid, tagUuid)
+    } finally {
+      isAddingLoading.value = false
+      isAddingTag.value = false
+    }
+    return
+  }
+
+  // 非 LF REST：保留 bookmark_uid
+  // owner 在 bookmarkId=0 时靠它增删
+  if (!props.bookmarkId && !props.bookmarkUid) return
   isAddingLoading.value = true
   const res = await request().post<BookmarkTag>({
     url: RESTMethodPath.ADD_BOOKMARK_TAG,
     body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId, tag_name: tagName }
   })
   if (res) {
-    bookmarkTags.value.push(res)
-    searchTags.value.push({ ...res })
+    restBookmarkTags.value.push(res)
+    restSearchTags.value.push({ ...res })
   }
   isAddingLoading.value = false
   isAddingTag.value = false
 }
 
 const deleteBookmarkTag = async (tagId: number) => {
+  // LF：本地解除标签关联
+  if (tagSrc) {
+    await tagSrc.remove(props.bookmarkUuid, String(tagId))
+    return
+  }
+
+  // 非 LF REST：保留 bookmark_uid
   if (!props.bookmarkId && !props.bookmarkUid) return
   request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_BOOKMARK_TAG,
     body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId }
   })
-  const index = bookmarkTags.value.findIndex(tag => tag.id === tagId)
-  if (index > -1) bookmarkTags.value.splice(index, 1)
+  const index = restBookmarkTags.value.findIndex(tag => tag.id === tagId)
+  if (index > -1) restBookmarkTags.value.splice(index, 1)
 }
 
 const onKeyDown = async (e: KeyboardEvent) => {

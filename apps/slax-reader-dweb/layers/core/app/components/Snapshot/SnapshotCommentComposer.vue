@@ -15,6 +15,7 @@
 
     <textarea
       ref="textareaRef"
+      v-autofocus
       v-model="inputText"
       class="comment-composer-textarea"
       :placeholder="$t('page.bookmarks_detail.comment_placeholder')"
@@ -130,6 +131,21 @@ const getQuoteTextFromInfo = (info: MarkItemInfo): string => {
 const cancelReply = () => {
   emits('cancel-reply')
 }
+
+// 已显示时点回复，命令式补聚焦
+watch(
+  () => props.replyToUid,
+  uid => {
+    if (!uid) return
+    nextTick(() => {
+      const el = textareaRef.value
+      if (!el?.isConnected) return
+      el.focus({ preventScroll: true })
+      const end = el.value.length
+      el.setSelectionRange(end, end)
+    })
+  }
+)
 
 const autoResize = () => {
   const el = textareaRef.value

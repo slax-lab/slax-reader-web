@@ -16,7 +16,7 @@
 
     <!-- 搜索结果列表 -->
     <div class="search-result-list" v-if="searchResults.length > 0">
-      <article v-for="result in searchResults" :key="result.bookmark_id" class="search-result-item" @click="navigateToBookmark(result.bookmark_id)">
+      <article v-for="result in searchResults" :key="result.bookmark_id" class="search-result-item" @click="navigateToBookmark(result)">
         <h3 class="search-result-title" v-html="result.highlight_title" />
         <p class="search-result-snippet" v-if="result.highlight_content">…<span v-html="result.highlight_content"></span>…</p>
         <div class="search-result-meta" v-if="result.type === 'vector'">
@@ -88,8 +88,10 @@ const navigateBack = () => {
   emits('searchStatusUpdate', false)
 }
 
-const navigateToBookmark = (bookmarkId: number) => {
-  pwaOpen({ url: `/bookmarks/${bookmarkId}` })
+const navigateToBookmark = (result: SearchResultItem) => {
+  // 快照走 seam；缺标识回退 /bookmarks/[id]
+  const target = useSlaxRoutes().snapshotRoute(result) ?? `/bookmarks/${result.bookmark_id}`
+  pwaOpen({ url: target })
 }
 
 const search = async (text: string) => {

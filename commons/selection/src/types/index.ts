@@ -34,7 +34,7 @@ export interface MarkItemInfo {
   /** 标记路径源 */
   source: MarkPathItem[]
   /** 划线信息列表 */
-  stroke: { mark_uid?: string; userId: number }[]
+  stroke: { mark_uid?: string; userId: number; createdAt?: Date }[]
   /** 评论信息列表 */
   comments: MarkCommentInfo[]
   /** 近似匹配信息（用于兼容旧版本划线） */
