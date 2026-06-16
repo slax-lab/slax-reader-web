@@ -21,6 +21,10 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
   const pendingQuote = ref<QuoteData | null>(null)
+  // 自增信号：每次激活都聚焦
+  // 重复点同一目标 watch 不触发
+  const composerFocusTick = ref(0)
+  const requestComposerFocus = () => composerFocusTick.value++
 
   // 维护后端 markUid → MarkItemInfo.id 映射（DOM 查询用 info.id，后端用 markUid）
   const collectComment = (map: Map<string, string>, c: MarkCommentInfo, infoId: string) => {
@@ -80,6 +84,7 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         pendingQuote.value = null
         focusByInfoId(detail.infoId)
       }
+      requestComposerFocus()
     }
 
     onMounted(() => window.addEventListener('slax:open-comment-panel', onOpenCommentPanel))
@@ -92,6 +97,8 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
     pendingQuote,
     markUidToInfoId,
     focusByInfoId,
-    flashMarkByInfoId
+    flashMarkByInfoId,
+    composerFocusTick,
+    requestComposerFocus
   }
 }
