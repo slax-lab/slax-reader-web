@@ -90,7 +90,7 @@ const navigateBack = () => {
 
 const navigateToBookmark = (result: SearchResultItem) => {
   // 快照走 seam；缺标识回退 /bookmarks/[id]
-  const target = useBookmarkSnapshotRoute(result) ?? `/bookmarks/${result.bookmark_id}`
+  const target = useSlaxRoutes().snapshotRoute(result) ?? `/bookmarks/${result.bookmark_id}`
   pwaOpen({ url: target })
 }
 

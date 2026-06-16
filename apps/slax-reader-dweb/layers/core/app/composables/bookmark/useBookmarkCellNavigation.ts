@@ -105,7 +105,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
     }
 
     // 缺标识降级打开原文
-    const target = useBookmarkSnapshotRoute(bookmark.value)
+    const target = useSlaxRoutes().snapshotRoute(bookmark.value)
     if (!target) {
       clickHref()
       return
