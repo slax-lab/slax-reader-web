@@ -535,7 +535,7 @@ const starBookmark = async (isStar: boolean) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: bottom;
+  // va:bottom 会裁中文字顶，不用
   transition: color 0.12s;
   position: relative;
 

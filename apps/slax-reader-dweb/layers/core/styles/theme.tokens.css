@@ -76,7 +76,9 @@
 
   /* 字体 */
   --slax-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --slax-font-serif: 'Playfair Display', 'Noto Serif SC', serif;
+  /* serif 泛型中文回退依赖 lang，
+     en 下会变黑体，故显式列宋体 */
+  --slax-font-serif: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', 'STSong', serif;
   --slax-font-mono: 'SF Mono', 'Fira Code', monospace;
 
   /* 字号语义 8 档（来源：design-system §3）：
