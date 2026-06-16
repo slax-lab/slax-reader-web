@@ -57,8 +57,8 @@ export class MarkRenderer extends Base {
         drawMark = infos.length > 0
       }
 
-      // 如果无法精确绘制，尝试使用近似匹配
-      if (!drawMark && info.approx) {
+      // 近似匹配兜底；空标记不画
+      if (!drawMark && info.approx && (isStroke || isComment)) {
         const rangeSvc = new HighlightRange(this.document, this.config.monitorDom!)
         const newRange = rangeSvc.getRange(info.approx)
         if (newRange) {
@@ -83,6 +83,19 @@ export class MarkRenderer extends Base {
     }
 
     return info.id
+  }
+
+  /**
+   * 清除已绘制标记，重绘前调用
+   * 保留临时高亮 data-uuid="0"
+   */
+  clearAllMarks() {
+    // 限本容器，避免误删其他实例
+    const root: ParentNode & Node = this.config.containerDom ?? this.document
+    for (const mark of Array.from(root.querySelectorAll('slax-mark[data-uuid]'))) {
+      if (mark.getAttribute('data-uuid') !== '0') removeOuterTag(mark)
+    }
+    root.normalize()
   }
 
   /**

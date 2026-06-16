@@ -16,11 +16,6 @@
         </div>
         <div class="chat-empty-title">{{ $t('component.snapshot_chat.empty_title') }}</div>
         <div class="chat-empty-desc">{{ $t('component.snapshot_chat.empty_desc') }}</div>
-        <div class="chat-suggestions">
-          <button v-for="key in SUGGESTIONS" :key="key" class="chat-suggestion-pill" @click="sendMessage(t(key))">
-            {{ t(key) }}
-          </button>
-        </div>
       </div>
 
       <!-- 消息列表 -->
@@ -151,9 +146,6 @@ const emits = defineEmits<{
   dismiss: []
   findQuote: [quote: QuoteData]
 }>()
-
-// 建议问题（硬编码 i18n key）
-const SUGGESTIONS = ['component.snapshot_chat.suggestion_1', 'component.snapshot_chat.suggestion_2', 'component.snapshot_chat.suggestion_3']
 
 const botParams: ChatBotParams = (() => {
   if (props.bookmarkId) {
@@ -730,10 +722,15 @@ defineExpose({ addQuoteData, focusTextarea })
     }
   }
 
-  // 空态（对齐 snapshot demo：text-align center + 图标 margin auto，不用 flex 居中）
+  // 空态：引导内容整体居中
   .chat-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 72px 8px 24px;
+    padding: 24px 8px;
     color: var(--slax-text-light);
 
     .chat-empty-icon {
@@ -758,33 +755,6 @@ defineExpose({ addQuoteData, focusTextarea })
       font-size: 13px;
       color: var(--slax-text-muted);
       line-height: 1.6;
-      // demo 中 title/desc 是一个 <p> 带 <br>，整体下边距 28px；此处拆两行，下边距落在 desc 上
-      margin-bottom: 28px;
-    }
-
-    .chat-suggestions {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-
-      .chat-suggestion-pill {
-        font-size: 12px;
-        color: var(--slax-text-muted);
-        background: var(--slax-bg);
-        border: 1px solid var(--slax-border);
-        border-radius: 999px;
-        padding: 7px 14px;
-        line-height: 1.4;
-        cursor: pointer;
-        transition: all 0.15s;
-
-        &:hover {
-          color: var(--slax-accent);
-          border-color: color-mix(in srgb, var(--slax-accent) 40%, var(--slax-border));
-          background: var(--slax-accent-bg);
-        }
-      }
     }
   }
 

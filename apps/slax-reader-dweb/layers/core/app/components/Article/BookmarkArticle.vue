@@ -311,43 +311,48 @@ defineExpose({
     transition: all var(--slax-dur-normal);
   }
 
+  // !important 压制插件注入的 CSS
+  // 否则划线样式被插件覆盖
   &:deep(slax-mark.stroke) {
     cursor: pointer;
-    text-decoration: underline solid;
-    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 6px;
+    text-decoration: underline solid !important;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
+    text-decoration-thickness: 1.5px !important;
+    text-underline-offset: 6px !important;
     box-decoration-break: clone;
+    border-bottom: none !important;
   }
 
   &:deep(slax-mark.self-stroke) {
     cursor: pointer;
-    text-decoration: underline solid;
-    text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 6px;
+    text-decoration: underline solid !important;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
+    text-decoration-thickness: 1.5px !important;
+    text-underline-offset: 6px !important;
     box-decoration-break: clone;
+    border-bottom: none !important;
   }
 
   &:deep(slax-mark.comment) {
     cursor: pointer;
-    text-decoration: underline dashed;
-    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 6px;
+    text-decoration: underline solid !important;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
+    text-decoration-thickness: 1.5px !important;
+    text-underline-offset: 6px !important;
     box-decoration-break: clone;
+    border-bottom: none !important;
   }
 
   // 同一处既有划线又有评论时，划线（实线）样式覆盖评论（虚线）——对齐 demo「划线和评论都用实线」。
   // 多一个 class 把特异性抬过上面的 .comment，且本规则在后，双重保证生效。
   &:deep(slax-mark.comment.stroke) {
-    text-decoration: underline solid;
-    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent);
+    text-decoration: underline solid !important;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
   &:deep(slax-mark.comment.self-stroke) {
-    text-decoration: underline solid;
-    text-decoration-color: color-mix(in srgb, var(--slax-accent) 75%, transparent);
+    text-decoration: underline solid !important;
+    text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
   &:deep(slax-mark:hover) {
@@ -361,7 +366,7 @@ defineExpose({
 
   &:deep(slax-mark:has(img).stroke),
   &:deep(slax-mark:has(img).comment) {
-    border: 1.5px solid var(--slax-accent);
+    border: 1.5px solid var(--slax-accent) !important;
     text-decoration: none;
   }
 
