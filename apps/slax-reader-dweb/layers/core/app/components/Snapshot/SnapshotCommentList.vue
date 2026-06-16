@@ -20,11 +20,13 @@
         :is-active="activeInfoId === card.infoId"
         :allow-action="allowAction"
         :can-unhighlight="card.canUnhighlight"
+        :can-delete-comment="card.canDeleteComment"
         :quote-text="card.quoteText"
         @card-click="$emit('card-click', $event)"
         @reply="$emit('reply', $event)"
         @reply-stroke="$emit('reply-stroke', card.infoId)"
         @cancel-highlight="$emit('cancel-highlight', card.infoId)"
+        @delete-comment="$emit('delete-comment', card.infoId, $event)"
       />
     </div>
   </div>
@@ -51,6 +53,7 @@ defineEmits<{
   reply: [comment: MarkCommentInfo]
   'reply-stroke': [infoId: string]
   'cancel-highlight': [infoId: string]
+  'delete-comment': [infoId: string, comment: MarkCommentInfo]
 }>()
 
 const currentUserId = computed(() => useUserStore().userInfo?.userId ?? null)
@@ -62,22 +65,25 @@ interface DisplayCard {
   strokeUser: { username: string; avatar?: string; createdAt?: Date | string } | undefined
   quoteText: string
   canUnhighlight: boolean
+  canDeleteComment: boolean
 }
 
 const totalCount = computed(() => {
   return props.infos.reduce((acc, info) => {
-    const countComments = (comments: MarkCommentInfo[]): number => comments.reduce((sum, c) => sum + 1 + countComments(c.children ?? []), 0)
+    // 已删除评论不计数
+    const countComments = (comments: MarkCommentInfo[]): number => comments.reduce((sum, c) => sum + (c.isDeleted ? 0 : 1) + countComments(c.children ?? []), 0)
     return acc + countComments(info.comments)
   }, 0)
 })
 
 const getStrokeUser = (info: MarkItemInfo) => {
   if (!props.userList || !info.stroke.length) return undefined
-  const userId = info.stroke[0]?.userId
+  const stroke = info.stroke[0]
+  const userId = stroke?.userId
   if (!userId) return undefined
   const user = props.userList[String(userId)]
   if (!user) return undefined
-  return { username: user.username, avatar: user.avatar }
+  return { username: user.username, avatar: user.avatar, createdAt: stroke?.createdAt }
 }
 
 const getQuoteText = (info: MarkItemInfo): string => {
@@ -112,12 +118,18 @@ const displayCards = computed((): DisplayCard[] => {
     const quoteText = getQuoteText(info)
     // 有自己的划线且页面允许才显示
     const canUnhighlight = !!props.allowUnhighlight && !!uid && info.stroke.some(s => s.userId === uid)
-    if (info.comments.length > 0) {
-      for (const comment of info.comments) {
-        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight })
+    // 已删除评论不展示
+    const liveComments = info.comments.filter(c => !c.isDeleted)
+    if (liveComments.length > 0) {
+      for (const comment of liveComments) {
+        // 本人纯评论才显示删除
+        const canDeleteComment = !canUnhighlight && !!uid && comment.userId === uid
+        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight, canDeleteComment })
       }
-    } else {
-      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight })
+    } else if (info.stroke.length > 0) {
+      // 评论全删且无划线时整条不展示，
+      // 避免残留空引用卡
+      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight, canDeleteComment: false })
     }
   }
   return cards

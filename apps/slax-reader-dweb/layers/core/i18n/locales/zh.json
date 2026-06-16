@@ -133,6 +133,7 @@
       "add_tag_failed": "添加标签失败",
       "add_url_success": "链接已添加",
       "cancel_line_success": "已取消划线",
+      "delete_comment_success": "评论已删除",
       "ai_response_language": "跟 ChatBot 对话时，它回答内容使用的语言",
       "archive_success": "内容已归档",
       "copy_content_success": "内容复制成功",

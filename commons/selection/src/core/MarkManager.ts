@@ -225,7 +225,7 @@ export class MarkManager extends Base {
         infoItem.comments.push(commentItem)
       }
     } else {
-      infoItem.stroke.push({ mark_uid: '', userId: userInfo?.userId || 0 })
+      infoItem.stroke.push({ mark_uid: '', userId: userInfo?.userId || 0, createdAt: new Date() })
     }
 
     const markType = commentItem ? (replyToUid ? this.getMarkType('reply') : this.getMarkType('comment')) : this.getMarkType('line')
@@ -262,7 +262,7 @@ export class MarkManager extends Base {
       commentItem.rootUid = res.root_uid
       infoItem.comments = [...infoItem.comments]
     } else {
-      infoItem.stroke = [...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_uid), { mark_uid: res.mark_uid, userId: userInfo?.userId || 0 }]
+      infoItem.stroke = [...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_uid), { mark_uid: res.mark_uid, userId: userInfo?.userId || 0, createdAt: new Date() }]
     }
     await this.renderer.drawMark(infoItem, 'update')
     return infoItem.id
@@ -790,7 +790,7 @@ export class MarkManager extends Base {
 
       if ([BackendMarkType.LINE, BackendMarkType.ORIGIN_LINE].includes(mark.type)) {
         if (!mark.comment && mark.is_deleted) continue
-        markInfoItem.stroke.push({ mark_uid: mark.uuid, userId })
+        markInfoItem.stroke.push({ mark_uid: mark.uuid, userId, createdAt: new Date(mark.created_at) })
       } else if ([BackendMarkType.COMMENT, BackendMarkType.ORIGIN_COMMENT].includes(mark.type)) {
         const comment = commentMap.get(mark.uuid)
         if (!comment || (comment.isDeleted && comment.children.length === 0)) {

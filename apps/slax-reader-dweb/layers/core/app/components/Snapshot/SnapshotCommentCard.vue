@@ -15,11 +15,11 @@
           <template v-if="mainComment.createdAt"> · {{ formatRelativeTime(mainComment.createdAt) }}</template>
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
-          <!-- 自己的划线才显示，保留评论 -->
-          <button v-if="canUnhighlight" class="comment-unhighlight-trigger" @click.stop="$emit('cancel-highlight')">
-            {{ $t('common.operate.cancel_line') }}
+          <!-- 划线则取消划线，纯评论则删评论 -->
+          <button v-if="canUnhighlight || canDeleteComment" class="comment-delete-trigger" @click.stop="canUnhighlight ? $emit('cancel-highlight') : $emit('delete-comment', mainComment)">
+            {{ $t('common.operate.delete') }}
           </button>
-          <span v-if="canUnhighlight" class="comment-meta-divider" aria-hidden="true"></span>
+          <span v-if="canUnhighlight || canDeleteComment" class="comment-meta-divider" aria-hidden="true"></span>
           <button class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
             {{ $t('common.operate.reply') }}
           </button>
@@ -27,8 +27,8 @@
       </div>
 
       <!-- 子评论 -->
-      <div v-if="mainComment.children?.length" class="comment-sub-list" @click.stop>
-        <div v-for="child in mainComment.children" :key="child.markUid" class="comment-sub">
+      <div v-if="visibleChildren.length" class="comment-sub-list" @click.stop>
+        <div v-for="child in visibleChildren" :key="child.markUid" class="comment-sub">
           <p class="comment-sub-text">
             <span v-if="child.reply?.username" class="comment-sub-reply-to">{{ `@${child.reply.username} ` }}</span
             >{{ child.comment }}
@@ -57,8 +57,8 @@
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 自己的划线才显示 -->
-          <button v-if="canUnhighlight" class="comment-unhighlight-trigger" @click.stop="$emit('cancel-highlight')">
-            {{ $t('common.operate.cancel_line') }}
+          <button v-if="canUnhighlight" class="comment-delete-trigger" @click.stop="$emit('cancel-highlight')">
+            {{ $t('common.operate.delete') }}
           </button>
           <span v-if="canUnhighlight" class="comment-meta-divider" aria-hidden="true"></span>
           <button class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
@@ -79,8 +79,10 @@ const props = defineProps<{
   comments: MarkCommentInfo[]
   isActive?: boolean
   allowAction?: boolean
-  // 有自己的划线时显示「取消划线」
+  // 本人划线：删除=取消划线留评论
   canUnhighlight?: boolean
+  // 本人纯评论：删除评论
+  canDeleteComment?: boolean
   quoteText?: string
   strokeUser?: { username: string; avatar?: string; createdAt?: Date | string }
 }>()
@@ -90,10 +92,13 @@ defineEmits<{
   reply: [comment: MarkCommentInfo]
   'reply-stroke': []
   'cancel-highlight': []
+  'delete-comment': [comment: MarkCommentInfo]
 }>()
 
 const hasSource = computed(() => props.source.length > 0)
 const mainComment = computed(() => props.comments[0] ?? null)
+// 已删除子评论不展示
+const visibleChildren = computed(() => mainComment.value?.children?.filter(c => !c.isDeleted) ?? [])
 
 const formatRelativeTime = (date: Date | string | undefined) => {
   if (!date) return ''
@@ -155,6 +160,10 @@ const formatRelativeTime = (date: Date | string | undefined) => {
     animation: comment-flash 5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  &:hover .comment-meta .comment-meta-actions {
+    opacity: 1;
+  }
+
   .comment-scope-badge {
     font-size: 12px;
     padding: 1px 8px;
@@ -206,6 +215,14 @@ const formatRelativeTime = (date: Date | string | undefined) => {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      // 默认隐藏，hover 单元格才显示
+      opacity: 0;
+      transition: opacity 0.15s;
+
+      // 触屏无 hover，始终显示
+      @media (hover: none) {
+        opacity: 1;
+      }
     }
 
     .comment-meta-divider {
@@ -215,7 +232,7 @@ const formatRelativeTime = (date: Date | string | undefined) => {
     }
 
     .comment-reply-trigger,
-    .comment-unhighlight-trigger {
+    .comment-delete-trigger {
       background: none;
       border: none;
       padding: 0;
@@ -233,8 +250,8 @@ const formatRelativeTime = (date: Date | string | undefined) => {
       }
     }
 
-    // 取消划线用中性色
-    .comment-unhighlight-trigger {
+    // 删除用中性色
+    .comment-delete-trigger {
       color: var(--slax-text-light);
     }
   }

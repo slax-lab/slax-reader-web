@@ -133,6 +133,7 @@
       "add_tag_failed": "Add tag failed",
       "add_url_success": "Link added",
       "cancel_line_success": "Highlight removed",
+      "delete_comment_success": "Comment deleted",
       "ai_response_language": "AI Response Language",
       "archive_success": "Content has been Archived",
       "copy_content_success": "Content copied successfully",
