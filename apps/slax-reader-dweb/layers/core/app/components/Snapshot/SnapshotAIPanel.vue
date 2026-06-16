@@ -94,19 +94,73 @@ const processOutlineAnchors = (text: string): string => {
   return text
 }
 
-const handleAnchorClick = (link: string) => {
+// 找最近可滚动祖先，无则回退 window
+const getScrollParent = (el: HTMLElement): HTMLElement | null => {
+  let parent = el.parentElement
+  while (parent) {
+    const { overflowY } = getComputedStyle(parent)
+    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && parent.scrollHeight > parent.clientHeight) {
+      return parent
+    }
+    parent = parent.parentElement
+  }
+  return null
+}
+
+// 固定 360ms 平滑滚动并居中
+// 原生 smooth 太慢会错过高亮
+const smoothScrollToCenter = (el: HTMLElement, duration = 360): Promise<void> => {
+  return new Promise(resolve => {
+    const scroller = getScrollParent(el)
+    const isWindow = !scroller
+    const viewportH = isWindow ? window.innerHeight : scroller!.clientHeight
+    const scrollHeight = isWindow ? document.documentElement.scrollHeight : scroller!.scrollHeight
+    const startTop = isWindow ? window.scrollY : scroller!.scrollTop
+
+    const elRect = el.getBoundingClientRect()
+    const baseTop = isWindow ? elRect.top + window.scrollY : startTop + (elRect.top - scroller!.getBoundingClientRect().top)
+    const maxTop = Math.max(0, scrollHeight - viewportH)
+    const targetTop = Math.max(0, Math.min(baseTop - viewportH / 2 + elRect.height / 2, maxTop))
+
+    const distance = targetTop - startTop
+    if (Math.abs(distance) < 1) {
+      resolve()
+      return
+    }
+
+    const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+    let startTime: number | null = null
+    const step = (now: number) => {
+      if (startTime === null) startTime = now
+      const progress = Math.min((now - startTime) / duration, 1)
+      const top = startTop + distance * easeInOutCubic(progress)
+      if (isWindow) {
+        window.scrollTo(0, top)
+      } else {
+        scroller!.scrollTop = top
+      }
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      } else {
+        resolve()
+      }
+    }
+    requestAnimationFrame(step)
+  })
+}
+
+const handleAnchorClick = async (link: string) => {
   const refText = anchorRefs[link]
   if (!refText) return
-  // 在详情页正文区域查找并滚动到对应文本，滚动后高亮闪烁
+  // 在正文区查找目标文本
   const contentEl = document.querySelector('.bookmark-detail .detail') || document.body
   const result = findMatchingElement(refText, contentEl)
   if (result?.element) {
-    result.element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    // 高亮闪烁：复用 hl-flash 动画类（BookmarkArticle 定义在 slax-mark 上，
-    // 这里给普通元素加 anchor-flash 类，由本组件的 :global keyframes 驱动）
-    const el = result.element
+    const el = result.element as HTMLElement
+    // 先滚到位再高亮，确保可见
+    await smoothScrollToCenter(el)
     el.classList.remove('anchor-flash')
-    void el.offsetWidth // 强制 reflow，确保 animation 重新触发
+    void el.offsetWidth // 强制 reflow 重触发动画
     el.classList.add('anchor-flash')
     setTimeout(() => el.classList.remove('anchor-flash'), 3000)
   }
