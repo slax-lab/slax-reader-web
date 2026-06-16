@@ -12,7 +12,7 @@
       <div class="comment-meta">
         <span>
           <span class="comment-author">{{ mainComment.username }}</span>
-          <template v-if="mainComment.createdAt"> · {{ formatRelativeTime(mainComment.createdAt) }}</template>
+          <template v-if="mainComment.createdAt"> · {{ formatYmd(mainComment.createdAt) }}</template>
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 划线则取消划线，纯评论则删评论 -->
@@ -36,7 +36,7 @@
           <div class="comment-sub-time">
             <span>
               <span class="comment-author">{{ child.username }}</span>
-              <template v-if="child.createdAt"> · {{ formatRelativeTime(child.createdAt) }}</template>
+              <template v-if="child.createdAt"> · {{ formatYmd(child.createdAt) }}</template>
             </span>
             <button v-if="allowAction && child.markUid" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
               {{ $t('common.operate.reply') }}
@@ -53,7 +53,7 @@
       <div class="comment-meta">
         <span v-if="strokeUser">
           <span class="comment-author">{{ strokeUser.username }}</span>
-          <template v-if="strokeUser.createdAt"> · {{ formatRelativeTime(strokeUser.createdAt) }}</template>
+          <template v-if="strokeUser.createdAt"> · {{ formatYmd(strokeUser.createdAt) }}</template>
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 自己的划线才显示 -->
@@ -71,6 +71,8 @@
 </template>
 
 <script lang="ts" setup>
+import { formatDate } from '@commons/utils/date'
+
 import type { MarkCommentInfo, MarkItemInfo } from '@slax-reader/selection/types'
 
 const props = defineProps<{
@@ -100,16 +102,10 @@ const mainComment = computed(() => props.comments[0] ?? null)
 // 已删除子评论不展示
 const visibleChildren = computed(() => mainComment.value?.children?.filter(c => !c.isDeleted) ?? [])
 
-const formatRelativeTime = (date: Date | string | undefined) => {
+const formatYmd = (date: Date | string | undefined) => {
   if (!date) return ''
   const d = date instanceof Date ? date : new Date(date)
-  const diff = Date.now() - d.getTime()
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return useNuxtApp().$i18n.t('page.bookmarks_detail.just_now')
-  if (minutes < 60) return useNuxtApp().$i18n.t('page.bookmarks_detail.minutes_ago', { n: minutes })
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return useNuxtApp().$i18n.t('page.bookmarks_detail.hours_ago', { n: hours })
-  return d.toLocaleDateString()
+  return formatDate(d, 'YYYY-MM-DD')
 }
 </script>
 
