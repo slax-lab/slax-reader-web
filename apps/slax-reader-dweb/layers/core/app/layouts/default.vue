@@ -68,6 +68,9 @@ const chanelMessageHandler = (name: keyof ChannelMessageData, data: Partial<Chan
 
 <style lang="scss" scoped>
 .default-layout {
-  --style: w-screen overflow-hidden;
+  --style: w-screen;
+  // clip 不创建滚动容器，避免
+  // 困住后代 sticky（hidden 会破坏吸顶）
+  overflow-x: clip;
 }
 </style>

@@ -489,6 +489,7 @@ const starBookmark = async (isStar: boolean) => {
 }
 
 // 序号：衬线字体，右对齐，固定宽度
+// 不设 line-height 防与标题错位
 .article-num {
   font-family: var(--slax-font-serif);
   font-size: 15px;
@@ -497,7 +498,6 @@ const starBookmark = async (isStar: boolean) => {
   padding-top: 2px;
   text-align: right;
   flex-shrink: 0;
-  line-height: 1.6;
   user-select: none;
 }
 
@@ -526,9 +526,11 @@ const starBookmark = async (isStar: boolean) => {
   padding: 0;
   font-family: var(--slax-font-serif);
   font-size: 17px;
+  font-weight: 400;
   color: var(--slax-text);
   line-height: 1.45;
-  letter-spacing: 0.02em;
+  // 字距收紧，对齐 demo
+  letter-spacing: -0.01em;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;

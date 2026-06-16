@@ -88,12 +88,15 @@ defineExpose({
     display: flex;
     position: sticky;
     top: var(--slax-header-h-mobile);
-    z-index: 90;
+    // 低于 header，避免遮挡顶栏
+    z-index: 40;
     width: 100%;
     height: auto;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    // 溢出时可滚到首个 tab
+    // 居中交给 nav 的 margin:auto
+    justify-content: flex-start;
     padding: 0 16px;
     gap: 24px;
     overflow-x: auto;
