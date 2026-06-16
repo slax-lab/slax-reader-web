@@ -98,6 +98,8 @@ export interface MarkManagerDependencies {
  */
 export class MarkManager extends Base {
   private _markItemInfos: Ref<MarkItemInfo[]>
+  // 重绘代际：新重绘作废进行中的旧重绘
+  private _drawGeneration = 0
   private _currentMarkItemInfo: Ref<MarkItemInfo | null>
   private _selectContent: Ref<MarkSelectContent[]>
   private _findQuote: (quote: QuoteData) => void
@@ -160,11 +162,16 @@ export class MarkManager extends Base {
    * @param marks 标记详情数据
    */
   async drawMarks(marks: MarkDetail) {
+    // 重绘前清旧标记，避免重复与残留
+    const gen = ++this._drawGeneration
+    this.renderer.clearAllMarks()
     const userMap = this.createUserMap(marks.user_list)
     const commentMap = this.buildCommentMap(marks.mark_list, userMap)
     this.buildCommentRelationships(marks.mark_list, commentMap)
-    this._markItemInfos.value = this.generateMarkItemInfos(marks.mark_list, commentMap)
-    for (const info of this._markItemInfos.value) {
+    const infos = (this._markItemInfos.value = this.generateMarkItemInfos(marks.mark_list, commentMap))
+    for (const info of infos) {
+      // 有更新的重绘则中止
+      if (gen !== this._drawGeneration) return
       await this.renderer.drawMark(info)
     }
   }
@@ -801,7 +808,9 @@ export class MarkManager extends Base {
       }
     }
 
-    return infoItems
+    // 剔除空 info（已删标记残留）
+    // 否则会画出无 class 的残留
+    return infoItems.filter(info => info.stroke.length > 0 || info.comments.length > 0)
   }
 
   /**
