@@ -1,5 +1,5 @@
 import type { BookmarkTag, UserNotificationMessageItem } from '@commons/types/interface'
-import type { ComputedRef, InjectionKey, MaybeRef } from 'vue'
+import type { ComputedRef, InjectionKey, MaybeRef, Ref } from 'vue'
 
 // local-first 行为注入契约
 // 默认 null = REST，仅 fork 插件 provide
@@ -15,6 +15,8 @@ export interface BookmarkActions {
 // 本书签标签源 + 增删 + catalog（BookmarkTags 用）
 export interface BookmarkTagSource {
   tags: ComputedRef<BookmarkTag[]>
+  // 本地首查未返回前为 true，供消费方回退 SSR/REST tags 防闪空
+  isLoading?: Readonly<Ref<boolean>>
   add(bookmarkUuid: string, tagUuid: string): Promise<unknown>
   remove(bookmarkUuid: string, tagUuid: string): Promise<unknown>
   userTags: ComputedRef<BookmarkTag[]>

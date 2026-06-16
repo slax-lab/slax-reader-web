@@ -97,7 +97,8 @@ const searchList = ref<HTMLDivElement>()
 // 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
-const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
+// 本地首查未返回前沿用 SSR/REST tags，避免切换瞬间闪空
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive && !tagSrc!.isLoading?.value ? tagSrc!.tags.value : restBookmarkTags.value))
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
 const isTagLoading = ref(false)
