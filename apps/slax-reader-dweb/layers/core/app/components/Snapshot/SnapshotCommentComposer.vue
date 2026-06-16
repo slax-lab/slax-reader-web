@@ -51,7 +51,6 @@ const props = defineProps<{
   activeInfoId: string | null
   infos?: MarkItemInfo[]
   replyToUid?: string | null
-  // 自增信号：每次激活都聚焦
   focusTick?: number
 }>()
 

@@ -21,7 +21,6 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
   const pendingQuote = ref<QuoteData | null>(null)
-  // 自增信号：每次激活都聚焦
   // 重复点同一目标 watch 不触发
   const composerFocusTick = ref(0)
   const requestComposerFocus = () => composerFocusTick.value++
