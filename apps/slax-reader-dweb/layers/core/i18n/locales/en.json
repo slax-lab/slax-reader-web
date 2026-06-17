@@ -57,6 +57,7 @@
       "chatbot": "Chat",
       "comment": "Comment",
       "confirm": "Confirm",
+      "confirm_delete": "Confirm delete",
       "copy": "Copy",
       "copy_link": "Copy Link",
       "delete": "Delete",
@@ -204,7 +205,8 @@
     "bookmark_cell": {
       "edit_title_placeholder": "Enter title",
       "no_title": "No Title",
-      "shortcut": "link to:"
+      "shortcut": "link to:",
+      "mark_count": "{n} highlights"
     },
     "bookmark_tags": {
       "placeholder": "Enter new tag (press Enter to confirm)"

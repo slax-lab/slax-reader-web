@@ -11,8 +11,8 @@
 
     <div v-else class="comment-cards">
       <SnapshotCommentCard
-        v-for="(card, idx) in displayCards"
-        :key="`${card.infoId}-${idx}`"
+        v-for="card in displayCards"
+        :key="card.key"
         :info-id="card.infoId"
         :source="card.source"
         :comments="card.comments"
@@ -59,6 +59,9 @@ defineEmits<{
 const currentUserId = computed(() => useUserStore().userInfo?.userId ?? null)
 
 interface DisplayCard {
+  // 稳定 key（不含数组下标），
+  // 删卡时复用 DOM 避免 hover 闪烁
+  key: string
   infoId: string
   source: MarkPathItem[]
   comments: MarkCommentInfo[]
@@ -72,7 +75,10 @@ const totalCount = computed(() => {
   return props.infos.reduce((acc, info) => {
     // 已删除评论不计数
     const countComments = (comments: MarkCommentInfo[]): number => comments.reduce((sum, c) => sum + (c.isDeleted ? 0 : 1) + countComments(c.children ?? []), 0)
-    return acc + countComments(info.comments)
+    const commentCount = countComments(info.comments)
+    // 无有效评论但有划线时，纯划线计为 1
+    if (commentCount === 0 && info.stroke.length > 0) return acc + 1
+    return acc + commentCount
   }, 0)
 })
 
@@ -124,12 +130,14 @@ const displayCards = computed((): DisplayCard[] => {
       for (const comment of liveComments) {
         // 本人纯评论才显示删除
         const canDeleteComment = !canUnhighlight && !!uid && comment.userId === uid
-        cards.push({ infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight, canDeleteComment })
+        // markUid 唯一稳定；未落库时退回 info.id
+        const key = `c:${comment.markUid || info.id}`
+        cards.push({ key, infoId: info.id, source: info.source, comments: [comment], strokeUser, quoteText, canUnhighlight, canDeleteComment })
       }
     } else if (info.stroke.length > 0) {
       // 评论全删且无划线时整条不展示，
       // 避免残留空引用卡
-      cards.push({ infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight, canDeleteComment: false })
+      cards.push({ key: `s:${info.id}`, infoId: info.id, source: info.source, comments: [], strokeUser, quoteText, canUnhighlight, canDeleteComment: false })
     }
   }
   return cards

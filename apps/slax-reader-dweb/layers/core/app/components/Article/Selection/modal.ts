@@ -77,7 +77,7 @@ export class MarkModal extends Base implements IMarkModal {
     noActionCallback?: () => void
   }) => {
     const { event, isStroked, callback, positionCallback, noActionCallback } = options
-    const { containerDom, allowAction } = this.config
+    const { containerDom, allowAction, allowChatbot } = this.config
 
     if (!containerDom || this.isPanelExist(containerDom)) {
       return
@@ -128,6 +128,7 @@ export class MarkModal extends Base implements IMarkModal {
 
     const menusElement = new ArticleSelectionMenusElement({
       allowAction,
+      allowChatbot: allowChatbot ?? true,
       dark: !!isInIframe,
       isStroked: !!isStroked
     })

@@ -10,6 +10,8 @@ export interface ArticleSelectionAdapters {
   httpClient?: () => IHttpClient
   /** 强制放开权限 */
   allowActionOverride?: boolean
+  /** chat 入口开关，默认开 */
+  allowChatbot?: boolean
   /** 覆盖 ownerUserId，初始化生效 */
   ownerUserId?: MaybeRefOrGetter<number | undefined>
   /** marks 来源：detail | props */

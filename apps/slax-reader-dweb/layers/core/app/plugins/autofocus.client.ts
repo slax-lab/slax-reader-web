@@ -1,6 +1,6 @@
 /**
- * v-autofocus —— 输入框出现即自动聚焦（opt-in）
- * v-show 弹层须绑 enabled=打开态，避免 leave 中聚焦。
+ * v-autofocus：输入框出现即聚焦
+ * 不用 IO，避免干扰 transition patch
  */
 import type { DirectiveBinding, ObjectDirective } from 'vue'
 
@@ -22,11 +22,8 @@ interface AutofocusOptions {
 type AutofocusValue = boolean | number | AutofocusOptions | undefined
 
 interface State {
-  io?: IntersectionObserver
   timer?: ReturnType<typeof setTimeout>
   raf?: number
-  intersecting: boolean
-  generation: number
   hasFocused: boolean
   opts: Required<AutofocusOptions>
 }
@@ -83,7 +80,7 @@ function focusNow(el: HTMLElement, s: State): boolean {
   return true
 }
 
-/** 统一取消 timer/rAF，作废在途回调 */
+/** 取消在途 timer/rAF */
 function cancel(s: State) {
   if (s.timer !== undefined) {
     clearTimeout(s.timer)
@@ -93,67 +90,52 @@ function cancel(s: State) {
     cancelAnimationFrame(s.raf)
     s.raf = undefined
   }
-  s.generation++
 }
 
+/** 延迟聚焦，等 display 切回 */
 function schedule(el: HTMLElement, s: State) {
   if (s.hasFocused) return
   if (s.timer !== undefined || s.raf !== undefined) return // 已有 pending，不重排
-  const gen = s.generation
   s.timer = setTimeout(() => {
     s.timer = undefined
     s.raf = requestAnimationFrame(() => {
       s.raf = undefined
-      if (gen !== s.generation || !s.intersecting) return // 已取消/离屏：丢弃
+      if (!s.opts.enabled) return // 期间被关掉
       s.hasFocused = focusNow(el, s)
     })
   }, s.opts.delay)
 }
 
-function mount(el: HTMLElement, binding: DirectiveBinding<AutofocusValue>) {
-  const opts = resolveOptions(binding.value, binding.modifiers)
-  const s: State = { intersecting: false, generation: 0, hasFocused: false, opts }
-  store.set(el, s)
-  if (!opts.enabled) return
-  s.io = new IntersectionObserver(
-    entries => {
-      for (const e of entries) {
-        s.intersecting = e.isIntersecting
-        if (e.isIntersecting) schedule(el, s)
-        else {
-          cancel(s)
-          s.hasFocused = false // 离屏：允许重聚焦
-        }
-      }
-    },
-    { threshold: 0.01 }
-  )
-  s.io.observe(el)
-}
-
-function unmount(el: HTMLElement) {
-  const s = store.get(el)
-  if (!s) return
-  cancel(s)
-  s.io?.disconnect()
-  store.delete(el)
-}
-
-const autofocus: ObjectDirective<HTMLElement, AutofocusValue> = {
-  mounted: mount,
-  updated(el, binding) {
-    const s = store.get(el)
+export const autofocus: ObjectDirective<HTMLElement, AutofocusValue> = {
+  mounted(el, binding: DirectiveBinding<AutofocusValue>) {
+    const opts = resolveOptions(binding.value, binding.modifiers)
+    const s: State = { hasFocused: false, opts }
+    store.set(el, s)
+    if (opts.enabled) schedule(el, s)
+  },
+  updated(el, binding: DirectiveBinding<AutofocusValue>) {
+    let s = store.get(el)
     const next = resolveOptions(binding.value, binding.modifiers)
-    if (!s) return mount(el, binding)
+    if (!s) {
+      s = { hasFocused: false, opts: next }
+      store.set(el, s)
+    }
     const delayChanged = next.delay !== s.opts.delay
     s.opts = next
-    if (!next.enabled) return unmount(el) // 同 patch 内取消 pending
-    if (!s.io) return mount(el, binding)
+    if (!next.enabled) {
+      cancel(s)
+      s.hasFocused = false // 关闭后允许下次重新聚焦
+      return
+    }
     if (delayChanged) cancel(s)
-    // 仅可见且未聚焦时补偿
-    if (!s.hasFocused && s.intersecting) schedule(el, s)
+    schedule(el, s)
   },
-  unmounted: unmount
+  unmounted(el) {
+    const s = store.get(el)
+    if (!s) return
+    cancel(s)
+    store.delete(el)
+  }
 }
 
 export default defineNuxtPlugin(nuxtApp => {

@@ -2,7 +2,7 @@
   <div class="bottom-toolbar" :class="{ 'h5-mode': isH5 }">
     <template v-for="(action, idx) in visibleActions" :key="action.id">
       <div v-if="idx > 0" class="toolbar-sep" />
-      <button class="toolbar-btn" :class="{ active: action.active }" :title="action.label" @click="$emit('action', action)">
+      <button class="toolbar-btn" :class="{ active: action.active }" :title="action.label" @click="$emit('action', action, $event)">
         <span class="btn-icon" v-html="action.icon" />
         <span v-if="!isNarrow" class="btn-label">{{ action.label }}</span>
       </button>
@@ -39,7 +39,8 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  action: [action: BottomToolbarAction]
+  // 透传 MouseEvent，供定位光标 Toast
+  action: [action: BottomToolbarAction, event: MouseEvent]
   panel: [id: SnapshotPanelId]
 }>()
 

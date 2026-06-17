@@ -28,9 +28,11 @@
         />
       </div>
 
-      <!-- meta 行：日期 + 来源 + hover 操作区 -->
+      <!-- meta 行：日期 + 划线数 + 来源 + hover 操作区 -->
       <div class="article-meta">
         <span class="article-date">{{ dateString }}</span>
+        <!-- 划线数：0/空不显示 -->
+        <span v-if="bookmark.mark_count" class="article-highlight-count">{{ $t('component.bookmark_cell.mark_count', { n: bookmark.mark_count }) }}</span>
         <span class="article-source" @click.stop="clickHref">{{ getSiteName() }}</span>
 
         <!-- hover 操作区 -->
@@ -379,8 +381,8 @@ const updateBookmarkTitle = () => {
     return
   }
 
-  // LF：写本地别名，不 emit
-  if (lfActions) {
+  // LF 写本地别名；回收站走 REST
+  if (lfActions && !isTrashed.value) {
     lfActions.setAliasTitle(lfKey(), editingTitle.value)
     isEditingTitle.value = false
     return
@@ -615,6 +617,30 @@ const starBookmark = async (isStar: boolean) => {
 
   &:hover {
     color: var(--slax-accent);
+  }
+}
+
+// 划线数，对齐设计稿
+.article-highlight-count {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  padding-left: 10px;
+  font-size: 12px;
+  color: var(--slax-text-light);
+  font-weight: 300;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1px;
+    height: 12px;
+    background: var(--slax-border);
+    transform: translateY(-50%);
   }
 }
 

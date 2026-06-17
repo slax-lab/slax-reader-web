@@ -1,5 +1,11 @@
 <template>
-  <article class="comment-item" :class="{ 'is-active': isActive, 'comment-item-article': !hasSource }" :data-comment-info-id="infoId" @click="$emit('card-click', infoId)">
+  <article
+    class="comment-item"
+    :class="{ 'is-active': isActive, 'comment-item-article': !hasSource }"
+    :data-comment-info-id="infoId"
+    @click="$emit('card-click', infoId)"
+    @mouseleave="resetConfirm"
+  >
     <!-- 主评论（取 comments[0]） -->
     <template v-if="mainComment">
       <!-- 引用块 -->
@@ -16,8 +22,13 @@
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 划线则取消划线，纯评论则删评论 -->
-          <button v-if="canUnhighlight || canDeleteComment" class="comment-delete-trigger" @click.stop="canUnhighlight ? $emit('cancel-highlight') : $emit('delete-comment', mainComment)">
-            {{ $t('common.operate.delete') }}
+          <button
+            v-if="canUnhighlight || canDeleteComment"
+            class="comment-delete-trigger"
+            :class="{ 'is-confirming': confirmingDelete }"
+            @click.stop="onDeleteClick"
+          >
+            {{ confirmingDelete ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
           </button>
           <span v-if="canUnhighlight || canDeleteComment" class="comment-meta-divider" aria-hidden="true"></span>
           <button class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
@@ -57,8 +68,8 @@
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 自己的划线才显示 -->
-          <button v-if="canUnhighlight" class="comment-delete-trigger" @click.stop="$emit('cancel-highlight')">
-            {{ $t('common.operate.delete') }}
+          <button v-if="canUnhighlight" class="comment-delete-trigger" :class="{ 'is-confirming': confirmingDelete }" @click.stop="onDeleteClick">
+            {{ confirmingDelete ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
           </button>
           <span v-if="canUnhighlight" class="comment-meta-divider" aria-hidden="true"></span>
           <button class="comment-reply-trigger" @click.stop="$emit('reply-stroke')">
@@ -89,7 +100,7 @@ const props = defineProps<{
   strokeUser?: { username: string; avatar?: string; createdAt?: Date | string }
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'card-click': [infoId: string]
   reply: [comment: MarkCommentInfo]
   'reply-stroke': []
@@ -101,6 +112,29 @@ const hasSource = computed(() => props.source.length > 0)
 const mainComment = computed(() => props.comments[0] ?? null)
 // 已删除子评论不展示
 const visibleChildren = computed(() => mainComment.value?.children?.filter(c => !c.isDeleted) ?? [])
+
+// 删除二次确认：首次点击切到确认态，
+// 再次点击才真正删除
+const confirmingDelete = ref(false)
+let confirmTimer: ReturnType<typeof setTimeout> | null = null
+
+const resetConfirm = () => {
+  if (confirmTimer) clearTimeout(confirmTimer)
+  confirmTimer = null
+  confirmingDelete.value = false
+}
+
+const onDeleteClick = () => {
+  if (!confirmingDelete.value) {
+    confirmingDelete.value = true
+    // 3 秒未确认自动复位
+    confirmTimer = setTimeout(resetConfirm, 3000)
+    return
+  }
+  resetConfirm()
+  if (props.canUnhighlight) emit('cancel-highlight')
+  else if (mainComment.value) emit('delete-comment', mainComment.value)
+}
 
 const formatYmd = (date: Date | string | undefined) => {
   if (!date) return ''
@@ -249,6 +283,14 @@ const formatYmd = (date: Date | string | undefined) => {
     // 删除用中性色
     .comment-delete-trigger {
       color: var(--slax-text-light);
+
+      // 确认态：醒目警示色 + 始终下划线
+      &.is-confirming {
+        color: #e5484d;
+        opacity: 1;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
     }
   }
 

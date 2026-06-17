@@ -108,6 +108,8 @@ export interface SelectionConfig {
   monitorDom: HTMLDivElement | null
   /** 是否允许操作 */
   allowAction: boolean
+  /** chat 入口开关，默认开 */
+  allowChatbot?: boolean
   /** 引用数据处理器 */
   postQuoteDataHandler: (data: QuoteData) => void
 

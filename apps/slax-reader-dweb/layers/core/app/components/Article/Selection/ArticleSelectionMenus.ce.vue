@@ -45,6 +45,12 @@ const props = defineProps({
     type: Boolean,
     required: false
   },
+  // chat 入口开关，默认开
+  allowChatbot: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
   dark: {
     type: Boolean,
     required: false
@@ -95,11 +101,13 @@ const updateMenus = () => {
     )
   }
 
-  menus.value.push({
-    id: MenuType.Chatbot,
-    name: t('common.operate.chatbot'),
-    icon: ICON_CHATBOT
-  })
+  if (props.allowChatbot) {
+    menus.value.push({
+      id: MenuType.Chatbot,
+      name: t('common.operate.chatbot'),
+      icon: ICON_CHATBOT
+    })
+  }
 }
 
 nextTick(() => {
@@ -122,7 +130,7 @@ const handleClickOutside = () => {
 }
 
 watch(
-  () => [props.allowAction, props.isStroked],
+  () => [props.allowAction, props.allowChatbot, props.isStroked],
   () => {
     updateMenus()
   },
