@@ -86,6 +86,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
 
   // 覆写点：默认回退现状
   const effAllowAction = computed(() => p.adapters.allowActionOverride ?? p.allowAction.value)
+  // 默认开，adapter 可关
+  const effAllowChatbot = computed(() => p.adapters.allowChatbot ?? true)
   const effOwnerUserId = computed(() => toValue(p.adapters.ownerUserId) ?? p.bookmarkUserId.value)
 
   const urlString = computed(() => urlHttpString(p.detail.value.target_url))
@@ -139,6 +141,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
         bookmarkId: p.bookmarkId || 0,
         collection: collection.value,
         allowAction: effAllowAction.value,
+        allowChatbot: effAllowChatbot.value,
         ownerUserId: effOwnerUserId.value, // 取初始化时刻值，后不更新
         containerDom: p.containerDom.value,
         monitorDom: p.monitorDom.value,
