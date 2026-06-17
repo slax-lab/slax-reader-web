@@ -78,13 +78,15 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         pendingSelection.value = detail.info
         pendingQuote.value = detail.quote
         activeInfoId.value = null
+        requestComposerFocus()
       } else {
         activeInfoId.value = detail.infoId
         pendingSelection.value = null
         pendingQuote.value = null
         focusByInfoId(detail.infoId)
+        // 已有评论：只高亮卡片，不弹输入框
+        if (!detail.info?.comments?.length) requestComposerFocus()
       }
-      requestComposerFocus()
     }
 
     onMounted(() => window.addEventListener('slax:open-comment-panel', onOpenCommentPanel))

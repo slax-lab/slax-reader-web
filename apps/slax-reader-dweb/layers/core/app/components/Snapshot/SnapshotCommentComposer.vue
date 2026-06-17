@@ -65,8 +65,15 @@ const textareaRef = ref<HTMLTextAreaElement>()
 const inputText = ref('')
 const sending = ref(false)
 
-// 是否有回复目标（有则显示 composer，无则隐藏）
-const hasTarget = computed(() => !!props.pendingSelection || !!props.activeInfoId || !!props.replyToUid)
+// 有引用/回复才显示；已有评论
+// 的划线只高亮卡片不弹输入框
+const hasTarget = computed(() => {
+  if (props.pendingSelection || props.replyToUid) return true
+  if (!props.activeInfoId) return false
+  // 该划线已有评论则不弹输入框
+  const info = props.infos?.find(i => i.id === props.activeInfoId)
+  return !info || info.comments.length === 0
+})
 
 // 组装引用信息：@用户名：内容
 const replyInfo = computed((): { username: string; content: string } | null => {
