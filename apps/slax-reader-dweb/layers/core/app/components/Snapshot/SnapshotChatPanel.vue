@@ -774,6 +774,7 @@ defineExpose({ addQuoteData, focusTextarea })
 
   // 引用块（用户消息上方）
   .chat-msg-quote {
+    flex-shrink: 0;
     align-self: flex-end;
     max-width: 85%;
     border-left: 3px solid var(--slax-accent);
