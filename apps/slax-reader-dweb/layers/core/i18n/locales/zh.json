@@ -57,6 +57,7 @@
       "chatbot": "Chat",
       "comment": "评论",
       "confirm": "确定",
+      "confirm_delete": "确认删除",
       "copy": "复制",
       "copy_link": "复制链接",
       "delete": "删除",

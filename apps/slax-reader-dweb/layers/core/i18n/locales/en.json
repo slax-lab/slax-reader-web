@@ -57,6 +57,7 @@
       "chatbot": "Chat",
       "comment": "Comment",
       "confirm": "Confirm",
+      "confirm_delete": "Confirm delete",
       "copy": "Copy",
       "copy_link": "Copy Link",
       "delete": "Delete",
