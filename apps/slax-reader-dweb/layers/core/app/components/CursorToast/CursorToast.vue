@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, type PropType } from 'vue'
+import { type PropType, ref } from 'vue'
 
 import { ToastType } from '#layers/core/app/components/Toast/type'
 
