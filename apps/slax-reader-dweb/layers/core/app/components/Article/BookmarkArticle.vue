@@ -18,6 +18,8 @@
         :tags="detail.tags ?? []"
         :readonly="!effAllowTagged"
       />
+      <!-- ready 前占位，防标签迟到撑高跳动 -->
+      <div v-else class="article-tags article-tags-placeholder" />
     </header>
     <!-- 保留 .article-detail ref + articleStyle class，processors 管道 / mark 绘制依赖 -->
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
@@ -247,6 +249,11 @@ defineExpose({
   padding-bottom: 8px;
 }
 
+// 占位与标签行等高
+.article-tags-placeholder {
+  min-height: 28px;
+}
+
 // .article-body 是 snapshot 样式钩子，叠加在 .article-detail 上（不替换）
 .article-detail.article-body {
   // 清零旧 mt-24px，由容器 padding 控制间距
@@ -315,7 +322,7 @@ defineExpose({
   // 否则划线样式被插件覆盖
   &:deep(slax-mark.stroke) {
     cursor: pointer;
-    text-decoration: underline solid !important;
+    text-decoration: underline dashed !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
     text-decoration-thickness: 1.5px !important;
     text-underline-offset: 6px !important;
@@ -325,7 +332,7 @@ defineExpose({
 
   &:deep(slax-mark.self-stroke) {
     cursor: pointer;
-    text-decoration: underline solid !important;
+    text-decoration: underline dashed !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
     text-decoration-thickness: 1.5px !important;
     text-underline-offset: 6px !important;
@@ -335,7 +342,7 @@ defineExpose({
 
   &:deep(slax-mark.comment) {
     cursor: pointer;
-    text-decoration: underline dashed !important;
+    text-decoration: underline solid !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
     text-decoration-thickness: 1.5px !important;
     text-underline-offset: 6px !important;
@@ -343,8 +350,8 @@ defineExpose({
     border-bottom: none !important;
   }
 
-  // 同一处既有划线又有评论时，划线（实线）样式覆盖评论（虚线）——对齐 demo「划线和评论都用实线」。
-  // 多一个 class 把特异性抬过上面的 .comment，且本规则在后，双重保证生效。
+  // 划线+评论并存时统一用实线，
+  // class 叠加抬高特异性压过 .stroke
   &:deep(slax-mark.comment.stroke) {
     text-decoration: underline solid !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
