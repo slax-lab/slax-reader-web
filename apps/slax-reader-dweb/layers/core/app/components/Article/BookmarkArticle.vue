@@ -335,7 +335,7 @@ defineExpose({
 
   &:deep(slax-mark.comment) {
     cursor: pointer;
-    text-decoration: underline solid !important;
+    text-decoration: underline dashed !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
     text-decoration-thickness: 1.5px !important;
     text-underline-offset: 6px !important;
