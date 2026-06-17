@@ -9,7 +9,7 @@ slax-mark {
    否则划线样式被插件覆盖 */
 slax-mark.stroke {
   cursor: pointer;
-  text-decoration: underline solid !important;
+  text-decoration: underline dashed !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   text-decoration-thickness: 1.5px !important;
   text-underline-offset: 6px !important;
@@ -19,7 +19,7 @@ slax-mark.stroke {
 
 slax-mark.self-stroke {
   cursor: pointer;
-  text-decoration: underline solid !important;
+  text-decoration: underline dashed !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   text-decoration-thickness: 1.5px !important;
   text-underline-offset: 6px !important;
@@ -29,7 +29,7 @@ slax-mark.self-stroke {
 
 slax-mark.comment {
   cursor: pointer;
-  text-decoration: underline dashed !important;
+  text-decoration: underline solid !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   text-decoration-thickness: 1.5px !important;
   text-underline-offset: 6px !important;
