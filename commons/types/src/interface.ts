@@ -99,8 +99,6 @@ export interface BookmarkItem {
   starred: 'star' | 'unstar'
   trashed_at?: string | null
   type: 'shortcut' | 'article'
-  // 划线计数，仅 LF 列表填充
-  mark_count?: number
 }
 
 export interface BookmarkBriefDetail {

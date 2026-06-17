@@ -1,6 +1,6 @@
 <template>
   <div class="bookmark-tags" ref="bookmarkTagsEle">
-    <div class="tags-list">
+    <div class="tags-list" :class="{ 'is-reserving': isReserving }">
       <!-- v-if 真实 div：0↔N 整块挂卸，
            避开空 fragment patch 崩溃 -->
       <div v-if="bookmarkTags.length" class="tags-cells">
@@ -103,6 +103,9 @@ const restSearchTags = ref<BookmarkTag[]>([])
 // 避免 REST/LF 切源重挂崩溃
 const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
+
+// LF 首查未返回，预留一行占位防跳动
+const isReserving = computed(() => localActive && !!tagSrc?.isLoading?.value)
 
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
@@ -252,6 +255,11 @@ const addingTagClick = (e: MouseEvent) => {
 
 .tags-list {
   --style: flex flex-wrap items-center gap-8px;
+
+  // 预留一行高度
+  &.is-reserving {
+    min-height: 28px;
+  }
 }
 
 // 不生成盒子，.tag 仍是 flex 子项
