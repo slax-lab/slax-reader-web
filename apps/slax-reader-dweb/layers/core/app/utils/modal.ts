@@ -2,8 +2,13 @@ import { type Component, createApp } from 'vue'
 
 import { createHead } from '@unhead/vue/client'
 
+import { autofocus } from '#layers/core/app/plugins/autofocus.client'
+
 const modalBootloader = (options: { ele: Component; props: Record<string, unknown>; container?: { styles: Record<string, unknown> } }) => {
   const app = createApp(options.ele, options.props)
+  // 独立 app 不继承全局指令
+  // 手动注册 v-autofocus
+  app.directive('autofocus', autofocus)
   const name = app._component.__name
   const className = `modal_component_${name}`
 
