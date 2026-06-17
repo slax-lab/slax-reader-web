@@ -381,8 +381,8 @@ const updateBookmarkTitle = () => {
     return
   }
 
-  // LF：写本地别名，不 emit
-  if (lfActions) {
+  // LF 写本地别名；回收站走 REST
+  if (lfActions && !isTrashed.value) {
     lfActions.setAliasTitle(lfKey(), editingTitle.value)
     isEditingTitle.value = false
     return
