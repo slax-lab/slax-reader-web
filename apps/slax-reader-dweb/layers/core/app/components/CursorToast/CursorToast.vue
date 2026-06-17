@@ -1,13 +1,15 @@
 <template>
   <Transition name="cursor-toast" @after-leave="onAfterLeave">
-    <div class="cursor-toast" v-show="showToast">
+    <div class="cursor-toast" :class="{ error: type === ToastType.Error }" v-show="showToast">
       <span>{{ text }}</span>
     </div>
   </Transition>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, type PropType } from 'vue'
+
+import { ToastType } from '#layers/core/app/components/Toast/type'
 
 const emits = defineEmits(['dismiss'])
 const props = defineProps({
@@ -19,6 +21,11 @@ const props = defineProps({
     type: Number,
     required: false,
     default: 1000
+  },
+  type: {
+    type: String as PropType<ToastType>,
+    required: false,
+    default: ToastType.Normal
   }
 })
 
@@ -39,21 +46,26 @@ const onAfterLeave = () => {
 
 <style lang="scss" scoped>
 .cursor-toast {
-  --style: select-none max-w-md min-w-140px flex-center flex-wrap whitespace-break-spaces text-center overflow-hidden text-ellipsis;
-  padding: 6px 14px;
-  /* 暖色深底：与设计系统暖色调一致，保持高对比 */
-  background: rgba(20, 18, 15, 0.9);
-  color: #f5f2ec;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  --style: select-none flex-center whitespace-nowrap;
+  max-width: 240px;
+  padding: 5px 12px;
+  background: var(--slax-surface-solid);
+  color: var(--slax-text);
+  border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius-sm);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  font-size: var(--slax-fs-meta);
+  box-shadow: var(--slax-shadow-warm);
+  backdrop-filter: var(--slax-blur);
+  -webkit-backdrop-filter: var(--slax-blur);
+  font-size: var(--slax-fs-aux);
   line-height: 1.4;
 
+  /* 错误态：danger 文字色 */
+  &.error {
+    color: var(--slax-danger);
+  }
+
   span {
-    --style: w-full max-h-10 overflow-hidden text-ellipsis whitespace-nowrap;
+    --style: overflow-hidden text-ellipsis whitespace-nowrap;
   }
 }
 

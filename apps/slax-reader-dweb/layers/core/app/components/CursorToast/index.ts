@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import CursorToast from './CursorToast.vue'
 
 import Toast from '#layers/core/app/components/Toast'
+import { ToastType } from '#layers/core/app/components/Toast/type'
 
 // 第四期 Sprint B.3：抽 dismissCleanup seam（同 Toast/index.ts 同因）
 const buildDismissCleanup = (app: ReturnType<typeof createApp>, textToast: HTMLElement, toastElement: HTMLElement) => () => {
@@ -14,12 +15,16 @@ const buildDismissCleanup = (app: ReturnType<typeof createApp>, textToast: HTMLE
   }
 }
 
-const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer?: HTMLElement; duration?: number }) => {
-  const { text, trackDom, baseContainer, duration } = options
+const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer?: HTMLElement; duration?: number; type?: ToastType }) => {
+  const { text, trackDom, baseContainer, duration, type } = options
   const parent = baseContainer || document.body
 
-  if (!trackDom || window.getComputedStyle(parent).position !== 'relative' || !parent.contains(trackDom)) {
-    Toast.showToast({ text })
+  // parent 须为定位元素，否则回退普通 Toast。
+  // 含 fixed，让贴底工具栏也能承载。
+  const position = window.getComputedStyle(parent).position
+  const isPositioned = position === 'relative' || position === 'absolute' || position === 'fixed' || position === 'sticky'
+  if (!trackDom || !isPositioned || !parent.contains(trackDom)) {
+    Toast.showToast({ text, type })
 
     return
   }
@@ -39,6 +44,7 @@ const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer
   const app = createApp(CursorToast, {
     text,
     duration,
+    type,
     onDismiss: () => dismissCleanup?.()
   })
 
@@ -59,7 +65,12 @@ const showToast = (options: { text: string; trackDom: HTMLElement; baseContainer
     const size = textToast.getBoundingClientRect()
     const toastHeight = size.height
     const toastWidth = size.width
-    const top = targetPosition.top >= toastHeight + gap ? targetPosition.top - toastHeight - gap : targetPosition.bottom + gap
+
+    // 用视口坐标判上下空间：
+    // 偏下则上方弹出，偏上则下方弹出。
+    const trackRect = trackDom.getBoundingClientRect()
+    const placeAbove = trackRect.top >= toastHeight + gap
+    const top = placeAbove ? targetPosition.top - toastHeight - gap : targetPosition.bottom + gap
     const left = Math.max(0, Math.min(parentWidth - toastWidth - gap, targetPosition.left + (targetPosition.width - toastWidth) / 2))
 
     textToast.style.setProperty('left', `${left}px`)
