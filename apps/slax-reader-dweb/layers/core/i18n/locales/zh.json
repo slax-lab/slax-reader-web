@@ -204,7 +204,8 @@
     "bookmark_cell": {
       "edit_title_placeholder": "请输入新标题",
       "no_title": "无标题",
-      "shortcut": "link to:"
+      "shortcut": "link to:",
+      "mark_count": "{n} 条划线"
     },
     "bookmark_tags": {
       "placeholder": "输入新标签 (按 Enter 确认)"
