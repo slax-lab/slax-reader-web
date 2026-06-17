@@ -205,8 +205,7 @@
     "bookmark_cell": {
       "edit_title_placeholder": "Enter title",
       "no_title": "No Title",
-      "shortcut": "link to:",
-      "mark_count": "{n} highlights"
+      "shortcut": "link to:"
     },
     "bookmark_tags": {
       "placeholder": "Enter new tag (press Enter to confirm)"
