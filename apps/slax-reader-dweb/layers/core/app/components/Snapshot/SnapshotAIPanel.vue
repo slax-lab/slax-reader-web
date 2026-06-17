@@ -70,12 +70,15 @@ import { findMatchingElement, queryMarkdownAnchorQuote, querySimularMarkdownAnch
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { SummaryItemModel } from '@commons/types/interface'
+import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
-// 处理 outline markdown 里的锚点（对齐 AISummaries.handleData 逻辑）：
-// - anchor_N 格式：保留为 [text](anchor_N)，MarkdownText 会转成可点击的 .slax_link
-// - #url 格式（URL 锚点）：去掉链接只保留文字，这类锚点跳不到正文
-// 同时维护 anchorRefs 映射，供 anchorClick 跳转使用
+// outline 锚点跳转映射
 const anchorRefs: Record<string, string> = {}
+
+const emit = defineEmits(['dismiss'])
+
+// 小屏点击锚点后收起侧栏
+const { isH5 } = useSnapshotLayout()
 
 const processOutlineAnchors = (text: string): string => {
   // 完整格式锚点：[text](anchor_N)
@@ -157,6 +160,12 @@ const handleAnchorClick = async (link: string) => {
   const result = findMatchingElement(refText, contentEl)
   if (result?.element) {
     const el = result.element as HTMLElement
+    // 小屏先收起侧栏避免遮挡
+    if (isH5.value) {
+      emit('dismiss')
+      // 等布局回流后再滚动
+      await nextTick()
+    }
     // 先滚到位再高亮，确保可见
     await smoothScrollToCenter(el)
     el.classList.remove('anchor-flash')
@@ -197,8 +206,6 @@ const props = defineProps({
     default: false
   }
 })
-
-defineEmits(['dismiss'])
 
 // overview 支持 bookmarkId/bookmarkUid，shareCode 不支持；enabled 为 false 时隐藏（owner-only）
 const overviewSupported = computed(() => props.overviewEnabled && (!!props.bookmarkId || !!props.bookmarkUid))
