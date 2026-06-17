@@ -1,8 +1,10 @@
 <template>
   <div class="bookmark-tags" ref="bookmarkTagsEle">
     <div class="tags-list">
-      <TransitionGroup name="cell">
-        <div class="tag" v-for="tag in bookmarkTags" :key="tag.show_name">
+      <!-- v-if 真实 div：0↔N 整块挂卸，
+           避开空 fragment patch 崩溃 -->
+      <div v-if="bookmarkTags.length" class="tags-cells">
+        <div class="tag" v-for="tag in bookmarkTags" :key="tag.id">
           <span class="tag-name">{{ tag.show_name }}</span>
           <button v-if="!props.readonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -11,7 +13,7 @@
             </svg>
           </button>
         </div>
-      </TransitionGroup>
+      </div>
 
       <div class="loading" v-if="isTagLoading">
         <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" />
@@ -24,28 +26,27 @@
             <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
         </button>
-        <Transition name="opacity">
-          <div class="search-list" ref="searchList" v-show="isAddingTag" v-on-click-outside="() => (isAddingTag = false)">
-            <input
-              v-autofocus="{ enabled: isAddingTag }"
-              type="text"
-              :placeholder="$t('component.bookmark_tags.placeholder')"
-              v-model="searchText"
-              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-            />
-            <div class="search-result">
-              <div class="result-wrapper">
-                <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
-                  <span>{{ tag.show_name }}</span>
-                  <i class="ai" v-if="tag.system" />
-                </div>
+        <!-- v-if 而非 v-show：整子树挂卸 -->
+        <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="() => (isAddingTag = false)">
+          <input
+            ref="searchInput"
+            type="text"
+            :placeholder="$t('component.bookmark_tags.placeholder')"
+            v-model="searchText"
+            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+          />
+          <div class="search-result">
+            <div class="result-wrapper">
+              <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
+                <span>{{ tag.show_name }}</span>
+                <i class="ai" v-if="tag.system" />
               </div>
             </div>
-            <div class="list-loading" v-if="isAddingLoading">
-              <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
-            </div>
           </div>
-        </Transition>
+          <div class="list-loading" v-if="isAddingLoading">
+            <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -93,12 +94,14 @@ const localActive = !!tagSrc
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
+const searchInput = ref<HTMLInputElement>()
 
 // 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
-// 本地首查未返回前沿用 SSR/REST tags，避免切换瞬间闪空
-const bookmarkTags = computed<BookmarkTag[]>(() => (localActive && !tagSrc!.isLoading?.value ? tagSrc!.tags.value : restBookmarkTags.value))
+// LF 激活恒用本地源
+// 避免 REST/LF 切源重挂崩溃
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
 const isTagLoading = ref(false)
@@ -131,14 +134,18 @@ watch(
   () => isAddingTag.value,
   value => {
     if (value) {
-      const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
-      const rect = add.value?.getBoundingClientRect()
-      if (eleRect && rect && searchList.value) {
-        const yOffset = rect.bottom - eleRect.top + 10
-        const xOffset = rect.left - eleRect.left
-        searchList.value.style.top = `${yOffset}px`
-        searchList.value.style.left = `${xOffset}px`
-      }
+      // v-if 弹层，nextTick 再定位/聚焦
+      nextTick(() => {
+        const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
+        const rect = add.value?.getBoundingClientRect()
+        if (eleRect && rect && searchList.value) {
+          const yOffset = rect.bottom - eleRect.top + 10
+          const xOffset = rect.left - eleRect.left
+          searchList.value.style.top = `${yOffset}px`
+          searchList.value.style.left = `${xOffset}px`
+        }
+        searchInput.value?.focus()
+      })
       searchingTags()
     } else {
       searchText.value = ''
@@ -245,6 +252,11 @@ const addingTagClick = (e: MouseEvent) => {
 
 .tags-list {
   --style: flex flex-wrap items-center gap-8px;
+}
+
+// 不生成盒子，.tag 仍是 flex 子项
+.tags-cells {
+  display: contents;
 }
 
 .tag {
