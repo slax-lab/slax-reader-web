@@ -37,7 +37,9 @@ slax-mark.comment {
   border-bottom: none !important;
 }
 
-slax-mark:hover {
+/* hover 任一段，整条划线高亮 */
+slax-mark:hover,
+slax-mark.group-hover {
   text-decoration-color: var(--slax-accent);
   background: var(--slax-accent-bg);
 }

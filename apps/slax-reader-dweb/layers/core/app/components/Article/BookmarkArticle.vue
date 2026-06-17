@@ -355,7 +355,9 @@ defineExpose({
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
-  &:deep(slax-mark:hover) {
+  // hover 任一段，整条划线高亮
+  &:deep(slax-mark:hover),
+  &:deep(slax-mark.group-hover) {
     text-decoration-color: var(--slax-accent);
     background: var(--slax-accent-bg);
   }

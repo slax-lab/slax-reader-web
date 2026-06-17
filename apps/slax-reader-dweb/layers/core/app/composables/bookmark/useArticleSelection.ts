@@ -185,6 +185,9 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       return
     }
 
+    // 委托在 monitorDom，重绘无碍
+    if (p.monitorDom.value) setupGroupHover(p.monitorDom.value)
+
     // props→props.marks，否则走 detail
     const promise = []
     if (p.adapters.markSource === 'props') {
@@ -257,6 +260,51 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
   watch(htmlReady, ready => {
     if (ready) handleDrawMark()
   })
+
+  // 一条划线含多段同 uuid 标记，
+  // hover 任一段则整条一起高亮
+  let groupHoverAttached = false
+  const GROUP_HOVER_CLASS = 'group-hover'
+  const setupGroupHover = (root: HTMLElement) => {
+    if (groupHoverAttached) return
+    groupHoverAttached = true
+
+    let currentUuid: string | null = null
+
+    const clearGroup = () => {
+      if (currentUuid === null) return
+      root.querySelectorAll(`slax-mark.${GROUP_HOVER_CLASS}`).forEach(el => el.classList.remove(GROUP_HOVER_CLASS))
+      currentUuid = null
+    }
+
+    const applyGroup = (uuid: string) => {
+      if (uuid === currentUuid) return
+      clearGroup()
+      root.querySelectorAll(`slax-mark[data-uuid="${uuid}"]`).forEach(el => el.classList.add(GROUP_HOVER_CLASS))
+      currentUuid = uuid
+    }
+
+    const onOver = (e: Event) => {
+      const target = e.target as HTMLElement | null
+      const mark = target?.closest?.('slax-mark') as HTMLElement | null
+      const uuid = mark?.dataset.uuid
+      // 非划线区或临时高亮：清除
+      if (!mark || !uuid || uuid === '0') {
+        clearGroup()
+        return
+      }
+      applyGroup(uuid)
+    }
+
+    root.addEventListener('mouseover', onOver)
+    root.addEventListener('mouseleave', clearGroup)
+
+    extraListeners.push(() => {
+      root.removeEventListener('mouseover', onOver)
+      root.removeEventListener('mouseleave', clearGroup)
+      groupHoverAttached = false
+    })
+  }
 
   const findQuote = (quote: QuoteData) => {
     articleSelectionRef.value?.findQuote(quote)
