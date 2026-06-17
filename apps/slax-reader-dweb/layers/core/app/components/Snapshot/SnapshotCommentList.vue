@@ -21,6 +21,7 @@
         :allow-action="allowAction"
         :can-unhighlight="card.canUnhighlight"
         :can-delete-comment="card.canDeleteComment"
+        :current-user-id="currentUserId"
         :quote-text="card.quoteText"
         @card-click="$emit('card-click', $event)"
         @reply="$emit('reply', $event)"

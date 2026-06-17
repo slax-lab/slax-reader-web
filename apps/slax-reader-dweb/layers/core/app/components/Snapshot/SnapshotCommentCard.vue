@@ -37,8 +37,8 @@
         </span>
       </div>
 
-      <!-- 子评论 -->
-      <div v-if="visibleChildren.length" class="comment-sub-list" @click.stop>
+      <!-- 子评论（点击同样跳转正文） -->
+      <div v-if="visibleChildren.length" class="comment-sub-list">
         <div v-for="child in visibleChildren" :key="child.markUid" class="comment-sub">
           <p class="comment-sub-text">
             <span v-if="child.reply?.username" class="comment-sub-reply-to">{{ `@${child.reply.username} ` }}</span
@@ -49,9 +49,19 @@
               <span class="comment-author">{{ child.username }}</span>
               <template v-if="child.createdAt"> · {{ formatYmd(child.createdAt) }}</template>
             </span>
-            <button v-if="allowAction && child.markUid" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
-              {{ $t('common.operate.reply') }}
-            </button>
+            <span v-if="allowAction" class="comment-sub-actions">
+              <button
+                v-if="canDeleteChild(child)"
+                class="comment-sub-delete-btn"
+                :class="{ 'is-confirming': confirmingChildUid === child.markUid }"
+                @click.stop="onDeleteChildClick(child)"
+              >
+                {{ confirmingChildUid === child.markUid ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
+              </button>
+              <button v-if="child.markUid" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
+                {{ $t('common.operate.reply') }}
+              </button>
+            </span>
           </div>
         </div>
       </div>
@@ -98,6 +108,8 @@ const props = defineProps<{
   canDeleteComment?: boolean
   quoteText?: string
   strokeUser?: { username: string; avatar?: string; createdAt?: Date | string }
+  // 判定子评论归属，决定是否可删
+  currentUserId?: number | string | null
 }>()
 
 const emit = defineEmits<{
@@ -116,16 +128,20 @@ const visibleChildren = computed(() => mainComment.value?.children?.filter(c => 
 // 删除二次确认：首次点击切到确认态，
 // 再次点击才真正删除
 const confirmingDelete = ref(false)
+// 正在确认删除的子评论 markUid
+const confirmingChildUid = ref<string | null>(null)
 let confirmTimer: ReturnType<typeof setTimeout> | null = null
 
 const resetConfirm = () => {
   if (confirmTimer) clearTimeout(confirmTimer)
   confirmTimer = null
   confirmingDelete.value = false
+  confirmingChildUid.value = null
 }
 
 const onDeleteClick = () => {
   if (!confirmingDelete.value) {
+    resetConfirm()
     confirmingDelete.value = true
     // 3 秒未确认自动复位
     confirmTimer = setTimeout(resetConfirm, 3000)
@@ -134,6 +150,21 @@ const onDeleteClick = () => {
   resetConfirm()
   if (props.canUnhighlight) emit('cancel-highlight')
   else if (mainComment.value) emit('delete-comment', mainComment.value)
+}
+
+// 本人子评论才可删
+const canDeleteChild = (child: MarkCommentInfo) =>
+  !!props.allowAction && !!child.markUid && props.currentUserId != null && child.userId === props.currentUserId
+
+const onDeleteChildClick = (child: MarkCommentInfo) => {
+  if (confirmingChildUid.value !== child.markUid) {
+    resetConfirm()
+    confirmingChildUid.value = child.markUid ?? null
+    confirmTimer = setTimeout(resetConfirm, 3000)
+    return
+  }
+  resetConfirm()
+  emit('delete-comment', child)
 }
 
 const formatYmd = (date: Date | string | undefined) => {
@@ -333,7 +364,15 @@ const formatYmd = (date: Date | string | undefined) => {
           font-weight: 500;
         }
 
-        .comment-sub-reply-btn {
+        .comment-sub-actions {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          margin-left: 4px;
+        }
+
+        .comment-sub-reply-btn,
+        .comment-sub-delete-btn {
           background: none;
           border: none;
           padding: 0;
@@ -343,16 +382,28 @@ const formatYmd = (date: Date | string | undefined) => {
           cursor: pointer;
           opacity: 0;
           transition: opacity 0.15s;
-          margin-left: 4px;
 
           &:hover {
             text-decoration: underline;
             text-underline-offset: 3px;
           }
         }
+
+        // 删除用中性色，确认态转警示
+        .comment-sub-delete-btn {
+          color: var(--slax-text-light);
+
+          &.is-confirming {
+            color: #e5484d;
+            opacity: 1;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+          }
+        }
       }
 
-      &:hover .comment-sub-reply-btn {
+      &:hover .comment-sub-reply-btn,
+      &:hover .comment-sub-delete-btn {
         opacity: 0.75;
       }
     }

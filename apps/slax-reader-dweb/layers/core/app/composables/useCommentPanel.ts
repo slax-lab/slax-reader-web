@@ -58,7 +58,8 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
   const flashMarkByInfoId = (infoId: string) => {
     const marks = document.querySelectorAll<HTMLElement>(`slax-mark[data-uuid="${infoId}"]`)
     if (!marks.length) return
-    marks[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // 即时定位，smooth 长文滚动太慢
+    marks[0]?.scrollIntoView({ behavior: 'auto', block: 'center' })
     marks.forEach(mark => {
       mark.classList.remove('hl-flash')
       void mark.offsetWidth
