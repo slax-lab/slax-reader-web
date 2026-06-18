@@ -40,7 +40,7 @@
             <i v-if="!isDark()" class="img bg-[url('@images/tiny-image-icon.png')]"></i>
             <i v-else class="img bg-[url('@images/tiny-image-icon.png')]"></i>
           </template>
-          <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
+          <span v-for="(item, index) in quoteInfo.data" :key="index">{{ item.type === 'image' ? '🖼️' : item.content }}</span>
         </div>
         <button v-if="!isDark()" class="bg-[url('@images/button-circle-close.png')]" @click="closeQuote"></button>
         <button v-else class="bg-[url('@images/button-circle-close-dark.png')]" @click="closeQuote"></button>

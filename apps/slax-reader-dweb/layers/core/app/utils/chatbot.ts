@@ -55,6 +55,40 @@ export interface ChatResponseData {
   [ChatResponseType.STATUS_UPDATE]?: ChatResponseStatusUpdateData
 }
 
+type QuotePayloadItem = { type: 'text'; content: string } | { type: 'image'; content: string } | { type: 'image_base64'; content: string; mimeType: string }
+
+async function imageUrlToBase64(url: string): Promise<{ base64: string; mimeType: string } | null> {
+  try {
+    const resp = await fetch(url)
+    if (!resp.ok) return null
+    const blob = await resp.blob()
+    const mimeType = blob.type || 'image/png'
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(blob)
+    })
+
+    const base64 = dataUrl.includes(',') ? dataUrl.slice(dataUrl.indexOf(',') + 1) : dataUrl
+    return { base64, mimeType }
+  } catch (e) {
+    console.error('convert quote image to base64 failed:', e)
+    return null
+  }
+}
+
+async function buildQuotePayload(quote?: QuoteData): Promise<QuotePayloadItem[] | undefined> {
+  if (!quote || quote.data.length === 0) return undefined
+  return Promise.all(
+    quote.data.map(async (item: any): Promise<QuotePayloadItem> => {
+      if (item.type !== 'image') return { type: 'text', content: item.content }
+      const img = await imageUrlToBase64(item.content)
+      return img ? { type: 'image_base64', content: img.base64, mimeType: img.mimeType } : { type: 'image', content: item.content }
+    })
+  )
+}
+
 export class ChatBot {
   private _isChatting = false
   bookmarkId?: number
@@ -84,7 +118,8 @@ export class ChatBot {
     const sseDecoder = new SSEDecoder()
     const lineDecoder = new LineDecoder()
 
-    const messages = this.createMessages(params)
+    const quotePayload = params.type === ChatParamsType.CONTENT ? await buildQuotePayload(params.quote) : undefined
+    const messages = this.createMessages(params, quotePayload)
     const callBack = await request().stream({
       url: RESTMethodPath.BOT_CHAT,
       method: RequestMethodType.post,
@@ -276,7 +311,7 @@ export class ChatBot {
     }
   }
 
-  private createMessages(params: ChatParams) {
+  private createMessages(params: ChatParams, quotePayload?: QuotePayloadItem[]) {
     if (params.type === ChatParamsType.CONTENT) {
       const messages: { role: 'user' | 'assistant'; content: string }[] = []
       if (params.history) {
@@ -292,7 +327,7 @@ export class ChatBot {
         ...(this.bookmarkUid ? { bookmark_uid: this.bookmarkUid } : {}),
         ...(this.collection ? { collection_code: this.collection.code, cb_id: this.collection.cbId } : {}),
         messages,
-        quote: params.quote && params.quote.data.length > 0 ? params.quote.data : undefined,
+        quote: quotePayload && quotePayload.length > 0 ? quotePayload : undefined,
         platform: this.getPlatform(),
         ...(this.model ? { model: this.model } : {})
       }
