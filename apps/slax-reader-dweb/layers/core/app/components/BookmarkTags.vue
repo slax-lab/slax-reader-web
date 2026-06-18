@@ -6,7 +6,7 @@
       <div v-if="bookmarkTags.length" class="tags-cells">
         <div class="tag" v-for="tag in bookmarkTags" :key="tag.id">
           <span class="tag-name">{{ tag.show_name }}</span>
-          <button v-if="!effReadonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
+          <button v-if="!props.readonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -19,7 +19,7 @@
         <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" />
       </div>
 
-      <div class="tag-add-wrap" v-if="!effReadonly">
+      <div class="tag-add-wrap" v-if="!props.readonly">
         <button ref="add" class="tag-add" :title="$t('common.operate.add')" @click="addingTagClick">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -99,28 +99,9 @@ const searchInput = ref<HTMLInputElement>()
 // 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
-// 本地源出数据前用 props 占位
-// 出过即权威，不再回落
-const localTagsSeen = ref(false)
-watch(
-  () => (localActive ? tagSrc!.tags.value.length : 0),
-  n => {
-    if (n > 0) localTagsSeen.value = true
-  },
-  { immediate: true }
-)
-
-// 占位期：本地空且后端有 tags
-const usingSeedTags = computed(() => localActive && !localTagsSeen.value && !tagSrc!.tags.value.length && (props.tags?.length ?? 0) > 0)
-
-const bookmarkTags = computed<BookmarkTag[]>(() => {
-  if (!localActive) return restBookmarkTags.value
-  if (usingSeedTags.value) return props.tags || []
-  return tagSrc!.tags.value
-})
-
-// 占位期锁卡，owner 也不可增删
-const effReadonly = computed(() => props.readonly || usingSeedTags.value)
+// LF 激活恒用本地源
+// 避免 REST/LF 切源重挂崩溃
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
 // LF 首查未返回，预留一行占位防跳动

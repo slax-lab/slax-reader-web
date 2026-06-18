@@ -83,11 +83,11 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         composeStroke.value = false
         requestComposerFocus()
       } else {
-        // 点已有划线：只高亮卡片，不弹输入框
+        // 选中已有标记补评论：弹输入框
         activeInfoId.value = detail.infoId
         pendingSelection.value = null
         pendingQuote.value = null
-        composeStroke.value = false
+        composeStroke.value = true
         focusByInfoId(detail.infoId)
       }
     }
