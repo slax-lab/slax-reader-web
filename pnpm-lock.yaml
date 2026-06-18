@@ -231,6 +231,9 @@ importers:
       universal-cookie:
         specifier: ^8.1.2
         version: 8.1.2
+      virtua:
+        specifier: ^0.49.1
+        version: 0.49.1(vue@3.5.34(typescript@5.9.3))
       vue-router:
         specifier: ^5.0.7
         version: 5.0.7(@vue/compiler-sfc@3.5.34)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.34(typescript@5.9.3)))(vue@3.5.34(typescript@5.9.3))
@@ -11118,6 +11121,26 @@ packages:
 
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
+
+  virtua@0.49.1:
+    resolution: {integrity: sha512-6f79msqg3jzNFdqJiS0FSzhRN1EHlDhR7EvW7emp6z5qQ22VdsReiDHflkpMEMhoAyUuYr69nwT0aagiM7NrUg==}
+    peerDependencies:
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
+      solid-js: '>=1.0'
+      svelte: '>=5.0'
+      vue: '>=3.2'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
 
   vite-dev-rpc@1.1.0:
     resolution: {integrity: sha512-pKXZlgoXGoE8sEKiKJSng4hI1sQ4wi5YT24FCrwrLt6opmkjlqPPVmiPWWJn8M8byMxRGzp1CrFuqQs4M/Z39A==}
@@ -24394,6 +24417,10 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
+
+  virtua@0.49.1(vue@3.5.34(typescript@5.9.3)):
+    optionalDependencies:
+      vue: 3.5.34(typescript@5.9.3)
 
   vite-dev-rpc@1.1.0(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.99.0)(stylus@0.57.0)(terser@5.47.1)(tsx@4.22.3)(yaml@2.9.0)):
     dependencies:
