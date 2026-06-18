@@ -3,23 +3,25 @@
   <div class="bookmarks">
     <template v-if="filterStatus !== 'highlights'">
       <ClientOnly>
-        <WindowVirtualizer :key="effectiveMode" :data="displayItems" :buffer-size="600">
-          <template #default="{ item }">
-            <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
-            <BookmarkCell
-              v-else
-              :index="item.index"
-              :is-subscribe="filterStatus === 'collections'"
-              :bookmark="item.bookmark"
-              :collection-code="filterCollectionCode"
-              :class="{ 'text-mode': effectiveMode === 'text' }"
-              @delete="(id: number) => emit('delete', id)"
-              @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
-              @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
-              @bookmark-update="(id: number, bookmark: BookmarkItem) => emit('bookmark-update', id, bookmark)"
-            />
-          </template>
-        </WindowVirtualizer>
+        <Transition name="list-mode" mode="out-in">
+          <WindowVirtualizer :key="effectiveMode" :data="displayItems" :buffer-size="600">
+            <template #default="{ item }">
+              <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
+              <BookmarkCell
+                v-else
+                :index="item.index"
+                :is-subscribe="filterStatus === 'collections'"
+                :bookmark="item.bookmark"
+                :collection-code="filterCollectionCode"
+                :class="{ 'text-mode': effectiveMode === 'text' }"
+                @delete="(id: number) => emit('delete', id)"
+                @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
+                @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
+                @bookmark-update="(id: number, bookmark: BookmarkItem) => emit('bookmark-update', id, bookmark)"
+              />
+            </template>
+          </WindowVirtualizer>
+        </Transition>
         <template #fallback>
           <template
             v-for="item in displayItems.slice(0, 20)"
@@ -91,6 +93,16 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
+.list-mode-enter-active,
+.list-mode-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.list-mode-enter-from,
+.list-mode-leave-to {
+  opacity: 0;
+}
+
 .bookmarks {
   --style: relative;
 
