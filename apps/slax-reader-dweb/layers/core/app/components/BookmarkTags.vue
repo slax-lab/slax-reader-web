@@ -37,9 +37,12 @@
           />
           <div class="search-result">
             <div class="result-wrapper">
-              <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
-                <span>{{ tag.show_name }}</span>
-                <i class="ai" v-if="tag.system" />
+              <!-- v-if 真实 div：候选列表 0↔N 整块挂卸，避开空 fragment 就地 patch（null-anchor）崩溃 -->
+              <div v-if="searchResultTags.length" class="search-tags-cells">
+                <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
+                  <span>{{ tag.show_name }}</span>
+                  <i class="ai" v-if="tag.system" />
+                </div>
               </div>
             </div>
           </div>
@@ -264,6 +267,11 @@ const addingTagClick = (e: MouseEvent) => {
 
 // 不生成盒子，.tag 仍是 flex 子项
 .tags-cells {
+  display: contents;
+}
+
+// 同范式：不生成盒子，.search-tag 仍按原布局排在 .result-wrapper 流内
+.search-tags-cells {
   display: contents;
 }
 
