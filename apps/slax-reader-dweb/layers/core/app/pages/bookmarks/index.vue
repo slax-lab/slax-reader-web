@@ -48,13 +48,11 @@
           :highlights="highlights"
           :notifications="notifications"
           :list-mode="listMode"
-          :loading="loading"
           :filter-collection-code="filterCollectionCode"
           @delete="handleDelete"
           @archive-update="handleCellArchive"
           @alias-title-update="handleCellAliasTitle"
           @bookmark-update="handleCellBookmarkUpdate"
-          @transition-leave="transitionLeave"
         />
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
           <BookmarksEmptyState v-if="!loading && isDataEmpty" :filter-status="filterStatus" :is-current-inbox-tab="isCurrentInboxTab" :is-first-load="isFirstLoad" />
@@ -151,8 +149,7 @@ const {
   handleCellArchive,
   handleCellAliasTitle,
   handleCellBookmarkUpdate,
-  handleDelete,
-  transitionLeave
+  handleDelete
 } = useBookmarkData(
   {
     filterStatus,

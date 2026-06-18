@@ -93,7 +93,6 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-// 模式切换：快速淡出 + 向上滑入
 .list-mode-leave-active {
   transition: opacity 0.08s ease;
 }

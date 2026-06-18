@@ -463,6 +463,7 @@ const starBookmark = async (isStar: boolean) => {
   box-shadow: inset 0 1px 0 var(--slax-inset-hi, rgba(255, 255, 255, 0.06));
   transition: all 0.2s;
   max-height: 200px;
+  margin-bottom: 8px;
   cursor: pointer;
 
   // 编辑态：恢复默认光标
