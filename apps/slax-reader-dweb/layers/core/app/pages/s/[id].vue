@@ -106,6 +106,7 @@
                   :active-info-id="activeInfoId"
                   :infos="commentInfos"
                   :reply-to-uid="replyToUid"
+                  :compose-stroke="composeStroke"
                   @sent="onCommentSent"
                   @cancel-reply="onCancelReply"
                 />
@@ -210,7 +211,7 @@ watch(activePanel, (val, oldVal) => {
 })
 
 // Phase 5：评论面板联动（必须在 activePanel 声明之后）
-const { activeInfoId, pendingSelection, pendingQuote, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
+const { activeInfoId, pendingSelection, pendingQuote, composeStroke, focusByInfoId, flashMarkByInfoId } = useCommentPanel({
   activePanel,
   articleSelection: bookmarkArticleSelection
 })
@@ -236,6 +237,8 @@ const onCommentReply = (comment: { markUid: string }) => {
 const onReplyStroke = (infoId: string) => {
   activeInfoId.value = infoId
   replyToUid.value = null
+  // 显式补评论意图，才弹输入框
+  composeStroke.value = true
 }
 
 const onCommentSent = (infoId: string) => {
@@ -247,6 +250,7 @@ const onCancelReply = () => {
   pendingQuote.value = null
   activeInfoId.value = null
   replyToUid.value = null
+  composeStroke.value = false
 }
 
 const topIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`

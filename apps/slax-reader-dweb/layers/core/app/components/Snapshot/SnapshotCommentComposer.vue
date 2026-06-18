@@ -52,6 +52,8 @@ const props = defineProps<{
   infos?: MarkItemInfo[]
   replyToUid?: string | null
   focusTick?: number
+  // 给纯划线补评论：true 才显示输入框
+  composeStroke?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -65,15 +67,9 @@ const textareaRef = ref<HTMLTextAreaElement>()
 const inputText = ref('')
 const sending = ref(false)
 
-// 有引用/回复才显示；已有评论
-// 的划线只高亮卡片不弹输入框
-const hasTarget = computed(() => {
-  if (props.pendingSelection || props.replyToUid) return true
-  if (!props.activeInfoId) return false
-  // 该划线已有评论则不弹输入框
-  const info = props.infos?.find(i => i.id === props.activeInfoId)
-  return !info || info.comments.length === 0
-})
+// 仅新选区/回复/补评论时显示；
+// 点划线只高亮卡片，不弹输入框
+const hasTarget = computed(() => !!props.pendingSelection || !!props.replyToUid || !!props.composeStroke)
 
 // 组装引用信息：@用户名：内容
 const replyInfo = computed((): { username: string; content: string } | null => {

@@ -21,6 +21,8 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
   const pendingQuote = ref<QuoteData | null>(null)
+  // 给纯划线补评论的意图：true 才弹输入框
+  const composeStroke = ref(false)
   // 重复点同一目标 watch 不触发
   const composerFocusTick = ref(0)
   const requestComposerFocus = () => composerFocusTick.value++
@@ -78,14 +80,15 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         pendingSelection.value = detail.info
         pendingQuote.value = detail.quote
         activeInfoId.value = null
+        composeStroke.value = false
         requestComposerFocus()
       } else {
+        // 点已有划线：只高亮卡片，不弹输入框
         activeInfoId.value = detail.infoId
         pendingSelection.value = null
         pendingQuote.value = null
+        composeStroke.value = false
         focusByInfoId(detail.infoId)
-        // 已有评论：只高亮卡片，不弹输入框
-        if (!detail.info?.comments?.length) requestComposerFocus()
       }
     }
 
@@ -97,6 +100,7 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
     activeInfoId,
     pendingSelection,
     pendingQuote,
+    composeStroke,
     markUidToInfoId,
     focusByInfoId,
     flashMarkByInfoId,
