@@ -11,6 +11,8 @@ export interface CommentPanelExistingEvent {
   kind: 'existing'
   infoId: string
   info: MarkItemInfo
+  // 仅菜单点「评论」时为 true，弹输入框
+  compose?: boolean
 }
 
 /**
@@ -83,11 +85,11 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         composeStroke.value = false
         requestComposerFocus()
       } else {
-        // 选中已有标记补评论：弹输入框
+        // 点划线只看列表；菜单点评论才弹输入框
         activeInfoId.value = detail.infoId
         pendingSelection.value = null
         pendingQuote.value = null
-        composeStroke.value = true
+        composeStroke.value = detail.compose === true
         focusByInfoId(detail.infoId)
       }
     }
