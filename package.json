@@ -37,7 +37,7 @@
     "@iconify-json/solar": "^1.2.5",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@unocss/preset-attributify": "^66.6.8",
-    "@unocss/preset-icons": "^66.6.8",
+    "@unocss/preset-icons": "^66.7.2",
     "@unocss/reset": "^66.6.8",
     "@vscode/markdown-it-katex": "^1.1.2",
     "@vueuse/components": "^14.3.0",
