@@ -40,7 +40,7 @@
           <div class="modal-footer">
             <button class="modal-btn modal-btn-ghost" @click="closeModal" type="button">{{ $t('common.operate.cancel') }}</button>
             <button class="modal-btn modal-btn-primary" @click="topModalClick" :disabled="!addUrlButtonEnable || searchModalLoading" type="button">
-              <div v-if="searchModalLoading" class="i-svg-spinners:90-ring w-14px h-14px"></div>
+              <div v-if="searchModalLoading" class="i-svg-spinners:90-ring h-14px w-14px"></div>
               <span v-else>{{ $t('component.add_url_top_modal.add_url.button') }}</span>
             </button>
           </div>
