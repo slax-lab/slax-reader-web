@@ -67,10 +67,6 @@ const textareaRef = ref<HTMLTextAreaElement>()
 const inputText = ref('')
 const sending = ref(false)
 
-// 仅新选区/回复/补评论时显示；
-// 点划线只高亮卡片，不弹输入框
-const hasTarget = computed(() => !!props.pendingSelection || !!props.replyToUid || !!props.composeStroke)
-
 // 组装引用信息：@用户名：内容
 const replyInfo = computed((): { username: string; content: string } | null => {
   // 新选区：从 pendingQuote 取划线文本（无用户名，只显示内容）
@@ -110,6 +106,10 @@ const replyInfo = computed((): { username: string; content: string } | null => {
 
   return null
 })
+
+// 新选区/回复直接显示
+// 补评论须有引用，引用失效则隐藏
+const hasTarget = computed(() => !!props.pendingSelection || !!props.replyToUid || (!!props.composeStroke && !!replyInfo.value))
 
 const getQuoteTextFromInfo = (info: MarkItemInfo): string => {
   // 优先用 approx.exact（服务端存储的精确文本，不依赖 DOM）

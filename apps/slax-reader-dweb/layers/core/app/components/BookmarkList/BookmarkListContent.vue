@@ -23,10 +23,7 @@
           </WindowVirtualizer>
         </Transition>
         <template #fallback>
-          <template
-            v-for="item in displayItems.slice(0, 20)"
-            :key="item.type === 'group' ? item.key : item.bookmark.id"
-          >
+          <template v-for="item in displayItems.slice(0, 20)" :key="item.type === 'group' ? item.key : item.bookmark.id">
             <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
             <BookmarkCell
               v-else
@@ -54,7 +51,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { WindowVirtualizer } from 'virtua/vue'
 
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
@@ -62,6 +58,7 @@ import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/Book
 
 import type { BookmarkItem, HighlightItem } from '@commons/types/interface'
 import { useMediaQuery } from '@vueuse/core'
+import { WindowVirtualizer } from 'virtua/vue'
 
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
 
@@ -78,11 +75,7 @@ const isH5 = useMediaQuery('(max-width: 768px)')
 const effectiveMode = computed<'card' | 'text'>(() => (isH5.value ? 'text' : props.listMode))
 
 // 文字视图下不按月分段
-const displayItems = computed<GroupedItem[]>(() =>
-  effectiveMode.value === 'text'
-    ? props.groupedBookmarks.filter(item => item.type !== 'group')
-    : props.groupedBookmarks
-)
+const displayItems = computed<GroupedItem[]>(() => (effectiveMode.value === 'text' ? props.groupedBookmarks.filter(item => item.type !== 'group') : props.groupedBookmarks))
 
 const emit = defineEmits<{
   delete: [id: number]
@@ -100,7 +93,9 @@ const emit = defineEmits<{
   opacity: 0;
 }
 .list-mode-enter-active {
-  transition: opacity 0.16s ease, transform 0.16s ease;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
 }
 .list-mode-enter-from {
   opacity: 0;

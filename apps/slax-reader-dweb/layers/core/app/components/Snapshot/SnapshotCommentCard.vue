@@ -22,12 +22,7 @@
         </span>
         <span v-if="allowAction" class="comment-meta-actions">
           <!-- 划线则取消划线，纯评论则删评论 -->
-          <button
-            v-if="canUnhighlight || canDeleteComment"
-            class="comment-delete-trigger"
-            :class="{ 'is-confirming': confirmingDelete }"
-            @click.stop="onDeleteClick"
-          >
+          <button v-if="canUnhighlight || canDeleteComment" class="comment-delete-trigger" :class="{ 'is-confirming': confirmingDelete }" @click.stop="onDeleteClick">
             {{ confirmingDelete ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
           </button>
           <span v-if="canUnhighlight || canDeleteComment" class="comment-meta-divider" aria-hidden="true"></span>
@@ -153,8 +148,7 @@ const onDeleteClick = () => {
 }
 
 // 本人子评论才可删
-const canDeleteChild = (child: MarkCommentInfo) =>
-  !!props.allowAction && !!child.markUid && props.currentUserId != null && child.userId === props.currentUserId
+const canDeleteChild = (child: MarkCommentInfo) => !!props.allowAction && !!child.markUid && props.currentUserId != null && child.userId === props.currentUserId
 
 const onDeleteChildClick = (child: MarkCommentInfo) => {
   if (confirmingChildUid.value !== child.markUid) {

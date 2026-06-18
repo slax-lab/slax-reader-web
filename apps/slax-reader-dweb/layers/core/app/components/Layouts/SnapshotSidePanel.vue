@@ -1,10 +1,15 @@
 <template>
-  <aside class="side-panel" :class="{ open: activeTab !== null, 'is-resizing': isDragging }" :style="{ width: panelWidth + 'px' }" :data-active-tab="activeTab">
-    <!-- 拖拽手柄 -->
+  <!-- 遮罩：点击关闭，仅 H5 -->
+  <div class="side-panel-overlay" :class="{ open: activeTab !== null }" @click="$emit('update:activeTab', null)" />
+
+  <aside class="side-panel" :class="{ open: activeTab !== null, 'is-resizing': isDragging }" :style="panelStyle" :data-active-tab="activeTab">
+    <!-- 桌面：宽度拖拽手柄 -->
     <div class="side-panel-resize" @mousedown="startDrag" @touchstart.prevent="startDrag" />
+    <!-- 抓手：拖拽调高，仅 H5 -->
+    <div class="side-panel-grab" @mousedown="startSheetDrag" @touchstart.prevent="startSheetDrag" />
 
     <div class="side-panel-body">
-      <!-- 三 slot 始终挂载（v-show），避免 AISummaries 摘要缓存 / ChatBot 消息历史被卸载丢失 -->
+      <!-- 三 tab 常挂载，避免丢缓存 -->
       <div v-show="activeTab === 'ai'" class="panel-slot">
         <slot name="ai" />
       </div>
@@ -38,19 +43,67 @@
 import { resolveSnapshotPanels, type SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import { useSnapshotLayout } from '#layers/core/app/composables/useSnapshotLayout'
 
+// 多根组件，关 attr 继承防告警
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps<{
   activeTab: SnapshotPanelId | null
   // 展示的面板子集，不传则全部
   panels?: SnapshotPanelId[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'update:activeTab': [tab: SnapshotPanelId | null]
 }>()
 
-const { panelWidth, isDragging, startDrag } = useSnapshotLayout()
+const { panelWidth, isDragging, startDrag, isH5 } = useSnapshotLayout()
 
 const tabs = computed(() => resolveSnapshotPanels(props.panels))
+
+// width 恒内联，H5 由 CSS 覆盖
+// height 仅拖拽后加，不碰 SSR
+const sheetHeight = ref<number | null>(null)
+const panelStyle = computed(() => ({
+  width: panelWidth.value + 'px',
+  ...(sheetHeight.value != null ? { height: sheetHeight.value + 'px' } : {})
+}))
+
+// 抓手拖拽调高 40~90vh
+let dragStartY = 0
+let dragStartH = 0
+
+const onSheetMove = (e: MouseEvent | TouchEvent) => {
+  const y = 'touches' in e ? e.touches[0]!.clientY : e.clientY
+  const next = dragStartH + (dragStartY - y) // 上拖增高
+  sheetHeight.value = Math.max(window.innerHeight * 0.4, Math.min(window.innerHeight * 0.9, next))
+  if (e.cancelable) e.preventDefault()
+}
+
+const onSheetUp = () => {
+  window.removeEventListener('mousemove', onSheetMove)
+  window.removeEventListener('mouseup', onSheetUp)
+  window.removeEventListener('touchmove', onSheetMove)
+  window.removeEventListener('touchend', onSheetUp)
+}
+
+const startSheetDrag = (e: MouseEvent | TouchEvent) => {
+  if (!isH5.value) return // 桌面兜底
+  dragStartY = 'touches' in e ? e.touches[0]!.clientY : e.clientY
+  dragStartH = (e.currentTarget as HTMLElement).closest('.side-panel')!.getBoundingClientRect().height
+  window.addEventListener('mousemove', onSheetMove)
+  window.addEventListener('mouseup', onSheetUp)
+  window.addEventListener('touchmove', onSheetMove, { passive: false })
+  window.addEventListener('touchend', onSheetUp)
+}
+
+onBeforeUnmount(onSheetUp) // 兜底解绑
+
+// 转小屏自动收起
+// 离开 H5 复位高度
+watch(isH5, h5 => {
+  if (h5 && props.activeTab !== null) emit('update:activeTab', null)
+  if (!h5) sheetHeight.value = null
+})
 </script>
 
 <style lang="scss" scoped>
@@ -63,10 +116,6 @@ const tabs = computed(() => resolveSnapshotPanels(props.panels))
   transition: transform 0.3s var(--slax-ease-spring);
   background: var(--slax-surface-solid);
   border-left: 1px solid var(--slax-border);
-
-  @media (max-width: 768px) {
-    top: var(--slax-header-h-mobile);
-  }
 
   &.open {
     transform: translateX(0);
@@ -193,11 +242,89 @@ const tabs = computed(() => resolveSnapshotPanels(props.panels))
   background: var(--slax-border);
 }
 
-// H5：全屏宽度
-.side-panel {
-  @media (max-width: 768px) {
+// 遮罩+抓手：桌面隐藏
+.side-panel-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.side-panel-grab {
+  display: none;
+}
+
+// H5：底部上滑 sheet
+@media (max-width: 768px) {
+  .side-panel-overlay.open {
+    display: block;
+  }
+
+  .side-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100vw !important;
     max-width: 100vw;
+    min-width: 0;
+    // 高度随内容，拖拽后接管
+    max-height: 90vh;
+    min-height: 40vh;
+    transform: translateY(100%);
+    z-index: 45; // 介于底栏与 topbar
+    border-left: none;
+    border-top: 1px solid var(--slax-border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+  }
+
+  .side-panel.open {
+    transform: translateY(0);
+  }
+
+  // 抓手视觉条
+  .side-panel::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--slax-text-light);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .side-panel-grab {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    cursor: ns-resize;
+    touch-action: none;
+    z-index: 2;
+  }
+
+  .side-panel-resize {
+    display: none; // 关宽度拖拽
+  }
+
+  .side-panel-tabs {
+    display: none; // 改由底栏触发
+  }
+
+  .side-panel-body {
+    padding-top: 20px; // 让出抓手空间
+    border-left: none;
   }
 }
 </style>

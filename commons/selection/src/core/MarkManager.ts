@@ -269,7 +269,10 @@ export class MarkManager extends Base {
       commentItem.rootUid = res.root_uid
       infoItem.comments = [...infoItem.comments]
     } else {
-      infoItem.stroke = [...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_uid), { mark_uid: res.mark_uid, userId: userInfo?.userId || 0, createdAt: new Date() }]
+      infoItem.stroke = [
+        ...infoItem.stroke.filter(item => item.userId !== userInfo?.userId && !!item.mark_uid),
+        { mark_uid: res.mark_uid, userId: userInfo?.userId || 0, createdAt: new Date() }
+      ]
     }
     await this.renderer.drawMark(infoItem, 'update')
     return infoItem.id
