@@ -3,7 +3,8 @@
   <div class="bookmarks">
     <template v-if="filterStatus !== 'highlights'">
       <ClientOnly>
-        <WindowVirtualizer :key="virtualizerKey" :data="displayItems" :buffer-size="600">
+        <Transition name="list-mode" mode="out-in">
+          <WindowVirtualizer :key="effectiveMode" :data="displayItems" :buffer-size="600">
             <template #default="{ item }">
               <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
               <BookmarkCell
@@ -20,6 +21,7 @@
               />
             </template>
           </WindowVirtualizer>
+        </Transition>
         <template #fallback>
           <template
             v-for="item in displayItems.slice(0, 20)"
@@ -51,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { WindowVirtualizer } from 'virtua/vue'
 
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
@@ -75,15 +77,6 @@ const props = defineProps<{
 const isH5 = useMediaQuery('(max-width: 768px)')
 const effectiveMode = computed<'card' | 'text'>(() => (isH5.value ? 'text' : props.listMode))
 
-// 延迟 virtua remount：先让 CSS transition（200ms）完成视觉变形，再清空高度缓存
-const virtualizerKey = ref(effectiveMode.value)
-let keyTimer: ReturnType<typeof setTimeout> | null = null
-watch(effectiveMode, (newMode) => {
-  if (keyTimer) clearTimeout(keyTimer)
-  keyTimer = setTimeout(() => { virtualizerKey.value = newMode }, 220)
-})
-onUnmounted(() => { if (keyTimer) clearTimeout(keyTimer) })
-
 // 文字视图下不按月分段
 const displayItems = computed<GroupedItem[]>(() =>
   effectiveMode.value === 'text'
@@ -100,6 +93,21 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
+// 模式切换：快速淡出 + 向上滑入
+.list-mode-leave-active {
+  transition: opacity 0.08s ease;
+}
+.list-mode-leave-to {
+  opacity: 0;
+}
+.list-mode-enter-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.list-mode-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
 .bookmarks {
   --style: relative;
 
