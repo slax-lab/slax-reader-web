@@ -26,16 +26,15 @@
         </div>
         <div class="comments" v-if="markComments.length > 0">
           <div class="comments-wrapper" :style="commentsHeight ? { 'max-height': `${commentsHeight}px` } : {}" ref="commentsWrapper">
-            <TransitionGroup name="opacity">
-              <ArticleCommentCell
-                v-for="(comment, index) in markComments"
-                :key="index"
-                :comment="comment"
-                :bookmarkUserId="bookmarkUserId"
-                @replyComment="replyComment"
-                @commentDelete="commentDelete"
-              />
-            </TransitionGroup>
+            <!-- 移除 TransitionGroup：LF 异步评论列表会触发 Vue3.5 patch 崩溃；key 用稳定 markUid -->
+            <ArticleCommentCell
+              v-for="(comment, index) in markComments"
+              :key="comment.markUid || index"
+              :comment="comment"
+              :bookmarkUserId="bookmarkUserId"
+              @replyComment="replyComment"
+              @commentDelete="commentDelete"
+            />
           </div>
         </div>
         <Transition name="input">
