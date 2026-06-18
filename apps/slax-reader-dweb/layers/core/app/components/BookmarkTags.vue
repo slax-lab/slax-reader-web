@@ -49,6 +49,7 @@
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
+import BookmarkTagChips from '#layers/core/app/components/BookmarkTagChips.vue'
 import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const props = defineProps({
