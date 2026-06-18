@@ -498,14 +498,14 @@ const panelClick = async (panel: PanelItem) => {
 
       // 兜底拉 brief 取 uuid，
       // watcher 那次会被 isLoading 挡掉
-      if (bookmarkId.value !== 0 && !bookmarkBriefInfo.value?.bookmark_uid) {
+      if (bookmarkId.value !== 0 && !bookmarkBriefInfo.value?.bookmark_user_uuid) {
         await loadBriefDetail()
       }
 
       modalContainer.value &&
         showShareConfigModal({
           bookmarkId: bookmarkId.value,
-          bookmarkUuid: bookmarkBriefInfo.value?.bookmark_uid ?? '',
+          bookmarkUuid: bookmarkBriefInfo.value?.bookmark_user_uuid ?? '',
           title: document.title,
           container: modalContainer.value
         })
