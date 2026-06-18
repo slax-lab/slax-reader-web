@@ -40,6 +40,6 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "vue": "^3.5.34"
+    "vue": "^3.5.38"
   }
 }
