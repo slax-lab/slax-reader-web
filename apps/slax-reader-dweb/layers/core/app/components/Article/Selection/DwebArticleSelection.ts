@@ -34,6 +34,16 @@ export class DwebArticleSelection extends BaseArticleSelection {
         return
       }
 
+      const target = e.target as HTMLElement | null
+      if (target?.tagName === 'IMG' && this.isImageInContent(target as HTMLImageElement)) {
+        const sel = this.getSelection()
+        const hasTextSelection = !!sel && sel.rangeCount > 0 && !sel.isCollapsed && sel.toString().trim().length > 0
+        if (!hasTextSelection) {
+          this.handleImageSelection(e, target as HTMLImageElement)
+          return
+        }
+      }
+
       const selection = this.getSelection()
       if (!selection || !selection.rangeCount) {
         this.manager.updateCurrentMarkItemInfo(null)
@@ -154,6 +164,60 @@ export class DwebArticleSelection extends BaseArticleSelection {
         }
       })
     }, 0)
+  }
+
+  private isImageInContent(img: HTMLElement): boolean {
+    const root = !this.config.iframe ? (this.config.monitorDom?.querySelector('.html-text') as HTMLElement | null) : this.config.containerDom
+    return !!root && root.contains(img)
+  }
+
+  private handleImageSelection(e: MouseEvent | TouchEvent, img: HTMLImageElement) {
+    const source = this.getMarkPathItems([{ type: 'image', src: img.src, ele: img }])
+    if (!source || source.length === 0) return
+
+    this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx: undefined })
+    this.manager.clearSelectContent()
+    this.manager.pushSelectContent({ type: 'image', text: '', src: img.src })
+
+    let menusY = 0
+    this.modal.showMenus({
+      event: e,
+      callback: (type: MenuType, event: MouseEvent) => {
+        const currentInfo = this.currentMarkItemInfo.value
+        if (!currentInfo) return
+
+        if (type === ('stroke' as MenuType)) {
+          currentInfo.id = getUUID()
+          this.manager.strokeSelection({ info: currentInfo })
+        } else if (type === ('copy' as MenuType)) {
+          this.manager.copyMarkedText({ source, event })
+        } else if (type === ('comment' as MenuType)) {
+          currentInfo.id = getUUID()
+          const isInline = !this.config.iframe
+          if (isInline) {
+            const quote: QuoteData = { source: { paths: source }, data: this.createQuote(source) }
+            window.dispatchEvent(
+              new CustomEvent('slax:open-comment-panel', {
+                detail: { kind: 'new', info: { ...currentInfo }, quote }
+              })
+            )
+          } else {
+            this.manager.showPanel({ fallbackYOffset: menusY })
+          }
+        } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
+          const quote: QuoteData = { source: { paths: source }, data: this.createQuote(source) }
+          this.config.postQuoteDataHandler!(quote)
+          this.findQuote(quote)
+        }
+
+        if (type !== ('comment' as MenuType)) this.clearSelection()
+      },
+      positionCallback: ({ y }) => (menusY = y),
+      noActionCallback: () => {
+        this.manager.updateCurrentMarkItemInfo(null)
+        this.manager.clearSelectContent()
+      }
+    })
   }
 
   /**

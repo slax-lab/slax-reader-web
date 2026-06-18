@@ -23,7 +23,7 @@
         <!-- 用户消息（右气泡 + 可选引用块） -->
         <template v-if="message.type === 'bubble' && message.direction === 'right'">
           <div v-if="message.quote && message.quote.data.length > 0" class="chat-msg-quote">
-            <span v-for="item in message.quote.data" :key="item.content">{{ item.content }}</span>
+            <span v-for="(item, index) in message.quote.data" :key="index">{{ item.type === 'image' ? '🖼️' : item.content }}</span>
           </div>
           <div class="chat-msg-user">{{ bubbleText(message) }}</div>
         </template>
@@ -94,7 +94,7 @@
     <div class="chat-composer">
       <div class="chat-composer-quote" v-if="quoteInfo && quoteInfo.data.length > 0">
         <div class="chat-composer-quote-text">
-          <span v-for="item in quoteInfo.data" :key="item.content">{{ item.content }}</span>
+          <span v-for="(item, index) in quoteInfo.data" :key="index">{{ item.type === 'image' ? '🖼️' : item.content }}</span>
         </div>
         <button class="chat-composer-quote-close" @click="closeQuote" aria-label="cancel quote">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12" /></svg>

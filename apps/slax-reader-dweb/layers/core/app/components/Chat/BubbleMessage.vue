@@ -3,7 +3,7 @@
     <div class="quote-container" v-if="message.quote && message.quote.data.length > 0" @click="quoteClick(message.quote)">
       <div class="quote">
         <i class="img bg-[url('@images/tiny-image-icon.png')]" v-if="showQuoteImage"></i>
-        <span v-for="item in message.quote.data" :key="item.content">{{ item.content }}</span>
+        <span v-for="(item, index) in message.quote.data" :key="index">{{ item.type === 'image' ? '🖼️' : item.content }}</span>
       </div>
     </div>
     <div v-for="(content, index) in message.contents" :key="index">
