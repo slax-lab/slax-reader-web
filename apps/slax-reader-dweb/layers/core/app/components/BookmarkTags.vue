@@ -127,6 +127,24 @@ const searchResultTags = computed(() => {
   return filteredSearchTags.value.filter(tag => tag.show_name.includes(searchText.value))
 })
 
+// [TAGDBG] 临时调试：标签组件反应式时间线（排查 /b/[id] 首访加标签崩溃，排查完删除）
+const dbg = (m: string) => {
+  if (typeof window !== 'undefined') (window as any).__taglog?.(`BookmarkTags ${m}`)
+}
+dbg(`setup localActive=${localActive} uuid=${props.bookmarkUuid}`)
+watch(
+  () => ({
+    adding: isAddingTag.value,
+    loading: isAddingLoading.value,
+    cand: searchResultTags.value.length,
+    bm: bookmarkTags.value.length,
+    user: searchTags.value.length,
+    text: searchText.value
+  }),
+  (v, o) => dbg(`state ${JSON.stringify(o)} -> ${JSON.stringify(v)}`),
+  { flush: 'sync' }
+)
+
 watch(
   () => props.tags,
   newTags => {
@@ -159,7 +177,21 @@ watch(
   }
 )
 
-onMounted(() => {})
+// [TAGDBG] 生命周期 / 渲染触发 / 错误捕获埋点
+onBeforeMount(() => dbg('hook onBeforeMount'))
+onMounted(() => dbg(`hook onMounted cand=${searchResultTags.value.length} bm=${bookmarkTags.value.length} adding=${isAddingTag.value}`))
+onBeforeUpdate(() => dbg(`hook onBeforeUpdate cand=${searchResultTags.value.length} bm=${bookmarkTags.value.length} adding=${isAddingTag.value} loading=${isAddingLoading.value}`))
+onUpdated(() => dbg('hook onUpdated'))
+onBeforeUnmount(() => dbg('hook onBeforeUnmount'))
+onUnmounted(() => dbg('hook onUnmounted'))
+onErrorCaptured((err, _inst, info) => {
+  dbg(`onErrorCaptured info=${info} msg=${(err as any)?.message}`)
+  return undefined
+})
+// onRenderTriggered 仅 dev 构建生效（关压缩若同时是 dev 模式则会打印是哪个响应式依赖触发了重渲染）
+try {
+  if (typeof onRenderTriggered === 'function') onRenderTriggered(e => dbg(`renderTriggered type=${(e as any).type} key=${String((e as any).key)}`))
+} catch {}
 
 const searchingTags = async () => {
   if (localActive) return // LF：searchTags 走 userTags
@@ -177,16 +209,24 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
 
   // LF：本地建标签 + 关联
   if (tagSrc) {
+    dbg(`addBookmarkTag LF enter tagId=${tagId} tagName=${tagName} cand=${searchResultTags.value.length}`)
     isAddingLoading.value = true
     try {
       let tagUuid = tagId ? String(tagId) : ''
       if (!tagUuid && tagName) {
+        dbg('createUserTag start')
         const created = await tagSrc.createUserTag(tagName)
         tagUuid = String(created.id)
+        dbg(`createUserTag done id=${tagUuid} cand=${searchResultTags.value.length}`)
       }
-      if (tagUuid) await tagSrc.add(props.bookmarkUuid, tagUuid)
+      if (tagUuid) {
+        dbg(`add start cand=${searchResultTags.value.length}`)
+        await tagSrc.add(props.bookmarkUuid, tagUuid)
+        dbg(`add done cand=${searchResultTags.value.length} bm=${bookmarkTags.value.length}`)
+      }
     } finally {
       isAddingLoading.value = false
+      dbg(`finally set isAddingTag=false (was ${isAddingTag.value}) cand=${searchResultTags.value.length}`)
       isAddingTag.value = false
     }
     return
@@ -227,6 +267,7 @@ const deleteBookmarkTag = async (tagId: number) => {
 
 const onKeyDown = async (e: KeyboardEvent) => {
   if (e.key !== 'Enter' || !isAddingTag.value) return
+  dbg(`onKeyDown Enter text="${searchText.value}"`)
   if (bookmarkTags.value.find(tag => tag.show_name === searchText.value)) {
     isAddingTag.value = false
     return
@@ -242,11 +283,13 @@ const onKeyDown = async (e: KeyboardEvent) => {
 }
 
 const searchTagClick = async (tagId: number) => {
+  dbg(`searchTagClick tagId=${tagId}`)
   await addBookmarkTag({ tagId })
 }
 
 const addingTagClick = (e: MouseEvent) => {
   e.stopPropagation()
+  dbg(`addingTagClick toggle ${isAddingTag.value} -> ${!isAddingTag.value} cand=${searchResultTags.value.length} user=${searchTags.value.length}`)
   isAddingTag.value = !isAddingTag.value
 }
 </script>
