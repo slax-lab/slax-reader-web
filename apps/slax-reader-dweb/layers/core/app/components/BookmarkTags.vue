@@ -1,5 +1,5 @@
 <template>
-  <div class="bookmark-tags" ref="bookmarkTagsEle">
+  <div class="bookmark-tags">
     <div class="tags-list" :class="{ 'is-reserving': isReserving }">
       <!-- 标签 chips 抽成独立子组件：keyed v-for 在自己的渲染 block 内，
            不被父 block 内 .search-list 卸载误伤 el（Vue 3.5 block patch null-anchor 崩溃根因） -->
@@ -16,40 +16,47 @@
             <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
         </button>
-        <!-- v-if 而非 v-show：整子树挂卸 -->
-        <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="() => (isAddingTag = false)">
-          <input
-            ref="searchInput"
-            type="text"
-            :placeholder="$t('component.bookmark_tags.placeholder')"
-            v-model="searchText"
-            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-          />
-          <div class="search-result">
-            <div class="result-wrapper">
-              <!-- v-if 真实 div：候选列表 0↔N 整块挂卸，避开空 fragment 就地 patch（null-anchor）崩溃 -->
-              <div v-if="searchResultTags.length" class="search-tags-cells">
-                <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
-                  <span>{{ tag.show_name }}</span>
-                  <i class="ai" v-if="tag.system" />
+        <!-- 面板 Teleport 到 body：把它从 .tags-list block 移走。
+             其 v-if 挂卸只发生在 body，不再破坏同 block 内 chips 的 el
+             （Vue 3.5 optimized block patch null-anchor 崩溃根因）。
+             Teleport 占位节点常驻 block，故 block 结构稳定。 -->
+        <Teleport to="body">
+          <!-- ignore:[add]：Teleport 后 + 按钮不在面板内，否则点 + 会被判为 outside 先关再开 -->
+          <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="[() => (isAddingTag = false), { ignore: [add] }]">
+            <input
+              ref="searchInput"
+              type="text"
+              :placeholder="$t('component.bookmark_tags.placeholder')"
+              v-model="searchText"
+              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            />
+            <div class="search-result">
+              <div class="result-wrapper">
+                <!-- v-if 真实 div：候选列表 0↔N 整块挂卸，避开空 fragment 就地 patch（null-anchor）崩溃 -->
+                <div v-if="searchResultTags.length" class="search-tags-cells">
+                  <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
+                    <span>{{ tag.show_name }}</span>
+                    <i class="ai" v-if="tag.system" />
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="list-loading" v-if="isAddingLoading">
+              <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
+            </div>
           </div>
-          <div class="list-loading" v-if="isAddingLoading">
-            <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
-          </div>
-        </div>
+        </Teleport>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import BookmarkTagChips from '#layers/core/app/components/BookmarkTagChips.vue'
+
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
-import BookmarkTagChips from '#layers/core/app/components/BookmarkTagChips.vue'
 import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const props = defineProps({
@@ -85,7 +92,6 @@ const lf = inject(LocalFirstAdapterKey, null)
 const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null
 const localActive = !!tagSrc
 
-const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 const searchInput = ref<HTMLInputElement>()
@@ -151,13 +157,12 @@ watch(
     if (value) {
       // v-if 弹层，nextTick 再定位/聚焦
       nextTick(() => {
-        const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
+        // 面板已 Teleport 到 body：position:fixed + 视口坐标定位，
+        // 不依赖滚动容器是 window（页面在容器内滚动也不会错位；面板为瞬时弹层，点外即关）。
         const rect = add.value?.getBoundingClientRect()
-        if (eleRect && rect && searchList.value) {
-          const yOffset = rect.bottom - eleRect.top + 10
-          const xOffset = rect.left - eleRect.left
-          searchList.value.style.top = `${yOffset}px`
-          searchList.value.style.left = `${xOffset}px`
+        if (rect && searchList.value) {
+          searchList.value.style.top = `${rect.bottom + 10}px`
+          searchList.value.style.left = `${rect.left}px`
         }
         searchInput.value?.focus()
       })
@@ -336,7 +341,8 @@ const addingTagClick = (e: MouseEvent) => {
 }
 
 .search-list {
-  --style: absolute top-full -mt-2px w-260px rounded-sm overflow-hidden border-(1px solid border) shadow-warm bg-surface-solid px-12px py-16px pb-12px z-10;
+  // Teleport 到 body：position:fixed + JS 设视口坐标；z 提高以盖住正文
+  --style: fixed w-260px rounded-sm overflow-hidden border-(1px solid border) shadow-warm bg-surface-solid px-12px py-16px pb-12px z-1000;
 
   input {
     --style: rounded-sm bg-surface border-(1px solid border) px-10px py-9px h-36px text-(aux txt-light) line-height-18px w-full transition-all duration-300;
