@@ -21,8 +21,11 @@
              （Vue 3.5 optimized block patch null-anchor 崩溃根因）。
              Teleport 占位节点常驻 block，故 block 结构稳定。 -->
         <Teleport to="body">
-          <!-- ignore:[add]：Teleport 后 + 按钮不在面板内，否则点 + 会被判为 outside 先关再开 -->
-          <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="[() => (isAddingTag = false), { ignore: [add] }]">
+          <!-- v-show 而非 v-if：面板常驻、开关只切 display，不在 .tags-list block 内做结构挂卸，
+               从而不会经 patchBlockChildren 把兄弟 <BookmarkTagChips> 的 el 置 null（Vue 3.5.38 optimized block patch bug 根因）。
+               候选列表自身空态已由内层 v-if 包裹兜底，故面板回退 v-show 安全。
+               ignore:[add]：+ 按钮不在面板内，否则点 + 会被判 outside 先关再开 -->
+          <div v-show="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="[() => (isAddingTag = false), { ignore: [add] }]">
             <input
               ref="searchInput"
               type="text"
