@@ -28,7 +28,7 @@
             </div>
           </div>
         </div>
-        <div class="list-loading" v-if="loading">
+        <div class="list-loading" v-if="busy">
           <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
         </div>
       </div>
@@ -45,8 +45,6 @@ const props = defineProps<{
   searchTags: BookmarkTag[]
   // 书签当前已选标签 id（从候选中剔除）
   currentTagIds: (number | string)[]
-  // 父级写入进行中（转圈、避免重复点）
-  loading: boolean
 }>()
 
 const emit = defineEmits<{
@@ -61,6 +59,9 @@ const searchInput = ref<HTMLInputElement>()
 
 const isAddingTag = ref(false)
 const searchText = ref('')
+// 写入进行中转圈，状态本地持有：避免父级 BookmarkTags 因 loading 变化而重渲染
+// （父级重渲染会 patch .tags-list block，进而把 chips 的 fragment 锚点从 DOM 卸下 → 新标签插不进去）
+const busy = ref(false)
 
 const filteredSearchTags = computed(() => props.searchTags.filter(tag => props.currentTagIds.indexOf(tag.id) === -1))
 const searchResultTags = computed(() => {
@@ -104,6 +105,7 @@ watch(
 
 const onPick = (tagId: number) => {
   dbg(`onPick ${tagId}`)
+  busy.value = true
   emit('pickTag', tagId)
 }
 
@@ -111,14 +113,16 @@ const onKeyDown = () => {
   if (!isAddingTag.value) return
   const text = searchText.value
   if (!text) return
+  busy.value = true
   const existing = props.searchTags.find(tag => tag.show_name === text)
   if (existing) emit('pickTag', existing.id)
   else emit('createTag', text)
 }
 
-// 父级写入完成后调用以关闭面板
+// 父级写入完成后调用以关闭面板 + 复位 busy
 const close = () => {
   isAddingTag.value = false
+  busy.value = false
 }
 defineExpose({ close })
 </script>

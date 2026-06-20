@@ -10,12 +10,14 @@
         <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" />
       </div>
 
+      <!-- 不传 :loading：isAddingLoading 只作脚本内门控，不进本组件模板。
+           否则它变化会重渲染 BookmarkTags、patch .tags-list block，把 chips 的 fragment 锚点从 DOM 卸下，
+           导致随后新标签插不进去（Vue 3.5.38 block patch bug）。转圈已下沉到 AddPanel 自持。 -->
       <BookmarkTagAddPanel
         v-if="!props.readonly"
         ref="addPanel"
         :search-tags="searchTags"
         :current-tag-ids="currentBookmarkTagIds"
-        :loading="isAddingLoading"
         @open="searchingTags"
         @pick-tag="onPickTag"
         @create-tag="onCreateTag"
