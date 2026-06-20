@@ -39,19 +39,18 @@
 <script lang="ts" setup>
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
-
-const props = defineProps<{
-  // 候选标签源（全部用户标签）；本组件按已选 + 关键词过滤
-  searchTags: BookmarkTag[]
-  // 书签当前已选标签 id（从候选中剔除）
-  currentTagIds: (number | string)[]
-}>()
+import { BookmarkTagPanelKey } from '#layers/core/app/components/bookmarkTagPanel'
 
 const emit = defineEmits<{
   pickTag: [tagId: number]
   createTag: [tagName: string]
   open: []
 }>()
+
+// 候选源经 inject 获取（非 props）：读取它们只重渲染本组件，不重渲染父级 BookmarkTags
+const panel = inject(BookmarkTagPanelKey, { searchTags: computed(() => [] as BookmarkTag[]), currentTagIds: computed(() => [] as (number | string)[]) })
+const searchTags = computed(() => panel.searchTags.value)
+const currentTagIds = computed(() => panel.currentTagIds.value)
 
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
@@ -63,7 +62,7 @@ const searchText = ref('')
 // （父级重渲染会 patch .tags-list block，进而把 chips 的 fragment 锚点从 DOM 卸下 → 新标签插不进去）
 const busy = ref(false)
 
-const filteredSearchTags = computed(() => props.searchTags.filter(tag => props.currentTagIds.indexOf(tag.id) === -1))
+const filteredSearchTags = computed(() => searchTags.value.filter(tag => currentTagIds.value.indexOf(tag.id) === -1))
 const searchResultTags = computed(() => {
   if (!searchText.value) return filteredSearchTags.value
   return filteredSearchTags.value.filter(tag => tag.show_name.includes(searchText.value))
@@ -114,7 +113,7 @@ const onKeyDown = () => {
   const text = searchText.value
   if (!text) return
   busy.value = true
-  const existing = props.searchTags.find(tag => tag.show_name === text)
+  const existing = searchTags.value.find(tag => tag.show_name === text)
   if (existing) emit('pickTag', existing.id)
   else emit('createTag', text)
 }

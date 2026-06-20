@@ -1,6 +1,8 @@
 <template>
   <div class="bookmark-tags">
-    <div class="tags-list" :class="{ 'is-reserving': isReserving }">
+    <!-- 不绑动态 is-reserving：isReserving(tagSrc.isLoading) 变化会让 BookmarkTags 重渲染而 chips 不重渲染，
+         经 patchBlockChildren 把 chips 的 fragment 锚点从 DOM 卸下 → 加标签插不进去。占位高度改 CSS 常驻。 -->
+    <div class="tags-list">
       <!-- chips 与 add-panel 各自独立子组件：父级 .tags-list block 只含稳定的组件 vnode，
            加标签流程中无任何 v-if 结构挂卸 → 不会经 patchBlockChildren 把 chips 的 el 置 null
            （Vue 3.5.38 optimized block patch null-anchor 崩溃根因）。 -->
@@ -13,15 +15,9 @@
       <!-- 不传 :loading：isAddingLoading 只作脚本内门控，不进本组件模板。
            否则它变化会重渲染 BookmarkTags、patch .tags-list block，把 chips 的 fragment 锚点从 DOM 卸下，
            导致随后新标签插不进去（Vue 3.5.38 block patch bug）。转圈已下沉到 AddPanel 自持。 -->
-      <BookmarkTagAddPanel
-        v-if="!props.readonly"
-        ref="addPanel"
-        :search-tags="searchTags"
-        :current-tag-ids="currentBookmarkTagIds"
-        @open="searchingTags"
-        @pick-tag="onPickTag"
-        @create-tag="onCreateTag"
-      />
+      <!-- searchTags / currentTagIds 通过 provide 传给 AddPanel：读它们只重渲染 AddPanel，不重渲染 BookmarkTags
+           → BookmarkTags 只在 bookmarkTags(chips) 变化时渲染，避免 chips fragment 被误卸。 -->
+      <BookmarkTagAddPanel v-if="!props.readonly" ref="addPanel" @open="searchingTags" @pick-tag="onPickTag" @create-tag="onCreateTag" />
     </div>
   </div>
 </template>
@@ -32,6 +28,7 @@ import BookmarkTagChips from '#layers/core/app/components/BookmarkTagChips.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
+import { BookmarkTagPanelKey } from '#layers/core/app/components/bookmarkTagPanel'
 import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
 
 const props = defineProps({
@@ -79,12 +76,12 @@ const bookmarkTags = computed<BookmarkTag[]>(() => {
 })
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
-// LF 首查未返回，预留一行占位防跳动
-const isReserving = computed(() => localActive && !!tagSrc?.isLoading?.value)
-
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
 const currentBookmarkTagIds = computed(() => bookmarkTags.value.map(tag => tag.id) || [])
+
+// 经 provide 下发候选源：AddPanel inject 后读取，只重渲染 AddPanel 自身，不触发 BookmarkTags 重渲染
+provide(BookmarkTagPanelKey, { searchTags, currentTagIds: currentBookmarkTagIds })
 
 // [TAGDBG] 临时调试（非 sync，避免干扰 patch 时序）；排查完删除
 const dbg = (m: string) => {
@@ -201,11 +198,8 @@ const onCreateTag = async (tagName: string) => {
 
 .tags-list {
   --style: flex flex-wrap items-center gap-8px;
-
-  // 预留一行高度
-  &.is-reserving {
-    min-height: 28px;
-  }
+  // 常驻一行高度（原 is-reserving 动态类已移除，避免无谓重渲染）
+  min-height: 28px;
 }
 
 .loading {
