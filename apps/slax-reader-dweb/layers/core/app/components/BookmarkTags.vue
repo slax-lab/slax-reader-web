@@ -66,9 +66,9 @@ const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? nu
 const localActive = !!tagSrc
 
 const addPanel = ref<{ close: () => void }>()
-
+console.log(props.tags)
 // 双轨：LF 只读 / REST ref
-const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
+const restBookmarkTags = ref<BookmarkTag[]>([])
 const restSearchTags = ref<BookmarkTag[]>([])
 // LF 激活恒用本地源（避免 REST/LF 切源重挂崩溃）
 const bookmarkTags = computed<BookmarkTag[]>(() => {
