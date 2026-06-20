@@ -71,7 +71,10 @@ const addPanel = ref<{ close: () => void }>()
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
 // LF 激活恒用本地源（避免 REST/LF 切源重挂崩溃）
-const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
+const bookmarkTags = computed<BookmarkTag[]>(() => {
+  console.log('cc: ', tagSrc!.tags.value)
+  return localActive ? tagSrc!.tags.value : restBookmarkTags.value
+})
 const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
 
 // LF 首查未返回，预留一行占位防跳动
