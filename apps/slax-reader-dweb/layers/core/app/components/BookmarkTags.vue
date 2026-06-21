@@ -169,7 +169,6 @@ const searchingTags = async () => {
 }
 
 const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
-  debugger
   const { tagName, tagId } = params
   if (!tagName && !tagId) return
   if (tagName && tagId) return
