@@ -8,18 +8,14 @@
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
       </div>
-      <!-- ready 门控；inject 可覆写 -->
       <BookmarkTags
-        v-if="ready"
         class="article-tags"
         :bookmarkId="bookmarkId || 0"
         :bookmarkUid="bookmarkUid"
         :bookmarkUuid="adapters.tagsBookmarkUuid"
         :tags="detail.tags ?? []"
-        :readonly="!effAllowTagged"
+        :readonly="!ready || !effAllowTagged"
       />
-      <!-- ready 前占位，防标签迟到撑高跳动 -->
-      <div v-else class="article-tags article-tags-placeholder" />
     </header>
     <!-- 保留 .article-detail ref + articleStyle class，processors 管道 / mark 绘制依赖 -->
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">

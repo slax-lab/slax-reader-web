@@ -36,7 +36,7 @@
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
           />
           <div class="search-result">
-            <div class="result-wrapper">
+            <div class="result-wrapper" v-if="searchResultTags">
               <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
                 <span>{{ tag.show_name }}</span>
                 <i class="ai" v-if="tag.system" />
