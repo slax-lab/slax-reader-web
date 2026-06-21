@@ -88,8 +88,8 @@ const props = defineProps({
 
 // 本地标签源 + catalog；null 走 REST
 const lf = inject(LocalFirstAdapterKey, null)
-const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null
-const localActive = !!tagSrc
+const tagSrc = computed(() => lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null)
+const localActive = computed(() => tagSrc.value !== null)
 
 console.log(localActive)
 const bookmarkTagsEle = ref<HTMLDivElement>()
@@ -102,11 +102,11 @@ const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
 // LF 激活恒用本地源
 // 避免 REST/LF 切源重挂崩溃
-const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
-const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.tags.value : restBookmarkTags.value))
+const searchTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.userTags.value : restSearchTags.value))
 
 // LF 首查未返回，预留一行占位防跳动
-const isReserving = computed(() => localActive && !!tagSrc?.isLoading?.value)
+const isReserving = computed(() => localActive.value && !!tagSrc.value?.isLoading?.value)
 
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
@@ -180,10 +180,10 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
     try {
       let tagUuid = tagId ? String(tagId) : ''
       if (!tagUuid && tagName) {
-        const created = await tagSrc.createUserTag(tagName)
+        const created = await tagSrc.value!.createUserTag(tagName)
         tagUuid = String(created.id)
       }
-      if (tagUuid) await tagSrc.add(props.bookmarkUuid, tagUuid)
+      if (tagUuid) await tagSrc.value!.add(props.bookmarkUuid, tagUuid)
     } finally {
       isAddingLoading.value = false
       isAddingTag.value = false
@@ -209,8 +209,8 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
 
 const deleteBookmarkTag = async (tagId: number) => {
   // LF：本地解除标签关联
-  if (tagSrc) {
-    await tagSrc.remove(props.bookmarkUuid, String(tagId))
+  if (tagSrc.value) {
+    await tagSrc.value!.remove(props.bookmarkUuid, String(tagId))
     return
   }
 
