@@ -1,10 +1,11 @@
 <template>
   <div class="bookmark-tags" ref="bookmarkTagsEle">
     <div class="tags-list" :class="{ 'is-reserving': isReserving }">
-      <!-- v-if 真实 div：0↔N 整块挂卸，
-           避开空 fragment patch 崩溃 -->
-      <div v-if="bookmarkTags.length" class="tags-cells">
-        <div class="tag" v-for="tag in bookmarkTags" :key="tag.id">
+      <!-- 方向1：v-if 真实 div + :key 随 id 集合变化。
+           0↔N 整块挂卸、N→N±1 整块替换，
+           绕开裸 keyed v-for fragment 就地 patch 的 null-anchor 崩溃 -->
+      <div v-if="displayTags.length" :key="tagsKey" class="tags-cells">
+        <div class="tag" v-for="tag in displayTags" :key="tag.id">
           <span class="tag-name">{{ tag.show_name }}</span>
           <button v-if="!props.readonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -88,10 +89,11 @@ const props = defineProps({
 
 // 本地标签源 + catalog；null 走 REST
 const lf = inject(LocalFirstAdapterKey, null)
-const tagSrc = computed(() => lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null)
+// 必须在 setup 顶层一次性创建：bookmarkTagSource 内部走 useQuery，PowerSync 要求其在 setup 顶层调用。
+// 传响应式 uuid（toRef），uuid 变化由内部 useQuery 响应；切勿在 watch 回调里重建（usePowerSync 非顶层会崩）。
+const tagSrc = shallowRef(lf?.bookmarkTagSource?.(toRef(props, 'bookmarkUuid')) ?? null)
 const localActive = computed(() => tagSrc.value !== null)
 
-console.log(localActive)
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
@@ -104,6 +106,24 @@ const restSearchTags = ref<BookmarkTag[]>([])
 // 避免 REST/LF 切源重挂崩溃
 const bookmarkTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.tags.value : restBookmarkTags.value))
 const searchTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.userTags.value : restSearchTags.value))
+
+// 方向2（去抖兜底）：PowerSync onStateChange 异步、且一次写入常连发多次 table-change。
+// 先把这些抖动去抖合并到下一个干净 tick 再喂给模板，避免「列表增删」与「弹层卸载」
+// 挤在同一 flush 触发 Vue 3.5 keyed fragment 的 null-anchor patch 崩溃。
+const displayTags = shallowRef<BookmarkTag[]>(bookmarkTags.value)
+let tagsFlushScheduled = false
+watch(bookmarkTags, () => {
+  if (tagsFlushScheduled) return
+  tagsFlushScheduled = true
+  nextTick(() => {
+    tagsFlushScheduled = false
+    displayTags.value = bookmarkTags.value // 读最新值，合并这一拍内的多次抖动
+  })
+})
+
+// 方向1（治本）：key 随 tag id 集合变化。列表增删时整块挂卸 .tags-cells，
+// 让内部 keyed v-for 走整块 mount/unmount，绕开就地 patch（null-anchor 直接命中点）。
+const tagsKey = computed(() => displayTags.value.map(tag => tag.id).join('|'))
 
 // LF 首查未返回，预留一行占位防跳动
 const isReserving = computed(() => localActive.value && !!tagSrc.value?.isLoading?.value)
