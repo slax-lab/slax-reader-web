@@ -4,23 +4,16 @@
       <div class="modal-content" v-show="appear" @click.stop>
         <div class="header">
           <span>{{ $t('component.share_modal.title') }}</span>
-          <div class="switch" @click="switchClick">
-            <div class="ball" :class="{ open: isSwitched, loading: isSwitchLoading }">
-              <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-14px text-#fff" v-show="isSwitchLoading"></div>
-              </Transition>
-            </div>
-          </div>
         </div>
         <Transition name="tips">
           <div class="tips" v-show="isShowTips">
             <span>{{ $t('component.share_modal.revoke_tips') }}</span>
           </div>
         </Transition>
-        <div class="content" :class="{ disabled: !isSwitched }">
+        <div class="content">
           <div class="title">{{ title }}</div>
           <Transition name="opacity">
-            <div class="copy" :class="{ close: !isSwitched }" v-show="shareLinkUrl">
+            <div class="copy" v-show="shareLinkUrl">
               <div class="link">
                 <span>{{ shareLinkUrl }}</span>
               </div>
@@ -74,8 +67,6 @@ const modalBg = ref<HTMLDivElement>()
 const isLoading = ref(false)
 const isLocked = useScrollLock(window)
 const appear = ref(false)
-const isSwitched = ref(false)
-const isSwitchLoading = ref(false)
 const isShowTips = ref(false)
 const copyTitle = ref($t('component.share_modal.copy_link'))
 const shareLinkUrl = ref('')
@@ -96,13 +87,6 @@ onKeyStroke('Escape', e => {
   e.preventDefault()
   closeModal()
 })
-
-watch(
-  () => isSwitched.value,
-  value => {
-    value && (copyTitle.value = $t('component.share_modal.copy_link'))
-  }
-)
 
 onMounted(() => {
   setTimeout(() => {
@@ -125,18 +109,14 @@ const getShareInfo = async () => {
       text: $t('common.tips.share_failed'),
       type: ToastType.Error
     })
-    isSwitched.value = false
+
     return
   }
-
-  isSwitched.value = !!res.allow_action
 
   const [highlights] = options.value
   highlights.selected = res.show_comment_line
   showUserinfo.value = res.show_userinfo
-  if (isSwitched.value) {
-    shareLinkUrl.value = getShareUrl()
-  }
+  shareLinkUrl.value = getShareUrl()
 
   isLoading.value = false
 }
@@ -211,27 +191,6 @@ const onAfterLeave = () => {
   emits('dismiss')
 }
 
-const switchClick = async () => {
-  if (isSwitchLoading.value) {
-    return
-  }
-
-  isSwitchLoading.value = true
-  if (isSwitched.value) {
-    await closeShare()
-  } else {
-    options.value.forEach(options => {
-      options.selected = true
-    })
-    await updateShare()
-  }
-
-  isSwitched.value = !isSwitched.value
-  isSwitchLoading.value = false
-
-  isShowTips.value = !isSwitched.value
-}
-
 const copyLinkClick = async (event: MouseEvent) => {
   await copyText(shareLinkUrl.value)
 
@@ -241,10 +200,6 @@ const copyLinkClick = async (event: MouseEvent) => {
 }
 
 const optionClick = async (index: number) => {
-  if (!isSwitched.value) {
-    return
-  }
-
   if (options.value.length <= index || index < 0) {
     return
   }
