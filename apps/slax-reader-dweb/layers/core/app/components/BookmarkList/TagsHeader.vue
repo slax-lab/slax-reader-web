@@ -34,8 +34,8 @@
       </div>
 
       <!-- 标签列表 -->
-      <!-- 移除 TransitionGroup（LF 异步列表会触发 Vue3.5 fragment patch 崩溃）；
-           v-if 真实 div 包裹 v-for：0↔N 整块挂卸，避开空 fragment 就地 patch -->
+      <!-- 改用 v-if div 包裹 v-for，
+           避开 LF 异步列表的 patch 崩溃 -->
       <div class="tags-list">
         <div v-if="tags.length" class="tags-cells">
           <div class="tag-item" v-for="tag in tags" :key="tag.id">
@@ -377,7 +377,7 @@ const compositionend = () => {
   gap: 8px;
 }
 
-// 不生成盒子，.tag-item 仍是 .tags-list 的 flex 子项
+// 不生成盒子，.tag-item 仍是 flex 子项
 .tags-cells {
   display: contents;
 }

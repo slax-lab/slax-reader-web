@@ -26,7 +26,7 @@
         </div>
         <div class="comments" v-if="markComments.length > 0">
           <div class="comments-wrapper" :style="commentsHeight ? { 'max-height': `${commentsHeight}px` } : {}" ref="commentsWrapper">
-            <!-- 移除 TransitionGroup：LF 异步评论列表会触发 Vue3.5 patch 崩溃；key 用稳定 markUid -->
+            <!-- key 用稳定 markUid，避开异步 patch 崩溃 -->
             <ArticleCommentCell
               v-for="(comment, index) in markComments"
               :key="comment.markUid || index"

@@ -235,7 +235,7 @@ export class DwebArticleSelection extends BaseArticleSelection {
         } else if (type === ('copy' as MenuType)) {
           this.manager.copyMarkedText({ source: info.source, approx: info.approx, event })
         } else if (type === ('comment' as MenuType)) {
-          // 已有标记追加评论：compose 标记弹输入框
+          // 已有标记追加评论：弹输入框
           const isInline = !this.config.iframe
           if (isInline) {
             window.dispatchEvent(

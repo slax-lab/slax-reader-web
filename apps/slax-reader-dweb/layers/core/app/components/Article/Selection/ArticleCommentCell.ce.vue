@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="child-comments" v-if="commentChildren.length > 0">
-      <!-- 移除 TransitionGroup：LF 异步子评论会触发 Vue3.5 patch 崩溃；key 用稳定 markUid -->
+      <!-- key 用稳定 markUid，避开异步 patch 崩溃 -->
       <div class="child-comment group/child" v-for="(childComment, childIndex) in commentChildren" :key="childComment.markUid || childIndex">
           <div class="child-comment-content">
             <span class="child-username">{{ childComment.username || '' }}</span>
