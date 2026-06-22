@@ -120,7 +120,7 @@ const emit = defineEmits<{
   border-bottom-color: var(--slax-border);
   border-radius: 0;
   box-shadow: none;
-  // demo：左右 4px、上下 8px；序号与正文间距 32px
+  // 左右 4px、上下 8px；序号与正文间距 32px
   padding: 8px 4px;
   align-items: flex-start;
   gap: 32px;
