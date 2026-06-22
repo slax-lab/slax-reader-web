@@ -118,7 +118,8 @@ const emit = defineEmits<{
   background: transparent;
   border-color: transparent;
   box-shadow: none;
-  padding: 10px 20px;
+  // 行高更紧凑（原 10px 偏高）
+  padding: 8px 20px;
   border-radius: 0;
   border-bottom: 1px solid var(--slax-border);
   margin-bottom: 0;
@@ -128,6 +129,35 @@ const emit = defineEmits<{
     border-color: transparent;
     box-shadow: none;
     transform: none;
+  }
+
+  // 序号：居中，左侧间距统一（原 right 对齐导致不同位数左间距不一致）
+  .article-num {
+    font-size: 14px;
+    padding-top: 3px;
+    text-align: center;
+  }
+
+  // 收紧标题与 meta 行间距
+  .article-title {
+    margin-bottom: 6px;
+  }
+
+  // 日期字号与来源标签对齐
+  .article-date {
+    font-size: 12px;
+  }
+
+  // 星标：缩小 icon，并与标题垂直居中
+  .article-star {
+    top: 8px;
+    height: 24px;
+    width: 40px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .article-actions {
