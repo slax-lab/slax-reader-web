@@ -117,7 +117,7 @@ const getShareInfo = async () => {
   const res = await request.get<ShareDetailInfo>({
     url: RESTMethodPath.EXISTS_SHARE_BOOKMARK,
     query: {
-      bookmark_id: String(props.bookmarkId)
+      bookmark_uid: props.bookmarkUuid
     }
   })
   if (!res) {
@@ -149,7 +149,7 @@ const updateShare = async (params?: { selected?: boolean }) => {
   const res = await request.post<ShareDetailInfo>({
     url: RESTMethodPath.UPDATE_SHARE_BOOKMARK,
     body: {
-      bookmark_id: props.bookmarkId,
+      bookmark_uid: props.bookmarkUuid,
       show_comment_line: selected,
       show_userinfo: showUserinfo.value,
       allow_action: selected
