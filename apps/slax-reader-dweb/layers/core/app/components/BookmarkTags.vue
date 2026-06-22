@@ -1,10 +1,10 @@
 <template>
   <div class="bookmark-tags" ref="bookmarkTagsEle">
     <div class="tags-list" :class="{ 'is-reserving': isReserving }">
-      <!-- v-if 真实 div：0↔N 整块挂卸，
-           避开空 fragment patch 崩溃 -->
-      <div v-if="bookmarkTags.length" class="tags-cells">
-        <div class="tag" v-for="tag in bookmarkTags" :key="tag.id">
+      <!-- :key 随 id 集合变化整块挂卸，
+           绕开 keyed v-for patch 崩溃 -->
+      <div v-if="displayTags.length" :key="tagsKey" class="tags-cells">
+        <div class="tag" v-for="tag in displayTags" :key="tag.id">
           <span class="tag-name">{{ tag.show_name }}</span>
           <button v-if="!props.readonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -36,7 +36,7 @@
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
           />
           <div class="search-result">
-            <div class="result-wrapper">
+            <div class="result-wrapper" v-if="searchResultTags.length > 0">
               <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
                 <span>{{ tag.show_name }}</span>
                 <i class="ai" v-if="tag.system" />
@@ -88,8 +88,10 @@ const props = defineProps({
 
 // 本地标签源 + catalog；null 走 REST
 const lf = inject(LocalFirstAdapterKey, null)
-const tagSrc = lf?.bookmarkTagSource?.(computed(() => props.bookmarkUuid)) ?? null
-const localActive = !!tagSrc
+// 必须在 setup 顶层创建：内部 useQuery 有此要求。
+// 传响应式 uuid，勿在 watch 里重建（否则崩）。
+const tagSrc = shallowRef(lf?.bookmarkTagSource?.(toRef(props, 'bookmarkUuid')) ?? null)
+const localActive = computed(() => tagSrc.value !== null)
 
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
@@ -101,11 +103,28 @@ const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
 const restSearchTags = ref<BookmarkTag[]>([])
 // LF 激活恒用本地源
 // 避免 REST/LF 切源重挂崩溃
-const bookmarkTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.tags.value : restBookmarkTags.value))
-const searchTags = computed<BookmarkTag[]>(() => (localActive ? tagSrc!.userTags.value : restSearchTags.value))
+const bookmarkTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.tags.value : restBookmarkTags.value))
+const searchTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.userTags.value : restSearchTags.value))
+
+// 去抖：一次写入常连发多次变更，
+// 合并到下一 tick，避免同 flush 触发崩溃。
+const displayTags = shallowRef<BookmarkTag[]>(bookmarkTags.value)
+let tagsFlushScheduled = false
+watch(bookmarkTags, () => {
+  if (tagsFlushScheduled) return
+  tagsFlushScheduled = true
+  nextTick(() => {
+    tagsFlushScheduled = false
+    displayTags.value = bookmarkTags.value // 读最新值，合并这一拍内的多次抖动
+  })
+})
+
+// key 随 id 集合变化、整块挂卸，
+// 绕开就地 patch 的 null-anchor 崩溃。
+const tagsKey = computed(() => displayTags.value.map(tag => tag.id).join('|'))
 
 // LF 首查未返回，预留一行占位防跳动
-const isReserving = computed(() => localActive && !!tagSrc?.isLoading?.value)
+const isReserving = computed(() => localActive.value && !!tagSrc.value?.isLoading?.value)
 
 const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
@@ -178,10 +197,10 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
     try {
       let tagUuid = tagId ? String(tagId) : ''
       if (!tagUuid && tagName) {
-        const created = await tagSrc.createUserTag(tagName)
+        const created = await tagSrc.value!.createUserTag(tagName)
         tagUuid = String(created.id)
       }
-      if (tagUuid) await tagSrc.add(props.bookmarkUuid, tagUuid)
+      if (tagUuid) await tagSrc.value!.add(props.bookmarkUuid, tagUuid)
     } finally {
       isAddingLoading.value = false
       isAddingTag.value = false
@@ -207,8 +226,8 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
 
 const deleteBookmarkTag = async (tagId: number) => {
   // LF：本地解除标签关联
-  if (tagSrc) {
-    await tagSrc.remove(props.bookmarkUuid, String(tagId))
+  if (tagSrc.value) {
+    await tagSrc.value!.remove(props.bookmarkUuid, String(tagId))
     return
   }
 

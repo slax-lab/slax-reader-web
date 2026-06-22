@@ -27,8 +27,8 @@
       </div>
     </div>
     <div class="child-comments" v-if="commentChildren.length > 0">
-      <TransitionGroup name="opacity">
-        <div class="child-comment group/child" v-for="(childComment, childIndex) in commentChildren" :key="childIndex">
+      <!-- key 用稳定 markUid，避开异步 patch 崩溃 -->
+      <div class="child-comment group/child" v-for="(childComment, childIndex) in commentChildren" :key="childComment.markUid || childIndex">
           <div class="child-comment-content">
             <span class="child-username">{{ childComment.username || '' }}</span>
             <span class="reply-text">&nbsp;{{ t('common.operate.reply') }}&nbsp;</span>
@@ -55,7 +55,6 @@
           </div>
           <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
         </div>
-      </TransitionGroup>
     </div>
     <ArticleCommentInput :show-input="comment.showInput" :placeholder="getCommentPlaceholder(comment)" @post="text => postComment(comment, text)" />
   </div>

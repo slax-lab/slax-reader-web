@@ -167,6 +167,7 @@
       }
     },
     "ai_panel": {
+      "end_of_content": "You've reached the end",
       "outline_label": "Outline",
       "overview_label": "Overview",
       "retry": "Failed to load, click to retry"

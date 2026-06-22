@@ -26,16 +26,15 @@
         </div>
         <div class="comments" v-if="markComments.length > 0">
           <div class="comments-wrapper" :style="commentsHeight ? { 'max-height': `${commentsHeight}px` } : {}" ref="commentsWrapper">
-            <TransitionGroup name="opacity">
-              <ArticleCommentCell
-                v-for="(comment, index) in markComments"
-                :key="index"
-                :comment="comment"
-                :bookmarkUserId="bookmarkUserId"
-                @replyComment="replyComment"
-                @commentDelete="commentDelete"
-              />
-            </TransitionGroup>
+            <!-- key 用稳定 markUid，避开异步 patch 崩溃 -->
+            <ArticleCommentCell
+              v-for="(comment, index) in markComments"
+              :key="comment.markUid || index"
+              :comment="comment"
+              :bookmarkUserId="bookmarkUserId"
+              @replyComment="replyComment"
+              @commentDelete="commentDelete"
+            />
           </div>
         </div>
         <Transition name="input">

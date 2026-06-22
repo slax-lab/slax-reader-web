@@ -57,6 +57,9 @@
         <button class="retry-btn" @click="loadOutline()">{{ $t('component.ai_panel.retry') }}</button>
       </div>
     </section>
+
+    <!-- 滚到底部见此提示 -->
+    <div class="panel-end" v-if="showEndHint">{{ $t('component.ai_panel.end_of_content') }}</div>
   </div>
 </template>
 
@@ -209,6 +212,13 @@ const props = defineProps({
 
 // overview 支持 bookmarkId/bookmarkUid，shareCode 不支持；enabled 为 false 时隐藏（owner-only）
 const overviewSupported = computed(() => props.overviewEnabled && (!!props.bookmarkId || !!props.bookmarkUid))
+
+// 有内容且加载结束时展示
+const showEndHint = computed(() => {
+  const hasContent = overviewContent.value.length > 0 || outlineText.value.length > 0
+  const stillLoading = overviewLoading.value || outlineLoading.value
+  return hasContent && !stillLoading
+})
 
 // ── overview 状态 ──
 const overviewContent = ref('')
@@ -651,12 +661,20 @@ watch(
 }
 
 .skeleton-row {
-  --style: 'h-16px rounded-1 animate-pulse not-first:mt-10px bg-gradient-to-r from-#f5f5f3 to-#f5f5f399 dark:(from-#ffffff33 to-#ffffff11)';
+  // 骨架占位走色板 token
+  --style: 'h-16px rounded-1 animate-pulse not-first:mt-10px';
+  background: linear-gradient(to right, var(--slax-border-strong), var(--slax-border));
 }
 
 .overview-loading-bottom,
 .outline-loading-bottom {
   --style: mt-12px;
+}
+
+// 内容尽头提示：居中弱化
+.panel-end {
+  --style: text-center text-(12px text-light) select-none mt-24px pt-16px;
+  border-top: 1px solid var(--slax-border);
 }
 
 .overview-retry,

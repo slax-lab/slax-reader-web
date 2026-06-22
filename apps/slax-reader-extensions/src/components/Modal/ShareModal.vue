@@ -129,16 +129,7 @@ const getShareInfo = async () => {
     return
   }
 
-  if (res.share_code.length === 0) {
-    await updateShare({ selected: true })
-
-    isSwitched.value = true
-    isLoading.value = false
-
-    return
-  }
-
-  isSwitched.value = res.share_code.length > 0
+  isSwitched.value = !!res.allow_action
 
   const [highlights] = options.value
   highlights.selected = res.show_comment_line

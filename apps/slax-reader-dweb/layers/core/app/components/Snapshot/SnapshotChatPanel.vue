@@ -908,13 +908,85 @@ defineExpose({ addQuoteData, focusTextarea })
         font-family: 'Courier New', Courier, monospace;
       }
 
+      // 日夜强调色，E-ink 蓝 + 🔗
       :deep(a) {
-        color: var(--slax-accent);
+        color: var(--slax-link);
+
+        &::before {
+          content: var(--slax-link-prefix, '');
+        }
       }
 
       :deep(img) {
         max-width: 100%;
         border-radius: 6px;
+      }
+
+      // 表格对齐 /b/[id] 详情页
+      :deep(table) {
+        display: block;
+        max-width: 100%;
+        margin: 12px 0;
+        overflow-x: auto;
+        border-collapse: separate; // 圆角才生效
+        border-spacing: 0;
+        border: 1px solid var(--slax-border);
+        border-radius: var(--slax-radius-sm);
+        background: var(--slax-surface-solid);
+        box-shadow: var(--slax-shadow-sm);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      // 只画下/右内线，避免双线
+      :deep(th),
+      :deep(td) {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--slax-border);
+        border-right: 1px solid var(--slax-border);
+        color: var(--slax-text-muted);
+        vertical-align: top;
+        font-variant-numeric: tabular-nums; // 数字等宽
+      }
+      :deep(th:last-child),
+      :deep(td:last-child) {
+        border-right: none;
+      }
+      :deep(tr:last-child td) {
+        border-bottom: none;
+      }
+      // 表头浅底加重
+      :deep(th) {
+        background: var(--slax-surface);
+        border-bottom-width: 2px;
+        color: var(--slax-text);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+      // 行首列加重作锚点
+      :deep(tbody td:first-child) {
+        color: var(--slax-text);
+        font-weight: 500;
+      }
+      // 斑马纹：偶数行淡底
+      :deep(tbody tr:nth-child(even) td) {
+        background: var(--slax-accent-bg);
+      }
+      // 手动补四角圆角
+      :deep(thead tr:first-child th:first-child),
+      :deep(tr:first-child td:first-child) {
+        border-top-left-radius: var(--slax-radius-sm);
+      }
+      :deep(thead tr:first-child th:last-child),
+      :deep(tr:first-child td:last-child) {
+        border-top-right-radius: var(--slax-radius-sm);
+      }
+      :deep(tr:last-child td:first-child) {
+        border-bottom-left-radius: var(--slax-radius-sm);
+      }
+      :deep(tr:last-child td:last-child) {
+        border-bottom-right-radius: var(--slax-radius-sm);
       }
     }
 

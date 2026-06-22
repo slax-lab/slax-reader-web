@@ -34,8 +34,10 @@
       </div>
 
       <!-- 标签列表 -->
+      <!-- 改用 v-if div 包裹 v-for，
+           避开 LF 异步列表的 patch 崩溃 -->
       <div class="tags-list">
-        <TransitionGroup name="opacity">
+        <div v-if="tags.length" class="tags-cells">
           <div class="tag-item" v-for="tag in tags" :key="tag.id">
             <button class="tag-chip" :class="{ system: tag.system }" @click="selectTag(tag)">
               <span>{{ tag.show_name }}</span>
@@ -48,7 +50,7 @@
               </svg>
             </button>
           </div>
-        </TransitionGroup>
+        </div>
       </div>
     </template>
 
@@ -373,6 +375,11 @@ const compositionend = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+// 不生成盒子，.tag-item 仍是 flex 子项
+.tags-cells {
+  display: contents;
 }
 
 .tag-item {

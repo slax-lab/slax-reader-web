@@ -113,21 +113,70 @@ const emit = defineEmits<{
   }
 }
 
-// text-mode：紧凑文字模式，移除卡片阴影和边框，重置 margin
+// text-mode：紧凑文字模式，严格对齐 demo 的 .article-list.text-mode
 :deep(.text-mode.article-card) {
   background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--slax-border);
   border-radius: 0;
-  border-bottom: 1px solid var(--slax-border);
+  box-shadow: none;
+  // 左右 4px、上下 8px；序号与正文间距 32px
+  padding: 8px 4px;
+  align-items: flex-start;
+  gap: 32px;
   margin-bottom: 0;
 
   &:hover {
     background: var(--slax-accent-bg);
     border-color: transparent;
+    border-bottom-color: var(--slax-border);
     box-shadow: none;
     transform: none;
+  }
+
+  // 标题与 meta 行间距收紧
+  .article-title {
+    margin-bottom: 2px;
+  }
+
+  // 内容区右侧留出星标空间
+  .article-body {
+    padding-right: 32px;
+  }
+
+  // meta 行间距
+  .article-meta {
+    gap: 8px;
+  }
+
+  // 日期字号（原 13px 偏大）
+  .article-date {
+    font-size: 12px;
+  }
+
+  // 来源：去胶囊底色，改为左侧分隔线 + 浅色文字
+  .article-source {
+    background: transparent;
+    border-radius: 0;
+    border-left: 1px solid var(--slax-border);
+    padding: 0 0 0 8px;
+    margin-left: 0;
+    color: var(--slax-text-light);
+    font-weight: 300;
+  }
+
+  // 星标：缩小 icon，绝对定位并与标题垂直居中
+  .article-star {
+    right: 4px;
+    top: 8px;
+    width: 28px;
+    height: 25px;
+    border-radius: 0;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .article-actions {

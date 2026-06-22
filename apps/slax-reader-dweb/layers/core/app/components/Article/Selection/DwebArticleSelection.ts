@@ -235,8 +235,17 @@ export class DwebArticleSelection extends BaseArticleSelection {
         } else if (type === ('copy' as MenuType)) {
           this.manager.copyMarkedText({ source: info.source, approx: info.approx, event })
         } else if (type === ('comment' as MenuType)) {
-          // 已有标记追加评论：打开评论侧栏（inline 下派发 existing 事件），保留选区
-          this.manager.showPanel({ fallbackYOffset: menusY })
+          // 已有标记追加评论：弹输入框
+          const isInline = !this.config.iframe
+          if (isInline) {
+            window.dispatchEvent(
+              new CustomEvent('slax:open-comment-panel', {
+                detail: { kind: 'existing', infoId: info.id, info, compose: true }
+              })
+            )
+          } else {
+            this.manager.showPanel({ fallbackYOffset: menusY })
+          }
           return
         } else if (type === ('chatbot' as MenuType) && this.config.postQuoteDataHandler) {
           const quote: QuoteData = { source: { id: info.id }, data: this.createQuote(info.source, info.approx) }
