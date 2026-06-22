@@ -132,13 +132,18 @@ const handleAnchors = () => {
     }
 
     &:deep(a) {
-      // #5080a8 第三方蓝色锚点（twitter / 链接体系），保留
-      --style: -top-1px relative text-#5080a8;
+      // 日夜强调色，E-ink 经典蓝
+      --style: -top-1px relative;
+      color: var(--slax-link);
     }
 
+    // 真实外链：E-ink 加 🔗 前缀
     &:deep(a:not(.slax_link)) {
-      // #5080a8 第三方蓝色锚点（与上方 a 同源），保留
-      color: #5080a8;
+      color: var(--slax-link);
+
+      &::before {
+        content: var(--slax-link-prefix, '');
+      }
     }
 
     &:deep(.slax_link) {

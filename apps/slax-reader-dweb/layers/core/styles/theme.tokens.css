@@ -24,6 +24,10 @@
   --slax-accent-soft: #e4b894;
   --slax-accent-bg: rgba(180, 88, 55, 0.06);
 
+  /* 链接色：日夜随强调色，E-ink 见下方 */
+  --slax-link: var(--slax-accent);
+  --slax-link-prefix: '';
+
   /* 颜色 - 功能 */
   --slax-danger: #c44;
   --slax-danger-bg: rgba(204, 68, 68, 0.06);
@@ -164,6 +168,10 @@
   --slax-accent: #000000;
   --slax-accent-soft: #666666;
   --slax-accent-bg: #f0f0f0;
+
+  /* E-ink 链接用经典蓝 + 🔗 前缀 */
+  --slax-link: #5490c2;
+  --slax-link-prefix: '🔗 ';
 
   --slax-danger: #444444;
   --slax-danger-bg: #eeeeee;

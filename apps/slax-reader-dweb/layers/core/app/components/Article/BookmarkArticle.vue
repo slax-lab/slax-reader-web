@@ -256,8 +256,9 @@ defineExpose({
   margin-top: 0 !important;
   padding-top: 28px;
 
+  // 选区色统一走 --slax-selection
   *::selection {
-    --style: 'bg-#ffd99933';
+    background: var(--slax-selection);
   }
 
   // 正文排版

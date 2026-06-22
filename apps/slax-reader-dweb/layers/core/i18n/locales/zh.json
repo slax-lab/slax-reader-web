@@ -167,6 +167,7 @@
       }
     },
     "ai_panel": {
+      "end_of_content": "已到内容尽头",
       "outline_label": "全文解析",
       "overview_label": "全文概要",
       "retry": "加载失败，点击重试"

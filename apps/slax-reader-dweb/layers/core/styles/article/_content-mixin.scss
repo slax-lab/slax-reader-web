@@ -102,10 +102,14 @@
     border-bottom-right-radius: var(--slax-radius-sm);
   }
 
-  /* 链接类 */
+  /* 链接：日夜强调色，E-ink 蓝 + 🔗 */
   a {
-    // text-#5490C2 第三方蓝色锚点（twitter/anchor 同源），保留
-    --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
+    --style: underline-none border-none decoration-none cursor-pointer;
+    color: var(--slax-link);
+
+    &::before {
+      content: var(--slax-link-prefix, '');
+    }
   }
 
   /* 媒体类 */

@@ -160,6 +160,8 @@ watch(isH5, h5 => {
 
 .panel-slot {
   --style: h-full overflow-y-auto;
+  // 锁滚动链，不带动外部详情页
+  overscroll-behavior: contain;
 }
 
 .side-panel-tabs {
