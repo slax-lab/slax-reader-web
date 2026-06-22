@@ -349,74 +349,15 @@ const quoteClick = (quote: QuoteData) => {
       --style: text-#5490C2 underline-none border-none decoration-none cursor-pointer;
     }
 
-    // 表格对齐 /b/[id] 详情页
     &:deep(table) {
-      --style: 'block max-w-full my-12px overflow-x-auto';
-      border-collapse: separate; // 圆角才生效
-      border-spacing: 0;
-      border: 1px solid var(--slax-border);
-      border-radius: var(--slax-radius-sm);
-      background: var(--slax-surface-solid);
-      box-shadow: var(--slax-shadow-sm);
-      line-height: 1.6;
+      --style: border-collapse;
     }
 
-    // 只画下/右内线，避免双线
-    &:deep(th),
-    &:deep(td) {
-      --style: text-align-left;
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--slax-border);
-      border-right: 1px solid var(--slax-border);
-      color: var(--slax-text-muted);
-      vertical-align: top;
-      font-variant-numeric: tabular-nums; // 数字等宽
-    }
-
-    &:deep(th:last-child),
-    &:deep(td:last-child) {
-      border-right: none;
-    }
-
-    &:deep(tr:last-child td) {
-      border-bottom: none;
-    }
-
-    // 表头浅底加重
+    &:deep(thead),
+    &:deep(td),
+    &:deep(tr),
     &:deep(th) {
-      background: var(--slax-surface);
-      border-bottom-width: 2px;
-      color: var(--slax-text);
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-    }
-
-    // 行首列加重作锚点
-    &:deep(tbody td:first-child) {
-      color: var(--slax-text);
-      font-weight: 500;
-    }
-
-    // 斑马纹：偶数行淡底
-    &:deep(tbody tr:nth-child(even) td) {
-      background: var(--slax-accent-bg);
-    }
-
-    // 手动补四角圆角
-    &:deep(thead tr:first-child th:first-child),
-    &:deep(tr:first-child td:first-child) {
-      border-top-left-radius: var(--slax-radius-sm);
-    }
-    &:deep(thead tr:first-child th:last-child),
-    &:deep(tr:first-child td:last-child) {
-      border-top-right-radius: var(--slax-radius-sm);
-    }
-    &:deep(tr:last-child td:first-child) {
-      border-bottom-left-radius: var(--slax-radius-sm);
-    }
-    &:deep(tr:last-child td:last-child) {
-      border-bottom-right-radius: var(--slax-radius-sm);
+      --style: border-(1px solid border) p-4px text-align-center;
     }
 
     &:deep(* + p) {
@@ -513,7 +454,7 @@ const quoteClick = (quote: QuoteData) => {
         --style: flex flex-col gap-8px;
 
         .bookmark-content {
-          --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-normal bg-surface-solid border-border hover:(bg-surface shadow-md)';
+          --style: 'p-12px border-(1px solid) rounded-8px cursor-pointer transition-all duration-200 bg-surface-solid border-border hover:(bg-surface shadow-md)';
 
           .title {
             --style: text-(meta) font-medium line-height-20px line-clamp-2 text-txt mb-6px;
