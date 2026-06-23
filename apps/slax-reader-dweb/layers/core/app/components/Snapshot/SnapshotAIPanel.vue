@@ -58,13 +58,16 @@
       </div>
     </section>
 
-    <!-- 滚到底部见此提示 -->
-    <div class="panel-end" v-if="showEndHint">{{ $t('component.ai_panel.end_of_content') }}</div>
+    <!-- 文案同 /bookmarks 列表底部 -->
+    <div class="panel-end" v-if="showEndHint">
+      <ListEndHint :text="$t('page.bookmarks_index.no_more')" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import DotLoading from '#layers/core/app/components/DotLoading.vue'
+import ListEndHint from '#layers/core/app/components/ListEndHint.vue'
 import MarkdownText from '#layers/core/app/components/Markdown/MarkdownText.vue'
 
 import { extractMarkdownFromText } from '@commons/utils/parse'
@@ -554,43 +557,16 @@ watch(
     line-height: 1.5;
   }
 
-  // 顶层列表项（对齐 demo .panel-outline-item）
-  :deep(ul) {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+  // 文字 + 圆点改淡色，对齐 demo
+  // 原样式特异性高，故加 !important
+  :deep(.markdown-content ul li),
+  :deep(.markdown-content ol li) {
+    color: var(--slax-text-muted) !important;
 
-  :deep(li) {
-    font-size: 14px;
-    color: var(--slax-text);
-    line-height: 1.6;
-    margin-bottom: 8px;
-    padding-left: 0;
-  }
-
-  // 嵌套列表（对齐 demo .panel-outline-sub）
-  :deep(ul ul) {
-    margin-top: 4px;
-    padding-left: 16px;
-  }
-
-  :deep(ul ul li) {
-    position: relative;
-    color: var(--slax-text-muted);
-    margin-bottom: 4px;
-
+    // 嵌套空心点也改实心淡色
     &::before {
-      content: '';
-      position: absolute;
-      left: -12px;
-      // top: 0.8em = line-height(1.6) / 2 * font-size，减去圆点半径 2px，自动跟随字号
-      top: calc(0.8em - 2px);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--slax-text-light);
-      box-sizing: content-box;
+      background: var(--slax-text-light) !important;
+      border-color: var(--slax-text-light) !important;
     }
   }
 
@@ -661,9 +637,9 @@ watch(
 }
 
 .skeleton-row {
-  // 骨架占位走色板 token
+  // 骨架占位；颜色再淡一点
   --style: 'h-16px rounded-1 animate-pulse not-first:mt-10px';
-  background: linear-gradient(to right, var(--slax-border-strong), var(--slax-border));
+  background: linear-gradient(to right, var(--slax-border), color-mix(in srgb, var(--slax-border) 45%, transparent));
 }
 
 .overview-loading-bottom,
@@ -671,10 +647,9 @@ watch(
   --style: mt-12px;
 }
 
-// 内容尽头提示：居中弱化
+// 仅留间距，样式见 ListEndHint
 .panel-end {
-  --style: text-center text-(12px text-light) select-none mt-24px pt-16px;
-  border-top: 1px solid var(--slax-border);
+  --style: mt-24px select-none;
 }
 
 .overview-retry,

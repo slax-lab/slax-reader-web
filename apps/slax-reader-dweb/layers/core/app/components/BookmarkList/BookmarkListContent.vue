@@ -70,9 +70,10 @@ const props = defineProps<{
   filterCollectionCode: string
 }>()
 
-// ≤768 强制文字列表
+// ≤768、归档、回收站强制文字列表
 const isH5 = useMediaQuery('(max-width: 768px)')
-const effectiveMode = computed<'card' | 'text'>(() => (isH5.value ? 'text' : props.listMode))
+const isTextOnly = computed(() => ['archive', 'trashed'].includes(props.filterStatus))
+const effectiveMode = computed<'card' | 'text'>(() => (isH5.value || isTextOnly.value ? 'text' : props.listMode))
 
 // 文字视图下不按月分段
 const displayItems = computed<GroupedItem[]>(() => (effectiveMode.value === 'text' ? props.groupedBookmarks.filter(item => item.type !== 'group') : props.groupedBookmarks))
@@ -134,8 +135,8 @@ const emit = defineEmits<{
     transform: none;
   }
 
-  // 标题与 meta 行间距收紧
-  .article-title {
+  // 收紧标题与 meta 间距
+  .title-wrap {
     margin-bottom: 2px;
   }
 
@@ -208,6 +209,10 @@ const emit = defineEmits<{
     .article-title {
       font-size: 17px;
       line-height: 1.5;
+    }
+
+    // h5 间距 6px
+    .title-wrap {
       margin-bottom: 6px;
     }
 

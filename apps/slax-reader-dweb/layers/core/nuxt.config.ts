@@ -52,7 +52,10 @@ export default defineNuxtConfig({
     fallback: 'light',
     classSuffix: '',
     dataValue: 'slax-theme',
-    storageKey: 'slax-color-mode'
+    storageKey: 'slax-color-mode',
+    // cookie 让 SSR 读到真实偏好
+    // 避免刷新时存储值来回跳变
+    storage: 'cookie'
   },
   i18n: {
     strategy: 'no_prefix',

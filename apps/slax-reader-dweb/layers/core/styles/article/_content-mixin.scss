@@ -16,6 +16,26 @@
     --style: '!mt-24px whitespace-pre-line';
   }
 
+  /* 文本元素后紧跟的 div 补间距 */
+  :is(span, strong, em, b, i, a, code, h1, h2, h3, h4, h5, h6, p) + div {
+    --style: '!mt-24px';
+  }
+
+  /* 后随内联文本的 div 补下边距（内联元素吃不到 margin-top） */
+  div:has(+ :is(span, strong, em, b, i, a, code)) {
+    --style: '!mb-24px';
+  }
+
+  /* 容器内首尾元素去掉上下外边距，
+     避免被 blockquote 等包裹时多余空隙 */
+  :first-child {
+    --style: '!mt-0';
+  }
+
+  :last-child {
+    --style: '!mb-0';
+  }
+
   /* 引用类 */
   blockquote {
     --style: border-l-(3px solid border) pl-3 line-height-24px;
@@ -190,7 +210,9 @@
 
   /* 列表类 */
   ul {
-    --style: list-none;
+    /* 覆盖上方 pre-line，
+       否则换行渲染成空行 */
+    --style: 'list-none !whitespace-normal';
 
     &.has-li {
       --style: pl-26px;
@@ -206,7 +228,7 @@
   }
 
   ol {
-    --style: pl-26px list-none;
+    --style: 'pl-26px list-none !whitespace-normal';
     counter-reset: list-counter;
 
     & > li {

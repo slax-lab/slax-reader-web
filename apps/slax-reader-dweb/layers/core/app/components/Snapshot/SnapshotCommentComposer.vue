@@ -246,7 +246,8 @@ const handleSend = async () => {
     background: var(--slax-accent-bg);
     border-left: 3px solid var(--slax-accent);
     border-radius: 0 4px 4px 0;
-    font-size: 12px;
+    // 引用文字统一 13px
+    font-size: 13px;
     line-height: 1.55;
     color: var(--slax-text-muted);
 

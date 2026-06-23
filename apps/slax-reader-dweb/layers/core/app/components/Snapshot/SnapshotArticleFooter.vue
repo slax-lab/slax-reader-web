@@ -86,14 +86,16 @@ const shareToTwitter = () => {
     font-weight: 300;
 
     strong {
-      color: var(--slax-text-muted);
-      font-weight: 500;
+      // 对齐 demo：继承正文色与字重
+      color: inherit;
+      font-weight: inherit;
     }
 
     .article-footer-link {
-      color: var(--slax-accent);
+      // 对齐 demo：muted 色 / 300
+      color: var(--slax-text-muted);
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 300;
       margin-left: 4px;
 
       &:hover {

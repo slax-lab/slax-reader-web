@@ -6,16 +6,14 @@
         <div class="icon"></div>
         <span class="ml-5">{{ $t('page.bookmarks_index.more') }}</span>
       </div>
-      <div class="end" v-else-if="!loading && ending">
-        <div class="line"></div>
-        <span>{{ isInTrash ? $t('page.bookmarks_index.trash_no_more') : $t('page.bookmarks_index.no_more') }}</span>
-        <div class="line"></div>
-      </div>
+      <ListEndHint v-else-if="!loading && ending" :text="isInTrash ? $t('page.bookmarks_index.trash_no_more') : $t('page.bookmarks_index.no_more')" />
     </TransitionGroup>
   </div>
 </template>
 
 <script setup lang="ts">
+import ListEndHint from '#layers/core/app/components/ListEndHint.vue'
+
 const props = defineProps<{
   loading: boolean
   ending: boolean
@@ -46,24 +44,6 @@ const showStatus = computed(() => !((props.filterStatus === 'topics' && !props.f
 
     .icon {
       --style: 'i-svg-spinners:90-ring text-aux';
-    }
-  }
-
-  .end {
-    // demo 同款：斜体衬线字体，淡色
-    font-family: var(--slax-font-serif);
-    font-size: 13px;
-    color: var(--slax-text-light);
-    font-weight: 300;
-    font-style: italic;
-
-    // 隐藏旧的两条线
-    .line {
-      display: none;
-    }
-
-    span {
-      --style: mx-0;
     }
   }
 }

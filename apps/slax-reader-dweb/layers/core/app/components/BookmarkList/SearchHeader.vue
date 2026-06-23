@@ -25,6 +25,9 @@
       </article>
     </div>
 
+    <!-- 单次返回全量，非加载即到底 -->
+    <ListEndHint v-if="!isSearching && searchResults.length > 0" class="search-end" :text="$t('page.bookmarks_index.no_more')" />
+
     <!-- 空态 -->
     <div class="search-empty" v-if="!isSearching && searchResults.length === 0 && defaultSearchText">
       {{ $t('component.search_header.empty') }}
@@ -38,6 +41,8 @@
 </template>
 
 <script lang="ts" setup>
+import ListEndHint from '#layers/core/app/components/ListEndHint.vue'
+
 import { RESTMethodPath } from '@commons/types/const'
 import type { SearchResultItem } from '@commons/types/interface'
 
@@ -220,6 +225,10 @@ const search = async (text: string) => {
   background: var(--slax-accent-bg);
   padding: 2px 8px;
   border-radius: 999px;
+}
+
+.search-end {
+  margin-top: 32px;
 }
 
 .search-empty {

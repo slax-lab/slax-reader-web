@@ -1,5 +1,5 @@
 <template>
-  <a class="article-source" :href="url" target="_blank" rel="noopener noreferrer" :title="url">
+  <a class="article-source" :href="href" target="_blank" rel="noopener noreferrer" :title="url">
     <span class="article-source-label">信息来源：</span>
     <span class="article-source-url">{{ displayUrl }}</span>
   </a>
@@ -8,9 +8,16 @@
 <script lang="ts" setup>
 const props = defineProps<{ url: string }>()
 
+// 无协议时补 https://
+const href = computed(() => {
+  const url = props.url?.trim() ?? ''
+  if (!url) return url
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+})
+
 const displayUrl = computed(() => {
   try {
-    const u = new URL(props.url)
+    const u = new URL(href.value)
     return u.hostname.replace(/^www\./, '') + u.pathname.replace(/\/$/, '')
   } catch {
     return props.url
