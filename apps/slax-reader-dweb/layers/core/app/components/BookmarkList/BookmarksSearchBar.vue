@@ -3,7 +3,7 @@
   <!-- click-outside 绑在容器上，避免 input focus 时被误判为外部点击导致历史闪烁 -->
   <div class="topbar-search" :class="{ focused: isFocused }" ref="searchWrap" v-on-click-outside="onClickOutside">
     <!-- 搜索图标 -->
-    <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8" />
       <path d="M21 21l-4.35-4.35" />
     </svg>
@@ -36,9 +36,9 @@
         </div>
         <div class="search-history-list">
           <button v-for="item in historyList" :key="item" class="history-item" @mousedown.prevent="selectHistory(item)" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 3" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
             <span>{{ item }}</span>
           </button>
@@ -151,18 +151,22 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   width: 280px;
-  height: 34px;
-  padding: 0 10px;
+  padding: 7px 14px;
   border: 1px solid var(--slax-border);
-  border-radius: var(--slax-radius-sm, 8px);
+  border-radius: 10px;
   background: var(--slax-surface);
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: text;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--slax-accent) 30%, var(--slax-border));
+  }
 
   &.focused {
     border-color: var(--slax-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--slax-accent) 12%, transparent);
+    box-shadow: 0 0 0 3px var(--slax-accent-bg);
   }
 
   // ≤860px 隐藏搜索框
@@ -182,12 +186,14 @@ onMounted(() => {
   background: transparent;
   border: none;
   outline: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--slax-text);
   font-family: inherit;
+  padding: 0;
 
   &::placeholder {
     color: var(--slax-text-light);
+    font-weight: 400;
   }
 }
 
@@ -197,13 +203,20 @@ onMounted(() => {
   justify-content: center;
   width: 18px;
   height: 18px;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--slax-text-light);
   cursor: pointer;
   border-radius: 50%;
   flex-shrink: 0;
-  transition: all 0.12s;
+  transition:
+    color 0.15s,
+    background 0.15s;
+
+  svg {
+    display: block;
+  }
 
   &:hover {
     background: var(--slax-accent-bg);
@@ -213,63 +226,66 @@ onMounted(() => {
 
 .search-history {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   background: var(--slax-surface-solid);
   border: 1px solid var(--slax-border);
   border-radius: var(--slax-radius);
-  box-shadow: var(--slax-shadow-warm);
+  box-shadow:
+    var(--slax-shadow-warm),
+    0 12px 36px color-mix(in srgb, var(--slax-accent) 12%, transparent);
+  padding: 6px;
   z-index: 200;
-  overflow: hidden;
 }
 
 .search-history-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px 6px;
+  padding: 4px 10px 6px;
 
   span {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--slax-text-light);
-    font-weight: 500;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
 }
 
 .history-clear-btn {
-  font-size: 11px;
-  color: var(--slax-text-muted);
+  font-size: 12px;
+  color: var(--slax-text-light);
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.12s;
+  border-radius: 6px;
+  transition:
+    color 0.15s,
+    background 0.15s;
 
   &:hover {
-    background: var(--slax-accent-bg);
-    color: var(--slax-text);
+    color: var(--slax-danger);
+    background: var(--slax-danger-bg);
   }
 }
 
 .search-history-list {
-  padding: 4px 6px 6px;
+  padding: 0;
 }
 
 .history-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 7px 8px;
+  padding: 8px 10px;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   color: var(--slax-text-muted);
-  font-size: 13px;
+  font-size: 14px;
   font-family: inherit;
   text-align: left;
   transition: all 0.12s;
@@ -277,6 +293,7 @@ onMounted(() => {
   svg {
     flex-shrink: 0;
     color: var(--slax-text-light);
+    opacity: 0.6;
   }
 
   span {
@@ -301,7 +318,7 @@ onMounted(() => {
 .search-dropdown-enter-active,
 .search-dropdown-leave-active {
   transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 </style>
