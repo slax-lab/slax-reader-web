@@ -59,12 +59,15 @@
     </section>
 
     <!-- 文案同 /bookmarks 列表底部 -->
-    <div class="panel-end" v-if="showEndHint">{{ $t('page.bookmarks_index.no_more') }}</div>
+    <div class="panel-end" v-if="showEndHint">
+      <ListEndHint :text="$t('page.bookmarks_index.no_more')" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import DotLoading from '#layers/core/app/components/DotLoading.vue'
+import ListEndHint from '#layers/core/app/components/ListEndHint.vue'
 import MarkdownText from '#layers/core/app/components/Markdown/MarkdownText.vue'
 
 import { extractMarkdownFromText } from '@commons/utils/parse'
@@ -671,13 +674,9 @@ watch(
   --style: mt-12px;
 }
 
-// 对齐 /bookmarks 底部 .end
-// 衬线斜体、淡色、无分隔线
+// 仅留间距，样式见 ListEndHint
 .panel-end {
-  --style: text-center text-(13px txt-light) select-none mt-24px;
-  font-family: var(--slax-font-serif);
-  font-weight: 300;
-  font-style: italic;
+  --style: mt-24px select-none;
 }
 
 .overview-retry,
