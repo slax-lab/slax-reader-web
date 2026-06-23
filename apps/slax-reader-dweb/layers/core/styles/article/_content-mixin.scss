@@ -16,6 +16,16 @@
     --style: '!mt-24px whitespace-pre-line';
   }
 
+  /* 容器内首尾元素去掉上下外边距，
+     避免被 blockquote 等包裹时多余空隙 */
+  :first-child {
+    --style: '!mt-0';
+  }
+
+  :last-child {
+    --style: '!mb-0';
+  }
+
   /* 引用类 */
   blockquote {
     --style: border-l-(3px solid border) pl-3 line-height-24px;
