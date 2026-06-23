@@ -179,8 +179,7 @@ const baseStubs = {
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
   QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
-  BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc'] },
-  OperatesBar: true
+  BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc'] }
 }
 
 const mountIndexPage = () =>

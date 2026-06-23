@@ -56,7 +56,7 @@ export const sharedExcludeBase = [
  *
  * ## 第二类：占位 / 纯导出 / SSR 专属（无可测可执行代码）
  *
- * - 空模板存根：HomepagePlanSection / CollectionHeader / UserPageSkeleton
+ * - 空模板存根：CollectionHeader / UserPageSkeleton
  * - 类型 / 聚合导出文件：Chat/type.ts、bookmark/type.ts、adapters/index.ts、processors/index.ts
  * - SSR 渲染专用：OgImage/Share.satori.vue（satori 服务端调用，运行时不在浏览器）
  *
@@ -85,7 +85,6 @@ export const phase4ExcludeAdditions = [
   'layers/core/app/components/Article/CEComponents/tweet/TweetQuoteInfo.ce.vue',
 
   // === 占位 / 纯导出 / 类型文件（无可测可执行代码）
-  'layers/core/app/components/global/HomepagePlanSection.vue',
   'layers/core/app/components/global/CollectionHeader.vue',
   'layers/core/app/components/UserPageSkeleton.vue',
   'layers/core/app/components/Chat/type.ts',
@@ -301,25 +300,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     functions: 85,
     statements: 80
   },
-  // 第五期 Sprint C.2（2026-05-26）：MarkMindMap.vue 12 用例覆盖
-  // 实测 lines 55.38 / branches 32.91 / functions 57.14 / statements 55.44
-  // 该组件深度依赖 SVG 渲染 + Markmap d3 力学计算 + 全屏 API + 第三方下载链路；
-  // happy-dom 无法跑通；阈值给 50/30/55/50 标定活路径覆盖，剩余分支 phase6 再做 e2e
-  'layers/core/app/components/Markdown/MarkMindMap.vue': {
-    lines: 50,
-    branches: 30,
-    functions: 55,
-    statements: 50
-  },
-  // 第五期 Sprint C.3（2026-05-26）：AISummaries.vue 14 用例覆盖核心活路径
-  // 实测 lines 52.3 / branches 41.29 / functions 56.52 / statements 52.7
-  // 869 行大组件，剩余分支为 findTextInWeb / queryAnchorAlikeQuote 等复杂路径，phase6 再 e2e
-  'layers/core/app/components/AISummaries.vue': {
-    lines: 50,
-    branches: 35,
-    functions: 55,
-    statements: 50
-  },
   // 第五期 Sprint D.1（2026-05-26）：ImagePreview.vue 16 用例覆盖
   // 实测 lines 35.89 / branches 25.64 / functions 33.33 / statements 35.89
   // 大量分支锁在 Transition handleEnter / handleLeave / setTimeout 链，happy-dom 不触发 enter/leave
@@ -350,12 +330,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 1
-  'layers/core/app/components/CopyButton.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/components/DotsMenu.vue': {
     lines: 80,
     branches: 70,
@@ -377,12 +351,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
 
   // sprint 5 batch 2
   'layers/core/app/components/QuickStart.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
-  'layers/core/app/components/InputBar.vue': {
     lines: 80,
     branches: 70,
     functions: 85,
@@ -486,12 +454,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     functions: 85,
     statements: 80
   },
-  'layers/core/app/components/Tips/InstallExtensionTips.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/components/Tips/TopTips.vue': {
     lines: 80,
     branches: 70,
@@ -501,12 +463,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
 
   // sprint 5 batch 7（第四期 Sprint B.2：AILanguageTips functions 50→85，源码抽具名 onHover）
   'layers/core/app/components/Tips/AILanguageTips.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
-  'layers/core/app/components/Tips/ShareBubbleTips.vue': {
     lines: 80,
     branches: 70,
     functions: 85,
@@ -576,13 +532,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
     functions: 85,
     statements: 80
   },
-  'layers/core/app/components/ReleaseNote.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
-
   // sprint 5 batch 10（第四期 Sprint B.3：Toast/index.ts + CursorToast/index.ts functions 70→85，dismissCleanup seam）
   'layers/core/app/components/UserImportSection.vue': {
     lines: 80,

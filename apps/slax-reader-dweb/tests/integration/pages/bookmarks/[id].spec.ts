@@ -221,7 +221,6 @@ const baseStubs = {
   SnapshotSharePopover: { name: 'SnapshotSharePopover', template: '<div class="snapshot-share-popover" />' },
   ThemeSwitcher: { name: 'ThemeSwitcher', template: '<div class="theme-switcher" />' },
   ProIcon: true,
-  ShareBubbleTips: { name: 'ShareBubbleTips', template: '<div class="share-bubble"><slot /></div>' },
   TopTips: { name: 'TopTips', template: '<div class="top-tips" />', emits: ['clickButton'] },
   ClientOnly: { name: 'ClientOnly', template: '<div><slot /></div>' }
 }
