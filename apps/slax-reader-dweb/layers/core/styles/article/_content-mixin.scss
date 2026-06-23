@@ -200,7 +200,9 @@
 
   /* 列表类 */
   ul {
-    --style: list-none;
+    /* 覆盖上方 pre-line，
+       否则换行渲染成空行 */
+    --style: 'list-none !whitespace-normal';
 
     &.has-li {
       --style: pl-26px;
@@ -216,7 +218,7 @@
   }
 
   ol {
-    --style: pl-26px list-none;
+    --style: 'pl-26px list-none !whitespace-normal';
     counter-reset: list-counter;
 
     & > li {
