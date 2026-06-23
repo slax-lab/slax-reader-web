@@ -617,13 +617,5 @@ const panelClick = (_type: BookmarkPanelType) => {
 html {
   --style: bg-surface-solid;
 }
-/* 详情页阅读界面保留更暖的渐变光斑（#fff4e0），其余页面用全局 :root 的 #faf5eb。
- * 只正向命中 light（含 color-mode 注入前的无属性首屏态），不写 :not 黑名单——
- * 这样将来新增主题时它们自动落到各自 :root token，无需回来逐个详情页补排除。
- * 特异性 (0,2,0) > 全局 light 的 :root (0,1,0)，覆盖不依赖源码顺序。 */
-:root[data-slax-theme='light'],
-:root:not([data-slax-theme]) {
-  --slax-grad-a: #fff4e0;
-  --slax-grad-b: #faecdc;
-}
+/* 渐变走全局 token，同列表页 */
 </style>
