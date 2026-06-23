@@ -58,8 +58,8 @@
       </div>
     </section>
 
-    <!-- 滚到底部见此提示 -->
-    <div class="panel-end" v-if="showEndHint">{{ $t('component.ai_panel.end_of_content') }}</div>
+    <!-- 文案同 /bookmarks 列表底部 -->
+    <div class="panel-end" v-if="showEndHint">{{ $t('page.bookmarks_index.no_more') }}</div>
   </div>
 </template>
 
@@ -661,9 +661,9 @@ watch(
 }
 
 .skeleton-row {
-  // 骨架占位走色板 token
+  // 骨架占位；颜色再淡一点
   --style: 'h-16px rounded-1 animate-pulse not-first:mt-10px';
-  background: linear-gradient(to right, var(--slax-border-strong), var(--slax-border));
+  background: linear-gradient(to right, var(--slax-border), color-mix(in srgb, var(--slax-border) 45%, transparent));
 }
 
 .overview-loading-bottom,
@@ -671,10 +671,13 @@ watch(
   --style: mt-12px;
 }
 
-// 内容尽头提示：居中弱化
+// 对齐 /bookmarks 底部 .end
+// 衬线斜体、淡色、无分隔线
 .panel-end {
-  --style: text-center text-(12px text-light) select-none mt-24px pt-16px;
-  border-top: 1px solid var(--slax-border);
+  --style: text-center text-(13px txt-light) select-none mt-24px;
+  font-family: var(--slax-font-serif);
+  font-weight: 300;
+  font-style: italic;
 }
 
 .overview-retry,
