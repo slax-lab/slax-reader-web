@@ -13,9 +13,37 @@ import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData
 export class DwebArticleSelection extends BaseArticleSelection {
   private modal: IMarkModal
 
+  // 上次弹菜单的目标（选区/图片）
+  // 用于跳过滚动等重复 touchend
+  private lastMenuRange: { sc: Node; so: number; ec: Node; eo: number } | null = null
+  private lastMenuImage: HTMLElement | null = null
+
   constructor(config: SelectionConfig, dependencies: SelectionDependencies, modal: IMarkModal) {
     super(config, dependencies, modal)
     this.modal = modal
+  }
+
+  // 选区与上次一致即视为重复，跳过
+  private isSameSelectionAsLastMenu(range: Range): boolean {
+    const r = this.lastMenuRange
+    return !!r && r.sc === range.startContainer && r.so === range.startOffset && r.ec === range.endContainer && r.eo === range.endOffset
+  }
+
+  private rememberMenuSelection(range: Range) {
+    this.lastMenuImage = null
+    this.lastMenuRange = { sc: range.startContainer, so: range.startOffset, ec: range.endContainer, eo: range.endOffset }
+  }
+
+  private rememberMenuImage(img: HTMLElement) {
+    this.lastMenuRange = null
+    this.lastMenuImage = img
+  }
+
+  // 清空时一并失忆，可再次弹出
+  override clearSelection() {
+    this.lastMenuRange = null
+    this.lastMenuImage = null
+    super.clearSelection()
   }
 
   /** 取消本人划线，留评论 */
@@ -58,6 +86,11 @@ export class DwebArticleSelection extends BaseArticleSelection {
         return
       }
 
+      // 选区未变多为滚动，跳过重弹
+      if (this.isSameSelectionAsLastMenu(range)) {
+        return
+      }
+
       const source = this.getMarkPathItems(list)
       if (!source) return
 
@@ -66,6 +99,7 @@ export class DwebArticleSelection extends BaseArticleSelection {
         this.manager.updateCurrentMarkItemInfo(markInfoItem)
         // 精确选中一条已有划线：弹出选区菜单（划线项变「删除划线」），让用户能取消划线；
         // 纯评论、无划线的标记仍直接打开评论侧栏。
+        this.rememberMenuSelection(range)
         if (markInfoItem.stroke.length > 0) {
           this.showExistingMarkMenus(e, markInfoItem)
         } else {
@@ -95,6 +129,7 @@ export class DwebArticleSelection extends BaseArticleSelection {
       })
 
       let menusY = 0
+      this.rememberMenuSelection(range)
       this.modal.showMenus({
         event: e,
         callback: (type: MenuType, event: MouseEvent) => {
@@ -159,8 +194,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
         },
         positionCallback: ({ y }) => (menusY = y),
         noActionCallback: () => {
-          this.manager.updateCurrentMarkItemInfo(null)
-          this.manager.clearSelectContent()
+          // 关闭即清选区，防滚动重弹
+          this.clearSelection()
         }
       })
     }, 0)
@@ -175,11 +210,15 @@ export class DwebArticleSelection extends BaseArticleSelection {
     const source = this.getMarkPathItems([{ type: 'image', src: img.src, ele: img }])
     if (!source || source.length === 0) return
 
+    // 同图重复触发，跳过
+    if (this.lastMenuImage === img) return
+
     this.manager.updateCurrentMarkItemInfo({ id: '', source, comments: [], stroke: [], approx: undefined })
     this.manager.clearSelectContent()
     this.manager.pushSelectContent({ type: 'image', text: '', src: img.src })
 
     let menusY = 0
+    this.rememberMenuImage(img)
     this.modal.showMenus({
       event: e,
       callback: (type: MenuType, event: MouseEvent) => {
@@ -214,8 +253,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
       },
       positionCallback: ({ y }) => (menusY = y),
       noActionCallback: () => {
-        this.manager.updateCurrentMarkItemInfo(null)
-        this.manager.clearSelectContent()
+        // 关闭即清选区，防滚动重弹
+        this.clearSelection()
       }
     })
   }
@@ -257,8 +296,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
       },
       positionCallback: ({ y }) => (menusY = y),
       noActionCallback: () => {
-        this.manager.updateCurrentMarkItemInfo(null)
-        this.manager.clearSelectContent()
+        // 关闭即清选区，防滚动重弹
+        this.clearSelection()
       }
     })
   }
