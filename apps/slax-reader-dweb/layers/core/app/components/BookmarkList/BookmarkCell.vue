@@ -14,6 +14,7 @@
           ref="input"
           type="text"
           v-else
+          v-ime-guard
           class="article-title-input"
           v-model="editingTitle"
           :placeholder="$t('component.bookmark_cell.edit_title_placeholder')"
