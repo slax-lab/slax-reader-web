@@ -50,6 +50,8 @@ export interface SelectionConfig {
   allowAction: boolean
   iframe?: HTMLIFrameElement
   postQuoteDataHandler: (data: QuoteData) => void
+  /** 行末评论 icon 开关，默认关 */
+  commentTailIndicator?: boolean
 }
 
 export interface StrokeSelectionMeta {

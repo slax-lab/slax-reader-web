@@ -145,6 +145,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
         ownerUserId: effOwnerUserId.value, // 取初始化时刻值，后不更新
         containerDom: p.containerDom.value,
         monitorDom: p.monitorDom.value,
+        // 行末评论 icon 开关
+        commentTailIndicator: p.adapters.commentTailIndicator ?? false,
         postQuoteDataHandler: (data: QuoteData) => {
           p.onChatBotQuote(data)
         }

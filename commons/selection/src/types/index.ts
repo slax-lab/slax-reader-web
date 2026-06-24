@@ -128,6 +128,8 @@ export interface SelectionConfig {
   markCommentSelectHandler?: (comment: MarkCommentInfo) => void
   /** 菜单评论处理器 */
   menusCommentHandler?: (info: MarkItemInfo, data: QuoteData['data']) => void
+  /** 行末评论 icon 开关，默认关 */
+  commentTailIndicator?: boolean
 }
 
 /**

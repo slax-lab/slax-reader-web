@@ -5,8 +5,16 @@
       <span v-if="totalCount > 0" class="comment-badge">{{ totalCount }}</span>
     </div>
 
+    <!-- 空态：引导去正文划选后划线/评论 -->
     <div v-if="displayCards.length === 0" class="comment-empty">
-      {{ $t('page.bookmarks_detail.no_comments') }}
+      <div class="comment-empty-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      </div>
+      <div class="comment-empty-title">{{ $t('component.snapshot_comment.empty_title') }}</div>
+      <div class="comment-empty-desc">{{ $t('component.snapshot_comment.empty_desc') }}</div>
     </div>
 
     <div v-else class="comment-cards">
@@ -184,13 +192,40 @@ const displayCards = computed((): DisplayCard[] => {
   color: var(--slax-accent);
 }
 
+// 空态引导，对齐 Chat 的 .chat-empty
 .comment-empty {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: var(--slax-fs-aux);
+  text-align: center;
+  padding: 24px 8px;
   color: var(--slax-text-light);
+
+  .comment-empty-icon {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--slax-accent-bg);
+    color: var(--slax-accent);
+  }
+
+  .comment-empty-title {
+    font-size: 13px;
+    color: var(--slax-text-muted);
+    line-height: 1.6;
+  }
+
+  .comment-empty-desc {
+    font-size: 13px;
+    color: var(--slax-text-muted);
+    line-height: 1.6;
+  }
 }
 
 .comment-cards {

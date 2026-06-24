@@ -402,6 +402,10 @@
       "suggestion_2": "What concepts are worth exploring further?",
       "suggestion_3": "What are the author's main arguments?"
     },
+    "snapshot_comment": {
+      "empty_desc": "Select text in the article to highlight it or leave a comment",
+      "empty_title": "Highlight and comment as you read"
+    },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",
       "failed_content": "Try clicking the article title to read the original page, or use our browser extension to re-save this article",

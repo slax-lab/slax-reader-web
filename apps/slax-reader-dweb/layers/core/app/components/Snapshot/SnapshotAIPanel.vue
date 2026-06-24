@@ -563,11 +563,21 @@ watch(
   :deep(.markdown-content ol li) {
     color: var(--slax-text-muted) !important;
 
-    // 嵌套空心点也改实心淡色
+    // 顶层列表用实心圆点
     &::before {
       background: var(--slax-text-light) !important;
       border-color: var(--slax-text-light) !important;
     }
+  }
+
+  // 嵌套列表圆点改空心
+  // 选择器更具体，压过实心规则
+  :deep(.markdown-content ul ul li::before),
+  :deep(.markdown-content ul ol li::before),
+  :deep(.markdown-content ol ul li::before),
+  :deep(.markdown-content ol ol li::before) {
+    background: transparent !important;
+    border: 1px solid var(--slax-text-light) !important;
   }
 
   // 锚点 chip 样式（对齐 demo .panel-outline-item .num）

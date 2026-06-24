@@ -136,7 +136,7 @@ const search = async (text: string) => {
   cursor: pointer;
   color: var(--slax-text-muted);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.15s;
   flex-shrink: 0;
 
@@ -148,7 +148,7 @@ const search = async (text: string) => {
 }
 
 .search-view-meta {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--slax-text-light);
   margin: 0;
 }
@@ -183,7 +183,7 @@ const search = async (text: string) => {
 
 .search-result-title {
   font-family: var(--slax-font-serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--slax-text);
   margin: 0 0 6px;
@@ -198,10 +198,10 @@ const search = async (text: string) => {
 }
 
 .search-result-snippet {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--slax-text-light);
   line-height: 1.7;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -235,7 +235,7 @@ const search = async (text: string) => {
   padding: 48px 0;
   text-align: center;
   color: var(--slax-text-light);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .search-loading {

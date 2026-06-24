@@ -50,6 +50,8 @@ export interface SelectionConfig {
   postQuoteDataHandler: (data: QuoteData) => void
   markCommentSelectHandler?: (comment: MarkCommentInfo) => void
   menusCommentHandler?: (info: MarkItemInfo, data: QuoteData['data']) => void
+  /** 行末评论 icon 开关，默认关 */
+  commentTailIndicator?: boolean
 }
 
 export interface StrokeSelectionMeta {
