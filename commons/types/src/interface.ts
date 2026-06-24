@@ -225,6 +225,7 @@ export interface HighlightItem {
   source_type: 'share' | 'bookmark' | 'collection'
   source_id: string
   approx_source?: MarkPathApprox
+  bookmark_user_uuid?: string
 }
 
 export interface MarkSelectContent {
