@@ -402,6 +402,10 @@
       "suggestion_2": "有哪些值得深入了解的概念？",
       "suggestion_3": "作者的主要论据是什么？"
     },
+    "snapshot_comment": {
+      "empty_desc": "在正文中划选内容，即可划线或写下评论",
+      "empty_title": "边读边划线、写评论"
+    },
     "snapshot_status_modal": {
       "dont_remind_again": "以后不再提醒",
       "failed_content": "建议：点击标题打开原网页阅读，或使用浏览器插件重新收藏该文章",

@@ -2,7 +2,7 @@
   <!-- 遮罩：点击关闭，仅 H5 -->
   <div class="side-panel-overlay" :class="{ open: activeTab !== null }" @click="$emit('update:activeTab', null)" />
 
-  <aside class="side-panel" :class="{ open: activeTab !== null, 'is-resizing': isDragging }" :style="panelStyle" :data-active-tab="activeTab">
+  <aside class="side-panel" :class="{ open: activeTab !== null, 'is-resizing': isDragging || isSheetDragging }" :style="panelStyle" :data-active-tab="activeTab">
     <!-- 桌面：宽度拖拽手柄 -->
     <div class="side-panel-resize" @mousedown="startDrag" @touchstart.prevent="startDrag" />
     <!-- 抓手：拖拽调高，仅 H5 -->
@@ -60,22 +60,25 @@ const { panelWidth, isDragging, startDrag, isH5 } = useSnapshotLayout()
 
 const tabs = computed(() => resolveSnapshotPanels(props.panels))
 
-// width 恒内联，H5 由 CSS 覆盖
-// height 仅拖拽后加，不碰 SSR
-const sheetHeight = ref<number | null>(null)
+// 宽度内联，高度交给 CSS
+// 抓手下拉跟手，松手按阈值收起
+const dragOffset = ref(0)
+const isSheetDragging = ref(false)
 const panelStyle = computed(() => ({
   width: panelWidth.value + 'px',
-  ...(sheetHeight.value != null ? { height: sheetHeight.value + 'px' } : {})
+  // 下拉时接管 transform，松手交还 CSS
+  ...(isSheetDragging.value ? { transform: `translateY(${dragOffset.value}px)` } : {})
 }))
 
-// 抓手拖拽调高 40~90vh
+// 下拉超过该位移即收起，阈值偏小
+const DISMISS_THRESHOLD = 40
+
 let dragStartY = 0
-let dragStartH = 0
 
 const onSheetMove = (e: MouseEvent | TouchEvent) => {
   const y = 'touches' in e ? e.touches[0]!.clientY : e.clientY
-  const next = dragStartH + (dragStartY - y) // 上拖增高
-  sheetHeight.value = Math.max(window.innerHeight * 0.4, Math.min(window.innerHeight * 0.9, next))
+  // 只向下跟手
+  dragOffset.value = Math.max(0, y - dragStartY)
   if (e.cancelable) e.preventDefault()
 }
 
@@ -84,12 +87,19 @@ const onSheetUp = () => {
   window.removeEventListener('mouseup', onSheetUp)
   window.removeEventListener('touchmove', onSheetMove)
   window.removeEventListener('touchend', onSheetUp)
+  if (!isSheetDragging.value) return
+  const shouldDismiss = dragOffset.value > DISMISS_THRESHOLD
+  // 交还 CSS 过渡：收起或回弹
+  isSheetDragging.value = false
+  dragOffset.value = 0
+  if (shouldDismiss) emit('update:activeTab', null)
 }
 
 const startSheetDrag = (e: MouseEvent | TouchEvent) => {
   if (!isH5.value) return // 桌面兜底
   dragStartY = 'touches' in e ? e.touches[0]!.clientY : e.clientY
-  dragStartH = (e.currentTarget as HTMLElement).closest('.side-panel')!.getBoundingClientRect().height
+  dragOffset.value = 0
+  isSheetDragging.value = true
   window.addEventListener('mousemove', onSheetMove)
   window.addEventListener('mouseup', onSheetUp)
   window.addEventListener('touchmove', onSheetMove, { passive: false })
@@ -99,10 +109,8 @@ const startSheetDrag = (e: MouseEvent | TouchEvent) => {
 onBeforeUnmount(onSheetUp) // 兜底解绑
 
 // 转小屏自动收起
-// 离开 H5 复位高度
 watch(isH5, h5 => {
   if (h5 && props.activeTab !== null) emit('update:activeTab', null)
-  if (!h5) sheetHeight.value = null
 })
 </script>
 
@@ -273,7 +281,7 @@ watch(isH5, h5 => {
     width: 100vw !important;
     max-width: 100vw;
     min-width: 0;
-    // 高度随内容，拖拽后接管
+    // 高度随内容，CSS 约束
     max-height: 90vh;
     min-height: 40vh;
     transform: translateY(100%);
@@ -311,7 +319,7 @@ watch(isH5, h5 => {
     left: 0;
     right: 0;
     height: 24px;
-    cursor: ns-resize;
+    cursor: grab;
     touch-action: none;
     z-index: 2;
   }
