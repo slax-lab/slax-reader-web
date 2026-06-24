@@ -67,7 +67,9 @@ export class MarkRenderer extends Base {
       }
     } else {
       // 更新已存在的标记
-      const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="${info.id}"]`))
+      // 统一 root，避免作用域不一致
+      const root: ParentNode = this.config.containerDom ?? this.document
+      const slaxMarks = Array.from(root.querySelectorAll(`slax-mark[data-uuid="${info.id}"]`))
       slaxMarks.forEach(mark => {
         if (isStroke) mark.classList.add('stroke')
         else mark.classList.remove('stroke')
@@ -82,7 +84,27 @@ export class MarkRenderer extends Base {
       })
     }
 
+    // 行末评论 icon：取本条全部段
+    // 给尾段打/清 comment-tail
+    if (this.config.commentTailIndicator) {
+      const tailRoot: ParentNode = this.config.containerDom ?? this.document
+      const tailMarks = Array.from(tailRoot.querySelectorAll<HTMLElement>(`slax-mark[data-uuid="${info.id}"]`))
+      this.markCommentTail(isComment, tailMarks)
+    }
+
     return info.id
+  }
+
+  // 给带评论划线的尾段打 comment-tail
+  // 幂等：先清后标
+  private markCommentTail(isComment: boolean, marks: HTMLElement[]) {
+    if (!this.config.commentTailIndicator) return
+    marks.forEach(m => m.classList.remove('comment-tail'))
+    if (!isComment || marks.length === 0) return
+    // 末段是图片则跳过（已有 ···）
+    const tail = marks[marks.length - 1]
+    if (Array.from(tail.children).some(el => el.tagName === 'IMG')) return
+    tail.classList.add('comment-tail')
   }
 
   /**

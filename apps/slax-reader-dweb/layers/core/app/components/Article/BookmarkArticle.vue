@@ -359,6 +359,22 @@ defineExpose({
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
+  // 行末评论 icon：尾段渲染
+  // 点 icon 可开评论面板
+  &:deep(slax-mark.comment.comment-tail) {
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-left: 4px;
+      vertical-align: -2px;
+      background-color: var(--slax-accent);
+      -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>") no-repeat center / contain;
+      mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>") no-repeat center / contain;
+    }
+  }
+
   // hover 任一段，整条划线高亮
   &:deep(slax-mark:hover),
   &:deep(slax-mark.group-hover) {
