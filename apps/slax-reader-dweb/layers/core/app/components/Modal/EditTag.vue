@@ -11,11 +11,10 @@
         <div class="content">
           <textarea
             v-autofocus="{ enabled: appear }"
+            v-ime-guard
             v-model="editname"
             :placeholder="tagName"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-            @compositionstart="compositionstart"
-            @compositionend="compositionend"
           ></textarea>
         </div>
 
@@ -62,7 +61,6 @@ const isLoading = ref(false)
 const isLocked = useScrollLock(window)
 const appear = ref(false)
 const editname = ref('')
-const compositionAppear = ref(false)
 const confirmingDelete = ref(false)
 
 isLocked.value = true
@@ -141,16 +139,8 @@ const onAfterLeave = () => {
   emits('dismiss')
 }
 
-const compositionstart = () => {
-  compositionAppear.value = true
-}
-
-const compositionend = () => {
-  compositionAppear.value = false
-}
-
 const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key !== 'Enter' || compositionAppear.value) {
+  if (e.key !== 'Enter') {
     return
   }
 

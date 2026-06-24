@@ -30,6 +30,7 @@
         <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="() => (isAddingTag = false)">
           <input
             ref="searchInput"
+            v-ime-guard
             type="text"
             :placeholder="$t('component.bookmark_tags.placeholder')"
             v-model="searchText"

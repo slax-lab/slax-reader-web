@@ -42,11 +42,10 @@
             <div class="comment-input-wrapper">
               <textarea
                 ref="textarea"
+                v-ime-guard
                 v-model="inputText"
                 v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
                 :placeholder="textareaPlaceholder"
-                @compositionstart="compositionstart"
-                @compositionend="compositionend"
                 @input="handleInput"
               >
               </textarea>
@@ -119,7 +118,6 @@ const emits = defineEmits(['action', 'dismiss', 'commentDelete', 'windowResize',
 const userId = useUserStore().userInfo?.userId || 0
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = ref(t('component.article_selection.placeholder'))
-const compositionAppear = ref(false)
 const textarea = ref<HTMLTextAreaElement>()
 const inputText = ref('')
 const showInput = ref(props.info.stroke.length === 0 && props.info.comments.length === 0)
@@ -302,16 +300,8 @@ const replyComment = (options: { replyToUid: string; comment: string }) => {
   })
 }
 
-const compositionstart = () => {
-  compositionAppear.value = true
-}
-
-const compositionend = () => {
-  compositionAppear.value = false
-}
-
 const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key !== 'Enter' || compositionAppear.value) {
+  if (e.key !== 'Enter') {
     return
   }
 

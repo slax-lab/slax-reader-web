@@ -19,6 +19,7 @@
             </svg>
             <input
               v-autofocus
+              v-ime-guard
               type="url"
               class="modal-input"
               v-model="addUrlText"
