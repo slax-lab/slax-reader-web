@@ -12,12 +12,11 @@
         <div class="tag-input-wrap" v-else>
           <input
             v-autofocus
+            v-ime-guard
             type="text"
             :disabled="isAddingTagLoading"
             v-model="addingTagName"
             :placeholder="t('component.tags_header.add_tag_placeholder')"
-            @compositionstart="compositionstart"
-            @compositionend="compositionend"
             v-on-key-stroke:Escape,Enter="[onKeyDown, { eventName: 'keydown' }]"
           />
           <button v-if="!isAddingTagLoading" @click="saveTag" class="tag-input-confirm">
@@ -98,7 +97,6 @@ const localActive = !!userTags
 const isTagLoading = ref(false)
 const isAddingTagLoading = ref(false)
 const isAddingTag = ref(false)
-const compositionAppear = ref(false)
 const addingTagName = ref('')
 // tags 双轨：LF 只读 / REST ref
 const restTags = ref<BookmarkTag[]>([])
@@ -239,10 +237,6 @@ const saveTag = async () => {
 }
 
 const onKeyDown = async (e: KeyboardEvent) => {
-  if (compositionAppear.value) {
-    return
-  }
-
   if (e.key !== 'Enter') {
     if (e.key === 'Escape') {
       isAddingTag.value = false
@@ -264,13 +258,6 @@ const unselectTag = () => {
   emits('select-tag', null)
 }
 
-const compositionstart = () => {
-  compositionAppear.value = true
-}
-
-const compositionend = () => {
-  compositionAppear.value = false
-}
 </script>
 
 <style lang="scss" scoped>

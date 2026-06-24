@@ -10,6 +10,7 @@
 
     <!-- 搜索输入框 -->
     <input
+      v-ime-guard
       class="search-input"
       :placeholder="$t('page.bookmarks_index.search_placeholder')"
       v-model="keyword"

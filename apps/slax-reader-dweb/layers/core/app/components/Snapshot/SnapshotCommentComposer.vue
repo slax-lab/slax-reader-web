@@ -16,6 +16,7 @@
     <textarea
       ref="textareaRef"
       v-autofocus
+      v-ime-guard
       v-model="inputText"
       class="comment-composer-textarea"
       :placeholder="$t('page.bookmarks_detail.comment_placeholder')"

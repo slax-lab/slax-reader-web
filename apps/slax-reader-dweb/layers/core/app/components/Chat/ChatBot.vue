@@ -49,13 +49,12 @@
         <div class="textarea-wrapper" :class="{ focus: isFocus }">
           <textarea
             ref="textarea"
+            v-ime-guard
             v-model="inputText"
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
             :placeholder="textareaPlaceholder"
             @focus="isFocus = true"
             @blur="isFocus = false"
-            @compositionstart="compositionstart"
-            @compositionend="compositionend"
             @input="handleInput"
           ></textarea>
           <button class="chat-send-btn" :class="{ disabled: !sendable }" @click="sendMessage">
@@ -281,7 +280,6 @@ bot.chatStatusUpdateHandler = (chatting: boolean) => {
 
 const isMac = /Mac/i.test(navigator.platform || navigator.userAgent)
 const textareaPlaceholder = t(`component.chat_bot.{alias}_placeholder`, { alias: isMac ? 'cmd' : 'ctrl' })
-const compositionAppear = ref(false)
 const isInited = ref(false)
 const chat = ref<HTMLDivElement>()
 const messages = ref<HTMLDivElement>()
@@ -517,7 +515,7 @@ const relatedQuestionClick = (message: BubbleMessageItem, question: { content: s
 }
 
 const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key !== 'Enter' || compositionAppear.value) {
+  if (e.key !== 'Enter') {
     return
   }
 
@@ -729,14 +727,6 @@ const getHistoryMessages = () => {
   }
 
   return history
-}
-
-const compositionstart = () => {
-  compositionAppear.value = true
-}
-
-const compositionend = () => {
-  compositionAppear.value = false
 }
 
 const shakeTextarea = () => {
