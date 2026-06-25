@@ -20,17 +20,17 @@ slax-mark {
   }
 } */
 
-slax-mark.comment,
-slax-mark.stroke {
+slax-mark.slax-mk-comment,
+slax-mark.slax-mk-stroke {
   cursor: pointer;
   border-bottom: 1.5px dashed var(--slax-mark-border-color) !important;
 }
 
-slax-mark.self-stroke {
+slax-mark.slax-mk-self-stroke {
   border-bottom: 1.5px solid var(--slax-mark-border-color) !important;
 }
 
-slax-mark.highlighted {
+slax-mark.slax-mk-highlighted {
   background-color: var(--slax-mark-highlight-bg);
 }
 
@@ -40,11 +40,11 @@ slax-mark:has(img) {
   display: inline-block;
 }
 
-slax-mark:has(img).comment {
+slax-mark:has(img).slax-mk-comment {
   border: 2px dashed var(--slax-mark-border-color) !important;
 }
 
-slax-mark:has(img).stroke {
+slax-mark:has(img).slax-mk-stroke {
   border: 2px solid var(--slax-mark-border-color) !important;
 }
 

@@ -92,6 +92,17 @@ button {
   background-color: transparent;
 }
 
+// 隐藏滚动条但保留滚动
+// 用法：class="scrollbar-hide"
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 // transition 动画
 
 .opacity-leave-to,

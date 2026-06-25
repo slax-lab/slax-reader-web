@@ -7,7 +7,7 @@ slax-mark {
 
 /* !important 压制插件注入的 CSS
    否则划线样式被插件覆盖 */
-slax-mark.stroke {
+slax-mark.slax-mk-stroke {
   cursor: pointer;
   text-decoration: underline dashed !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -17,7 +17,7 @@ slax-mark.stroke {
   border-bottom: none !important;
 }
 
-slax-mark.self-stroke {
+slax-mark.slax-mk-self-stroke {
   cursor: pointer;
   text-decoration: underline dashed !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -27,7 +27,7 @@ slax-mark.self-stroke {
   border-bottom: none !important;
 }
 
-slax-mark.comment {
+slax-mark.slax-mk-comment {
   cursor: pointer;
   text-decoration: underline solid !important;
   text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -44,7 +44,7 @@ slax-mark.group-hover {
   background: var(--slax-accent-bg);
 }
 
-slax-mark.highlighted {
+slax-mark.slax-mk-highlighted {
   background-color: #fcf4e8;
 }
 
@@ -54,8 +54,8 @@ slax-mark:has(img) {
   display: inline-block;
 }
 
-slax-mark:has(img).stroke,
-slax-mark:has(img).comment {
+slax-mark:has(img).slax-mk-stroke,
+slax-mark:has(img).slax-mk-comment {
   border: 1.5px solid var(--slax-accent) !important;
   text-decoration: none !important;
 }

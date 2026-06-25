@@ -403,8 +403,7 @@
       "suggestion_3": "作者的主要论据是什么？"
     },
     "snapshot_comment": {
-      "empty_desc": "在正文中划选内容，即可划线或写下评论",
-      "empty_title": "边读边划线、写评论"
+      "empty_desc": "试试框选感兴趣的内容发表点评"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "以后不再提醒",

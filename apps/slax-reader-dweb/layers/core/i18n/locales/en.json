@@ -403,8 +403,7 @@
       "suggestion_3": "What are the author's main arguments?"
     },
     "snapshot_comment": {
-      "empty_desc": "Select text in the article to highlight it or leave a comment",
-      "empty_title": "Highlight and comment as you read"
+      "empty_desc": "Try selecting content you're interested in to leave a comment"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",

@@ -1,8 +1,13 @@
 /// 文章内容通用样式 mixin，供 article 和 tweet-content 复用
 @mixin content-styles {
+  * {
+    --style: 'whitespace-normal';
+  }
+
   video,
   section,
   pre,
+  code,
   p,
   hr,
   h1,
@@ -13,7 +18,7 @@
   p,
   :not(li) > ul,
   :not(li) > ol {
-    --style: '!mt-24px whitespace-pre-line';
+    --style: '!mt-24px';
   }
 
   /* 文本元素后紧跟的 div 补间距 */
@@ -29,6 +34,10 @@
   /* 容器内首尾元素去掉上下外边距，
      避免被 blockquote 等包裹时多余空隙 */
   :first-child {
+    --style: '!mt-0';
+  }
+
+  :first-child:empty + * {
     --style: '!mt-0';
   }
 
@@ -187,7 +196,7 @@
   }
 
   code {
-    --style: text-left;
+    --style: text-left whitespace-pre;
     background: var(--slax-surface);
     border: 1px solid var(--slax-border);
     border-radius: 3px;

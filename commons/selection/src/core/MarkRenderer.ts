@@ -71,14 +71,14 @@ export class MarkRenderer extends Base {
       const root: ParentNode = this.config.containerDom ?? this.document
       const slaxMarks = Array.from(root.querySelectorAll(`slax-mark[data-uuid="${info.id}"]`))
       slaxMarks.forEach(mark => {
-        if (isStroke) mark.classList.add('stroke')
-        else mark.classList.remove('stroke')
+        if (isStroke) mark.classList.add('slax-mk-stroke')
+        else mark.classList.remove('slax-mk-stroke')
 
-        if (isComment) mark.classList.add('comment')
-        else mark.classList.remove('comment')
+        if (isComment) mark.classList.add('slax-mk-comment')
+        else mark.classList.remove('slax-mk-comment')
 
-        if (isSelfStroke) mark.classList.add('self-stroke')
-        else mark.classList.remove('self-stroke')
+        if (isSelfStroke) mark.classList.add('slax-mk-self-stroke')
+        else mark.classList.remove('slax-mk-self-stroke')
 
         if (!isStroke && !isComment) removeOuterTag(mark)
       })
@@ -99,12 +99,12 @@ export class MarkRenderer extends Base {
   // 幂等：先清后标
   private markCommentTail(isComment: boolean, marks: HTMLElement[]) {
     if (!this.config.commentTailIndicator) return
-    marks.forEach(m => m.classList.remove('comment-tail'))
+    marks.forEach(m => m.classList.remove('slax-mk-comment-tail'))
     if (!isComment || marks.length === 0) return
     // 末段是图片则跳过（已有 ···）
     const tail = marks[marks.length - 1]
     if (Array.from(tail.children).some(el => el.tagName === 'IMG')) return
-    tail.classList.add('comment-tail')
+    tail.classList.add('slax-mk-comment-tail')
   }
 
   /**
@@ -181,10 +181,10 @@ export class MarkRenderer extends Base {
     range.setEnd(node, end)
     const mark = this.document.createElement('slax-mark')
     mark.dataset.uuid = id
-    if (isStroke) mark.classList.add('stroke')
-    if (isComment) mark.classList.add('comment')
-    if (isSelfStroke) mark.classList.add('self-stroke')
-    if (isHighlighted) mark.classList.add('highlighted')
+    if (isStroke) mark.classList.add('slax-mk-stroke')
+    if (isComment) mark.classList.add('slax-mk-comment')
+    if (isSelfStroke) mark.classList.add('slax-mk-self-stroke')
+    if (isHighlighted) mark.classList.add('slax-mk-highlighted')
 
     mark.onclick = e => {
       const target = e.target as HTMLElement
@@ -202,10 +202,10 @@ export class MarkRenderer extends Base {
     const { id, ele, isStroke, isComment, isSelfStroke, isHighlighted } = info
     const mark = this.document.createElement('slax-mark')
     mark.dataset.uuid = id
-    if (isStroke) mark.classList.add('stroke')
-    if (isComment) mark.classList.add('comment')
-    if (isSelfStroke) mark.classList.add('self-stroke')
-    if (isHighlighted) mark.classList.add('highlighted')
+    if (isStroke) mark.classList.add('slax-mk-stroke')
+    if (isComment) mark.classList.add('slax-mk-comment')
+    if (isSelfStroke) mark.classList.add('slax-mk-self-stroke')
+    if (isHighlighted) mark.classList.add('slax-mk-highlighted')
 
     mark.onclick = e => {
       const target = e.target as HTMLElement
