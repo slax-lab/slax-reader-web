@@ -10,13 +10,13 @@
 
     <div class="side-panel-body">
       <!-- 三 tab 常挂载，避免丢缓存 -->
-      <div v-show="activeTab === 'ai'" class="panel-slot">
+      <div v-show="activeTab === 'ai'" class="panel-slot scrollbar-hide">
         <slot name="ai" />
       </div>
-      <div v-show="activeTab === 'chat'" class="panel-slot">
+      <div v-show="activeTab === 'chat'" class="panel-slot scrollbar-hide">
         <slot name="chat" />
       </div>
-      <div v-show="activeTab === 'comment'" class="panel-slot">
+      <div v-show="activeTab === 'comment'" class="panel-slot scrollbar-hide">
         <slot name="comment" />
       </div>
     </div>

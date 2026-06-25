@@ -13,7 +13,6 @@
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
         </svg>
       </div>
-      <div class="comment-empty-title">{{ $t('component.snapshot_comment.empty_title') }}</div>
       <div class="comment-empty-desc">{{ $t('component.snapshot_comment.empty_desc') }}</div>
     </div>
 
