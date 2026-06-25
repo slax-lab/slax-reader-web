@@ -4,7 +4,12 @@ import { RESTMethodPath } from '@commons/types/const'
 
 export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
   const { t } = useI18n()
-  const title = computed(() => (isBookmarkDetail(detail.value) ? detail.value.alias_title || detail.value.title : detail.value.title) || t('component.bookmark_article.no_title'))
+
+  const title = computed(
+    () =>
+      (isBookmarkDetail(detail.value) || isSnapshotBookmarkDetail(detail.value) ? detail.value.alias_title || detail.value.title : detail.value.title) ||
+      t('component.bookmark_article.no_title')
+  )
 
   const { allowAction, bookmarkUserId } = useBookmarkArticleRelative(detail)
   const allowStarred = computed(() => {
