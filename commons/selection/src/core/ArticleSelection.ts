@@ -100,7 +100,7 @@ export class ArticleSelection extends Base {
   findQuote(quote: QuoteData) {
     // 清除所有高亮
     const allMarks = Array.from(this.document.querySelectorAll(`slax-mark`))
-    allMarks.forEach(mark => mark.classList.remove('highlighted'))
+    allMarks.forEach(mark => mark.classList.remove('slax-mk-highlighted'))
 
     if (quote.source.selection) {
       // 使用原生Selection API高亮
@@ -140,12 +140,12 @@ export class ArticleSelection extends Base {
       const slaxMarks = Array.from(this.document.querySelectorAll(`slax-mark[data-uuid="${quote.source.id}"]`))
       if (slaxMarks.length === 0) return
 
-      slaxMarks.forEach(mark => mark.classList.add('highlighted'))
+      slaxMarks.forEach(mark => mark.classList.add('slax-mk-highlighted'))
       slaxMarks[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
 
       // 点击任意位置清除高亮
       const clickHandler = () => {
-        slaxMarks.forEach(mark => mark.classList.remove('highlighted'))
+        slaxMarks.forEach(mark => mark.classList.remove('slax-mk-highlighted'))
         this.config.monitorDom?.removeEventListener('click', clickHandler)
       }
       this.config.monitorDom?.addEventListener('click', clickHandler)

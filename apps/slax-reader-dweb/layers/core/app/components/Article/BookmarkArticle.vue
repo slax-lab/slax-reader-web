@@ -317,7 +317,7 @@ defineExpose({
 
   // !important 压制插件注入的 CSS
   // 否则划线样式被插件覆盖
-  &:deep(slax-mark.stroke) {
+  &:deep(slax-mark.slax-mk-stroke) {
     cursor: pointer;
     text-decoration: underline dashed !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -327,7 +327,7 @@ defineExpose({
     border-bottom: none !important;
   }
 
-  &:deep(slax-mark.self-stroke) {
+  &:deep(slax-mark.slax-mk-self-stroke) {
     cursor: pointer;
     text-decoration: underline dashed !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -337,7 +337,7 @@ defineExpose({
     border-bottom: none !important;
   }
 
-  &:deep(slax-mark.comment) {
+  &:deep(slax-mark.slax-mk-comment) {
     cursor: pointer;
     text-decoration: underline solid !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
@@ -349,19 +349,19 @@ defineExpose({
 
   // 划线+评论并存时统一用实线，
   // class 叠加抬高特异性压过 .stroke
-  &:deep(slax-mark.comment.stroke) {
+  &:deep(slax-mark.slax-mk-comment.slax-mk-stroke) {
     text-decoration: underline solid !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
-  &:deep(slax-mark.comment.self-stroke) {
+  &:deep(slax-mark.slax-mk-comment.slax-mk-self-stroke) {
     text-decoration: underline solid !important;
     text-decoration-color: color-mix(in srgb, var(--slax-accent) 50%, transparent) !important;
   }
 
   // 行末评论 icon：尾段渲染
   // 点 icon 可开评论面板
-  &:deep(slax-mark.comment.comment-tail) {
+  &:deep(slax-mark.slax-mk-comment.slax-mk-comment-tail) {
     &::after {
       content: '';
       display: inline-block;
@@ -382,12 +382,12 @@ defineExpose({
     background: var(--slax-accent-bg);
   }
 
-  &:deep(slax-mark.highlighted) {
+  &:deep(slax-mark.slax-mk-highlighted) {
     --style: 'bg-#FCF4E8';
   }
 
-  &:deep(slax-mark:has(img).stroke),
-  &:deep(slax-mark:has(img).comment) {
+  &:deep(slax-mark:has(img).slax-mk-stroke),
+  &:deep(slax-mark:has(img).slax-mk-comment) {
     border: 1.5px solid var(--slax-accent) !important;
     text-decoration: none;
   }
