@@ -22,7 +22,8 @@ import {
   VideoProcessor,
   type WebProcessorContext,
   WechatHeaderProcessor,
-  WechatVideoProcessor
+  WechatVideoProcessor,
+  YoutubeProcessor
 } from '#layers/core/app/components/Article/processors'
 import {
   DwebBookmarkProvider,
@@ -120,6 +121,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       .register(new SvgProcessor())
       .register(new ListProcessor())
       .register(new AnchorProcessor())
+      .register(new YoutubeProcessor())
       .register(new VideoProcessor())
       .register(new IFrameProcessor())
       .register(new WechatVideoProcessor())

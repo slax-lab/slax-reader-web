@@ -9,9 +9,12 @@
     <div class="side-panel-grab" @mousedown="startSheetDrag" @touchstart.prevent="startSheetDrag" />
 
     <div class="side-panel-body">
-      <!-- 三 tab 常挂载，避免丢缓存 -->
+      <!-- 各 tab 常挂载，避免丢缓存 -->
       <div v-show="activeTab === 'ai'" class="panel-slot scrollbar-hide">
         <slot name="ai" />
+      </div>
+      <div v-show="activeTab === 'transcript'" class="panel-slot scrollbar-hide">
+        <slot name="transcript" />
       </div>
       <div v-show="activeTab === 'chat'" class="panel-slot scrollbar-hide">
         <slot name="chat" />
