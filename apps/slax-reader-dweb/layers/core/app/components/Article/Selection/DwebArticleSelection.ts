@@ -41,8 +41,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
     this.manager.updateCurrentMarkItemInfo(infoItem)
     this.manager.showPanel()
 
-    // 纯评论或访客：不弹菜单
-    if (infoItem.stroke.length === 0 || !this.config.allowAction) return
+    // 访客不可操作：不弹菜单
+    if (!this.config.allowAction) return
 
     // 延后到 click 结束再弹，
     // 避开 click-outside 与重复 mouseup
@@ -317,9 +317,12 @@ export class DwebArticleSelection extends BaseArticleSelection {
     let menusY = 0
     this.modal.showMenus({
       event: e,
-      isStroked: true,
+      // 有划线才显「删除划线」，否则显「划线」
+      isStroked: info.stroke.length > 0,
       callback: (type: MenuType, event: MouseEvent) => {
-        if (type === ('stroke_delete' as MenuType)) {
+        if (type === ('stroke' as MenuType)) {
+          this.manager.strokeSelection({ info })
+        } else if (type === ('stroke_delete' as MenuType)) {
           this.manager.deleteStroke(info)
         } else if (type === ('copy' as MenuType)) {
           this.manager.copyMarkedText({ source: info.source, approx: info.approx, event })

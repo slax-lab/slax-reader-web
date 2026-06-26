@@ -181,7 +181,7 @@ describe('DwebArticleSelection', () => {
       expect(mockManager.showPanel).not.toHaveBeenCalled()
     })
 
-    it('纯评论（无 stroke）：updateCurrentMarkItemInfo + showPanel，不弹菜单', () => {
+    it('纯评论（无 stroke）：showPanel + 弹菜单（isStroked=false）', async () => {
       const config = buildConfig()
       const modal = buildModal()
       const info = { id: 'c1', source: [], comments: [{ markUid: 'x' }], stroke: [] }
@@ -191,9 +191,11 @@ describe('DwebArticleSelection', () => {
       const mark = makeMark('c1', config)
 
       handler(mark, new MouseEvent('click') as PointerEvent)
+      await vi.runAllTimersAsync()
       expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(info)
       expect(mockManager.showPanel).toHaveBeenCalled()
-      expect(modal.showMenus).not.toHaveBeenCalled()
+      expect(modal.showMenus).toHaveBeenCalledTimes(1)
+      expect(modal.showMenus.mock.calls[0]![0]).toMatchObject({ isStroked: false })
     })
 
     it('不可操作（allowAction=false）：即便有 stroke 也退回 showPanel', () => {
