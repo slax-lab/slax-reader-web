@@ -1,9 +1,10 @@
 import { getElementFullSelector } from '@commons/utils/dom'
 
+import type { MarkModal } from './modal'
 import { getUUID } from './tools'
 import { ArticleSelection as BaseArticleSelection, type IMarkModal } from '@slax-reader/selection'
-import type { SelectionDependencies } from '@slax-reader/selection/adapters'
-import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
+import type { IUserProvider, SelectionDependencies } from '@slax-reader/selection/adapters'
+import type { MarkCommentInfo, MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
 
 /**
  * Dweb端ArticleSelection扩展
@@ -11,7 +12,9 @@ import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData
  * 继承自commons/selection的基础实现，添加dweb特定的业务逻辑
  */
 export class DwebArticleSelection extends BaseArticleSelection {
-  private modal: IMarkModal
+  // 用 MarkModal 具体类型，showMenus 支持 hideComment 扩展项
+  private modal: MarkModal
+  private userProvider: IUserProvider
 
   // 上次弹菜单的目标（选区/图片）
   // 用于跳过滚动等重复 touchend
@@ -20,7 +23,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
 
   constructor(config: SelectionConfig, dependencies: SelectionDependencies, modal: IMarkModal) {
     super(config, dependencies, modal)
-    this.modal = modal
+    this.modal = modal as MarkModal
+    this.userProvider = dependencies.userProvider
     // 点击已有划线时弹出选区菜单
     this.renderer.setMarkClickHandler(this.handleExistingMarkClick.bind(this))
   }
@@ -309,6 +313,15 @@ export class DwebArticleSelection extends BaseArticleSelection {
     })
   }
 
+  /** 本人是否已对该划线评论过（含子回复） */
+  private hasOwnComment(info: MarkItemInfo): boolean {
+    const userId = this.userProvider.getUserId()
+    if (!userId) return false
+    const hit = (list: MarkCommentInfo[]): boolean =>
+      list.some(c => (c.userId === userId && !c.isDeleted) || hit(c.children ?? []))
+    return hit(info.comments)
+  }
+
   /**
    * 精确命中已有划线时的选区菜单：复制 / 删除划线 / 评论 / Chat。
    * 与新选区菜单（handleMouseUp 内联块）分开，避免误改已存在标记的 id 语义。
@@ -319,6 +332,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
       event: e,
       // 有划线才显「删除划线」，否则显「划线」
       isStroked: info.stroke.length > 0,
+      // 本人已评论过该划线则隐藏「评论」
+      hideComment: this.hasOwnComment(info),
       callback: (type: MenuType, event: MouseEvent) => {
         if (type === ('stroke' as MenuType)) {
           this.manager.strokeSelection({ info })

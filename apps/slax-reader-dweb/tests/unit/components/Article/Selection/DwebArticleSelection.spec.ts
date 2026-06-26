@@ -109,8 +109,8 @@ function buildModal() {
   }
 }
 
-function buildDeps() {
-  return {} as never
+function buildDeps(userId: number | null = 1) {
+  return { userProvider: { getUserId: () => userId } } as never
 }
 
 beforeEach(() => {
@@ -227,6 +227,34 @@ describe('DwebArticleSelection', () => {
       expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(info)
       expect(modal.showMenus).toHaveBeenCalledTimes(1)
       expect(modal.showMenus.mock.calls[0]![0]).toMatchObject({ isStroked: true })
+    })
+
+    it('本人已评论该划线：菜单带 hideComment=true', async () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const info = { id: 'h1', source: [], comments: [{ markUid: 'a', userId: 1, isDeleted: false, children: [] }], stroke: [] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(1), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('h1', config)
+
+      handler(mark, new MouseEvent('click') as PointerEvent)
+      await vi.runAllTimersAsync()
+      expect(modal.showMenus.mock.calls[0]![0]).toMatchObject({ hideComment: true })
+    })
+
+    it('他人评论该划线：本人未评论则 hideComment=false', async () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const info = { id: 'h2', source: [], comments: [{ markUid: 'a', userId: 2, isDeleted: false, children: [] }], stroke: [] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(1), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('h2', config)
+
+      handler(mark, new MouseEvent('click') as PointerEvent)
+      await vi.runAllTimersAsync()
+      expect(modal.showMenus.mock.calls[0]![0]).toMatchObject({ hideComment: false })
     })
 
     it('点击命中 img 等子元素：closest 上溯到 slax-mark', () => {
