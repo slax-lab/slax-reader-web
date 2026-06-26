@@ -172,6 +172,10 @@
       "overview_label": "Overview",
       "retry": "Failed to load, click to retry"
     },
+    "transcript_panel": {
+      "title": "Transcript",
+      "empty": "No transcript available"
+    },
     "ai_summaries": {
       "click_to_expand": "Click any circle to explore more details",
       "click_to_interpret": "Click the button to interpret this article",

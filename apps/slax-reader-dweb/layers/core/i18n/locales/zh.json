@@ -172,6 +172,10 @@
       "overview_label": "全文概要",
       "retry": "加载失败，点击重试"
     },
+    "transcript_panel": {
+      "title": "字幕",
+      "empty": "暂无字幕"
+    },
     "ai_summaries": {
       "click_to_expand": "点击彩色圆点可展开/收起节点",
       "click_to_interpret": "点击按钮解读此文章",

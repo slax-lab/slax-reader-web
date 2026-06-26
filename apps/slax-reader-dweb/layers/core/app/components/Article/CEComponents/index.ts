@@ -5,6 +5,7 @@ import TweetFooterInfo from './tweet/TweetFooterInfo.ce.vue'
 import TweetUserInfo from './tweet/TweetUserInfo.ce.vue'
 import UnsupportedVideo from './UnsupportedVideo.ce.vue'
 import WechatVideoInfo from './WechatVideoInfo.ce.vue'
+import YoutubePlayer from './youtube/YoutubePlayer.ce.vue'
 
 import { isClient } from '@commons/utils/is'
 
@@ -24,7 +25,8 @@ export const registerComponents = () => {
     'unsupported-video': UnsupportedVideoElement,
     'photo-swiper-dots': PhotoSwiperDotsElement,
     'tweet-user-info': TweetUserInfoElement,
-    'twwet-footer-info': TweetFooterInfoElement
+    'twwet-footer-info': TweetFooterInfoElement,
+    'youtube-player-view': YoutubePlayerElement
   }
 
   Object.entries(refs).forEach(([key, value]) => {
@@ -43,3 +45,4 @@ export const UnsupportedVideoElement = defineCustomElement(UnsupportedVideo)
 export const PhotoSwiperDotsElement = defineCustomElement(PhotoSwiperDots)
 export const TweetUserInfoElement = defineCustomElement(TweetUserInfo)
 export const TweetFooterInfoElement = defineCustomElement(TweetFooterInfo)
+export const YoutubePlayerElement = defineCustomElement(YoutubePlayer)

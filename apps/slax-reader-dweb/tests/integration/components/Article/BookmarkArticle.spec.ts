@@ -2,7 +2,7 @@
 // 覆盖：渲染（title/byline/date/url/star）/ articleStyle 三种风格 / dateString 三分支 / urlString 计算 /
 //      starBookmark（成功/失败 + Toast）/ websiteClick / handleHTML（DOMPipeline run）/ handleDrawMark / jumpToHighLight
 // 关键约束：
-//  - 真实依赖按 phase5-plan §B.1 修订 4 mock 链路（含 ToastType / processors 12+ArticleStyle/DOMPipeline / Toast/CursorToast/ImagePreview）
+//  - 真实依赖按 phase5-plan §B.1 修订 4 mock 链路（含 ToastType / processors 13+ArticleStyle/DOMPipeline / Toast/CursorToast/ImagePreview）
 //  - useArticleDetail vi.mock 全替换返回受控 ref
 //  - MarkModal / DwebArticleSelection / 6 个 adapters / registerComponents 全 stub
 //  - katex/dist/katex.css import 副作用 vi.mock noop
@@ -144,7 +144,6 @@ vi.mock('~~/layers/core/app/components/Article/CEComponents', () => ({
   registerComponents: vi.fn()
 }))
 
-// Stub processors（按 phase5-plan §B.1 修订 4：12 个 Processor + ArticleStyle enum + DOMPipeline 链式 stub）
 const { pipelineRegistered, pipelineRunCalls } = vi.hoisted(() => ({
   pipelineRegistered: [] as unknown[],
   pipelineRunCalls: [] as unknown[]
@@ -173,7 +172,8 @@ vi.mock('~~/layers/core/app/components/Article/processors', () => {
     TweetProcessor: class {},
     VideoProcessor: class {},
     WechatHeaderProcessor: class {},
-    WechatVideoProcessor: class {}
+    WechatVideoProcessor: class {},
+    YoutubeProcessor: class {}
   }
 })
 
@@ -359,11 +359,11 @@ describe('Article/BookmarkArticle', () => {
   })
 
   describe('handleHTML + handleDrawMark 流程', () => {
-    it('onMounted 后：DOMPipeline 注册 12 个 processor 并 run 一次', async () => {
+    it('onMounted 后：DOMPipeline 注册 13 个 processor 并 run 一次', async () => {
       mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       await flushPromises()
       await flushPromises()
-      expect(pipelineRegistered.length).toBe(12)
+      expect(pipelineRegistered.length).toBe(13)
       expect(pipelineRunCalls.length).toBe(1)
     })
 
