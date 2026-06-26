@@ -59,6 +59,11 @@ const props = defineProps({
   isStroked: {
     type: Boolean,
     required: false
+  },
+  // 本人已评论该划线时隐藏「评论」项
+  hideComment: {
+    type: Boolean,
+    required: false
   }
 })
 const emits = defineEmits(['action', 'dismiss', 'noAction'])
@@ -92,13 +97,16 @@ const updateMenus = () => {
             id: MenuType.Stroke,
             name: t('common.operate.line'),
             icon: ICON_STROKE
-          },
-      {
+          }
+    )
+    // 本人未评论过才显「评论」
+    if (!props.hideComment) {
+      menus.value.push({
         id: MenuType.Comment,
         name: t('common.operate.comment'),
         icon: ICON_COMMENT
-      }
-    )
+      })
+    }
   }
 
   if (props.allowChatbot) {
@@ -130,7 +138,7 @@ const handleClickOutside = () => {
 }
 
 watch(
-  () => [props.allowAction, props.allowChatbot, props.isStroked],
+  () => [props.allowAction, props.allowChatbot, props.isStroked, props.hideComment],
   () => {
     updateMenus()
   },

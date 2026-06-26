@@ -1,8 +1,9 @@
 import { getElementFullSelector } from '@commons/utils/dom'
 
+import type { MarkModal } from './modal'
 import { getUUID } from './tools'
 import { ArticleSelection as BaseArticleSelection, type IMarkModal } from '@slax-reader/selection'
-import type { SelectionDependencies } from '@slax-reader/selection/adapters'
+import type { IUserProvider, SelectionDependencies } from '@slax-reader/selection/adapters'
 import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
 
 /**
@@ -11,7 +12,9 @@ import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData
  * 继承自commons/selection的基础实现，添加dweb特定的业务逻辑
  */
 export class DwebArticleSelection extends BaseArticleSelection {
-  private modal: IMarkModal
+  // 用 MarkModal 具体类型，showMenus 支持 hideComment 扩展项
+  private modal: MarkModal
+  private userProvider: IUserProvider
 
   // 上次弹菜单的目标（选区/图片）
   // 用于跳过滚动等重复 touchend
@@ -20,7 +23,58 @@ export class DwebArticleSelection extends BaseArticleSelection {
 
   constructor(config: SelectionConfig, dependencies: SelectionDependencies, modal: IMarkModal) {
     super(config, dependencies, modal)
-    this.modal = modal
+    this.modal = modal as MarkModal
+    this.userProvider = dependencies.userProvider
+    // 点击已有划线时弹出选区菜单
+    this.renderer.setMarkClickHandler(this.handleExistingMarkClick.bind(this))
+  }
+
+  /**
+   * 点击已有划线：保留原侧栏逻辑，
+   * 本人可操作的划线再加弹菜单
+   */
+  private handleExistingMarkClick(ele: HTMLElement, event: PointerEvent) {
+    const markEl = (ele.closest?.('slax-mark') as HTMLElement | null) ?? ele
+    const id = markEl?.dataset.uuid
+    if (!id || id === '0') return
+
+    const infoItem = this.markItemInfos.value.find(item => item.id === id)
+    if (!infoItem) return
+
+    // 原逻辑：打开评论侧栏
+    this.manager.updateCurrentMarkItemInfo(infoItem)
+    this.manager.showPanel()
+
+    // 访客不可操作：不弹菜单
+    if (!this.config.allowAction) return
+
+    // 延后到 click 结束再弹，
+    // 避开 click-outside 与重复 mouseup
+    setTimeout(() => {
+      const range = this.selectMarkContents(id)
+      if (!range) return
+      this.rememberMenuSelection(range)
+      this.showExistingMarkMenus(event, infoItem)
+    }, 0)
+  }
+
+  /** 选中该条划线全部分段，供菜单定位 */
+  private selectMarkContents(id: string): Range | null {
+    const root: ParentNode = this.config.monitorDom ?? this.document
+    const marks = Array.from(root.querySelectorAll(`slax-mark[data-uuid="${id}"]`)) as HTMLElement[]
+    const first = marks[0]
+    const last = marks[marks.length - 1]
+    if (!first || !last) return null
+
+    const range = first.ownerDocument.createRange()
+    range.setStartBefore(first)
+    range.setEndAfter(last)
+
+    const selection = this.getSelection()
+    if (!selection) return null
+    selection.removeAllRanges()
+    selection.addRange(range)
+    return range
   }
 
   // 选区与上次一致即视为重复，跳过
@@ -259,6 +313,13 @@ export class DwebArticleSelection extends BaseArticleSelection {
     })
   }
 
+  /** 本人是否已对该划线发过根评论 */
+  private hasOwnComment(info: MarkItemInfo): boolean {
+    const userId = this.userProvider.getUserId()
+    if (!userId) return false
+    return info.comments.some(c => c.userId === userId && !c.isDeleted)
+  }
+
   /**
    * 精确命中已有划线时的选区菜单：复制 / 删除划线 / 评论 / Chat。
    * 与新选区菜单（handleMouseUp 内联块）分开，避免误改已存在标记的 id 语义。
@@ -267,9 +328,14 @@ export class DwebArticleSelection extends BaseArticleSelection {
     let menusY = 0
     this.modal.showMenus({
       event: e,
-      isStroked: true,
+      // 有划线才显「删除划线」，否则显「划线」
+      isStroked: info.stroke.length > 0,
+      // 本人已评论过该划线则隐藏「评论」
+      hideComment: this.hasOwnComment(info),
       callback: (type: MenuType, event: MouseEvent) => {
-        if (type === ('stroke_delete' as MenuType)) {
+        if (type === ('stroke' as MenuType)) {
+          this.manager.strokeSelection({ info })
+        } else if (type === ('stroke_delete' as MenuType)) {
           this.manager.deleteStroke(info)
         } else if (type === ('copy' as MenuType)) {
           this.manager.copyMarkedText({ source: info.source, approx: info.approx, event })
