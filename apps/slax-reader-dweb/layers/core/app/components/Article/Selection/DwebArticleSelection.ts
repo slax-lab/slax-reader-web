@@ -4,7 +4,7 @@ import type { MarkModal } from './modal'
 import { getUUID } from './tools'
 import { ArticleSelection as BaseArticleSelection, type IMarkModal } from '@slax-reader/selection'
 import type { IUserProvider, SelectionDependencies } from '@slax-reader/selection/adapters'
-import type { MarkCommentInfo, MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
+import type { MarkItemInfo, MarkPathItem, MarkSelectContent, MenuType, QuoteData, SelectionConfig, SelectTextInfo } from '@slax-reader/selection/types'
 
 /**
  * Dweb端ArticleSelection扩展
@@ -313,13 +313,11 @@ export class DwebArticleSelection extends BaseArticleSelection {
     })
   }
 
-  /** 本人是否已对该划线评论过（含子回复） */
+  /** 本人是否已对该划线发过根评论 */
   private hasOwnComment(info: MarkItemInfo): boolean {
     const userId = this.userProvider.getUserId()
     if (!userId) return false
-    const hit = (list: MarkCommentInfo[]): boolean =>
-      list.some(c => (c.userId === userId && !c.isDeleted) || hit(c.children ?? []))
-    return hit(info.comments)
+    return info.comments.some(c => c.userId === userId && !c.isDeleted)
   }
 
   /**
