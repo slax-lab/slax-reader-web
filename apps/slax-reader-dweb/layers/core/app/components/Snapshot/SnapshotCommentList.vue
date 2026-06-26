@@ -199,7 +199,7 @@ const displayCards = computed((): DisplayCard[] => {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px 8px;
+  padding: 24px 8px 68px;
   color: var(--slax-text-light);
 
   .comment-empty-icon {

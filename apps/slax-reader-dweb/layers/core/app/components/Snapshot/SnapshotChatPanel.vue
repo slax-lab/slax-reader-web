@@ -688,6 +688,12 @@ defineExpose({ addQuoteData, focusTextarea })
       font-family: var(--slax-font-sans);
       font-size: 12px;
       font-weight: 400;
+      opacity: 0.45;
+      transition: opacity 0.15s;
+
+      &:hover {
+        opacity: 0.75;
+      }
     }
   }
 
@@ -720,7 +726,7 @@ defineExpose({ addQuoteData, focusTextarea })
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 24px 8px;
+    padding: 24px 8px 68px;
     color: var(--slax-text-light);
 
     .chat-empty-icon {

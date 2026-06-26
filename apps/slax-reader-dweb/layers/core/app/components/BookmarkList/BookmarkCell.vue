@@ -570,12 +570,17 @@ const starBookmark = async (isStar: boolean) => {
   color: var(--slax-text);
   line-height: 1.45;
   margin-bottom: 8px;
-  // #a8b1cd 浅蓝灰为输入边框辅助色，保留
-  border: 1px solid #a8b1cd;
+  border: 1px solid var(--slax-border);
   border-radius: 4px;
   padding: 2px 6px;
   background: transparent;
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    border-color: var(--slax-accent);
+    box-shadow: 0 0 0 3px var(--slax-accent-bg);
+  }
 
   &::placeholder {
     color: var(--slax-text-light);
