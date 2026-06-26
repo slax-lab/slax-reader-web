@@ -61,6 +61,8 @@ const props = defineProps<{
   // /b/[id] owner 才显示「划线评论可见」开关并落库
   bookmarkUid?: string
   canManageShare?: boolean
+  // 非空时附加到推文 text 字段
+  twitterText?: string
 }>()
 
 const { t } = useI18n()
@@ -125,8 +127,9 @@ const copyLink = async () => {
 }
 
 const shareTwitter = () => {
-  const url = `https://x.com/intent/tweet?url=${encodeURIComponent(location.href)}`
-  window.open(url, '_blank', 'noopener,noreferrer')
+  const params = new URLSearchParams({ url: location.href })
+  if (props.twitterText) params.set('text', props.twitterText)
+  window.open(`https://x.com/intent/tweet?${params.toString()}`, '_blank', 'noopener,noreferrer')
   close()
 }
 </script>
