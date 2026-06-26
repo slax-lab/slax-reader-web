@@ -38,7 +38,8 @@ const mockRenderer = {
   getAllTextNodes: vi.fn((): Node[] => []),
   transferNodeInfos: vi.fn(),
   addImageMark: vi.fn(),
-  addMark: vi.fn()
+  addMark: vi.fn(),
+  setMarkClickHandler: vi.fn()
 }
 
 vi.mock('@slax-reader/selection', () => {
@@ -139,6 +140,106 @@ describe('DwebArticleSelection', () => {
       expect(inst).toBeInstanceOf(DwebArticleSelection)
       // private modal 通过类型转换访问
       expect((inst as unknown as { modal: ReturnType<typeof buildModal> }).modal).toBe(modal)
+    })
+
+    it('实例化：注册划线点击处理器（renderer.setMarkClickHandler）', () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      new DwebArticleSelection(config, buildDeps(), modal)
+      expect(mockRenderer.setMarkClickHandler).toHaveBeenCalledTimes(1)
+      expect(typeof mockRenderer.setMarkClickHandler.mock.calls[0]![0]).toBe('function')
+    })
+  })
+
+  describe('handleExistingMarkClick 点击已有划线', () => {
+    // 取构造时注册进 renderer 的点击回调
+    const getClickHandler = (inst: unknown) => {
+      void inst
+      return mockRenderer.setMarkClickHandler.mock.calls.at(-1)![0] as (ele: HTMLElement, event: PointerEvent) => void
+    }
+
+    const makeMark = (uuid: string, config: SelectionConfig) => {
+      const mark = document.createElement('slax-mark')
+      mark.dataset.uuid = uuid
+      mark.textContent = 'marked'
+      config.monitorDom!.appendChild(mark)
+      return mark
+    }
+
+    it('无 data-uuid / uuid="0"：直接返回，不弹任何 UI', () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const inst = new DwebArticleSelection(config, buildDeps(), modal)
+      const handler = getClickHandler(inst)
+
+      const plain = document.createElement('span')
+      handler(plain, new MouseEvent('click') as PointerEvent)
+      const zero = makeMark('0', config)
+      handler(zero, new MouseEvent('click') as PointerEvent)
+
+      expect(modal.showMenus).not.toHaveBeenCalled()
+      expect(mockManager.showPanel).not.toHaveBeenCalled()
+    })
+
+    it('纯评论（无 stroke）：updateCurrentMarkItemInfo + showPanel，不弹菜单', () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const info = { id: 'c1', source: [], comments: [{ markUid: 'x' }], stroke: [] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('c1', config)
+
+      handler(mark, new MouseEvent('click') as PointerEvent)
+      expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(info)
+      expect(mockManager.showPanel).toHaveBeenCalled()
+      expect(modal.showMenus).not.toHaveBeenCalled()
+    })
+
+    it('不可操作（allowAction=false）：即便有 stroke 也退回 showPanel', () => {
+      const config = buildConfig({ allowAction: false })
+      const modal = buildModal()
+      const info = { id: 's0', source: [], comments: [], stroke: [{ mark_uid: 'u', userId: 1 }] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('s0', config)
+
+      handler(mark, new MouseEvent('click') as PointerEvent)
+      expect(mockManager.showPanel).toHaveBeenCalled()
+      expect(modal.showMenus).not.toHaveBeenCalled()
+    })
+
+    it('有 stroke 且可操作：选中分段后弹出 showExistingMarkMenus(isStroked)', async () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const info = { id: 's1', source: [], comments: [], stroke: [{ mark_uid: 'u', userId: 1 }] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('s1', config)
+
+      handler(mark, new MouseEvent('click') as PointerEvent)
+      await vi.runAllTimersAsync()
+
+      expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(info)
+      expect(modal.showMenus).toHaveBeenCalledTimes(1)
+      expect(modal.showMenus.mock.calls[0]![0]).toMatchObject({ isStroked: true })
+    })
+
+    it('点击命中 img 等子元素：closest 上溯到 slax-mark', () => {
+      const config = buildConfig()
+      const modal = buildModal()
+      const info = { id: 'img1', source: [], comments: [{ markUid: 'x' }], stroke: [] }
+      mockManager.markItemInfos.value = [info]
+      const inst = new DwebArticleSelection(config, buildDeps(), modal)
+      const handler = getClickHandler(inst)
+      const mark = makeMark('img1', config)
+      const img = document.createElement('img')
+      mark.appendChild(img)
+
+      handler(img, new MouseEvent('click') as PointerEvent)
+      expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(info)
     })
   })
 

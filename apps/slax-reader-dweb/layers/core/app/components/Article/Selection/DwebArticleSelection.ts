@@ -21,6 +21,56 @@ export class DwebArticleSelection extends BaseArticleSelection {
   constructor(config: SelectionConfig, dependencies: SelectionDependencies, modal: IMarkModal) {
     super(config, dependencies, modal)
     this.modal = modal
+    // 点击已有划线时弹出选区菜单
+    this.renderer.setMarkClickHandler(this.handleExistingMarkClick.bind(this))
+  }
+
+  /**
+   * 点击已有划线：保留原侧栏逻辑，
+   * 本人可操作的划线再加弹菜单
+   */
+  private handleExistingMarkClick(ele: HTMLElement, event: PointerEvent) {
+    const markEl = (ele.closest?.('slax-mark') as HTMLElement | null) ?? ele
+    const id = markEl?.dataset.uuid
+    if (!id || id === '0') return
+
+    const infoItem = this.markItemInfos.value.find(item => item.id === id)
+    if (!infoItem) return
+
+    // 原逻辑：打开评论侧栏
+    this.manager.updateCurrentMarkItemInfo(infoItem)
+    this.manager.showPanel()
+
+    // 纯评论或访客：不弹菜单
+    if (infoItem.stroke.length === 0 || !this.config.allowAction) return
+
+    // 延后到 click 结束再弹，
+    // 避开 click-outside 与重复 mouseup
+    setTimeout(() => {
+      const range = this.selectMarkContents(id)
+      if (!range) return
+      this.rememberMenuSelection(range)
+      this.showExistingMarkMenus(event, infoItem)
+    }, 0)
+  }
+
+  /** 选中该条划线全部分段，供菜单定位 */
+  private selectMarkContents(id: string): Range | null {
+    const root: ParentNode = this.config.monitorDom ?? this.document
+    const marks = Array.from(root.querySelectorAll(`slax-mark[data-uuid="${id}"]`)) as HTMLElement[]
+    const first = marks[0]
+    const last = marks[marks.length - 1]
+    if (!first || !last) return null
+
+    const range = first.ownerDocument.createRange()
+    range.setStartBefore(first)
+    range.setEndAfter(last)
+
+    const selection = this.getSelection()
+    if (!selection) return null
+    selection.removeAllRanges()
+    selection.addRange(range)
+    return range
   }
 
   // 选区与上次一致即视为重复，跳过
