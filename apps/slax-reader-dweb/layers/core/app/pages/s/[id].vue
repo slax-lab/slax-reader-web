@@ -136,6 +136,7 @@ import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDe
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
+import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -188,13 +189,13 @@ const shareText = computed(() => {
 const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
 
 // Phase 3：activePanel + BottomToolbar（s 页仅 top 按钮）
-const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+const activePanel = ref<SnapshotPanelId | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
 const { panelOpen, isH5 } = useSnapshotLayout()
 
 // 小屏底部栏点击面板：切换 activePanel（经下面的 watch 走登录/订阅校验）
-const onBottomPanel = (id: 'ai' | 'chat' | 'comment') => {
+const onBottomPanel = (id: SnapshotPanelId) => {
   activePanel.value = activePanel.value === id ? null : id
 }
 
