@@ -32,7 +32,7 @@
           <div class="operate-button top">
             <TextTips :tips="`${$t('component.panel.close_tips')} (${shortcutString})`">
               <button class="close" @click="closePanel">
-                <img src="@/assets/button-dialog-close.png" />
+                <img src="@/assets/button-dialog-shrink.png" />
               </button>
             </TextTips>
           </div>
