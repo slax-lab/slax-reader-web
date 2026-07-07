@@ -60,8 +60,9 @@ const emit = defineEmits<{
 }>()
 
 const { panelWidth, isDragging, startDrag, isH5 } = useSnapshotLayout()
+const { t } = useI18n()
 
-const tabs = computed(() => resolveSnapshotPanels(props.panels))
+const tabs = computed(() => resolveSnapshotPanels(props.panels, t))
 
 // 宽度内联，高度交给 CSS
 // 抓手下拉跟手，松手按阈值收起

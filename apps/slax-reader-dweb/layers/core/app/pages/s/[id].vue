@@ -6,7 +6,7 @@
           <template #left>
             <button class="app-name" @click="navigateToBookmarks">
               <img src="@images/icon-logo-bookmark.png" width="22" height="22" alt="" />
-              Slax Reader
+              {{ $t('common.app.name') }}
             </button>
           </template>
           <template #theme-switcher>
@@ -136,7 +136,6 @@ import SnapshotDetailLayout from '#layers/core/app/components/Layouts/SnapshotDe
 import SnapshotSidePanel from '#layers/core/app/components/Layouts/SnapshotSidePanel.vue'
 import SnapshotAIPanel from '#layers/core/app/components/Snapshot/SnapshotAIPanel.vue'
 import SnapshotBottomToolbar, { type BottomToolbarAction } from '#layers/core/app/components/Snapshot/SnapshotBottomToolbar.vue'
-import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import SnapshotChatPanel from '#layers/core/app/components/Snapshot/SnapshotChatPanel.vue'
 import SnapshotCommentComposer from '#layers/core/app/components/Snapshot/SnapshotCommentComposer.vue'
 import SnapshotCommentList from '#layers/core/app/components/Snapshot/SnapshotCommentList.vue'
@@ -153,6 +152,7 @@ import { extractHTMLTextContent } from '@commons/utils/parse'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
+import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'

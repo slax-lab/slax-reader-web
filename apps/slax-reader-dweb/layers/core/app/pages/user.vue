@@ -153,7 +153,7 @@ const alertParams = (() => {
 })()
 
 useHead({
-  title: `${t('component.user_operate_icon.personal_info')} - Slax Reader`
+  title: `${t('component.user_operate_icon.personal_info')} - ${t('common.app.name')}`
 })
 
 onMounted(async () => {

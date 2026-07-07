@@ -7,7 +7,7 @@
     </div>
     <div class="article-footer-share">
       <span class="article-footer-share-label">{{ $t('common.operate.share') }}：</span>
-      <button class="article-footer-share-btn" title="Copy link" @click="copyLink">
+      <button class="article-footer-share-btn" :title="$t('common.operate.copy_link')" @click="copyLink">
         <svg viewBox="0 0 16 16" fill="none" stroke-width="1">
           <g transform="translate(2, 2)" stroke="currentColor">
             <path
@@ -19,7 +19,7 @@
         <!-- 复制成功就近气泡提示 -->
         <span v-if="copied" class="article-footer-copied-tip">{{ $t('component.share_modal.copy_success') }}</span>
       </button>
-      <button class="article-footer-share-btn" title="Share to X / Twitter" @click="shareToTwitter">
+      <button class="article-footer-share-btn" :title="$t('page.bookmarks_detail.share_to_twitter')" @click="shareToTwitter">
         <svg viewBox="0 0 24 24" fill="currentColor">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
         </svg>

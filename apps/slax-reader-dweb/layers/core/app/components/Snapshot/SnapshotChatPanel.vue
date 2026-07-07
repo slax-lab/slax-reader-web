@@ -2,7 +2,7 @@
   <div class="snapshot-chat-panel" ref="chat">
     <!-- 标题（对齐 snapshot demo 的 .panel-title） -->
     <div class="chat-title">
-      <span>Chat</span>
+      <span>{{ $t('component.chat_bot.panel_title') }}</span>
       <OptionsBar v-if="showModelSwitcher" class="chat-model-switcher" :options="MODEL_LABELS" :default-selected-index="selectedModelIndex" v-model:index="selectedModelIndex" />
     </div>
     <!-- 消息流（含空态） -->
@@ -199,8 +199,8 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
       }
       if (parsed.length > 0) {
         const bookmarks = parsed.map((item: any) => ({
-          title: item.highlight_title?.replace(/<\/?mark>/g, '') || 'No Title',
-          content: item.highlight_content?.replace(/<\/?mark>/g, '') || 'No Content',
+          title: item.highlight_title?.replace(/<\/?mark>/g, '') || t('component.chat_bot.bookmark_no_title'),
+          content: item.highlight_content?.replace(/<\/?mark>/g, '') || t('component.chat_bot.bookmark_no_content'),
           bookmark_id: item.bookmark_id
         }))
         pushBuffer({ type: 'bookmarks', content: bookmarks })
@@ -570,7 +570,7 @@ const updateTipsSearchBookmarkStatus = (success: boolean) => {
     return
   }
   const tipsText = success ? t('component.chat_bot.search_bookmark_complete') : t('component.chat_bot.search_bookmark_failed')
-  const reg = new RegExp('搜索资料库\\.\\.\\.$')
+  const reg = new RegExp(`${t('component.chat_bot.search_bookmark_token')}\\.\\.\\.$`)
   searchMessage.tips = searchMessage.tips.replace(reg, tipsText)
   searchMessage.loading = false
 }

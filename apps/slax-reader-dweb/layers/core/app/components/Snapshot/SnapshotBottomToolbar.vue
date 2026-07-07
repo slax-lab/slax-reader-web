@@ -44,8 +44,10 @@ defineEmits<{
   panel: [id: SnapshotPanelId]
 }>()
 
+const { t } = useI18n()
+
 const visibleActions = computed(() => props.actions.filter(a => a.visible !== false))
-const panelButtons = computed(() => resolveSnapshotPanels(props.panels))
+const panelButtons = computed(() => resolveSnapshotPanels(props.panels, t))
 
 // H5 断点：≤768px 显示「更多」按钮；≤600px 只显图标
 const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)

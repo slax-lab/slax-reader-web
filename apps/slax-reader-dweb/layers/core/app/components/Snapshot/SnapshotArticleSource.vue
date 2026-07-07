@@ -1,6 +1,6 @@
 <template>
   <a class="article-source" :href="href" target="_blank" rel="noopener noreferrer" :title="url">
-    <span class="article-source-label">信息来源：</span>
+    <span class="article-source-label">{{ $t('component.chat_bubble_message.links_source') }}</span>
     <span class="article-source-url">{{ displayUrl }}</span>
   </a>
 </template>

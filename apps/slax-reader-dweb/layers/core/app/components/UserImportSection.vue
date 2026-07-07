@@ -34,6 +34,8 @@ import ImportProgressModal from '#layers/core/app/components/ThirdPartyImport/Im
 import { RESTMethodPath } from '@commons/types/const'
 import Toast from '#layers/core/app/components/Toast'
 
+const { t } = useI18n()
+
 const showImportProgressModal = ref(false)
 const showImportLoadingModal = ref(false)
 const importProgress = ref(0)
@@ -61,7 +63,7 @@ const importThirdPartyData = async (type: string) => {
     return
   }
   showImportLoadingModal.value = true
-  importText.value = 'unzip file...'
+  importText.value = t('page.user.import_unzipping')
 
   let metadataList: File[] | undefined = []
   if (type === 'omnivore') {
@@ -70,23 +72,23 @@ const importThirdPartyData = async (type: string) => {
     metadataList = file.files[0] ? await unzipGetFile(file.files[0], /part_[0-9]+.csv/) : []
   } else {
     Toast.showToast({
-      text: `file not found or is not ${type} file`
+      text: t('page.user.import_file_invalid', { type })
     })
     return
   }
 
   if (!metadataList) {
     Toast.showToast({
-      text: `file not found or is not ${type} file`
+      text: t('page.user.import_file_invalid', { type })
     })
     return
   }
 
-  importText.value = 'upload file...'
+  importText.value = t('page.user.import_uploading')
   importProgress.value = 20
   // 分批上传
   for (const [idx, metadata] of metadataList.entries()) {
-    importText.value = `upload file ${idx + 1} of ${metadataList.length}...`
+    importText.value = t('page.user.import_uploading_progress', { current: idx + 1, total: metadataList.length })
     await request()
       .uploadFile({
         url: RESTMethodPath.IMPORT_THIRD_PARTY_DATA,
@@ -99,7 +101,7 @@ const importThirdPartyData = async (type: string) => {
       .then(() => {
         importProgress.value += Math.ceil(((idx + 1) / metadataList.length) * 100)
         Toast.showToast({
-          text: `import ${type} data success, please wait for a moment`
+          text: t('page.user.import_upload_success', { type })
         })
       })
   }
