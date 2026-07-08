@@ -100,7 +100,10 @@ const articleStyle = computed(() => {
 })
 
 const dateString = computed(() => {
-  const date = detail.value.created_at ?? detail.value.published_at ?? ''
+  // updated_at 非全部类型都有
+  // 安全访问，缺失则回退
+  const updatedAt = (detail.value as { updated_at?: string }).updated_at
+  const date = updatedAt ?? detail.value.created_at ?? detail.value.published_at ?? ''
   if (!date || date.length === 0) {
     return '--'
   }
