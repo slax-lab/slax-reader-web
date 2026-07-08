@@ -31,17 +31,25 @@
     --style: '!mb-24px';
   }
 
-  /* 容器内首尾元素去掉上下外边距，
-     避免被 blockquote 等包裹时多余空隙 */
-  :first-child {
+  /* 纯空白容器由 BlankMarkProcessor 标记，CSS 自身无法识别 <section> </section>
+     这类只有空白文本节点的元素（:empty 要求零子节点，:blank 尚未被浏览器实现）。
+     marker 只会出现在 section/p/figure/h1-h4 这类纯排版容器内，直接隐藏，避免空盒子参与布局。 */
+  :has(> .oc-blank-flag) {
+    --style: 'hidden !mt-0 !mb-0';
+  }
+
+  /* 容器内第一个可见元素去掉上外边距。
+     "可见" = 没有 blank marker、不是 DOM 空元素、且不是 img（img 是 void 元素，天生 :empty，
+     但图片自身在详情页有独立的 32px margin，不能被首尾规则清零）。 */
+  $visible-content-child: ':not(:has(> .oc-blank-flag)):not(:empty):not(img)';
+
+  #{$visible-content-child}:not(#{$visible-content-child} ~ *) {
     --style: '!mt-0';
   }
 
-  :first-child:empty + * {
-    --style: '!mt-0';
-  }
-
-  :last-child {
+  /* 底部保留 literal last-child 兜底；不能把 $visible-content-child 放进 :has(~ ...)，
+     CSS 不允许嵌套 :has()，否则整条规则会被浏览器丢弃。 */
+  #{$visible-content-child}:last-child {
     --style: '!mb-0';
   }
 

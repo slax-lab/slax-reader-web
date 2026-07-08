@@ -9,6 +9,7 @@ import type { SelectionConfig } from '@slax-reader/selection'
 import {
   AnchorProcessor,
   type ArticleStyle,
+  BlankMarkProcessor,
   ClassIsolationProcessor,
   DetailsProcessor,
   DOMPipeline,
@@ -116,6 +117,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
     const pipeline = new DOMPipeline()
       // 最前：前缀化隔离 UnoCSS
       .register(new ClassIsolationProcessor())
+      // 标记纯空白容器，供 CSS 判断"首/尾可见元素"（幂等：SSR 已处理过的重跑不会重复插入）
+      .register(new BlankMarkProcessor())
       .register(new WechatHeaderProcessor())
       .register(new ImageProcessor())
       .register(new SvgProcessor())

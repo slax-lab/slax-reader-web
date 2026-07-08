@@ -1,4 +1,5 @@
 export { AnchorProcessor } from './anchor.processor'
+export { BLANK_FLAG_CLASS, BlankMarkProcessor } from './blank-mark.processor'
 export { ClassIsolationProcessor } from './class-isolation.processor'
 export { DetailsProcessor } from './details.processor'
 export { IFrameProcessor } from './iframe.processor'
