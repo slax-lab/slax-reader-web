@@ -62,6 +62,8 @@ import Toast, { ToastType } from '../Toast'
 import { RESTMethodPath } from '@commons/types/const'
 import type { ImportProcessResp } from '@commons/types/interface'
 
+const { t } = useI18n()
+
 const progressData = ref<ImportProcessResp[]>([])
 const isLoading = ref(false)
 const showFailuresModal = ref(false)
@@ -86,7 +88,7 @@ const getImportProgressData = async () => {
     .then(res => {
       if (!res) {
         Toast.showToast({
-          text: 'Network error',
+          text: t('page.user.import_network_error'),
           type: ToastType.Error
         })
         return
@@ -111,18 +113,18 @@ const getPlatformIcon = (platform: string) => {
 
 const getStatusText = (item: ImportProcessResp) => {
   const statusMap = {
-    0: 'Pending',
-    1: 'Processing',
-    2: 'Failed',
-    3: 'Complete'
+    0: t('page.user.import_status_pending'),
+    1: t('page.user.import_status_processing'),
+    2: t('page.user.import_status_failed'),
+    3: t('page.user.import_status_complete')
   }
 
-  const baseStatus = statusMap[item.status as keyof typeof statusMap] || 'Unknown'
+  const baseStatus = statusMap[item.status as keyof typeof statusMap] || t('page.user.import_status_unknown')
 
   // 如果是处理中状态，显示百分比
   if (item.status === 1 && item.batch_count > 0) {
     const percentage = Math.round((item.current_count / item.batch_count) * 100)
-    return `Processing (${percentage}%)`
+    return t('page.user.import_status_processing_percent', { percentage })
   }
 
   return baseStatus

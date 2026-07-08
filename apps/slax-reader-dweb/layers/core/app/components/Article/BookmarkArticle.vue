@@ -100,7 +100,10 @@ const articleStyle = computed(() => {
 })
 
 const dateString = computed(() => {
-  const date = detail.value.published_at ?? detail.value.created_at ?? ''
+  // updated_at 非全部类型都有
+  // 安全访问，缺失则回退
+  const updatedAt = (detail.value as { updated_at?: string }).updated_at
+  const date = updatedAt ?? detail.value.created_at ?? detail.value.published_at ?? ''
   if (!date || date.length === 0) {
     return '--'
   }
@@ -370,8 +373,10 @@ defineExpose({
       margin-left: 4px;
       vertical-align: -2px;
       background-color: var(--slax-accent);
-      -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>") no-repeat center / contain;
-      mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>") no-repeat center / contain;
+      -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>")
+        no-repeat center / contain;
+      mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke-linejoin='round'><g transform='translate(2.3333, 3)' stroke='black' stroke-width='1.15'><path d='M0,0 L8.66666667,0 C9.0348565,0 9.33333333,0.298476833 9.33333333,0.666666667 L9.33333333,6.33333333 C9.33333333,6.70152317 9.0348565,7 8.66666667,7 L2.33333333,7 L0,8.66666667 L0,0 Z'/></g></svg>")
+        no-repeat center / contain;
     }
   }
 

@@ -152,7 +152,7 @@ const dateString = computed(() => {
     return formatDate(new Date(bookmark.value.trashed_at), 'YYYY-MM-DD')
   }
 
-  const date = bookmark.value.published_at ? bookmark.value.created_at : ''
+  const date = bookmark.value.updated_at ?? bookmark.value.created_at ?? bookmark.value.published_at ?? ''
   if (!date || date.length === 0) {
     return '--'
   }

@@ -1,5 +1,6 @@
 import type { MarkCommentInfo, MarkItemInfo, QuoteData } from '@slax-reader/selection/types'
 import type { DwebArticleSelection } from '#layers/core/app/components/Article/Selection/DwebArticleSelection'
+import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 
 export interface CommentPanelEvent {
   kind: 'new'
@@ -19,7 +20,7 @@ export interface CommentPanelExistingEvent {
  * 划线 ↔ 评论卡片双向联动。
  * 维护 markUid/stroke.mark_uid（后端 key）→ MarkItemInfo.id（DOM data-uuid key）的映射。
  */
-export function useCommentPanel({ activePanel, articleSelection }: { activePanel: Ref<'ai' | 'chat' | 'comment' | null>; articleSelection: Ref<DwebArticleSelection | null> }) {
+export function useCommentPanel({ activePanel, articleSelection }: { activePanel: Ref<SnapshotPanelId | null>; articleSelection: Ref<DwebArticleSelection | null> }) {
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
   const pendingQuote = ref<QuoteData | null>(null)

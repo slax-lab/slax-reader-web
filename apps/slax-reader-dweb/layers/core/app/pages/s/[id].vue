@@ -6,7 +6,7 @@
           <template #left>
             <button class="app-name" @click="navigateToBookmarks">
               <img src="@images/icon-logo-bookmark.png" width="22" height="22" alt="" />
-              Slax Reader
+              {{ $t('common.app.name') }}
             </button>
           </template>
           <template #theme-switcher>
@@ -152,6 +152,7 @@ import { extractHTMLTextContent } from '@commons/utils/parse'
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkExistsResp, MarkDetail, ShareBookmarkDetail } from '@commons/types/interface'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
+import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
 import { useCommentPanel } from '#layers/core/app/composables/useCommentPanel'
@@ -188,13 +189,13 @@ const shareText = computed(() => {
 const moreMenuActions = computed<MoreMenuAction[]>(() => [{ id: 'feedback', label: t('common.operate.feedback') }])
 
 // Phase 3：activePanel + BottomToolbar（s 页仅 top 按钮）
-const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+const activePanel = ref<SnapshotPanelId | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
 const { panelOpen, isH5 } = useSnapshotLayout()
 
 // 小屏底部栏点击面板：切换 activePanel（经下面的 watch 走登录/订阅校验）
-const onBottomPanel = (id: 'ai' | 'chat' | 'comment') => {
+const onBottomPanel = (id: SnapshotPanelId) => {
   activePanel.value = activePanel.value === id ? null : id
 }
 

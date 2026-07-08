@@ -1,7 +1,7 @@
 <template>
   <div class="chat-bot" ref="chat">
     <div class="dark-trigger" ref="darkTrigger" />
-    <div class="chat-panel-title">Chat</div>
+    <div class="chat-panel-title">{{ $t('component.chat_bot.panel_title') }}</div>
     <button v-if="!closeButtonHidden" class="close" @click="closeModal">
       <img v-if="!isDark()" src="@images/button-dialog-close.png" />
       <img v-else src="@images/button-dialog-close-dark.png" />
@@ -10,7 +10,7 @@
       <div class="messages" ref="messages">
         <!-- 空状态：无消息时显示 -->
         <div v-if="messageList.length === 0 && !isChatting" class="chat-empty">
-          <div class="chat-empty-title">Chat</div>
+          <div class="chat-empty-title">{{ $t('component.chat_bot.panel_title') }}</div>
           <div class="chat-empty-desc">{{ $t('component.chat_bot.empty_desc') }}</div>
         </div>
         <div class="message" v-for="message in messageList" :key="message.id">
@@ -182,8 +182,8 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
 
       if (data.length > 0) {
         const bookmarks = data.map((item: any) => ({
-          title: item.highlight_title?.replace(/<\/?mark>/g, '') || 'No Title',
-          content: item.highlight_content?.replace(/<\/?mark>/g, '') || 'No Content',
+          title: item.highlight_title?.replace(/<\/?mark>/g, '') || t('component.chat_bot.bookmark_no_title'),
+          content: item.highlight_content?.replace(/<\/?mark>/g, '') || t('component.chat_bot.bookmark_no_content'),
           bookmark_id: item.bookmark_id
         }))
 
@@ -662,7 +662,7 @@ const updateTipsSearchBookmarkStatus = (success: boolean) => {
   }
 
   const tipsText = success ? t('component.chat_bot.search_bookmark_complete') : t('component.chat_bot.search_bookmark_failed')
-  const reg = new RegExp('搜索资料库\.\.\.$')
+  const reg = new RegExp(`${t('component.chat_bot.search_bookmark_token')}\.\.\.$`)
   searchMessage.tips = searchMessage.tips.replace(reg, tipsText)
   searchMessage.loading = false
 }

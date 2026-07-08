@@ -46,8 +46,8 @@
           <div class="bookmarks-content">
             <div class="content-wrapper">
               <div class="bookmark-content" v-for="bookmark in content.content" :key="bookmark.bookmark_id" @click="bookmarkClick(bookmark.bookmark_id)">
-                <div class="title">{{ bookmark.title || 'No Title' }}</div>
-                <div class="content-preview">{{ bookmark.content || 'No Content' }}</div>
+                <div class="title">{{ bookmark.title || $t('component.chat_bot.bookmark_no_title') }}</div>
+                <div class="content-preview">{{ bookmark.content || $t('component.chat_bot.bookmark_no_content') }}</div>
               </div>
             </div>
           </div>

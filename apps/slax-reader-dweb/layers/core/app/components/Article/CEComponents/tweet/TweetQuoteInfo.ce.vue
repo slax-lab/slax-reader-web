@@ -2,12 +2,12 @@
   <div class="quote-tweet-container">
     <div class="quote-tweet">
       <div class="quote-header">
-        <img :src="avatarUrl" alt="Quote Tweet Avatar" class="quote-avatar" />
+        <img :src="avatarUrl" :alt="t('component.article_ce_tweet.quote_avatar_alt')" class="quote-avatar" />
         <div class="quote-title">{{ title }}</div>
       </div>
       <div class="quote-description">{{ description }}</div>
       <div class="quote-media">
-        <img :src="mediaImageUrl" alt="Quote Tweet Image" />
+        <img :src="mediaImageUrl" :alt="t('component.article_ce_tweet.quote_image_alt')" />
       </div>
       <a :href="url" target="_blank" class="quote-link"></a>
     </div>
@@ -37,6 +37,10 @@ defineProps({
     default: ''
   }
 })
+
+const t = (text: string) => {
+  return useNuxtApp().$i18n.t(text)
+}
 </script>
 
 <style lang="scss" scoped>

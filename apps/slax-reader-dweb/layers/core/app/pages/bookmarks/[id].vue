@@ -160,6 +160,7 @@ import { type BookmarkDetail, BookmarkParseStatus, type EmptyBookmarkResp } from
 import type { BookmarkPanelType } from '#layers/core/app/components/BookmarkPanel.types'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import { showEditNameModal, showShareConfigModal } from '#layers/core/app/components/Modal'
+import type { SnapshotPanelId } from '#layers/core/app/components/Snapshot/panels'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useArticleDetail } from '#layers/core/app/composables/bookmark/useArticle'
 import { useBookmark } from '#layers/core/app/composables/bookmark/useBookmark'
@@ -224,13 +225,13 @@ const isArchieved = computed(() => {
 })
 
 // Phase 3：activePanel 替代旧 bookmarkPanelTypes + panelClick 双状态
-const activePanel = ref<'ai' | 'chat' | 'comment' | null>(null)
+const activePanel = ref<SnapshotPanelId | null>(null)
 
 // 同步 panelOpen 到 useSnapshotLayout，驱动三档布局挤压
 const { panelOpen, isH5 } = useSnapshotLayout()
 
 // 小屏底部栏点击面板：切换 activePanel（经下面的 watch 走登录/订阅校验）
-const onBottomPanel = (id: 'ai' | 'chat' | 'comment') => {
+const onBottomPanel = (id: SnapshotPanelId) => {
   activePanel.value = activePanel.value === id ? null : id
 }
 

@@ -4,7 +4,7 @@
       <div class="comment-header">
         <div class="left">
           <img :src="comment.isDeleted ? '' : comment.avatar" alt="" class="avatar" />
-          <span class="username">{{ comment.isDeleted ? 'Deleted' : comment.username }}</span>
+          <span class="username">{{ comment.isDeleted ? t('component.article_selection.user_deleted') : comment.username }}</span>
         </div>
         <div class="right">
           <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-card size-16px" v-if="!comment.markUid || comment.loading"></div>

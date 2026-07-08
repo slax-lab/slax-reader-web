@@ -24,7 +24,9 @@ const emits = defineEmits<{
   'update:modelValue': [value: SnapshotPanelId | null]
 }>()
 
-const buttons = computed(() => resolveSnapshotPanels(props.panels))
+const { t } = useI18n()
+
+const buttons = computed(() => resolveSnapshotPanels(props.panels, t))
 
 const toggle = (id: SnapshotPanelId) => {
   emits('update:modelValue', props.modelValue === id ? null : id)
