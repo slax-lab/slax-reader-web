@@ -489,6 +489,7 @@
       "no_title": "无标题",
       "not_exists": "书签不存在",
       "processing": "内容正在处理，请稍后 ···",
+      "saved_at": "首次保存于 { date }",
       "share_bookmark_tips": "由 { user } 分享于 { date }",
       "trash_bookmark_restore": "移回 Inbox",
       "trash_bookmark_tips": "书签于 { date } 被放入废纸篓. 7天后将会被删除.",

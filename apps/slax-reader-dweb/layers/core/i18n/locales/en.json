@@ -489,6 +489,7 @@
       "no_title": "No Title",
       "not_exists": "Bookmark does not exist",
       "processing": "Content is being processed, please wait...",
+      "saved_at": "First saved on { date }",
       "share_bookmark_tips": "Shared by { user } on { date }",
       "trash_bookmark_restore": "Restore to Inbox",
       "trash_bookmark_tips": "Bookmark have been moved to trash { date }. It will automatically be deleted in 7 days.",
