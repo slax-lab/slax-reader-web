@@ -72,9 +72,12 @@ watch(
   }
 )
 
+const trimmedUrl = computed(() => addUrlText.value.trim())
+
 const addUrlButtonEnable = computed(() => {
-  if (!addUrlText.value) return false
-  return addUrlText.value.startsWith('http://') || addUrlText.value.startsWith('https://')
+  const url = trimmedUrl.value
+  if (!url) return false
+  return url.startsWith('http://') || url.startsWith('https://')
 })
 
 const topModalClick = async () => {
@@ -82,14 +85,15 @@ const topModalClick = async () => {
     showError.value = true
     return
   }
+  const targetUrl = trimmedUrl.value
   searchModalLoading.value = true
   await request().post<{ bookmark_id: number; status: string }>({
     url: RESTMethodPath.ADD_URL_BOOKMARK,
-    body: { target_url: addUrlText.value }
+    body: { target_url: targetUrl }
   })
   searchModalLoading.value = false
   show.value = false
-  emits('addUrlSuccess', addUrlText.value)
+  emits('addUrlSuccess', targetUrl)
   addUrlText.value = ''
 }
 
