@@ -12,6 +12,12 @@ interface ImeState {
 const store = new WeakMap<HTMLElement, ImeState>()
 
 export const imeGuard: ObjectDirective<HTMLElement> = {
+  // SSR 无交互，返回空 props
+  // 仅让指令可解析、免告警
+  getSSRProps() {
+    return {}
+  },
+
   mounted(el) {
     const state: ImeState = { isComposing: false, cleanup: () => {} }
 
