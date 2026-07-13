@@ -16,6 +16,7 @@ import {
   ImageProcessor,
   ListProcessor,
   PhotoSwipeProcessor,
+  SocialPostProcessor,
   SpanProcessor,
   SvgProcessor,
   TweetProcessor,
@@ -129,6 +130,7 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       .register(new SpanProcessor())
       .register(new PhotoSwipeProcessor())
       .register(new TweetProcessor())
+      .register(new SocialPostProcessor())
 
     await pipeline.run(context)
 

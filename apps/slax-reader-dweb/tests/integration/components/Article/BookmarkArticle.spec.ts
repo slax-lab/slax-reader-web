@@ -159,7 +159,7 @@ vi.mock('~~/layers/core/app/components/Article/processors', () => {
     }
   }
   return {
-    ArticleStyle: { Default: 'default', Twitter: 'twitter', PhotoSwipeTopic: 'photo-swipe-topic' },
+    ArticleStyle: { Default: 'default', Twitter: 'twitter', SocialPost: 'social-post', PhotoSwipeTopic: 'photo-swipe-topic' },
     DOMPipeline: FakeDOMPipeline,
     AnchorProcessor: class {},
     DetailsProcessor: class {},
@@ -167,6 +167,7 @@ vi.mock('~~/layers/core/app/components/Article/processors', () => {
     ImageProcessor: class {},
     ListProcessor: class {},
     PhotoSwipeProcessor: class {},
+    SocialPostProcessor: class {},
     SpanProcessor: class {},
     SvgProcessor: class {},
     TweetProcessor: class {},

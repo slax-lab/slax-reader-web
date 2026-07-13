@@ -1,6 +1,8 @@
 import { defineCustomElement } from 'vue'
 
 import PhotoSwiperDots from './PhotoSwiperDots.ce.vue'
+import SocialPostFooterInfo from './social-post/SocialPostFooterInfo.ce.vue'
+import SocialPostUserInfo from './social-post/SocialPostUserInfo.ce.vue'
 import TweetFooterInfo from './tweet/TweetFooterInfo.ce.vue'
 import TweetUserInfo from './tweet/TweetUserInfo.ce.vue'
 import UnsupportedVideo from './UnsupportedVideo.ce.vue'
@@ -26,6 +28,8 @@ export const registerComponents = () => {
     'photo-swiper-dots': PhotoSwiperDotsElement,
     'tweet-user-info': TweetUserInfoElement,
     'twwet-footer-info': TweetFooterInfoElement,
+    'social-post-user-info': SocialPostUserInfoElement,
+    'social-post-footer-info': SocialPostFooterInfoElement,
     'youtube-player-view': YoutubePlayerElement
   }
 
@@ -45,4 +49,6 @@ export const UnsupportedVideoElement = defineCustomElement(UnsupportedVideo)
 export const PhotoSwiperDotsElement = defineCustomElement(PhotoSwiperDots)
 export const TweetUserInfoElement = defineCustomElement(TweetUserInfo)
 export const TweetFooterInfoElement = defineCustomElement(TweetFooterInfo)
+export const SocialPostUserInfoElement = defineCustomElement(SocialPostUserInfo)
+export const SocialPostFooterInfoElement = defineCustomElement(SocialPostFooterInfo)
 export const YoutubePlayerElement = defineCustomElement(YoutubePlayer)

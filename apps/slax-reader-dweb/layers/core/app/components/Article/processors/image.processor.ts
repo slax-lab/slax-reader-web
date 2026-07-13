@@ -3,7 +3,9 @@ import { ArticleStyle } from './types'
 
 function unwrapImgAnchorsInTweet(container: HTMLElement) {
   const firstDiv = container.querySelector(':scope > .html-text > div')
-  if (!firstDiv?.classList.contains('tweet')) return
+  // tweet 与 social-post 卡片
+  // 都需解包 <a><img>
+  if (!firstDiv?.classList.contains('tweet') && !firstDiv?.classList.contains('social-post')) return
 
   container.querySelectorAll('a img').forEach(img => {
     const anchor = img.closest('a')
