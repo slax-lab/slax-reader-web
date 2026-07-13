@@ -194,6 +194,13 @@
       "quote_avatar_alt": "Quote Tweet Avatar",
       "quote_image_alt": "Quote Tweet Image"
     },
+    "article_ce_social_post": {
+      "followers": "Followers",
+      "followings": "Following",
+      "location": "Location: ",
+      "website": "Website: ",
+      "score": "Score"
+    },
     "article_selection": {
       "comment_deleted": "Comment deleted",
       "user_deleted": "Deleted",

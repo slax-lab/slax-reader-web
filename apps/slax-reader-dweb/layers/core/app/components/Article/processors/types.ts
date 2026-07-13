@@ -1,6 +1,8 @@
 export enum ArticleStyle {
   Default = 'default',
   Twitter = 'twitter',
+  // 非 Twitter 社媒卡片（小红书/微博/Reddit）
+  SocialPost = 'social-post',
   PhotoSwipeTopic = 'photo-swipe-topic'
 }
 

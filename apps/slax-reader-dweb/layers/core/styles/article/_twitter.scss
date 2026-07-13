@@ -21,32 +21,6 @@
     }
   }
 
-  .tweet-user-info {
-    --style: '!ml-10px relative z-1 flex-1 min-w-0';
-    .name {
-      --style: 'font-bold !text-(body #eee) drop-shadow-(sm white)';
-    }
-
-    .description {
-      --style: '!text-(body #fff)';
-    }
-
-    .additional-info {
-      --style: mt-5px;
-
-      & > * {
-        --style: text-(body #fff);
-      }
-    }
-
-    .followers-following > * {
-      --style: '!text-(body #fff)';
-    }
-    .followers-following span:not(:first-child) {
-      --style: '!ml-10px';
-    }
-  }
-
   .tweet-content {
     --style: '!mt-32px whitespace-pre-line';
 

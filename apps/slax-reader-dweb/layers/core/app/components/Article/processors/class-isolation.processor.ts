@@ -19,6 +19,13 @@ const RESERVED_EXACT = new Set([
   'tweet-footer',
   'tweet-media',
   'tweet-user-info',
+  // 社媒卡片（_social-post.scss）
+  'social-post',
+  'social-post-content',
+  'social-post-media',
+  'social-post-title',
+  'social-post-tags',
+  'social-post-tag',
   'quote-tweet',
   'quote-tweet-container',
   'quote-header',
