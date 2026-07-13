@@ -7,7 +7,7 @@
         --style: w-full select-none relative;
 
         .swiper {
-          --style: w-full h-500px flex flex-row flex-nowrap overflow-x-auto;
+          --style: w-full h-500px flex flex-row flex-nowrap overflow-x-auto cursor-grab;
           scroll-snap-type: x mandatory;
           &::-webkit-scrollbar {
             --style: hidden;
