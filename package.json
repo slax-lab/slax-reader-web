@@ -63,7 +63,7 @@
     "@types/ua-parser-js": "^0.7.39",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",
-    "@unocss/eslint-config": "^66.6.8",
+    "@unocss/eslint-config": "^66.7.2",
     "@unocss/eslint-plugin": "^66.6.8",
     "@unocss/preset-rem-to-px": "^66.6.8",
     "@unocss/transformer-directives": "^66.6.8",
