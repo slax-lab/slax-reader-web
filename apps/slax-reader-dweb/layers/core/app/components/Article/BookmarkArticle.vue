@@ -89,11 +89,15 @@ const { bookmarkId, shareCode, bookmarkUid, title, allowTagged, allowAction, boo
 const effAllowTagged = computed(() => adapters.allowActionOverride ?? allowTagged.value)
 
 const articleStyle = computed(() => {
-  const content = props.detail.content || ''
+  const content = (props.detail.content || '').trimStart()
   if (content.indexOf('<slax-photo-swipe-topic>') === 0) {
     return ArticleStyle.PhotoSwipeTopic
   } else if (content.indexOf('<div class=\"tweet\">') === 0) {
     return ArticleStyle.Twitter
+  } else if (/^<div\b[^>]*\bclass="[^"]*\bsocial-post\b/.test(content)) {
+    // 宽松匹配 class 含 social-post，
+    // 避免加 class/属性时误落 Default
+    return ArticleStyle.SocialPost
   }
 
   return ArticleStyle.Default
@@ -427,6 +431,8 @@ defineExpose({
     @include article.article;
   } @else if $type == 'twitter' {
     @include article.twitter;
+  } @else if $type == 'social-post' {
+    @include article.social-post;
   } @else if $type == 'photo-swipe-topic' {
     @include article.photo-swipe-topic;
   } @else {
@@ -444,6 +450,10 @@ defineExpose({
 
   &.twitter {
     @include style('twitter');
+  }
+
+  &.social-post {
+    @include style('social-post');
   }
 
   &.photo-swipe-topic {

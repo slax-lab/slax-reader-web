@@ -5,10 +5,13 @@
       <ClientOnly>
         <Transition name="list-mode" mode="out-in">
           <WindowVirtualizer :key="effectiveMode" :data="displayItems" :buffer-size="600">
+            <!-- item 必须带稳定 key，否则退化为下标 key，
+                 增删改会错位并残留幽灵单元格 -->
             <template #default="{ item }">
-              <BookmarkDateGroup v-if="item.type === 'group'" :label="item.label" />
+              <BookmarkDateGroup v-if="item.type === 'group'" :key="`g:${item.key}`" :label="item.label" />
               <BookmarkCell
                 v-else
+                :key="`b:${item.bookmark.id}`"
                 :index="item.index"
                 :is-subscribe="filterStatus === 'collections'"
                 :bookmark="item.bookmark"

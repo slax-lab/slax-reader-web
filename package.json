@@ -47,6 +47,7 @@
     "easy-dom2img": "^1.0.2",
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.1",
+    "markdown-it-cjk-friendly": "^2.0.2",
     "markdown-it-link-attributes": "^4.0.1",
     "markmap-common": "^0.18.9",
     "markmap-lib": "^0.18.12",

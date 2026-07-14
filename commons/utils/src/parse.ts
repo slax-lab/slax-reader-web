@@ -2,6 +2,7 @@ import MdKatex from '@vscode/markdown-it-katex'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
+import MdCjkFriendly from 'markdown-it-cjk-friendly'
 import MdLinkAttributes from 'markdown-it-link-attributes'
 
 const highlightBlock = (str: string, lang?: string) => {
@@ -46,7 +47,9 @@ const mdi = new MarkdownIt({
   }
 })
 
-mdi.use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } }).use(MdKatex)
+// 修复 CJK 加粗：** 紧邻全角标点
+// 时无法闭合，导致加粗失效
+mdi.use(MdCjkFriendly).use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } }).use(MdKatex)
 
 // 转换markdown内容
 export const parseMarkdownText = (text: string) => {

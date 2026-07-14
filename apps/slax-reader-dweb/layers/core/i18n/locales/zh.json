@@ -194,6 +194,13 @@
       "quote_avatar_alt": "引用推文头像",
       "quote_image_alt": "引用推文图片"
     },
+    "article_ce_social_post": {
+      "followers": "粉丝",
+      "followings": "关注",
+      "location": "位置：",
+      "website": "网站：",
+      "score": "得分"
+    },
     "article_selection": {
       "comment_deleted": "评论已删除",
       "user_deleted": "已删除",
