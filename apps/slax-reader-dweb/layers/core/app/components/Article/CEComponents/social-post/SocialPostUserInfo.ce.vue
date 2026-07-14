@@ -104,14 +104,12 @@ const props = defineProps({
 
 const isPresent = (v?: string) => v !== undefined && v !== null && v !== ''
 
-// 头像地址：过滤掉空/字面量假值（dataset 可能传 "null"/"undefined"/空格）
+// 头像：过滤假值 + 记录加载失败的地址，两者皆无才显示（换新址自动恢复）
 const avatarUrl = computed(() => {
   const raw = props.avatar?.trim()
   if (!raw || raw === 'null' || raw === 'undefined') return ''
   return raw
 })
-// 记录加载失败（404 / 域名不可达 / 非图片 / CORS 等）的地址：
-// 换新地址时天然不等于旧的失败值，自动恢复显示，无需手动重置
 const failedAvatar = ref('')
 const showAvatar = computed(() => !!avatarUrl.value && avatarUrl.value !== failedAvatar.value)
 
