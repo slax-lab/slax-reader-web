@@ -1,7 +1,7 @@
 <template>
   <div class="social-post-user-info">
-    <div class="base-info" v-if="avatar || name || screenName">
-      <img class="avatar" v-if="avatar" :src="avatar" alt="" />
+    <div class="base-info" v-if="showAvatar || name || screenName">
+      <img class="avatar" v-if="showAvatar" :src="avatarUrl" alt="" @error="failedAvatar = avatarUrl" />
       <div class="name" v-if="name || screenName">
         <span class="username" v-if="name">
           {{ name }}
@@ -104,6 +104,15 @@ const props = defineProps({
 
 const isPresent = (v?: string) => v !== undefined && v !== null && v !== ''
 
+// 头像：过滤假值 + 记录加载失败的地址，两者皆无才显示（换新址自动恢复）
+const avatarUrl = computed(() => {
+  const raw = props.avatar?.trim()
+  if (!raw || raw === 'null' || raw === 'undefined') return ''
+  return raw
+})
+const failedAvatar = ref('')
+const showAvatar = computed(() => !!avatarUrl.value && avatarUrl.value !== failedAvatar.value)
+
 const hasFollowers = computed(() => isPresent(props.followers))
 const hasFollowings = computed(() => isPresent(props.followings))
 // 仅认证用户传 "true"
@@ -132,7 +141,7 @@ const t = (text: string) => {
 
 <style lang="scss" scoped>
 .social-post-user-info {
-  --style: select-none pt-30px;
+  --style: select-none;
 
   .base-info {
     --style: flex items-center;
