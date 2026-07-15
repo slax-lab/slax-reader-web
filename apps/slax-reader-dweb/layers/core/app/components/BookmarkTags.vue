@@ -92,7 +92,9 @@ const lf = inject(LocalFirstAdapterKey, null)
 // 必须在 setup 顶层创建：内部 useQuery 有此要求。
 // 传响应式 uuid，勿在 watch 里重建（否则崩）。
 const tagSrc = shallowRef(lf?.bookmarkTagSource?.(toRef(props, 'bookmarkUuid')) ?? null)
-const localActive = computed(() => tagSrc.value !== null)
+// 挂载后再激活 LF，避免水合分叉
+const isMounted = ref(false)
+const localActive = computed(() => isMounted.value && tagSrc.value !== null)
 
 const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
@@ -176,7 +178,9 @@ watch(
   }
 )
 
-onMounted(() => {})
+onMounted(() => {
+  isMounted.value = true
+})
 
 const searchingTags = async () => {
   if (localActive) return // LF：searchTags 走 userTags
