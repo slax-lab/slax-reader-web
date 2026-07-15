@@ -12,7 +12,7 @@ import type { DOMProcessor, SsrRewriter, WebProcessorContext } from './types'
  * 现阶段没有实际抓取样本命中过这些标签，先不处理，避免过度设计。
  */
 
-const CANDIDATE_SELECTOR = 'section, p, figure, h1, h2, h3, h4'
+const CANDIDATE_SELECTOR = 'section, p, figure, h1, h2, h3, h4, div'
 // 出现这些标签，即使自身直接文本是空白，也不能判定为"空白容器"
 const VISUAL_SELECTOR = 'img, video, svg, iframe, picture, canvas, audio, object, embed, table'
 

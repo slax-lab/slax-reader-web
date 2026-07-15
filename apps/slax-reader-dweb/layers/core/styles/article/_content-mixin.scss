@@ -31,11 +31,22 @@
     --style: '!mb-24px';
   }
 
+  /* 容器内首尾元素去掉上下外边距，
+     避免被 blockquote 等包裹时多余空隙 */
+  :first-child,
+  :first-child:empty + * {
+    --style: '!mt-0';
+  }
+
   /* 纯空白容器由 BlankMarkProcessor 标记，CSS 自身无法识别 <section> </section>
      这类只有空白文本节点的元素（:empty 要求零子节点，:blank 尚未被浏览器实现）。
      marker 只会出现在 section/p/figure/h1-h4 这类纯排版容器内，直接隐藏，避免空盒子参与布局。 */
   :has(> .oc-blank-flag) {
     --style: 'hidden !mt-0 !mb-0';
+  }
+
+  div:not(:has(> .oc-blank-flag)):not(:empty) + div {
+    --style: '!mt-24px';
   }
 
   /* 容器内第一个可见元素去掉上外边距。
