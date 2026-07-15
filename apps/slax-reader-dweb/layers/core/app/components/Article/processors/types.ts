@@ -33,9 +33,7 @@ export interface WebProcessorContext {
 
 // SSR 窄类型：只声明用到的子集
 
-// onEndTag 回调收到的是全新 token，跟 element() 里的 el 是两个不同的对象；
-// el 在 element() 这次同步调用结束后即失效（"content token no longer valid"），
-// 结束标签到达时若要插入内容，必须用这个 endTag token，不能复用旧的 el
+// el 调用结束即失效，插入须用 endTag token
 export interface SsrEndTag {
   before(content: string, contentOptions?: { html?: boolean }): void
   after(content: string, contentOptions?: { html?: boolean }): void
@@ -49,7 +47,7 @@ export interface SsrElement {
   onEndTag(handler: (endTag: SsrEndTag) => void): void
 }
 
-// text 是流式分片：同一个文本节点可能分多次到达，最后一片 lastInTextNode 为 true
+// text 流式分片，末片 lastInTextNode 为 true
 export interface SsrTextChunk {
   readonly text: string
   readonly lastInTextNode: boolean

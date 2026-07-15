@@ -1,6 +1,4 @@
 // BlankMarkProcessor 单测
-// 覆盖：纯空白容器打标记 / 含视觉子元素不打标记 / 含真实文字不打标记 /
-// 嵌套候选标签时子节点非空白结论不影响父节点判断（客户端走完整 DOM 树，天然满足）
 import { BLANK_FLAG_CLASS, BlankMarkProcessor } from '~~/layers/core/app/components/Article/processors/blank-mark.processor'
 import type { WebProcessorContext } from '~~/layers/core/app/components/Article/processors/types'
 import { ArticleStyle } from '~~/layers/core/app/components/Article/processors/types'
