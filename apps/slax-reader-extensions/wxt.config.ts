@@ -3,6 +3,7 @@ import toUtf8 from './plugins/vite-plugin-to-utf8'
 
 import { getEnv, getExtensionsConfig } from '../../configs/env'
 import pkg from './package.json'
+import { vendorExternalize } from './vendor.config'
 import path from 'path'
 import { defineConfig } from 'wxt'
 
@@ -10,6 +11,12 @@ const env = getEnv()
 const isDev = env === 'development'
 const isPreview = env === 'preview'
 console.log('Current env is:', env)
+
+// dev-only vendor 外置，见 vendor.config.ts
+const vendor = vendorExternalize(__dirname, isDev)
+if (vendor.useVendor) {
+  console.log('[vendor] 已启用 vendor 外置（dev 提速）：markmap / highlight.js / katex 走预打包 vendor.js')
+}
 
 const Version = pkg.version || ''
 const envConfig = getExtensionsConfig()
@@ -90,7 +97,9 @@ export default defineConfig({
     },
     build: isDev
       ? {
-          sourcemap: true,
+          // dev 默认关 sourcemap 提速
+          // 调试用 SLAX_SOURCEMAP=1 pnpm dev
+          sourcemap: process.env.SLAX_SOURCEMAP === '1' || process.env.SLAX_SOURCEMAP === 'true',
           minify: false
         }
       : {
@@ -99,9 +108,7 @@ export default defineConfig({
         },
     esbuild: !isDev && !isPreview ? { drop: ['console', 'debugger'] } : undefined,
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src')
-      }
+      alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }, ...vendor.aliases]
     }
   }),
   hooks: {
@@ -112,6 +119,7 @@ export default defineConfig({
         matches: ['<all_urls>'],
         run_at: 'document_idle'
       })
+      vendor.extendManifest(manifest)
     },
     // 'vite:build:extendConfig': (entries, config) => {
     //   const entryNames = entries.reduce((set, entry) => {
@@ -125,7 +133,10 @@ export default defineConfig({
     // 'vite:devServer:extendConfig': config => {
     //   config.plugins!.push(UnoCSS(), autoImportUnoCSS(['content/index.ts']))
     // },
-    'build:publicAssets': autoMigrateIcons(getEnv())
+    'build:publicAssets': (wxt, files) => {
+      autoMigrateIcons(getEnv())(wxt, files)
+      vendor.extendPublicAssets(files)
+    }
   },
   webExt: {
     chromiumArgs: isDev ? ['--disable-blink-features=AutomationControlled'] : []
