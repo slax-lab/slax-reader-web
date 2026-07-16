@@ -1,10 +1,11 @@
+import { BlankMarkProcessor } from './blank-mark.processor'
 import { ClassIsolationProcessor } from './class-isolation.processor'
 import type { DOMProcessor, SsrRewriteContext, SsrRewriter } from './types'
 
 // SSR 可改写的处理器清单
 // 只放服务端安全的，延迟实例化
 function createSsrArticleProcessors(): DOMProcessor[] {
-  return [new ClassIsolationProcessor()]
+  return [new ClassIsolationProcessor(), new BlankMarkProcessor()]
 }
 
 // HTMLRewriter 由 Workers 提供

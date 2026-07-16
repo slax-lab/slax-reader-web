@@ -33,15 +33,32 @@
 
   /* 容器内首尾元素去掉上下外边距，
      避免被 blockquote 等包裹时多余空隙 */
-  :first-child {
-    --style: '!mt-0';
-  }
-
+  :first-child,
   :first-child:empty + * {
     --style: '!mt-0';
   }
 
-  :last-child {
+  /* 空白容器由 processor 标记，
+     直接隐藏，不参与布局 */
+  :has(> .oc-blank-flag) {
+    --style: 'hidden !mt-0 !mb-0';
+  }
+
+  div:not(:has(> .oc-blank-flag)):not(:empty) + div {
+    --style: '!mt-24px';
+  }
+
+  /* 首个可见元素去上边距，
+     可见 = 非空白、非空、非 img */
+  $visible-content-child: ':not(:has(> .oc-blank-flag)):not(:empty):not(img)';
+
+  #{$visible-content-child}:not(#{$visible-content-child} ~ *) {
+    --style: '!mt-0';
+  }
+
+  /* 末尾用 last-child 兜底，
+     :has() 不能嵌套 */
+  #{$visible-content-child}:last-child {
     --style: '!mb-0';
   }
 

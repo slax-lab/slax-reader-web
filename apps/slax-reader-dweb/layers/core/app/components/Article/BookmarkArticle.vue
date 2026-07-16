@@ -279,7 +279,7 @@ defineExpose({
 
     img {
       border-radius: var(--slax-radius-sm);
-      margin: 32px auto;
+      margin: 24px auto;
     }
 
     blockquote {

@@ -32,14 +32,30 @@ export interface WebProcessorContext {
 }
 
 // SSR 窄类型：只声明用到的子集
+
+// el 调用结束即失效，插入须用 endTag token
+export interface SsrEndTag {
+  before(content: string, contentOptions?: { html?: boolean }): void
+  after(content: string, contentOptions?: { html?: boolean }): void
+  remove(): void
+}
+
 export interface SsrElement {
+  readonly tagName: string
   getAttribute(name: string): string | null
   setAttribute(name: string, value: string): void
-  onEndTag(handler: () => void): void
+  onEndTag(handler: (endTag: SsrEndTag) => void): void
+}
+
+// text 流式分片，末片 lastInTextNode 为 true
+export interface SsrTextChunk {
+  readonly text: string
+  readonly lastInTextNode: boolean
 }
 
 export interface SsrElementHandlers {
   element(element: SsrElement): void
+  text?(chunk: SsrTextChunk): void
 }
 
 export interface SsrRewriter {
