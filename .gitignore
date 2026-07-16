@@ -180,3 +180,4 @@ project-env.d.ts
 
 .node-modules-inspector
 CLAUDE.md
+.vendor
