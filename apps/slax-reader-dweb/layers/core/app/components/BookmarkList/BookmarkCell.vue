@@ -8,7 +8,7 @@
       <!-- 标题区：正常态为 button，编辑态为 input -->
       <div class="title-wrap">
         <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click.stop="clickTitle">
-          {{ bookmark.alias_title || bookmark.title || bookmark.target_url }}
+          {{ truncateTitle(bookmark.alias_title || bookmark.title, 48) || bookmark.target_url }}
         </button>
         <input
           ref="input"
@@ -520,7 +520,11 @@ const starBookmark = async (isStar: boolean) => {
 
 // 标题按钮
 .article-title {
-  display: inline-block;
+  // 最多两行，超出省略号
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   max-width: 100%;
   text-align: left;
   background: transparent;
@@ -536,7 +540,6 @@ const starBookmark = async (isStar: boolean) => {
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   // va:bottom 会裁中文字顶，不用
   transition: color 0.12s;
   position: relative;
