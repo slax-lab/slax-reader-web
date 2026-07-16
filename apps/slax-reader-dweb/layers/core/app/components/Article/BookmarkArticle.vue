@@ -3,7 +3,7 @@
     <header class="article-header">
       <SnapshotArticleSource v-if="detail.target_url" :url="detail.target_url" />
       <div class="article-divider" />
-      <h1 class="article-title">{{ title }}</h1>
+      <h1 class="article-title" :title="title">{{ title }}</h1>
       <div class="article-info">
         <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
         <time class="article-date">{{ dateString }}</time>
@@ -207,6 +207,13 @@ defineExpose({
 }
 
 .article-title {
+  // 最多三行，超出省略号
+  // 完整标题由 title 悬浮展示
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-family: var(--slax-font-serif);
   font-size: var(--slax-fs-display);
   font-weight: 500;
@@ -219,6 +226,11 @@ defineExpose({
   transition: box-shadow 0.15s;
 
   &[contenteditable='true'] {
+    // 编辑态解除截断
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
     box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--slax-accent) 50%, transparent);
     padding: 2px 6px;
     margin-left: -6px;
