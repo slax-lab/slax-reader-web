@@ -4,7 +4,7 @@
     <template v-if="filterStatus !== 'highlights'">
       <ClientOnly>
         <Transition name="list-mode" mode="out-in">
-          <WindowVirtualizer :key="effectiveMode" :data="displayItems" :buffer-size="600">
+          <WindowVirtualizer :key="`${effectiveMode}:${locale}`" :data="displayItems" :buffer-size="600">
             <!-- item 必须带稳定 key，否则退化为下标 key，
                  增删改会错位并残留幽灵单元格 -->
             <template #default="{ item }">
@@ -72,6 +72,10 @@ const props = defineProps<{
   listMode: 'card' | 'text'
   filterCollectionCode: string
 }>()
+
+// 切语言时 remount 虚拟列表
+// 避免分区头中英叠加
+const { locale } = useI18n()
 
 // ≤768、归档、回收站强制文字列表
 const isH5 = useMediaQuery('(max-width: 768px)')
