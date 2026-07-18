@@ -3,7 +3,15 @@
     <div class="article-footer-text" v-if="showVia">
       {{ $t('page.bookmarks_detail.shared_via') }}
       <strong>{{ via || 'Slax Reader' }}</strong>
-      · <a class="article-footer-link" href="https://slax.com/reader/" target="_blank" rel="noopener noreferrer">{{ $t('page.bookmarks_detail.try_free') }}</a>
+      <!-- 有开启中合集 → 站内归属入口（唯一站内链接来源，配合 noindex,follow 传权重），替换 Try free -->
+      <template v-if="collection">
+        · {{ $t('page.bookmarks_detail.from_collection') }}
+        <NuxtLink class="article-footer-link" :to="`/c/${collection.code}`">{{ collection.name }} →</NuxtLink>
+      </template>
+      <!-- 无归属 → 保留既有 Try free（方案 A，报告 04 §3.2）-->
+      <template v-else>
+        · <a class="article-footer-link" href="https://slax.com/reader/" target="_blank" rel="noopener noreferrer">{{ $t('page.bookmarks_detail.try_free') }}</a>
+      </template>
     </div>
     <div class="article-footer-share">
       <span class="article-footer-share-label">{{ $t('common.operate.share') }}：</span>
@@ -36,6 +44,8 @@ withDefaults(
     via?: string
     // 左侧「Shared via …」署名段是否展示；owner 看自己的快照时不需要，传 false 隐藏
     showVia?: boolean
+    // 该书签所属「开启中合集」：有则用站内归属入口替换 Try free（报告 04 §3）
+    collection?: { name: string; code: string } | null
   }>(),
   { showVia: true }
 )

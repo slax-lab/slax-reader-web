@@ -21,7 +21,7 @@
     <div class="article-detail article-body" ref="articleDetail" :class="{ [articleStyle]: true }">
       <div class="html-text" lang="en" v-html="articleHTML"></div>
     </div>
-    <SnapshotArticleFooter :via="footerVia" :show-via="footerShowVia" />
+    <SnapshotArticleFooter :via="footerVia" :show-via="footerShowVia" :collection="footerCollection" />
   </div>
 </template>
 
@@ -62,6 +62,12 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: true
+  },
+  // footer 合集归属：有开启中合集则显示「本文来自 [合集名 →]」（报告 04）
+  footerCollection: {
+    type: Object as PropType<{ name: string; code: string } | null>,
+    required: false,
+    default: null
   },
   // 门控渲染与绘制，默认 true
   // LF 传 localReady
