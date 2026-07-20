@@ -17,6 +17,7 @@ import {
   ImageProcessor,
   ListProcessor,
   PhotoSwipeProcessor,
+  PreLineProcessor,
   SocialPostProcessor,
   SpanProcessor,
   SvgProcessor,
@@ -120,6 +121,8 @@ export function useArticleSelection(p: UseArticleSelectionParams) {
       .register(new ClassIsolationProcessor())
       // 标记纯空白容器供 CSS 判首尾（幂等）
       .register(new BlankMarkProcessor())
+      // 标记含多行内容的 <p>，交给 CSS 切 pre-line 保留换行（幂等）
+      .register(new PreLineProcessor())
       .register(new WechatHeaderProcessor())
       .register(new ImageProcessor())
       .register(new SvgProcessor())

@@ -104,6 +104,24 @@ describe('BlankMarkProcessor', () => {
     expect(section.querySelectorAll(`.${BLANK_FLAG_CLASS}`).length).toBe(1)
   })
 
+  it('内联 style 隐藏（display:none）：即使含真实文字，仍打标记且不再深入判断', () => {
+    const ctx = buildContext('<section style="display:none">real content</section>')
+    processor.process(ctx)
+    expect(hasBlankFlag(ctx.container.querySelector('section')!)).toBe(true)
+  })
+
+  it('内联 style 隐藏（display:none）：即使含 img/table 等视觉元素，仍打标记', () => {
+    const ctx = buildContext('<section style="display: none;"><img src="x.png"></section>')
+    processor.process(ctx)
+    expect(hasBlankFlag(ctx.container.querySelector('section')!)).toBe(true)
+  })
+
+  it('style 不含 display:none（如仅 color）：不受影响，按原逻辑判断', () => {
+    const ctx = buildContext('<section style="color: red">real content</section>')
+    processor.process(ctx)
+    expect(hasBlankFlag(ctx.container.querySelector('section')!)).toBe(false)
+  })
+
   it('缺少 .html-text 根节点：安全跳过', () => {
     const container = document.createElement('div')
     container.innerHTML = '<section></section>'
