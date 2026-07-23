@@ -56,7 +56,7 @@ const t = (text: string) => {
       --style: flex items-center;
 
       img {
-        --style: w-32px h-32px rounded-full;
+        --style: 'w-32px h-32px rounded-full m-0';
       }
 
       .quote-title {
