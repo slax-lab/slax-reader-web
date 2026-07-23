@@ -1,0 +1,10 @@
+/// 正文里由 processor 注入 / 我们自定义的 class 样式集中处，供 content-styles 收尾 @include。
+/// 只放「自成体系、不依赖兄弟/布局级联」的规则；与边距塌陷等布局强耦合的
+/// 结构规则（如 :has(> .oc-blank-flag) 那组）仍留在 _content-mixin.scss。
+@mixin custom-classes {
+  /* 含多行内容的 <p> 由 PreLineProcessor 落 marker，
+     切成 pre-line 保留源码换行（默认 whitespace-normal 会折叠掉） */
+  p:has(> .oc-preline-flag) {
+    --style: 'whitespace-pre-line';
+  }
+}

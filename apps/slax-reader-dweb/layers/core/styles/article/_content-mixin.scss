@@ -1,4 +1,6 @@
 /// 文章内容通用样式 mixin，供 article 和 tweet-content 复用
+@use 'custom-classes' as *;
+
 @mixin content-styles {
   * {
     --style: 'whitespace-normal';
@@ -287,4 +289,7 @@
       background-position: 0% 50%;
     }
   }
+
+  /* 注入 / 自定义 class 样式，见 _custom-classes.scss */
+  @include custom-classes;
 }

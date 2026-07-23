@@ -16,6 +16,18 @@ function isBlankText(text: string): boolean {
   return text.trim().length === 0
 }
 
+// 抓取内容常见内联 style 隐藏（如 display:none 的埋点/占位段落），
+// 客户端/SSR 共用同一份基于原始 style 属性字符串的判断，避免 CSSOM 解析差异
+function isStyleHidden(styleAttr: string | null | undefined): boolean {
+  return /display\s*:\s*none\b/i.test(styleAttr ?? '')
+}
+
+function markBlank(el: HTMLElement): void {
+  const marker = document.createElement('template')
+  marker.className = BLANK_FLAG_CLASS
+  el.appendChild(marker)
+}
+
 export class BlankMarkProcessor implements DOMProcessor {
   readonly name = 'BlankMarkProcessor'
 
@@ -33,12 +45,17 @@ export class BlankMarkProcessor implements DOMProcessor {
     for (const el of candidates) {
       // 幂等：SSR 已插过 marker 则跳过
       if (el.querySelector(`:scope > .${BLANK_FLAG_CLASS}`)) continue
+
+      // 已被内联 style 隐藏的容器，不管有没有真实内容都视为空白，无需再深入判断
+      if (isStyleHidden(el.getAttribute('style'))) {
+        markBlank(el)
+        continue
+      }
+
       if (el.querySelector(VISUAL_SELECTOR)) continue
       if (!isBlankText(el.textContent ?? '')) continue
 
-      const marker = document.createElement('template')
-      marker.className = BLANK_FLAG_CLASS
-      el.appendChild(marker)
+      markBlank(el)
     }
   }
 
@@ -53,12 +70,15 @@ export class BlankMarkProcessor implements DOMProcessor {
             const frame = { textBuf: '', hasVisualChild: false }
             stack.push(frame)
 
+            // style 隐藏的容器直接判空白，跳过后续文本/视觉子元素判断
+            const forcedBlank = isStyleHidden(el.getAttribute('style'))
+
             el.onEndTag(endTag => {
               // el 已失效，插入须用 endTag token
               const top = stack.pop()
               if (!top) return
 
-              const blank = !top.hasVisualChild && isBlankText(top.textBuf)
+              const blank = forcedBlank || (!top.hasVisualChild && isBlankText(top.textBuf))
               if (blank) {
                 endTag.before(BLANK_FLAG_HTML, { html: true })
               } else {
