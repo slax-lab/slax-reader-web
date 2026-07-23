@@ -8,8 +8,7 @@
           </svg>
         </button>
 
-        <!-- 与 /login 页 LoginView 同款重设计卡片；modal 走独立 bootloader app（无全局 $t / router /
-             NuxtLink），故此处自包含实现：手动 t 助手 + 显式引入登录按钮 + ToS 用原生 <a>。 -->
+        <!-- 同 LoginView，bootloader 内自包含 -->
         <div class="auth-card">
           <div class="auth-logo">
             <img src="@images/icon-logo-login.png" :alt="t('common.app.name')" />
@@ -68,7 +67,7 @@ const onAfterLeave = () => {
   emits('dismiss')
 }
 
-// bootloader app 无全局 $i18n 注入，经 useNuxtApp 显式取 t（与其它 modal / 登录按钮一致）
+// bootloader 无全局 $i18n，手动取 t
 const t = (text: string) => useNuxtApp().$i18n.t(text)
 </script>
 
@@ -92,7 +91,7 @@ const t = (text: string) => useNuxtApp().$i18n.t(text)
   }
 }
 
-/* ── Shell（承载定位 + 关闭按钮） ── */
+/* ── Shell ── */
 .modal-shell {
   position: relative;
   width: min(420px, 100%);
@@ -122,7 +121,7 @@ const t = (text: string) => useNuxtApp().$i18n.t(text)
   }
 }
 
-/* ── Auth card（与 LoginView 同款视觉） ── */
+/* ── Auth card ── */
 .auth-card {
   width: 100%;
   padding: 40px 36px 32px;

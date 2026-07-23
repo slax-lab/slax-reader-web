@@ -63,7 +63,7 @@ const props = defineProps({
     required: false,
     default: true
   },
-  // footer 合集归属：有开启中合集则显示「本文来自 [合集名 →]」（报告 04）
+  // footer 合集归属入口
   footerCollection: {
     type: Object as PropType<{ name: string; code: string } | null>,
     required: false,
