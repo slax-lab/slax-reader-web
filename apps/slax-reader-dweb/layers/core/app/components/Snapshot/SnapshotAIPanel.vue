@@ -632,16 +632,20 @@ watch(
 
 // anchor-flash：锚点点击后正文元素的高亮动画
 // 用 :global 因为 anchor-flash 类加在正文 DOM 上（组件外部）
+// 静态底色兜底：E-ink 禁动画时仍可见
 :global(.anchor-flash) {
-  animation: anchor-flash 3s ease-out;
+  --anchor-flash-bg: color-mix(in srgb, var(--slax-accent) 22%, transparent);
+
+  background-color: var(--anchor-flash-bg);
+  border-radius: 4px;
+  animation: anchor-flash 3s ease-out forwards;
 }
 
 @keyframes anchor-flash {
-  0% {
-    background-color: color-mix(in srgb, var(--slax-accent) 22%, transparent);
-    border-radius: 4px;
+  from {
+    background-color: var(--anchor-flash-bg);
   }
-  100% {
+  to {
     background-color: transparent;
   }
 }
