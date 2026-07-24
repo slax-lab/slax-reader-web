@@ -1,8 +1,57 @@
 // BlankMarkProcessor 单测
 import { BLANK_FLAG_CLASS, BlankMarkProcessor } from '~~/layers/core/app/components/Article/processors/blank-mark.processor'
-import type { WebProcessorContext } from '~~/layers/core/app/components/Article/processors/types'
+import type { SsrElement, SsrElementHandlers, SsrEndTag, SsrRewriter, WebProcessorContext } from '~~/layers/core/app/components/Article/processors/types'
 import { ArticleStyle } from '~~/layers/core/app/components/Article/processors/types'
 import { describe, expect, it } from 'vitest'
+
+// 模拟 HTMLRewriter，可手动
+// 控制 onEndTag 触发时机
+function createFakeRewriter() {
+  const registrations: { tags: Set<string>; handlers: SsrElementHandlers }[] = []
+  const rewriter: SsrRewriter = {
+    on(selector, handlers) {
+      registrations.push({ tags: new Set(selector.split(',').map(s => s.trim())), handlers })
+      return rewriter
+    }
+  }
+
+  function open(tagName: string, attrs: Record<string, string> = {}) {
+    const endTagHandlers: ((endTag: SsrEndTag) => void)[] = []
+    const el: SsrElement = {
+      tagName,
+      getAttribute: name => attrs[name] ?? null,
+      setAttribute: (name, value) => {
+        attrs[name] = value
+      },
+      onEndTag: handler => {
+        endTagHandlers.push(handler)
+      }
+    }
+    for (const reg of registrations) {
+      if (reg.tags.has(tagName)) reg.handlers.element(el)
+    }
+    return {
+      fireText(text: string) {
+        for (const reg of registrations) {
+          if (reg.tags.has(tagName) && reg.handlers.text) reg.handlers.text({ text, lastInTextNode: true })
+        }
+      },
+      // 不触发即模拟回调丢失
+      fireEndTag(): string[] {
+        const inserted: string[] = []
+        const endTag: SsrEndTag = {
+          before: html => inserted.push(html),
+          after: () => {},
+          remove: () => {}
+        }
+        for (const handler of endTagHandlers) handler(endTag)
+        return inserted
+      }
+    }
+  }
+
+  return { rewriter, open }
+}
 
 function buildContext(html: string): WebProcessorContext {
   const container = document.createElement('div')
@@ -134,5 +183,58 @@ describe('BlankMarkProcessor', () => {
     }
     expect(() => processor.process(ctx)).not.toThrow()
     expect(hasBlankFlag(container.querySelector('section')!)).toBe(false)
+  })
+})
+
+describe('BlankMarkProcessor SSR 保险丝：正文根容器绝不被打空白标记', () => {
+  it('正常场景（栈无错位）：根容器（.html-text）自身也判定为空白，但不打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const root = open('div', { class: 'html-text' })
+    const inserted = root.fireEndTag()
+
+    expect(inserted).toEqual([])
+  })
+
+  it('ClassIsolationProcessor 已加 oc- 前缀（class="oc-html-text"）：同样不打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const root = open('div', { class: 'oc-html-text' })
+    const inserted = root.fireEndTag()
+
+    expect(inserted).toEqual([])
+  })
+
+  // 复现故障：内层 onEndTag
+  // 被丢弃，root 弹出孤儿帧
+  it('强制模拟栈错位（内层 onEndTag 被引擎丢弃）：根容器 onEndTag 触发时 stack.pop() 弹出的是孤儿帧，仍不打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const root = open('div', { class: 'html-text' })
+    open('section') // 故意不触发，模拟丢弃
+
+    const inserted = root.fireEndTag()
+
+    expect(inserted).toEqual([])
+  })
+
+  it('非根容器不受保险丝影响：真正空白的内层候选标签仍正常打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const root = open('div', { class: 'html-text' })
+    const inner = open('section')
+    const innerInserted = inner.fireEndTag()
+    const rootInserted = root.fireEndTag()
+
+    expect(innerInserted.length).toBe(1)
+    expect(rootInserted).toEqual([])
   })
 })
