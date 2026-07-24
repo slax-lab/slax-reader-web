@@ -578,7 +578,9 @@ const starBookmark = async (isStar: boolean) => {
   padding: 2px 6px;
   background: transparent;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 
   &:focus {
     border-color: var(--slax-accent);

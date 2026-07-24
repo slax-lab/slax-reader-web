@@ -18,9 +18,7 @@ function startProject(prd: string) {
 // 支持命令行参数：pnpm dev dweb / pnpm dev extensions / pnpm dev slax-reader-dweb
 const arg = process.argv[2]
 if (arg) {
-  const matched = projects.find(
-    p => p.enName === arg || p.enName.replace('slax-reader-', '') === arg
-  )
+  const matched = projects.find(p => p.enName === arg || p.enName.replace('slax-reader-', '') === arg)
   if (!matched) {
     const names = projects.map(p => `${p.enName.replace('slax-reader-', '')} (${p.cnName})`).join(', ')
     console.error(`>>> 未知项目 "${arg}"，可用：${names}`)
