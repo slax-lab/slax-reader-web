@@ -29,32 +29,32 @@
     <div class="child-comments" v-if="commentChildren.length > 0">
       <!-- key 用稳定 markUid，避开异步 patch 崩溃 -->
       <div class="child-comment group/child" v-for="(childComment, childIndex) in commentChildren" :key="childComment.markUid || childIndex">
-          <div class="child-comment-content">
-            <span class="child-username">{{ childComment.username || '' }}</span>
-            <span class="reply-text">&nbsp;{{ t('common.operate.reply') }}&nbsp;</span>
-            <span class="parent-username">{{ childComment.reply?.username || '' }}: </span>
-            <span class="comment-content-text">{{ childComment.comment }}</span>
-            <div
-              class="i-svg-spinners:180-ring-with-bg text-txt-light text-meta ml-5px inline-block h-14px w-14px translate-y-2px line-height-22px"
-              v-if="!childComment.markUid || childComment.loading"
-            ></div>
-          </div>
-          <div class="comment-footer">
-            <span class="date">{{ showCreateTime(comment) }}</span>
-            <div class="operates" v-if="childComment.markUid && !childComment.loading">
-              <template v-if="!childComment.operateLoading">
-                <button class="reply-child group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
-                <button
-                  class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/child:!opacity-100"
-                  v-if="!childComment.isDeleted && canDeleteComment(childComment)"
-                  @click="commentDeleteClick(childComment)"
-                ></button>
-              </template>
-              <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-body" v-else-if="childComment.operateLoading"></div>
-            </div>
-          </div>
-          <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
+        <div class="child-comment-content">
+          <span class="child-username">{{ childComment.username || '' }}</span>
+          <span class="reply-text">&nbsp;{{ t('common.operate.reply') }}&nbsp;</span>
+          <span class="parent-username">{{ childComment.reply?.username || '' }}: </span>
+          <span class="comment-content-text">{{ childComment.comment }}</span>
+          <div
+            class="i-svg-spinners:180-ring-with-bg text-txt-light text-meta ml-5px inline-block h-14px w-14px translate-y-2px line-height-22px"
+            v-if="!childComment.markUid || childComment.loading"
+          ></div>
         </div>
+        <div class="comment-footer">
+          <span class="date">{{ showCreateTime(comment) }}</span>
+          <div class="operates" v-if="childComment.markUid && !childComment.loading">
+            <template v-if="!childComment.operateLoading">
+              <button class="reply-child group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>
+              <button
+                class="bg-[url('@images/tiny-delete-red-outline-icon.png')] group-hover/child:!opacity-100"
+                v-if="!childComment.isDeleted && canDeleteComment(childComment)"
+                @click="commentDeleteClick(childComment)"
+              ></button>
+            </template>
+            <div class="i-svg-spinners:180-ring-with-bg text-txt-light text-body" v-else-if="childComment.operateLoading"></div>
+          </div>
+        </div>
+        <ArticleCommentInput :show-input="childComment.showInput" :placeholder="getCommentPlaceholder(childComment)" @post="text => postComment(childComment, text)" />
+      </div>
     </div>
     <ArticleCommentInput :show-input="comment.showInput" :placeholder="getCommentPlaceholder(comment)" @post="text => postComment(comment, text)" />
   </div>

@@ -257,7 +257,6 @@ const selectTag = (tag: BookmarkTag) => {
 const unselectTag = () => {
   emits('select-tag', null)
 }
-
 </script>
 
 <style lang="scss" scoped>

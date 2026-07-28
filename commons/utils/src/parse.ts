@@ -49,7 +49,10 @@ const mdi = new MarkdownIt({
 
 // 修复 CJK 加粗：** 紧邻全角标点
 // 时无法闭合，导致加粗失效
-mdi.use(MdCjkFriendly).use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } }).use(MdKatex)
+mdi
+  .use(MdCjkFriendly)
+  .use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } })
+  .use(MdKatex)
 
 // 转换markdown内容
 export const parseMarkdownText = (text: string) => {

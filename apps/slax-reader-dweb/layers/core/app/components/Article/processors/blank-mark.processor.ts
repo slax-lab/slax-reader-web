@@ -22,6 +22,12 @@ function isStyleHidden(styleAttr: string | null | undefined): boolean {
   return /display\s*:\s*none\b/i.test(styleAttr ?? '')
 }
 
+// 保险丝：根容器绝不判空白
+// class 可能带 oc- 前缀
+function isArticleRoot(classAttr: string | null | undefined): boolean {
+  return /(?:^|\s)(?:oc-)?html-text(?:\s|$)/.test(classAttr ?? '')
+}
+
 function markBlank(el: HTMLElement): void {
   const marker = document.createElement('template')
   marker.className = BLANK_FLAG_CLASS
@@ -67,6 +73,9 @@ export class BlankMarkProcessor implements DOMProcessor {
       rewriter
         .on(CANDIDATE_SELECTOR, {
           element(el) {
+            // 闭包捕获 isRoot
+            // 不存进栈帧，栈可能错位
+            const isRoot = isArticleRoot(el.getAttribute('class'))
             const frame = { textBuf: '', hasVisualChild: false }
             stack.push(frame)
 
@@ -77,6 +86,14 @@ export class BlankMarkProcessor implements DOMProcessor {
               // el 已失效，插入须用 endTag token
               const top = stack.pop()
               if (!top) return
+
+              // 保险丝：根容器触发
+              // 时绝不插 marker
+              if (isRoot) {
+                const parent = stack[stack.length - 1]
+                if (parent) parent.hasVisualChild = true
+                return
+              }
 
               const blank = forcedBlank || (!top.hasVisualChild && isBlankText(top.textBuf))
               if (blank) {
