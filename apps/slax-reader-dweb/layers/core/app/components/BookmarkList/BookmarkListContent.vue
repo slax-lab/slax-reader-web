@@ -77,9 +77,9 @@ const props = defineProps<{
 // 避免分区头中英叠加
 const { locale } = useI18n()
 
-// ≤768、归档、回收站强制文字列表
+// ≤768、星标、归档、回收站强制文字列表
 const isH5 = useMediaQuery('(max-width: 768px)')
-const isTextOnly = computed(() => ['archive', 'trashed'].includes(props.filterStatus))
+const isTextOnly = computed(() => ['starred', 'archive', 'trashed'].includes(props.filterStatus))
 const effectiveMode = computed<'card' | 'text'>(() => (isH5.value || isTextOnly.value ? 'text' : props.listMode))
 
 // 文字视图下不按月分段
