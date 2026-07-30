@@ -24,9 +24,9 @@
 
           <p class="auth-tos">
             {{ t('component.login_view.tos_prefix') }}
-            <a href="/terms">{{ t('docs.title.terms') }}</a>
+            <a href="/terms" target="_blank" rel="noopener">{{ t('docs.title.terms') }}</a>
             {{ t('component.login_view.tos_and') }}
-            <a href="/privacy">{{ t('docs.title.privacy') }}</a>
+            <a href="/privacy" target="_blank" rel="noopener">{{ t('docs.title.privacy') }}</a>
           </p>
         </div>
       </div>

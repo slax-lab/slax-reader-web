@@ -40,7 +40,7 @@
           ></div>
         </div>
         <div class="comment-footer">
-          <span class="date">{{ showCreateTime(comment) }}</span>
+          <span class="date">{{ showCreateTime(childComment) }}</span>
           <div class="operates" v-if="childComment.markUid && !childComment.loading">
             <template v-if="!childComment.operateLoading">
               <button class="reply-child group-hover/child:!opacity-100" @click="replyComment(childComment)"></button>

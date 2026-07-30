@@ -1,8 +1,11 @@
+import { isMultiLine, PRELINE_FLAG_HTML } from './preline.processor'
 import type { DOMProcessor, SsrRewriter, WebProcessorContext } from './types'
 
 /**
  * 标记纯空白容器：CSS 的 :empty/:blank 判不了，
  * 落 marker 交给 :has() 读取。
+ * SSR 同遍兼标记多行 <p>（见 preline.processor.ts），
+ * 复用候选 onEndTag，避免重复注册被引擎丢弃。
  */
 
 const CANDIDATE_SELECTOR = 'section, p, figure, h1, h2, h3, h4, div'
@@ -20,12 +23,6 @@ function isBlankText(text: string): boolean {
 // 客户端/SSR 共用同一份基于原始 style 属性字符串的判断，避免 CSSOM 解析差异
 function isStyleHidden(styleAttr: string | null | undefined): boolean {
   return /display\s*:\s*none\b/i.test(styleAttr ?? '')
-}
-
-// 保险丝：根容器绝不判空白
-// class 可能带 oc- 前缀
-function isArticleRoot(classAttr: string | null | undefined): boolean {
-  return /(?:^|\s)(?:oc-)?html-text(?:\s|$)/.test(classAttr ?? '')
 }
 
 function markBlank(el: HTMLElement): void {
@@ -73,9 +70,7 @@ export class BlankMarkProcessor implements DOMProcessor {
       rewriter
         .on(CANDIDATE_SELECTOR, {
           element(el) {
-            // 闭包捕获 isRoot
-            // 不存进栈帧，栈可能错位
-            const isRoot = isArticleRoot(el.getAttribute('class'))
+            const isParagraph = el.tagName === 'p'
             const frame = { textBuf: '', hasVisualChild: false }
             stack.push(frame)
 
@@ -86,22 +81,19 @@ export class BlankMarkProcessor implements DOMProcessor {
               // el 已失效，插入须用 endTag token
               const top = stack.pop()
               if (!top) return
-
-              // 保险丝：根容器触发
-              // 时绝不插 marker
-              if (isRoot) {
-                const parent = stack[stack.length - 1]
-                if (parent) parent.hasVisualChild = true
-                return
-              }
+              const parent = stack[stack.length - 1]
 
               const blank = forcedBlank || (!top.hasVisualChild && isBlankText(top.textBuf))
               if (blank) {
                 endTag.before(BLANK_FLAG_HTML, { html: true })
-              } else {
-                // 非空白冒泡给父级，避免外层误判
-                const parent = stack[stack.length - 1]
-                if (parent) parent.hasVisualChild = true
+                return
+              }
+
+              // 非空白冒泡给父级，避免外层误判
+              if (parent) parent.hasVisualChild = true
+              // 多行 <p> 落 preline；与 blank 互斥
+              if (isParagraph && isMultiLine(top.textBuf)) {
+                endTag.before(PRELINE_FLAG_HTML, { html: true })
               }
             })
           },

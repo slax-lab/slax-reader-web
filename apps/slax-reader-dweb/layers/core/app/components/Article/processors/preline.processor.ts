@@ -1,4 +1,4 @@
-import type { DOMProcessor, SsrRewriter, WebProcessorContext } from './types'
+import type { DOMProcessor, WebProcessorContext } from './types'
 
 /**
  * 保留 <p> 内的源码换行：正文默认 `white-space: normal` 会把换行折叠成空格，
@@ -15,7 +15,7 @@ import type { DOMProcessor, SsrRewriter, WebProcessorContext } from './types'
 const LINE_BREAK_RE = /\r\n|[\n\r\v\f\x85\u2028\u2029]/
 
 export const PRELINE_FLAG_CLASS = 'oc-preline-flag'
-const PRELINE_FLAG_HTML = `<template class="${PRELINE_FLAG_CLASS}"></template>`
+export const PRELINE_FLAG_HTML = `<template class="${PRELINE_FLAG_CLASS}"></template>`
 
 /**
  * 「多行内容」判定：按换行控制符切分，逐段 trim 后过滤空段，
@@ -23,7 +23,7 @@ const PRELINE_FLAG_HTML = `<template class="${PRELINE_FLAG_CLASS}"></template>`
  * - 避开源码美化缩进（`<p>\n  内容 \n</p>` 只有 1 行内容）误判；
  * - 避开可见 `\n` 文字（不含控制符，split 不拆，仍算单行）误判。
  */
-function isMultiLine(text: string): boolean {
+export function isMultiLine(text: string): boolean {
   return (
     text
       .split(LINE_BREAK_RE)
@@ -60,31 +60,6 @@ export class PreLineProcessor implements DOMProcessor {
     }
   }
 
-  ssr = {
-    registerRewriter(rewriter: SsrRewriter): void {
-      // <p> 不应嵌套，但用栈与 blank-mark 保持一致、稳妥应对异常结构
-      const stack: { textBuf: string }[] = []
-
-      rewriter.on('p', {
-        element(el) {
-          const frame = { textBuf: '' }
-          stack.push(frame)
-
-          el.onEndTag(endTag => {
-            // el 已失效，插入须用 endTag token
-            const top = stack.pop()
-            if (!top) return
-
-            if (isMultiLine(top.textBuf)) {
-              endTag.before(PRELINE_FLAG_HTML, { html: true })
-            }
-          })
-        },
-        text(chunk) {
-          const top = stack[stack.length - 1]
-          if (top) top.textBuf += chunk.text
-        }
-      })
-    }
-  }
+  // SSR 已并入 BlankMark 同遍（见 blank-mark.processor.ts），
+  // 避免同一 <p> 两个 onEndTag 被引擎丢弃
 }

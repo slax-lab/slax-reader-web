@@ -152,6 +152,8 @@ const dateString = computed(() => {
     return formatDate(new Date(bookmark.value.trashed_at), 'YYYY-MM-DD')
   }
 
+  // 单元格恒显 created_at，不兜底
+  // starred/archived 也不例外
   const date = bookmark.value.created_at
   if (!date || date.length === 0) {
     return '--'
