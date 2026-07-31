@@ -1,8 +1,58 @@
 // BlankMarkProcessor 单测
 import { BLANK_FLAG_CLASS, BlankMarkProcessor } from '~~/layers/core/app/components/Article/processors/blank-mark.processor'
-import type { WebProcessorContext } from '~~/layers/core/app/components/Article/processors/types'
+import { PRELINE_FLAG_CLASS } from '~~/layers/core/app/components/Article/processors/preline.processor'
+import type { SsrElement, SsrElementHandlers, SsrEndTag, SsrRewriter, WebProcessorContext } from '~~/layers/core/app/components/Article/processors/types'
 import { ArticleStyle } from '~~/layers/core/app/components/Article/processors/types'
 import { describe, expect, it } from 'vitest'
+
+// 模拟 HTMLRewriter，可手动
+// 控制 onEndTag 触发时机
+function createFakeRewriter() {
+  const registrations: { tags: Set<string>; handlers: SsrElementHandlers }[] = []
+  const rewriter: SsrRewriter = {
+    on(selector, handlers) {
+      registrations.push({ tags: new Set(selector.split(',').map(s => s.trim())), handlers })
+      return rewriter
+    }
+  }
+
+  function open(tagName: string, attrs: Record<string, string> = {}) {
+    const endTagHandlers: ((endTag: SsrEndTag) => void)[] = []
+    const el: SsrElement = {
+      tagName,
+      getAttribute: name => attrs[name] ?? null,
+      setAttribute: (name, value) => {
+        attrs[name] = value
+      },
+      onEndTag: handler => {
+        endTagHandlers.push(handler)
+      }
+    }
+    for (const reg of registrations) {
+      if (reg.tags.has(tagName)) reg.handlers.element(el)
+    }
+    return {
+      fireText(text: string) {
+        for (const reg of registrations) {
+          if (reg.tags.has(tagName) && reg.handlers.text) reg.handlers.text({ text, lastInTextNode: true })
+        }
+      },
+      // 不触发即模拟回调丢失
+      fireEndTag(): string[] {
+        const inserted: string[] = []
+        const endTag: SsrEndTag = {
+          before: html => inserted.push(html),
+          after: () => {},
+          remove: () => {}
+        }
+        for (const handler of endTagHandlers) handler(endTag)
+        return inserted
+      }
+    }
+  }
+
+  return { rewriter, open }
+}
 
 function buildContext(html: string): WebProcessorContext {
   const container = document.createElement('div')
@@ -134,5 +184,97 @@ describe('BlankMarkProcessor', () => {
     }
     expect(() => processor.process(ctx)).not.toThrow()
     expect(hasBlankFlag(container.querySelector('section')!)).toBe(false)
+  })
+})
+
+// SSR 输入是无外层根的正文片段
+// 顶层空白照常打标记，有内容者靠冒泡不误判
+describe('BlankMarkProcessor SSR 空白标记', () => {
+  const hasFlag = (inserted: string[], cls: string) => inserted.some(html => html.includes(cls))
+
+  it('顶层空白候选：正常打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const el = open('div')
+    const inserted = el.fireEndTag()
+
+    expect(hasFlag(inserted, BLANK_FLAG_CLASS)).toBe(true)
+  })
+
+  it('嵌套：内层含真实内容 → 外层靠冒泡不误判空白', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const outer = open('section')
+    const inner = open('p')
+    inner.fireText('real content')
+    const innerInserted = inner.fireEndTag()
+    const outerInserted = outer.fireEndTag()
+
+    expect(innerInserted).toEqual([])
+    expect(hasFlag(outerInserted, BLANK_FLAG_CLASS)).toBe(false)
+  })
+
+  it('嵌套：内外都空白 → 内外都打标记', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    const outer = open('section')
+    const inner = open('p')
+    const innerInserted = inner.fireEndTag()
+    const outerInserted = outer.fireEndTag()
+
+    expect(hasFlag(innerInserted, BLANK_FLAG_CLASS)).toBe(true)
+    expect(hasFlag(outerInserted, BLANK_FLAG_CLASS)).toBe(true)
+  })
+})
+
+// preline 并入 BlankMark 同遍，与 blank 互斥
+describe('BlankMarkProcessor SSR 合并 preline', () => {
+  const hasFlag = (inserted: string[], cls: string) => inserted.some(html => html.includes(cls))
+
+  it('内层多行 <p>：落 preline marker，不落 blank', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    open('div') // 外层容器
+    const p = open('p')
+    p.fireText('line one\nline two')
+    const inserted = p.fireEndTag()
+
+    expect(hasFlag(inserted, PRELINE_FLAG_CLASS)).toBe(true)
+    expect(hasFlag(inserted, BLANK_FLAG_CLASS)).toBe(false)
+  })
+
+  it('内层空白 <p>：落 blank marker，不落 preline', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    open('div') // 外层容器
+    const p = open('p')
+    p.fireText(' \n ')
+    const inserted = p.fireEndTag()
+
+    expect(hasFlag(inserted, BLANK_FLAG_CLASS)).toBe(true)
+    expect(hasFlag(inserted, PRELINE_FLAG_CLASS)).toBe(false)
+  })
+
+  it('单行 <p>：既不落 preline 也不落 blank', () => {
+    const processor = new BlankMarkProcessor()
+    const { rewriter, open } = createFakeRewriter()
+    processor.ssr!.registerRewriter(rewriter, {})
+
+    open('div') // 外层容器
+    const p = open('p')
+    p.fireText('single line')
+    const inserted = p.fireEndTag()
+
+    expect(inserted).toEqual([])
   })
 })

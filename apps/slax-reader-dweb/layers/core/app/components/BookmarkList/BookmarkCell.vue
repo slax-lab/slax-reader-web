@@ -152,7 +152,9 @@ const dateString = computed(() => {
     return formatDate(new Date(bookmark.value.trashed_at), 'YYYY-MM-DD')
   }
 
-  const date = bookmark.value.updated_at ?? bookmark.value.created_at ?? bookmark.value.published_at ?? ''
+  // 单元格恒显 created_at，不兜底
+  // starred/archived 也不例外
+  const date = bookmark.value.created_at
   if (!date || date.length === 0) {
     return '--'
   }
@@ -578,7 +580,9 @@ const starBookmark = async (isStar: boolean) => {
   padding: 2px 6px;
   background: transparent;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 
   &:focus {
     border-color: var(--slax-accent);

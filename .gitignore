@@ -179,5 +179,11 @@ project-env.d.ts
 .vscode
 
 .node-modules-inspector
-CLAUDE.md
 .vendor
+
+graphify-out
+
+.claude/*
+!.claude/skills/
+.codex/*
+!.codex/skills/

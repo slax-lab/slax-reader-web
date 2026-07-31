@@ -1,8 +1,11 @@
+import { isMultiLine, PRELINE_FLAG_HTML } from './preline.processor'
 import type { DOMProcessor, SsrRewriter, WebProcessorContext } from './types'
 
 /**
  * 标记纯空白容器：CSS 的 :empty/:blank 判不了，
  * 落 marker 交给 :has() 读取。
+ * SSR 同遍兼标记多行 <p>（见 preline.processor.ts），
+ * 复用候选 onEndTag，避免重复注册被引擎丢弃。
  */
 
 const CANDIDATE_SELECTOR = 'section, p, figure, h1, h2, h3, h4, div'
@@ -67,6 +70,7 @@ export class BlankMarkProcessor implements DOMProcessor {
       rewriter
         .on(CANDIDATE_SELECTOR, {
           element(el) {
+            const isParagraph = el.tagName === 'p'
             const frame = { textBuf: '', hasVisualChild: false }
             stack.push(frame)
 
@@ -77,14 +81,19 @@ export class BlankMarkProcessor implements DOMProcessor {
               // el 已失效，插入须用 endTag token
               const top = stack.pop()
               if (!top) return
+              const parent = stack[stack.length - 1]
 
               const blank = forcedBlank || (!top.hasVisualChild && isBlankText(top.textBuf))
               if (blank) {
                 endTag.before(BLANK_FLAG_HTML, { html: true })
-              } else {
-                // 非空白冒泡给父级，避免外层误判
-                const parent = stack[stack.length - 1]
-                if (parent) parent.hasVisualChild = true
+                return
+              }
+
+              // 非空白冒泡给父级，避免外层误判
+              if (parent) parent.hasVisualChild = true
+              // 多行 <p> 落 preline；与 blank 互斥
+              if (isParagraph && isMultiLine(top.textBuf)) {
+                endTag.before(PRELINE_FLAG_HTML, { html: true })
               }
             })
           },

@@ -1,12 +1,11 @@
 import { BlankMarkProcessor } from './blank-mark.processor'
 import { ClassIsolationProcessor } from './class-isolation.processor'
-import { PreLineProcessor } from './preline.processor'
 import type { DOMProcessor, SsrRewriteContext, SsrRewriter } from './types'
 
-// SSR 可改写的处理器清单
-// 只放服务端安全的，延迟实例化
+// 单遍：每元素至多 1 个 onEndTag，否则引擎丢回调
+// 新增 processor 勿与 BlankMark 候选(div/p 等)撞 onEndTag
 function createSsrArticleProcessors(): DOMProcessor[] {
-  return [new ClassIsolationProcessor(), new BlankMarkProcessor(), new PreLineProcessor()]
+  return [new ClassIsolationProcessor(), new BlankMarkProcessor()]
 }
 
 // HTMLRewriter 由 Workers 提供
@@ -25,7 +24,6 @@ export async function runArticleSsrProcessors(html: string, ctx: SsrRewriteConte
     for (const processor of processors) {
       processor.ssr!.registerRewriter(rewriter, ctx)
     }
-
     // 显式标 HTML 类型
     const transformed = rewriter.transform(new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } }))
     return await transformed.text()
