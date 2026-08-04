@@ -46,7 +46,7 @@
         :marks="marks"
         @screen-lock-update="screenLockUpdate"
         @bookmark-update="bookmarkUpdate"
-        @chat-bot-quote="chatBotQuote"
+        @chat-bot-quote="onChatBotQuote"
       />
       <ClientOnly>
         <div class="login">
@@ -448,6 +448,14 @@ const bookmarkUpdate = (updateDetail: ShareBookmarkDetail) => {
 
 const findQuote = (quote: QuoteData) => {
   bookmarkArticle.value?.findQuote(quote)
+}
+
+// 划词点 Chat：先切侧栏再塞引用
+const onChatBotQuote = (quote: QuoteData) => {
+  if (activePanel.value !== 'chat') {
+    activePanel.value = 'chat'
+  }
+  chatBotQuote(quote)
 }
 
 const transferSaveClick = () => {

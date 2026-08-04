@@ -40,14 +40,14 @@
 
   &::v-deep(pre) {
     --style: p-4 max-w-screen bg-gray-200 rounded text-left whitespace-pre-wrap;
-    font-family: 'Courier New', Courier, monospace !important;
+    font-family: var(--slax-font-mono) !important;
 
     code {
       --style: max-w-full block whitespace-pre;
-      font-family: 'Courier New', Courier, monospace !important;
+      font-family: var(--slax-font-mono) !important;
 
       * {
-        font-family: 'Courier New', Courier, monospace !important;
+        font-family: var(--slax-font-mono) !important;
       }
 
       span p {
@@ -64,6 +64,7 @@
 
   &::v-deep(code) {
     --style: text-left bg-gray-200;
+    font-family: var(--slax-font-mono);
   }
 
   &::v-deep(table) {

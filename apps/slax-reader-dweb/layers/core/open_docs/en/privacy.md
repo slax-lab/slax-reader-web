@@ -91,6 +91,6 @@ If you encounter:
 - Technical malfunctions
 - Security concerns
 
-Please contact our technical support at: hi@starry.com
+Please contact our technical support at: reader@slax.com
 
 By using our services, you agree to these terms.

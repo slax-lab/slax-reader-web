@@ -649,12 +649,13 @@ const starBookmark = async (isStar: boolean) => {
 
 // 操作按钮
 .article-action {
-  padding: 4px 10px;
-  font-size: 11px;
+  padding: 6px 10px;
+  font-size: 12px;
   color: var(--slax-text-light);
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  line-height: 16px;
   cursor: pointer;
   transition: all 0.12s;
   font-family: inherit;

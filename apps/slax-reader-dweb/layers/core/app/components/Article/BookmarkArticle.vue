@@ -404,8 +404,10 @@ defineExpose({
     background: var(--slax-accent-bg);
   }
 
+  // 引用高亮；压第三方内联底色
   &:deep(slax-mark.slax-mk-highlighted) {
-    --style: 'bg-#FCF4E8';
+    background-color: var(--slax-quote-highlight) !important;
+    border-radius: 2px;
   }
 
   &:deep(slax-mark:has(img).slax-mk-stroke),

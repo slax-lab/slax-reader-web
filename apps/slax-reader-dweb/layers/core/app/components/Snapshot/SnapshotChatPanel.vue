@@ -6,7 +6,17 @@
       <OptionsBar v-if="showModelSwitcher" class="chat-model-switcher" :options="MODEL_LABELS" :default-selected-index="selectedModelIndex" v-model:index="selectedModelIndex" />
     </div>
     <!-- 消息流（含空态） -->
-    <div class="chat-messages" :class="{ scrolled: isScrolled }" ref="messages" @scroll="onMessagesScroll">
+    <div
+      class="chat-messages"
+      :class="{ scrolled: isScrolled }"
+      ref="messages"
+      @scroll="onMessagesScroll"
+      @wheel.passive="onWheel"
+      @touchstart.passive="onTouchStart"
+      @touchmove.passive="onTouchMove"
+      @touchend.passive="onTouchEnd"
+      @touchcancel.passive="onTouchEnd"
+    >
       <!-- 空态 -->
       <div v-if="messageList.length === 0 && !isChatting" class="chat-empty">
         <div class="chat-empty-icon">
@@ -88,6 +98,22 @@
       <div class="chat-loading" v-if="isChatting && !bufferMessage">
         <DotLoading indicate-color="var(--slax-text-light)" />
       </div>
+    </div>
+
+    <!-- 回到底部：零高度浮层，不占布局 -->
+    <div class="chat-scroll-down-bar">
+      <button
+        v-if="showScrollDown"
+        class="chat-scroll-down"
+        :class="{ 'has-new': isChatting }"
+        :title="$t('component.snapshot_chat.scroll_to_bottom')"
+        :aria-label="$t('component.snapshot_chat.scroll_to_bottom')"
+        @click="scrollDownClick"
+      >
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M6 13l6 6 6-6" />
+        </svg>
+      </button>
     </div>
 
     <!-- 输入区（复用 .comment-composer 规范） -->
@@ -178,7 +204,7 @@ const bot = new ChatBot(botParams, (params: { type: ChatResponseType; data: Chat
           return { type: 'question', text: getParsedText(item), clickable: true, id: `question_${item}`, isHTML: true, rawContent: item }
         })
       )
-      scrollToBottom()
+      onStreamTick()
     } else if (name === 'relatedQuestion' && args) {
       pushBuffer({ type: 'related-question', questions: [{ content: args, rawContent: args }] })
     } else if (name === 'search' && args) {
@@ -269,8 +295,21 @@ bot.chatStatusUpdateHandler = (chatting: boolean) => {
   if (!chatting) {
     const result = bufferToMessage()
     if (result) {
-      nextTick(() => scrollToBottom())
+      onStreamTick()
     }
+    // 收尾：置顶没达成就别留着
+    // 须排在 onStreamTick 的 rAF 后
+    finishRaf = requestAnimationFrame(() => {
+      finishRaf = null
+      if (!pinActive.value) {
+        return
+      }
+      pinActive.value = false
+      syncAtBottom()
+      if (atBottom.value) {
+        autoFollow.value = true
+      }
+    })
   }
 }
 
@@ -290,8 +329,110 @@ const copiedId = ref<string | null>(null)
 // 是否已向下滚动：仅在离开顶部后才启用顶部淡出 mask，避免滚到最顶时淡化最上方消息
 const isScrolled = ref(false)
 
+// 流式贴底跟随；只由用户滚动改写
+const autoFollow = ref(true)
+// 新提问置顶中
+const pinActive = ref(false)
+const atBottom = ref(true)
+// 距底容差
+const BOTTOM_EPS = 24
+// 置顶留的上边距
+const PIN_OFFSET = 8
+// 程序滚动落点，用于区分用户滚动
+let expectedTop: number | null = null
+// 上次滚动位置
+let lastScrollTop = 0
+
+const distanceToBottom = () => {
+  const box = messages.value
+  if (!box) {
+    return 0
+  }
+  return box.scrollHeight - box.scrollTop - box.clientHeight
+}
+
+const syncAtBottom = () => {
+  atBottom.value = distanceToBottom() <= BOTTOM_EPS
+}
+
+// 手势早于 scroll，故不只靠它
+// 否则程序滚动会掩盖用户那次事件
+const applyUserIntent = (goingUp: boolean) => {
+  expectedTop = null
+  pinActive.value = false
+  if (goingUp) {
+    autoFollow.value = false
+    return
+  }
+  // 在底部往下拨无 scroll 事件，
+  // 只能在此恢复跟随
+  syncAtBottom()
+  if (atBottom.value) {
+    autoFollow.value = true
+  }
+}
+
+const onWheel = (e: WheelEvent) => applyUserIntent(e.deltaY < 0)
+
+// null = 无可测方向的单指
+let touchY: number | null = null
+
+const onTouchStart = (e: TouchEvent) => {
+  // 多指时 touches[0] 不可靠
+  touchY = e.touches.length === 1 ? (e.touches[0]?.clientY ?? null) : null
+}
+
+const onTouchEnd = () => {
+  touchY = null
+}
+
+const onTouchMove = (e: TouchEvent) => {
+  if (e.touches.length !== 1) {
+    touchY = null
+    return
+  }
+  const y = e.touches[0]?.clientY ?? null
+  if (y === null) {
+    return
+  }
+  if (touchY !== null) {
+    // 手指下移 = 看上文
+    applyUserIntent(y > touchY)
+  }
+  touchY = y
+}
+
 const onMessagesScroll = () => {
-  isScrolled.value = (messages.value?.scrollTop ?? 0) > 0
+  const box = messages.value
+  if (!box) {
+    return
+  }
+  const top = box.scrollTop
+  isScrolled.value = top > 0
+  syncAtBottom()
+  // 落点对得上 = 自己滚的，不改用户意图
+  const isOurs = expectedTop !== null && Math.abs(top - expectedTop) <= 1
+  if (!isOurs) {
+    expectedTop = null
+    if (top < lastScrollTop - 1) {
+      // 往上滚 = 在看上文，停跟随
+      pinActive.value = false
+      autoFollow.value = false
+    } else if (atBottom.value) {
+      // 滚回底部 = 恢复跟随，一并清置顶
+      pinActive.value = false
+      autoFollow.value = true
+    }
+  }
+  lastScrollTop = top
+}
+
+const showScrollDown = computed(() => !atBottom.value && (messageList.value.length > 0 || !!bufferMessage.value))
+
+const scrollDownClick = () => {
+  pinActive.value = false
+  autoFollow.value = true
+  jumpToBottom('smooth')
 }
 
 const sendable = computed(() => inputText.value.trim().length > 0 && !isChatting.value)
@@ -322,7 +463,15 @@ watch(
       addLog('expand')
     }
     if (value) {
-      nextTick(() => focusTextarea())
+      nextTick(() => {
+        focusTextarea()
+        // 隐藏时几何为 0，显示后补贴底
+        if (autoFollow.value) {
+          jumpToBottom()
+        } else {
+          syncAtBottom()
+        }
+      })
     }
   },
   { flush: 'sync', immediate: true }
@@ -334,13 +483,21 @@ const addLog = (subAction: 'open' | 'expand' | 'close' | 'collapse') => {
   }
 }
 
-onMounted(() => scrollToBottom())
+onMounted(() => jumpToBottom())
 
 onUnmounted(() => {
   // ChatBot.destruct() 只清 responseCallback，不清 chatStatusUpdateHandler；
   // 显式置 undefined 防止 in-flight stream 卸载后仍触发状态更新（类型为可选函数）
   bot.chatStatusUpdateHandler = undefined
   bot.destruct()
+  if (streamTickRaf !== null) {
+    cancelAnimationFrame(streamTickRaf)
+    streamTickRaf = null
+  }
+  if (finishRaf !== null) {
+    cancelAnimationFrame(finishRaf)
+    finishRaf = null
+  }
 })
 
 const handleInput = () => {
@@ -351,23 +508,84 @@ const handleInput = () => {
   textarea.value.style.height = textarea.value.scrollHeight + 'px'
 }
 
-const scrollToBottom = (force?: boolean) => {
-  if (!messages.value) {
+// 贴底；smooth 会打断滚轮
+const scrollToBottomNow = (behavior: ScrollBehavior = 'auto') => {
+  const box = messages.value
+  if (!box) {
     return
   }
-  const scrollTick = () => {
-    nextTick(() => {
-      messages.value?.scrollTo({ top: messages.value.scrollHeight, behavior: 'smooth' })
-    })
+  // clamp 后即落点
+  expectedTop = box.scrollHeight - box.clientHeight
+  box.scrollTo({ top: box.scrollHeight, behavior })
+  syncAtBottom()
+}
+
+const jumpToBottom = (behavior: ScrollBehavior = 'auto') => {
+  nextTick(() => scrollToBottomNow(behavior))
+}
+
+// 置顶目标=最后一条用户消息/引用块
+const pinTargetEl = () => {
+  const box = messages.value
+  if (!box) {
+    return null
   }
-  if (force) {
-    scrollTick()
+  const bubbles = box.querySelectorAll<HTMLElement>('.chat-msg-user')
+  const last = bubbles[bubbles.length - 1]
+  if (!last) {
+    return null
+  }
+  const prev = last.previousElementSibling as HTMLElement | null
+  return prev?.classList.contains('chat-msg-quote') ? prev : last
+}
+
+// 提问置顶，不到位则逐 token 重试
+const applyPin = () => {
+  const box = messages.value
+  const el = pinTargetEl()
+  if (!box || !el) {
     return
   }
-  const isNearBottom = messages.value.scrollHeight - messages.value.scrollTop - messages.value.clientHeight < 200
-  if (isNearBottom) {
-    scrollTick()
+  const delta = el.getBoundingClientRect().top - box.getBoundingClientRect().top - PIN_OFFSET
+  if (Math.abs(delta) <= 1) {
+    pinActive.value = false
+    return
   }
+  const before = box.scrollTop
+  box.scrollBy({ top: delta, behavior: 'auto' })
+  // auto 同步生效，直接读落点
+  expectedTop = box.scrollTop
+  syncAtBottom()
+  // 上滚不动=到顶收工，下滚不动=待重试
+  if (delta < 0 && box.scrollTop === before) {
+    pinActive.value = false
+  }
+}
+
+// 流式/新消息统一入口
+// 逐 token 读几何，rAF 合成一帧
+let streamTickRaf: number | null = null
+// 流式收尾那次 rAF，卸载时要一并取消
+let finishRaf: number | null = null
+
+const onStreamTick = () => {
+  if (streamTickRaf !== null) {
+    return
+  }
+  streamTickRaf = requestAnimationFrame(() => {
+    streamTickRaf = null
+    // 状态在回调里重读，避免用排队时的旧值
+    if (pinActive.value) {
+      applyPin()
+      // 提前 return 时也要刷按钮
+      syncAtBottom()
+    } else if (autoFollow.value) {
+      scrollToBottomNow()
+    } else {
+      // 内容变高不触发 scroll，补算一次
+      syncAtBottom()
+    }
+  })
 }
 
 // sendMessage 扩展：有 text 参数时用参数文本（建议问题点击），但仍保留 isChatting 防重入
@@ -391,8 +609,13 @@ const sendMessage = (text?: string) => {
   bot.chat({ type: ChatParamsType.CONTENT, content, history, quote: currentQuote })
   inputText.value = ''
   quoteInfo.value = null
-  scrollToBottom()
-  nextTick(() => handleInput())
+  // 新一轮：提问置顶，之后不追输出
+  pinActive.value = true
+  autoFollow.value = false
+  nextTick(() => {
+    applyPin()
+    handleInput()
+  })
 }
 
 const questionClick = (question: QuestionMessageItem) => {
@@ -431,6 +654,10 @@ const questionClick = (question: QuestionMessageItem) => {
   if (!question.rawContent) {
     return
   }
+  // 无气泡可锚，改贴底并立刻滚一次
+  pinActive.value = false
+  autoFollow.value = true
+  jumpToBottom()
   bot.chat({ type: ChatParamsType.ASK, questions: question.rawContent })
 }
 
@@ -450,6 +677,10 @@ const relatedQuestionClick = (message: BubbleMessageItem | null, question: { con
     isHTML: true,
     rawContent: question.rawContent
   })
+  // 同上
+  pinActive.value = false
+  autoFollow.value = true
+  jumpToBottom()
   bot.chat({ type: ChatParamsType.ASK, questions: question.content })
 }
 
@@ -537,7 +768,7 @@ const pushBuffer = (content: BubbleMessageContent) => {
   if (content.type !== 'tips' || !isSearchOrBrowserTips(content)) {
     bufferMessage.value.contents = bufferMessage.value.contents?.filter(shouldKeepContent)
   }
-  scrollToBottom()
+  onStreamTick()
 }
 
 const bufferToMessage = () => {
@@ -631,15 +862,21 @@ const getParsedText = (markdownText: string) => {
 
 const addQuoteData = (data: QuoteData) => {
   quoteInfo.value = data
-  nextTick(() => scrollToBottom(true))
+  // 侧栏已开时 watch 不触发，自己聚焦
+  focusTextarea()
+  jumpToBottom()
 }
 
 const focusTextarea = () => {
   nextTick(() => {
-    if (textarea.value) {
-      textarea.value.blur()
-      setTimeout(() => textarea.value?.focus(), 50)
+    const el = textarea.value
+    if (!el?.isConnected) {
+      return
     }
+    // 长文页聚焦不该滚走页面
+    el.focus({ preventScroll: true })
+    const end = el.value.length
+    el.setSelectionRange(end, end)
   })
 }
 
@@ -901,7 +1138,7 @@ defineExpose({ addQuoteData, focusTextarea })
         font-size: 13px;
       }
       :deep(code) {
-        font-family: 'Courier New', Courier, monospace;
+        font-family: var(--slax-font-mono);
       }
 
       // 日夜强调色，E-ink 蓝 + 🔗
@@ -1064,6 +1301,49 @@ defineExpose({ addQuoteData, focusTextarea })
 
   .chat-loading {
     --style: w-full flex-center py-2;
+  }
+
+  // 零高度容器，不占 flex 布局
+  .chat-scroll-down-bar {
+    flex-shrink: 0;
+    position: relative;
+    height: 0;
+  }
+
+  .chat-scroll-down {
+    position: absolute;
+    right: 24px;
+    bottom: 12px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--slax-text-muted);
+    background: var(--slax-surface-solid);
+    border: 1px solid var(--slax-border);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--slax-text) 12%, transparent);
+    transition: all 0.15s;
+
+    &:hover {
+      color: var(--slax-accent);
+      border-color: color-mix(in srgb, var(--slax-accent) 35%, transparent);
+    }
+
+    // 有新内容小圆点
+    &.has-new::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--slax-accent);
+      border: 1.5px solid var(--slax-surface-solid);
+    }
   }
 
   // 输入区（复用 .comment-composer 规范）

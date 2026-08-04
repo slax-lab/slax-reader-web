@@ -365,10 +365,10 @@ const quoteClick = (quote: QuoteData) => {
     }
 
     &:deep(code) {
-      font-family: 'Courier New', Courier, monospace !important;
+      font-family: var(--slax-font-mono) !important;
 
       * {
-        font-family: 'Courier New', Courier, monospace !important;
+        font-family: var(--slax-font-mono) !important;
       }
     }
   }
