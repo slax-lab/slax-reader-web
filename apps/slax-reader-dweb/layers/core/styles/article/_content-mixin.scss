@@ -189,12 +189,12 @@
     }
   }
 
-  /* 代码块类 */
+  /* 代码块；!important 压内联字体 */
   pre {
     --style: p-4 max-w-full rounded text-left whitespace-pre-wrap;
     background: var(--slax-surface);
     border: 1px solid var(--slax-border);
-    font-family: 'Courier New', Courier, monospace !important;
+    font-family: var(--slax-font-mono) !important;
 
     code {
       --style: max-w-full block whitespace-pre;
@@ -202,10 +202,10 @@
       border: none; // pre 内的 code 不需要边框
       border-radius: 0;
       padding: 0;
-      font-family: 'Courier New', Courier, monospace !important;
+      font-family: var(--slax-font-mono) !important;
 
       * {
-        font-family: 'Courier New', Courier, monospace !important;
+        font-family: var(--slax-font-mono) !important;
       }
 
       span p {
@@ -214,6 +214,7 @@
     }
   }
 
+  /* inline code 与 pre 同口径 */
   code {
     --style: text-left whitespace-pre;
     background: var(--slax-surface);
@@ -221,7 +222,12 @@
     border-radius: 3px;
     padding: 1px 4px;
     font-size: 0.9em;
+    font-family: var(--slax-font-mono) !important;
     color: var(--slax-text-muted);
+
+    * {
+      font-family: var(--slax-font-mono) !important;
+    }
   }
 
   /* 标题类 */

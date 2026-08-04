@@ -44,8 +44,10 @@ slax-mark.group-hover {
   background: var(--slax-accent-bg);
 }
 
+/* 引用高亮；口径同本文件 */
 slax-mark.slax-mk-highlighted {
-  background-color: #fcf4e8;
+  background-color: var(--slax-quote-highlight) !important;
+  border-radius: 2px;
 }
 
 slax-mark:has(img) {

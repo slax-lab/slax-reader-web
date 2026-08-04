@@ -32,6 +32,8 @@
   --slax-danger: #c44;
   --slax-danger-bg: rgba(204, 68, 68, 0.06);
   --slax-selection: rgba(180, 88, 55, 0.15);
+  /* 引用高亮：接手原生选区，比它重一档 */
+  --slax-quote-highlight: rgba(180, 88, 55, 0.22);
   --slax-border: rgba(26, 24, 20, 0.08);
   --slax-border-strong: rgba(26, 24, 20, 0.16);
 
@@ -83,7 +85,8 @@
   /* serif 泛型中文回退依赖 lang，
      en 下会变黑体，故显式列宋体 */
   --slax-font-serif: 'Playfair Display', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', 'STSong', serif;
-  --slax-font-mono: 'SF Mono', 'Fira Code', monospace;
+  /* 系统等宽栈（GitHub 同款） */
+  --slax-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 
   /* 字号语义 8 档（来源：design-system §3）：
    *   --slax-fs-display: 文章大标题 / 快照页标题 32px
@@ -139,6 +142,7 @@
   --slax-danger: #e07070;
   --slax-danger-bg: rgba(224, 112, 112, 0.1);
   --slax-selection: rgba(212, 118, 79, 0.2);
+  --slax-quote-highlight: rgba(212, 118, 79, 0.3);
   --slax-border: rgba(255, 251, 244, 0.08);
   --slax-border-strong: rgba(255, 251, 244, 0.16);
 
@@ -176,6 +180,8 @@
   --slax-danger: #444444;
   --slax-danger-bg: #eeeeee;
   --slax-selection: #dddddd;
+  /* 无彩色可用，走灰阶 */
+  --slax-quote-highlight: #cfcfcf;
   --slax-border: #cccccc;
   --slax-border-strong: #999999;
 
