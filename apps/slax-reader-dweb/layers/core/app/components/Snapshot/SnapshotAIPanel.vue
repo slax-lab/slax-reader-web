@@ -536,38 +536,70 @@ watch(
 .panel-outline-text {
   --style: text-(14px txt);
   line-height: 1.6;
+  // 显式 sans，避免继承正文 serif
+  font-family: var(--slax-font-sans);
 
-  // h1/h2 → 章节标题（Playfair serif，对齐 demo .panel-section-title：18px / 500）
-  :deep(h1),
-  :deep(h2) {
-    font-family: var(--slax-font-serif);
-    font-size: 18px;
-    font-weight: 500;
+  // 须带 .markdown-content
+  // 提特异性，否则被覆盖
+
+  // h1 → 章节标题，serif 18px
+  :deep(.markdown-content h1) {
+    font-family: var(--slax-font-serif) !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
     color: var(--slax-text);
-    margin: 16px 0 12px;
+    margin: 12px 0 20px !important;
     line-height: 1.4;
   }
 
-  // h3 → 子章节标题（sans，稍小）
-  :deep(h3) {
-    font-size: 14px;
-    font-weight: 500;
+  // h2 以下：子标题 14px
+  :deep(.markdown-content h2),
+  :deep(.markdown-content h3),
+  :deep(.markdown-content h4),
+  :deep(.markdown-content h5),
+  :deep(.markdown-content h6) {
+    font-family: var(--slax-font-sans) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
     color: var(--slax-text);
-    margin: 10px 0 6px;
+    margin: 16px 0 8px !important;
     line-height: 1.5;
   }
 
-  // 文字 + 圆点改淡色，对齐 demo
+  // 条目 14px/1.6，间距 10px
   // 原样式特异性高，故加 !important
   :deep(.markdown-content ul li),
   :deep(.markdown-content ol li) {
+    font-family: var(--slax-font-sans) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
     color: var(--slax-text-muted) !important;
+    line-height: 1.6 !important;
 
-    // 顶层列表用实心圆点
+    &:not(:first-child) {
+      margin-top: 10px !important;
+    }
+
+    // 顶层实心圆点，top 随行高居中
     &::before {
+      top: calc((1em * 1.6 - 4px) / 2) !important;
       background: var(--slax-text-light) !important;
       border-color: var(--slax-text-light) !important;
     }
+  }
+
+  // 子条目间距 4px
+  :deep(.markdown-content ul ul li:not(:first-child)),
+  :deep(.markdown-content ul ol li:not(:first-child)),
+  :deep(.markdown-content ol ul li:not(:first-child)),
+  :deep(.markdown-content ol ol li:not(:first-child)) {
+    margin-top: 4px !important;
+  }
+
+  // 覆盖默认的 16px
+  :deep(.markdown-content li > ul),
+  :deep(.markdown-content li > ol) {
+    margin-top: 10px !important;
   }
 
   // 嵌套列表圆点改空心
@@ -623,9 +655,10 @@ watch(
     margin-top: 0;
   }
 
-  // 段落间距
-  :deep(p) {
-    margin-bottom: 8px;
+  :deep(.markdown-content p) {
+    font-family: var(--slax-font-sans) !important;
+    font-size: 14px !important;
+    margin-bottom: 8px !important;
     line-height: 1.6;
   }
 }

@@ -280,9 +280,10 @@ const localeSelect = (index: number) => {
 }
 
 // 内容区：顶部留出顶栏高度 + 额外间距
+// 宽度对齐 Inbox 内容区
 .content {
   width: 100%;
-  max-width: 672px;
+  max-width: var(--slax-content-w);
   padding: calc(var(--slax-header-height) + 32px) 24px 88px;
 
   @media (max-width: 768px) {
