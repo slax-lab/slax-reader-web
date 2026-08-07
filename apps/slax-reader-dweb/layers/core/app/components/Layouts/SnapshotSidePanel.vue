@@ -32,12 +32,14 @@
           :aria-label="shortcut ? `${$t('common.operate.collapse')} (${shortcut})` : $t('common.operate.collapse')"
           @click="closeClick"
         >
+          <!-- 箭头 path 须带 rotate(45) -->
           <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
             <g transform="translate(-0.6213, 3)">
               <rect x="2.62132034" y="0" width="12" height="1" rx="0.5" />
               <rect x="8.62132034" y="4" width="6" height="1" rx="0.5" />
               <rect x="8.62132034" y="8" width="6" height="1" rx="0.5" />
               <path
+                transform="translate(3.6213, 6.5) rotate(45) translate(-3.6213, -6.5)"
                 d="M1.85781322,4.53638274 L5.52799613,4.02963623 C5.80154341,3.99186723 6.05391512,4.18300329 6.09168411,4.45655057 C6.09794923,4.50192655 6.09794923,4.54794824 6.09168411,4.59332421 L5.5849376,8.26350713 C5.5547224,8.48234495 5.35282503,8.6352538 5.13398721,8.60503861 C5.04761613,8.59311325 4.96750692,8.55329336 4.90585395,8.49164039 L1.62967996,5.2154664 C1.47347024,5.05925668 1.47347024,4.80599068 1.62967996,4.64978096 C1.69133293,4.58812799 1.77144214,4.5483081 1.85781322,4.53638274 Z"
               />
             </g>
@@ -182,7 +184,8 @@ watch(isH5, h5 => {
   max-width: var(--slax-side-panel-max-w);
   transform: translateX(100%);
   transition: transform 0.3s var(--slax-ease-spring);
-  background: var(--slax-surface-solid);
+  // 底色用 --bg，对齐 demo
+  background: var(--slax-bg);
   border-left: 1px solid var(--slax-border);
 
   &.open {
@@ -242,7 +245,7 @@ watch(isH5, h5 => {
   padding: 6px 0;
   height: 100%;
   position: relative;
-  background: var(--slax-surface);
+  // 不设底色，透出面板底色
 }
 
 .side-panel-close-wrap {
@@ -259,11 +262,19 @@ watch(isH5, h5 => {
   border: none;
   background: transparent;
   cursor: pointer;
-  color: var(--slax-text-light);
-  transition: color 0.15s;
+  // 等价还原切图的 #333 @ .58
+  color: var(--slax-text);
 
-  &:hover {
-    color: var(--slax-text);
+  svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    opacity: 0.58;
+    transition: opacity 0.15s;
+  }
+
+  &:hover svg {
+    opacity: 0.82;
   }
 }
 
