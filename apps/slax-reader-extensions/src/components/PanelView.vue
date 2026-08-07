@@ -398,7 +398,7 @@ const closePanel = () => {
             }
 
             button {
-              --style: ml-4px w-18px h-16px bg-center;
+              --style: ml-6px w-14px h-12px bg-center;
               --style: 'bg-[length:18px_16px] hover:(scale-103) active:(scale-105) transition-all duration-250';
 
               background-image: url('@/assets/tiny-toggle-disabled-icon.png');
