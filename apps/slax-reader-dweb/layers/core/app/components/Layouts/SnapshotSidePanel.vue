@@ -25,20 +25,32 @@
     </div>
 
     <nav class="side-panel-tabs">
-      <button class="side-panel-close" :title="$t('common.operate.collapse')" :aria-label="$t('common.operate.collapse')" @click="$emit('update:activeTab', null)">
-        <!-- 箭头 path 须带 rotate(45) -->
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-          <g transform="translate(-0.6213, 3)">
-            <rect x="2.62132034" y="0" width="12" height="1" rx="0.5" />
-            <rect x="8.62132034" y="4" width="6" height="1" rx="0.5" />
-            <rect x="8.62132034" y="8" width="6" height="1" rx="0.5" />
-            <path
-              transform="translate(3.6213, 6.5) rotate(45) translate(-3.6213, -6.5)"
-              d="M1.85781322,4.53638274 L5.52799613,4.02963623 C5.80154341,3.99186723 6.05391512,4.18300329 6.09168411,4.45655057 C6.09794923,4.50192655 6.09794923,4.54794824 6.09168411,4.59332421 L5.5849376,8.26350713 C5.5547224,8.48234495 5.35282503,8.6352538 5.13398721,8.60503861 C5.04761613,8.59311325 4.96750692,8.55329336 4.90585395,8.49164039 L1.62967996,5.2154664 C1.47347024,5.05925668 1.47347024,4.80599068 1.62967996,4.64978096 C1.69133293,4.58812799 1.77144214,4.5483081 1.85781322,4.53638274 Z"
-            />
-          </g>
-        </svg>
-      </button>
+      <div class="side-panel-close-wrap" @mouseenter="hoverTips(true)" @mouseleave="hoverTips(false)">
+        <button
+          class="side-panel-close"
+          :title="shortcut ? undefined : $t('common.operate.collapse')"
+          :aria-label="shortcut ? `${$t('common.operate.collapse')} (${shortcut})` : $t('common.operate.collapse')"
+          @click="closeClick"
+        >
+          <!-- 箭头 path 须带 rotate(45) -->
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <g transform="translate(-0.6213, 3)">
+              <rect x="2.62132034" y="0" width="12" height="1" rx="0.5" />
+              <rect x="8.62132034" y="4" width="6" height="1" rx="0.5" />
+              <rect x="8.62132034" y="8" width="6" height="1" rx="0.5" />
+              <path
+                transform="translate(3.6213, 6.5) rotate(45) translate(-3.6213, -6.5)"
+                d="M1.85781322,4.53638274 L5.52799613,4.02963623 C5.80154341,3.99186723 6.05391512,4.18300329 6.09168411,4.45655057 C6.09794923,4.50192655 6.09794923,4.54794824 6.09168411,4.59332421 L5.5849376,8.26350713 C5.5547224,8.48234495 5.35282503,8.6352538 5.13398721,8.60503861 C5.04761613,8.59311325 4.96750692,8.55329336 4.90585395,8.49164039 L1.62967996,5.2154664 C1.47347024,5.05925668 1.47347024,4.80599068 1.62967996,4.64978096 C1.69133293,4.58812799 1.77144214,4.5483081 1.85781322,4.53638274 Z"
+              />
+            </g>
+          </svg>
+        </button>
+        <Transition name="close-tips">
+          <div v-if="shortcut" v-show="tipsAppear" class="side-panel-close-tips">
+            <span>{{ $t('common.operate.collapse') }} ({{ shortcut }})</span>
+          </div>
+        </Transition>
+      </div>
       <div class="side-panel-tabs-group">
         <template v-for="(tab, idx) in tabs" :key="tab.id">
           <div v-if="idx > 0" class="panel-tab-sep" />
@@ -62,6 +74,8 @@ const props = defineProps<{
   activeTab: SnapshotPanelId | null
   // 展示的面板子集，不传则全部
   panels?: SnapshotPanelId[]
+  // 收起快捷键文案，不传则不提示
+  shortcut?: string
 }>()
 
 const emit = defineEmits<{
@@ -72,6 +86,41 @@ const { panelWidth, isDragging, startDrag, isH5 } = useSnapshotLayout()
 const { t } = useI18n()
 
 const tabs = computed(() => resolveSnapshotPanels(props.panels, t))
+
+// 悬停 500ms 才出，避免划过就闪
+const TIPS_DELAY = 500
+const tipsAppear = ref(false)
+const isTipsHover = ref(false)
+let tipsTimer: ReturnType<typeof setTimeout> | null = null
+
+const clearTipsTimer = () => {
+  if (tipsTimer) {
+    clearTimeout(tipsTimer)
+    tipsTimer = null
+  }
+}
+
+const hoverTips = (state: boolean) => {
+  isTipsHover.value = state
+  clearTipsTimer()
+
+  if (!state) {
+    tipsAppear.value = false
+    return
+  }
+
+  tipsTimer = setTimeout(() => {
+    if (isTipsHover.value) tipsAppear.value = true
+  }, TIPS_DELAY)
+}
+
+// 收起后收不到 mouseleave，需手动灭
+const closeClick = () => {
+  hoverTips(false)
+  emit('update:activeTab', null)
+}
+
+onBeforeUnmount(clearTipsTimer)
 
 // 宽度内联，高度交给 CSS
 // 抓手下拉跟手，松手按阈值收起
@@ -199,6 +248,11 @@ watch(isH5, h5 => {
   // 不设底色，透出面板底色
 }
 
+.side-panel-close-wrap {
+  position: relative;
+  display: flex;
+}
+
 .side-panel-close {
   display: flex;
   align-items: center;
@@ -222,6 +276,41 @@ watch(isH5, h5 => {
   &:hover svg {
     opacity: 0.82;
   }
+}
+
+// 照搬扩展端 TextTips，颜色换主题 token
+.side-panel-close-tips {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  padding: 4px 6px 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--slax-surface-solid);
+  border: 1px solid var(--slax-border);
+  border-radius: 4px;
+  box-shadow: var(--slax-shadow-modal);
+  pointer-events: none;
+  z-index: 10;
+
+  span {
+    font-size: 12px;
+    line-height: 17px;
+    color: var(--slax-text-muted);
+    white-space: nowrap;
+  }
+}
+
+.close-tips-enter-active,
+.close-tips-leave-active {
+  transition: opacity 0.2s;
+}
+
+.close-tips-enter-from,
+.close-tips-leave-to {
+  opacity: 0;
 }
 
 .side-panel-tabs-group {
