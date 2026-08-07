@@ -1,15 +1,21 @@
 <template>
   <footer class="article-footer">
     <div class="article-footer-text" v-if="showVia">
-      {{ $t('page.bookmarks_detail.shared_via') }}
-      <strong>{{ via || 'Slax Reader' }}</strong>
       <!-- 有合集→站内归属入口 -->
       <template v-if="collection">
-        · {{ $t('page.bookmarks_detail.from_collection') }}
-        <NuxtLink class="article-footer-link" :to="`/c/${collection.code}`">{{ collection.name }} →</NuxtLink>
+        <!-- 小屏仅留 From + 合集名 -->
+        <span class="article-footer-via"
+          >{{ $t('page.bookmarks_detail.shared_via') }} <strong>{{ via || 'Slax Reader' }}</strong> ·</span
+        >
+        {{ ' ' }}
+        <span class="article-footer-from-full">{{ $t('page.bookmarks_detail.from_collection') }}</span
+        ><span class="article-footer-from-short">{{ $t('page.bookmarks_detail.from_collection_short') }}</span>
+        <NuxtLink class="article-footer-link article-footer-link--collection" :to="`/c/${collection.code}`">{{ collection.name }} →</NuxtLink>
       </template>
-      <!-- 无归属→保留 Try free -->
+      <!-- 无归属→署名 + Try free -->
       <template v-else>
+        {{ $t('page.bookmarks_detail.shared_via') }}
+        <strong>{{ via || 'Slax Reader' }}</strong>
         · <a class="article-footer-link" href="https://slax.com/reader/" target="_blank" rel="noopener noreferrer">{{ $t('page.bookmarks_detail.try_free') }}</a>
       </template>
     </div>
@@ -102,7 +108,7 @@ const shareToTwitter = () => {
     }
 
     .article-footer-link {
-      // 对齐 demo：muted 色 / 300
+      // Try free：muted / 300
       color: var(--slax-text-muted);
       text-decoration: none;
       font-weight: 300;
@@ -110,6 +116,27 @@ const shareToTwitter = () => {
 
       &:hover {
         text-decoration: underline;
+      }
+
+      // 合集入口高亮：accent / 500
+      &--collection {
+        color: var(--slax-accent);
+        font-weight: 500;
+      }
+    }
+
+    .article-footer-from-short {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .article-footer-via,
+      .article-footer-from-full {
+        display: none;
+      }
+
+      .article-footer-from-short {
+        display: inline;
       }
     }
   }
