@@ -3,8 +3,8 @@
   <nav class="tabs-sidebar" ref="sidebarEl">
     <!-- 主导航项 -->
     <button v-for="(item, index) in tabList" :key="item.type" class="sidebar-item" :class="{ active: tabType === item.type }" @click="inboxClick(item.type, index)" type="button">
-      <!-- inline SVG icon，不依赖图片文件 -->
-      <svg class="item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.iconPath" />
+      <!-- viewBox 随 icon 自带 -->
+      <svg class="item-icon" width="18" height="18" :viewBox="item.icon.viewBox" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.icon.markup" />
       <span>{{ item.title }}</span>
     </button>
 
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-// BookmarkTabTypes 和 TabIconPaths 由 Nuxt auto-import 注入
+// BookmarkTabTypes 和 TabIcons 由 Nuxt auto-import 注入
 // 不显式 import，以便 fork 对 useBookmarkRelative 的 override 能通过 layer 优先级生效
 const { t } = useI18n()
 const sidebarEl = ref<HTMLElement>()
@@ -37,11 +37,13 @@ defineProps({
 
 const emits = defineEmits(['changeTab'])
 
+const FALLBACK_ICON = { viewBox: '0 0 24 24', markup: '' }
+
 const tabList = computed(() =>
   BookmarkTabTypes.map(type => ({
     type,
     title: t(`page.bookmarks_index.${type}`),
-    iconPath: TabIconPaths[type] ?? ''
+    icon: TabIcons[type] ?? FALLBACK_ICON
   }))
 )
 

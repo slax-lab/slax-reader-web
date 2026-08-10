@@ -1,10 +1,14 @@
-// 书签列表各 tab 空态配置：内联 SVG icon path + i18n key
+// 各 tab 空态配置
 // title/desc 依赖 useI18n 的 t()，故此处只存 i18n key，由消费组件拼装文案
 // 对应原 pages/bookmarks/index.vue 的 emptyViewConfig
 
+import { DESIGN_ICONS } from '#layers/core/app/constants/designIcons'
+
 export interface BookmarkEmptyEntry {
-  /** 内联 SVG path 字符串（v-html 注入到 <svg> 内） */
+  /** svg 内部 markup */
   iconPath: string
+  /** 缺省按 24×24 渲染 */
+  iconViewBox?: string
   /** 标题 i18n key */
   titleKey: string
   /** 描述 i18n key */
@@ -13,14 +17,21 @@ export interface BookmarkEmptyEntry {
 
 // 各 filterStatus 对应的空态配置
 export const BOOKMARK_EMPTY_CONFIG: Record<string, BookmarkEmptyEntry> = {
+  // PC 非首屏走 QuickStart
+  inbox: {
+    iconPath: DESIGN_ICONS.emptyInbox.markup,
+    iconViewBox: DESIGN_ICONS.emptyInbox.viewBox,
+    titleKey: 'page.bookmarks_index.empty',
+    descKey: ''
+  },
   starred: {
     iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     titleKey: 'page.bookmarks_index.empty_starred_title',
     descKey: 'page.bookmarks_index.empty_starred_desc'
   },
   topics: {
-    iconPath:
-      '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    iconPath: DESIGN_ICONS.emptyTopics.markup,
+    iconViewBox: DESIGN_ICONS.emptyTopics.viewBox,
     titleKey: 'page.bookmarks_index.empty_topics_title',
     descKey: 'page.bookmarks_index.empty_topics_desc'
   },
@@ -30,12 +41,14 @@ export const BOOKMARK_EMPTY_CONFIG: Record<string, BookmarkEmptyEntry> = {
     descKey: 'page.bookmarks_index.empty_highlights_desc'
   },
   archive: {
-    iconPath: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
+    iconPath: DESIGN_ICONS.emptyArchive.markup,
+    iconViewBox: DESIGN_ICONS.emptyArchive.viewBox,
     titleKey: 'page.bookmarks_index.empty_archive_title',
     descKey: 'page.bookmarks_index.empty_archive_desc'
   },
   trashed: {
-    iconPath: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>',
+    iconPath: DESIGN_ICONS.emptyTrash.markup,
+    iconViewBox: DESIGN_ICONS.emptyTrash.viewBox,
     titleKey: 'page.bookmarks_index.empty_trash_title',
     descKey: 'page.bookmarks_index.empty_trash_desc'
   },

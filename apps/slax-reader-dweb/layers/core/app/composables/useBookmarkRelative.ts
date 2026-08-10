@@ -1,5 +1,6 @@
 import { type BookmarkBriefDetail, type BookmarkDetail, type InlineBookmarkDetail, type ShareBookmarkDetail } from '@commons/types/interface'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
+import { DESIGN_ICONS, type DesignIcon } from '#layers/core/app/constants/designIcons'
 import { useUserStore } from '#layers/core/app/stores/user'
 
 export enum BookmarkType {
@@ -30,15 +31,16 @@ export const isSnapshotBookmarkDetail = (detail: BookmarkArticleDetail) => false
 
 export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 
-// Tab 图标 SVG path 内容（inline，不依赖图片文件）
-// 覆盖此 composable 的 fork 可扩展此对象以支持额外 tab 类型（如 collections）
-export const TabIconPaths: Record<string, string> = {
-  inbox: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h8M8 12h6M8 16h4"/>',
-  starred: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-  topics:
-    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-  highlights: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>',
-  archive: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>'
+// Tab 图标，fork 可扩展此对象
+export const TabIcons: Record<string, DesignIcon> = {
+  inbox: DESIGN_ICONS.inbox,
+  starred: {
+    viewBox: '0 0 24 24',
+    markup: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
+  },
+  topics: DESIGN_ICONS.topics,
+  highlights: DESIGN_ICONS.pencil,
+  archive: DESIGN_ICONS.archive
 }
 
 export const showFeedbackView = (options: BookmarkTypeOptions, type: string) => {
