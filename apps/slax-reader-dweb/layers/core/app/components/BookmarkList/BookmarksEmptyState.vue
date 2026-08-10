@@ -5,7 +5,7 @@
   </div>
   <BookmarksEmptyView v-else :title="emptyTitle" :desc="emptyDesc">
     <template #icon>
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyIconPath" />
+      <svg width="32" height="32" :viewBox="emptyIconViewBox" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyIconPath" />
     </template>
   </BookmarksEmptyView>
 </template>
@@ -26,9 +26,11 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-// 当前 tab 的空态配置（icon path + 文案 key），未匹配走兜底
+// 当前 tab 空态配置，未匹配走兜底
 const entry = computed(() => BOOKMARK_EMPTY_CONFIG[props.filterStatus] ?? BOOKMARK_EMPTY_FALLBACK)
 const emptyIconPath = computed(() => entry.value.iconPath)
+// 优先用 icon 自带 viewBox
+const emptyIconViewBox = computed(() => entry.value.iconViewBox ?? '0 0 24 24')
 const emptyTitle = computed(() => t(entry.value.titleKey))
 const emptyDesc = computed(() => (entry.value.descKey ? t(entry.value.descKey) : ''))
 </script>
