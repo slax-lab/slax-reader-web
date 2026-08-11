@@ -415,15 +415,15 @@
     },
     "snapshot_chat": {
       "copied": "已复制",
-      "empty_desc": "或在正文中划选片段直接发起对话",
-      "empty_title": "向 AI 提问，深入理解文章内容",
+      "empty_desc": "或选中文字，针对特定内容提问",
+      "empty_title": "问 AI 关于这篇文章的任何问题，",
       "scroll_to_bottom": "回到最新",
       "suggestion_1": "这篇文章的核心观点是什么？",
       "suggestion_2": "有哪些值得深入了解的概念？",
       "suggestion_3": "作者的主要论据是什么？"
     },
     "snapshot_comment": {
-      "empty_desc": "试试框选感兴趣的内容发表点评"
+      "empty_desc": "还没有评论。选中这篇文章里的文字，即可留下一条评论。"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "以后不再提醒",
