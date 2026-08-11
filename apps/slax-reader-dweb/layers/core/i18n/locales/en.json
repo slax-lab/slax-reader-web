@@ -415,15 +415,15 @@
     },
     "snapshot_chat": {
       "copied": "Copied",
-      "empty_desc": "Or select text in the article to start a conversation",
-      "empty_title": "Ask AI to understand this article",
+      "empty_desc": "Or select text to ask about a specific part",
+      "empty_title": "Ask AI anything about this article",
       "scroll_to_bottom": "Jump to latest",
       "suggestion_1": "What is the core argument of this article?",
       "suggestion_2": "What concepts are worth exploring further?",
       "suggestion_3": "What are the author's main arguments?"
     },
     "snapshot_comment": {
-      "empty_desc": "Try selecting content you're interested in to leave a comment"
+      "empty_desc": "No comments yet. Select text in this article to leave one."
     },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",
