@@ -1,14 +1,4 @@
 // BookmarksOnboardingHero 组件单测
-// 三步流程：1 装插件动画演示 / 2 引导固定（真实检测+手动确认兜底） / 3 打开示例文章
-//
-// 注意：本仓库 upstream 工作区当前存在已知的 pnpm 依赖分裂问题——`vue` 自身解析到
-// typescript@6.0.3 的 peer 变体，而 @vue/test-utils / @nuxt/test-utils / nuxt 解析到
-// typescript@5.9.3 的变体，导致同一进程内出现两份 vue 实例。表现为：mount 后由
-// onMounted/事件回调触发的 ref 变化，不会反映到 @vue/test-utils 的 wrapper DOM 快照里
-// （即便 await nextTick()/flushPromises()）。这是项目已有的 lockfile 问题，与本次需求
-// 无关，本次不修复 lockfile。因此涉及"mount 之后异步状态变化才反映到 DOM"的场景，改用
-// mock useExtensionDetection/usePinnedDetection 让 currentStep 在 mount 那一刻就算出目标值
-// （computed 是同步求值，mount 时即定值，不依赖后续响应式更新走到 DOM），规避该问题。
 import BookmarksOnboardingHero from '~~/layers/core/app/components/BookmarkList/BookmarksOnboardingHero.vue'
 
 import { mountWithApp } from '~~/tests/setup/mount'

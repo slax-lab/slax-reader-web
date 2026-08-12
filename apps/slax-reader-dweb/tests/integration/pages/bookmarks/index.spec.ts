@@ -75,7 +75,7 @@ const {
     mockShowFeedbackModal: vi.fn(),
     mockToastShowToast: vi.fn(),
     mockIsSafari: vi.fn(() => false),
-    // 默认已装插件（走状态 C 纯净空态），个别用例按需覆盖返回值
+    // 默认已装插件（状态 C），个别用例覆盖
     mockUseExtensionDetection: vi.fn(() => ({ isInstalled: { value: true }, checked: { value: true } }))
   }
 })
@@ -206,7 +206,7 @@ describe('pages/bookmarks/index.vue', () => {
     mockUseRoute.mockReturnValue(routeState)
     mockGetUserInfo.mockResolvedValue(baseUser)
     mockGet.mockResolvedValue([])
-    // 默认已装插件（走状态 C 纯净空态）；clearAllMocks 不清实现，需每例重置，避免跨用例串味
+    // 每例重置，避免跨用例串味
     mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
   })
 
@@ -225,7 +225,7 @@ describe('pages/bookmarks/index.vue', () => {
     it('C2: 默认无 bookmarks + 已装插件（mock 默认）→ inbox 走纯净空态 BookmarksEmptyView', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 已装插件 → 状态 C：纯净 BookmarksEmptyView，不展示 onboarding hero
+      // 已装插件 → 状态 C 纯净空态
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
       expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
     })
@@ -240,7 +240,7 @@ describe('pages/bookmarks/index.vue', () => {
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
       await flushPromises()
-      // trashed 是非 inbox tab + 空数据 → 渲染通用空态 BookmarksEmptyView（不受插件三态逻辑影响）
+      // 非 inbox tab，不受插件三态影响
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
       expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
     })
@@ -291,9 +291,8 @@ describe('pages/bookmarks/index.vue', () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // inbox + 空数据 + 未装插件 + 无订阅（社区版无合集概念，subscribedCount 默认 0）→ 状态 A → 跳转 /onboarding
+      // 状态 A → 跳转 + 按 B 展示
       expect(mockNavigateTo).toHaveBeenCalledWith('/onboarding', { replace: true })
-      // 跳转期间模板把 inboxState 映射成 B 展示，避免列表突然空掉；状态 B 走 BookmarksEmptyView（安装提示），非纯净空态
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })
 
@@ -301,7 +300,6 @@ describe('pages/bookmarks/index.vue', () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 不再有整页替换逻辑：TabsSidebar 正常渲染
       expect(wrapper.findComponent({ name: 'TabsSidebar' }).exists()).toBe(true)
     })
   })
@@ -521,7 +519,7 @@ describe('pages/bookmarks/index.vue', () => {
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 返回 [] → bookmarks 为空 → 无 BookmarkCell；已装插件（mock 默认）→ inbox 走纯净空态
+      // 已装插件 → inbox 走纯净空态
       expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(0)
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })

@@ -25,9 +25,7 @@ useHead({
 const userId = computed(() => userStore.userInfo?.userId)
 const { isPending, clearPending } = useOnboardingPending(userId)
 
-// 无 onboarding 标记（未走过 /bookmarks 的三态判定，或已经清过标记）→ 说明本页不适用，
-// 直接退回 /bookmarks 交由那边重新判断。userId 未就位时 isPending 恒为 false（useOnboardingPending
-// 拿不到 storageKey），故需同时判断 userStore.userInfo 是否已加载，避免首屏因用户信息未就位而误判退出。
+// 无标记 → 退回 /bookmarks
 watch(
   [() => userStore.userInfo, isPending],
   ([info, pending]) => {
@@ -38,7 +36,7 @@ watch(
 
 userStore.getUserInfo({ refresh: true })
 
-// 完成引导（点击"稍后再说"或走完最后一步）：清标记 + 回到 /bookmarks
+// 清标记 + 回到 /bookmarks
 const finish = () => {
   clearPending()
   navigateTo('/bookmarks', { replace: true })

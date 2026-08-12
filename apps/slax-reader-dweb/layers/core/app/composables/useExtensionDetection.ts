@@ -1,5 +1,4 @@
-// 检测 Slax Reader 浏览器扩展是否安装：扩展无 externally_connectable/postMessage 通道，
-// 只能通过 content script 注入的 DOM 标记（WXT createShadowRootUi 的宿主元素）探测。
+// 检测扩展是否安装：DOM 标记探测
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const EXTENSION_MARKERS = ['slax-reader-panel', 'slax-reader-modal']
@@ -18,8 +17,7 @@ export function useExtensionDetection() {
       return
     }
 
-    // content script 在 document_idle 注入，可能比本组件 mount 晚；
-    // MutationObserver 监听 + 超时兜底判定"未安装"
+    // 监听 + 超时兜底
     const observer = new MutationObserver(() => {
       if (matchMarker()) {
         isInstalled.value = true
@@ -28,8 +26,7 @@ export function useExtensionDetection() {
         clearTimeout(timer)
       }
     })
-    // WXT createShadowRootUi 的宿主元素以 body 兄弟节点插入（<html> 的孙节点或更深），
-    // 必须 subtree:true 才能捕获；仅 childList 只观察 <html> 的直接子节点。
+    // 插入较深，须 subtree:true
     observer.observe(document.documentElement, { childList: true, subtree: true })
 
     const timer = setTimeout(() => {

@@ -1,8 +1,5 @@
 <template>
-  <!-- 需求#3：无插件 + inbox 空 + 无订阅的全新用户，整页内容区被巨幅安装引导覆盖。
-       复刻 slax-reader-onboarding.html 的完整三步流程：
-       步骤1 欢迎+装插件(浏览器收藏动画) → 步骤2 引导固定到工具栏(真实置顶检测+手动确认兜底) → 步骤3 打开示例文章。
-       currentStep 由父级 usePinnedDetection/useExtensionDetection 探测结果自动推进，也可手动兜底跳步。 -->
+  <!-- 全新用户三步引导 -->
   <div class="onboarding-hero">
     <button class="hero-skip-btn" type="button" @click="skip">{{ $t('page.bookmarks_onboarding.skip') }}</button>
 
@@ -122,10 +119,7 @@ const emit = defineEmits<{ skip: []; complete: [] }>()
 const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_onboarding'
 const gettingStartedUrl = 'https://slax.com/blog/built-an-open-source-tool-to-save-content-permanently-and-simplify-learning/'
 
-// 步骤1→2：探测到插件已安装；步骤2→3：真实置顶检测命中（旧版本插件无上报逻辑时恒为 false，
-// 靠步骤2的手动确认按钮兜底，见 manualStep3）。用 computed 而非 ref+watch，
-// 这样组件 mount 时若探测结果已经是"已安装/已置顶"（比如用户刷新前就已完成），能直接算出正确步骤，
-// 不需要等待"状态变化"才触发（ref+watch 不带 immediate 拿不到初始值这一档）。
+// computed 避免拿不到初始值
 const { isInstalled } = useExtensionDetection()
 const { isPinned } = usePinnedDetection()
 const manualStep3 = ref(false)
@@ -142,8 +136,7 @@ const confirmPinned = () => (manualStep3.value = true)
 const skip = () => emit('skip')
 const complete = () => emit('complete')
 
-// 循环播放的浏览器收藏动画（仅步骤1使用）：游标移入 → 点击态（心跳光晕停止 + toast 弹出）→ 停留 → 重播
-// 时长对齐 slax-reader-onboarding.html 的 demoCursorDelay/demoClickDelay/demoLoopDelay
+// 步骤1 循环播放的收藏动画
 const CURSOR_DELAY = 2000
 const CURSOR_DURATION = 1000
 const CLICK_DELAY = CURSOR_DELAY + CURSOR_DURATION
@@ -165,7 +158,7 @@ const playDemoSequence = () => {
   clearTimers()
   isClicked.value = false
   isPlaying.value = false
-  // 强制重排，确保下一帧重新触发动画（对齐原型 void browserDemo.offsetWidth）
+  // 强制重排，确保下一帧重新触发动画
   requestAnimationFrame(() => {
     isPlaying.value = true
   })
@@ -205,8 +198,7 @@ onUnmounted(() => {
   position: relative;
 }
 
-// 对齐 onboarding.html 的 .skip-button：fixed 相对视口定位（而非相对 .onboarding-hero 用负值上移），
-// 避免顶栏高度变化（桌面/移动两档）时贴到顶栏上甚至被遮住
+// fixed 相对视口定位
 .hero-skip-btn {
   position: fixed;
   top: calc(var(--slax-header-height) + 36px);

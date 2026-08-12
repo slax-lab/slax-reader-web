@@ -34,10 +34,7 @@
         />
       </template>
       <template v-slot:content-list>
-        <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签、且列表非空时显示（
-             对齐 redesign.html 的 .main.view-empty 隐藏 .layout-switcher 规则，避免空数据/
-             需求#2 安装提示旁边还挂着一个切换按钮；isTransitioning 时保留，避免删完最后一条时切换器
-             在删除动画播放中就先跳变消失，与下方 EmptyState/ListBottomStatus 的显隐判断保持一致） -->
+        <!-- 列表非空时才显示切换器 -->
         <ListLayoutSwitcher
           v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId) && !(isDataEmpty && !isTransitioning)"
           v-model="listMode"
@@ -58,9 +55,7 @@
           @bookmark-update="handleCellBookmarkUpdate"
         />
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
-          <!-- 状态 A 期间：/onboarding 跳转有耗时，这里按状态 B（列表内安装提示）展示，避免用户
-               在跳转过程中看到一个"莫名其妙空掉"的列表；真正的 A 由 useInboxOnboardingState 的
-               watch 负责触发跳转（见下方） -->
+          <!-- 跳转期间按 B 展示 -->
           <BookmarksEmptyState
             v-if="!loading && isDataEmpty"
             :filter-status="filterStatus"
@@ -181,7 +176,7 @@ const {
 // 列表布局模式（card / text），localStorage 持久化
 const { listMode } = useListLayoutMode()
 
-// inbox 空态三态：社区版无合集/订阅概念，subscribedCount 固定 0（数据天然就位）
+// 社区版无订阅概念，固定 0
 const { inboxState } = useInboxOnboardingState({
   isCurrentInboxTab,
   subscribedCount: computed(() => 0),
@@ -190,10 +185,7 @@ const { inboxState } = useInboxOnboardingState({
   userId: computed(() => userStore.userInfo?.userId)
 })
 
-// 状态 A 命中 → 跳转独立引导页 /onboarding（该页自行读取 onboarding 标记决定具体展示哪一步）。
-// 跳转本身有耗时，模板侧在此期间按状态 B 展示列表内安装提示，不留一个突然空掉的列表。
-// immediate:true：inboxState 首次计算即为 A 时（如已带 onboarding 标记刷新进来）也要立刻跳转，
-// 不带 immediate 的 watch 只在"变化"时触发，拿不到初始值这一档。
+// 状态 A → 跳转 /onboarding
 watch(
   inboxState,
   state => {

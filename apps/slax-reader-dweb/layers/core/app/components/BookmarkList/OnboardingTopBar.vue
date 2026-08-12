@@ -1,6 +1,5 @@
 <template>
-  <!-- /onboarding 独立页顶栏：仅 logo + 用户菜单，对齐 onboarding.html 的 .topbar（社区版无订阅概念，
-       fork 侧通过 nuxt.config.ts 别名覆盖本文件加订阅按钮，参照 BookmarksTopBar.vue 的覆盖方式） -->
+  <!-- /onboarding 专属顶栏 -->
   <header class="onboarding-topbar">
     <div class="topbar-inner">
       <button class="topbar-logo" type="button" @click="navigateTo('/bookmarks')">

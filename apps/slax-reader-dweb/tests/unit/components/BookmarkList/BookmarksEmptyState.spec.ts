@@ -1,7 +1,4 @@
 // BookmarksEmptyState 组件单测
-// inboxState 由父级（页面层的 useInboxOnboardingState）算好传入，本组件只负责渲染：
-// B（未装插件+有订阅）→ 带按钮的 EmptyView；C（已装插件）/null/非 inbox tab → 纯净 EmptyView。
-// A 由页面层直接渲染 BookmarksOnboardingHero 接管，不会经过本组件。
 import BookmarksEmptyState from '~~/layers/core/app/components/BookmarkList/BookmarksEmptyState.vue'
 
 import { mountWithApp } from '~~/tests/setup/mount'
@@ -27,7 +24,7 @@ describe('BookmarksEmptyState', () => {
       const wrapper = mountWithApp(BookmarksEmptyState, { props: { ...baseProps, inboxState: 'B' } })
       expect(wrapper.find('.empty-view').exists()).toBe(true)
       expect(wrapper.find('.empty-view-action').exists()).toBe(true)
-      // 必须带 inbox 专属图标，而不是 BookmarksEmptyView 默认的兜底圆圈（<circle>）
+      // 非默认兜底圆圈图标
       const iconSvg = wrapper.find('.empty-view-icon svg')
       expect(iconSvg.exists()).toBe(true)
       expect(iconSvg.find('circle').exists()).toBe(false)

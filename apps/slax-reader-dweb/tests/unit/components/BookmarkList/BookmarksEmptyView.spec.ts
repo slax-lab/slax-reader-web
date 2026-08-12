@@ -1,6 +1,4 @@
 // BookmarksEmptyView 组件单测
-// 纯展示组件：title/desc 必传，actionText/actionNote 可选，
-// actionText 存在时渲染按钮并支持 emit('action')
 import BookmarksEmptyView from '~~/layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
 
 import { mountWithApp } from '~~/tests/setup/mount'

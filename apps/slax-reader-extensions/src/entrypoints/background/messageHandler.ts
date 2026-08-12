@@ -124,8 +124,7 @@ export class MessageHandler {
     }
   }
 
-  // chrome.action.getUserSettings 只能在特权上下文（background/popup）调用，
-  // content script 直接调用永远返回 isOnToolbar:false，故需转发到这里查询真实状态
+  // 需特权上下文调用
   private async handleQueryPinnedStatus(sendResponse: (response?: unknown) => void) {
     try {
       const settings = await browser.action.getUserSettings()

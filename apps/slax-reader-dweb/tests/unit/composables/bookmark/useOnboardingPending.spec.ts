@@ -1,5 +1,4 @@
 // useOnboardingPending 单元测试
-// localStorage 按用户 id 隔离存储 onboarding 标记，isPending 响应 setPending/clearPending 及 userId 切换
 import { defineComponent, ref } from 'vue'
 
 import { useOnboardingPending } from '~~/layers/core/app/composables/bookmark/useOnboardingPending'

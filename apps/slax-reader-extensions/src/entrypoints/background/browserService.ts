@@ -53,9 +53,7 @@ export class BrowserService {
     await browser.tabs.sendMessage(tab.id!, message)
   }
 
-  // 插件置顶状态变化只在 background 特权上下文可感知（onUserSettingsChanged），
-  // 主动推送给所有已打开的标签页，覆盖用户全程停留在同一可见页面点击拼图图标固定插件的场景——
-  // 这种情况下 content script 侧 visibilitychange 永远不会触发
+  // 推送置顶状态给所有标签页
   static async notifyPinnedStatusUpdate(isOnToolbar: boolean): Promise<void> {
     const message = { action: MessageTypeAction.PinnedStatusUpdate, isOnToolbar }
     const tabs = await browser.tabs.query({ url: ['http://*/*', 'https://*/*'] })
@@ -65,12 +63,12 @@ export class BrowserService {
       try {
         await browser.tabs.sendMessage(tab.id, message)
       } catch {
-        // 标签页没有注入 content script（如浏览器内置页）时会报错，忽略即可
+        // 内置页无 content script，忽略
       }
     }
   }
 
-  // fork 与社区版 background entrypoint 各自独立文件，注册逻辑收敛到这里以避免两份重复
+  // 避免 fork/社区版重复注册
   static watchPinnedStatusChanges(): void {
     browser.action.onUserSettingsChanged.addListener(change => {
       if (change.isOnToolbar === undefined) return

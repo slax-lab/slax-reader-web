@@ -1,7 +1,4 @@
 // useInboxOnboardingState 单元测试
-// 三态：A 未装插件+订阅0+inbox空（onboarding，落 onboarding 标记）/ B 未装插件+有订阅或有内容/
-// C 已装插件；未就位返回 null。标记生效期间恒定 A；inbox 变非空自动清除标记。
-// mock useExtensionDetection（含 onMounted，走最小宿主组件挂载），localStorage 真实读写
 import { computed, defineComponent, ref } from 'vue'
 
 import { useInboxOnboardingState } from '~~/layers/core/app/composables/bookmark/useInboxOnboardingState'

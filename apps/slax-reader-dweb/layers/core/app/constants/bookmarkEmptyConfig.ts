@@ -17,8 +17,7 @@ export interface BookmarkEmptyEntry {
 
 // 各 filterStatus 对应的空态配置
 export const BOOKMARK_EMPTY_CONFIG: Record<string, BookmarkEmptyEntry> = {
-  // inbox 此配置只用于「已装扩展」态（BookmarksEmptyState 三态判定里的状态 C）；
-  // 未装扩展的两态（onboarding 巨幅引导 / 列表内安装提示）走各自专属文案，不复用这里
+  // 仅用于已装扩展态，其余走专属文案
   inbox: {
     iconPath: DESIGN_ICONS.emptyInbox.markup,
     iconViewBox: DESIGN_ICONS.emptyInbox.viewBox,

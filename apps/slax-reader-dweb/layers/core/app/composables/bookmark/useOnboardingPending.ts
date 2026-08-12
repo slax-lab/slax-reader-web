@@ -1,6 +1,4 @@
-// inbox onboarding 标记：按用户 id 存储在 localStorage，标识"该用户需要走一次 onboarding 引导"。
-// 标记存在期间 useInboxOnboardingState 会强制返回状态 A（onboarding 巨幅引导），不再受此刻
-// 插件安装/订阅数等实时状态影响——避免装完插件刷新页面后引导"退回"成列表内的轻量提示。
+// onboarding 标记，按用户 id 存储
 import { computed, type ComputedRef, type Ref, ref, toValue, watch } from 'vue'
 
 const STORAGE_PREFIX = 'slax_onboarding_pending_'
@@ -11,7 +9,7 @@ export const useOnboardingPending = (userId: Ref<number | undefined> | ComputedR
     return id ? `${STORAGE_PREFIX}${id}` : null
   })
 
-  // localStorage 本身非响应式，用 ref 镶入组件系统；storageKey 变化（userId 就位/切换账号）时重新读取
+  // localStorage 非响应式
   const isPending = ref(false)
   watch(
     storageKey,

@@ -1,10 +1,4 @@
-// 检测 Slax Reader 扩展是否已固定到浏览器工具栏。
-// chrome.action.getUserSettings() 只能在扩展特权上下文（background）调用，扩展 content script
-// 转发查询后，把结果写到 slax-reader-panel/slax-reader-modal 宿主元素的 data-slax-pinned 属性上——
-// 这里通过 DOM 属性探测读取该值，而非重新发起跨扩展通信（网页本身无法直接调用扩展 API）。
-//
-// 旧版本扩展没有这段上报逻辑，属性永远不存在，isPinned 会一直是 false——不做超时兜底判定，
-// UI 侧应始终提供手动确认按钮作为逃生舱，不依赖本 composable 必然给出结论。
+// 检测是否已固定到工具栏
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const EXTENSION_MARKERS = ['slax-reader-panel', 'slax-reader-modal']
@@ -28,8 +22,7 @@ export function usePinnedDetection() {
       attrObserver.observe(el, { attributes: true, attributeFilter: [PINNED_ATTR] })
     }
 
-    // 宿主元素可能比本组件 mount 晚出现（content script document_idle 注入），
-    // 用 childList + subtree 监听其出现，出现后转为监听该元素的属性变化
+    // 可能晚出现，先监听出现
     const existing = findMarker()
     if (existing) {
       observeAttr(existing)
@@ -45,8 +38,7 @@ export function usePinnedDetection() {
       onUnmounted(() => presenceObserver.disconnect())
     }
 
-    // 用户从"点拼图图标固定扩展"切回本页会触发 visibilitychange/focus；
-    // 属性可能在页面不可见期间已写好最终值，重新可见时主动读一次当前值（不能只等 mutation）
+    // 页面切回可见时重新读取一次
     const recheck = () => {
       const marker = findMarker()
       if (marker) readAttr(marker)

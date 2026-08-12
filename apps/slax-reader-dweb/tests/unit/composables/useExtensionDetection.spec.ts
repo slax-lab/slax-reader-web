@@ -1,5 +1,4 @@
 // useExtensionDetection 单元测试
-// 含 onMounted/onUnmounted，通过最小宿主组件挂载提供组件上下文。
 import { defineComponent } from 'vue'
 
 import { useExtensionDetection } from '~~/layers/core/app/composables/useExtensionDetection'
@@ -74,7 +73,7 @@ describe('useExtensionDetection', () => {
     wrapper.unmount()
     vi.advanceTimersByTime(1500)
 
-    // 卸载后 timer 已清理，checked 保持挂载期间的最后值（未超时触发）
+    // timer 已清理
     expect(api.checked.value).toBe(false)
   })
 

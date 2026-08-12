@@ -1,6 +1,4 @@
 // pages/onboarding.vue 单测
-// 覆盖：无 onboarding 标记 → 退回 /bookmarks；有标记 → 渲染引导 hero；
-// hero 触发 skip/complete → 清标记 + 退回 /bookmarks
 import OnboardingPage from '~~/layers/core/app/pages/onboarding.vue'
 
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
