@@ -1,0 +1,122 @@
+// BookmarksOnboardingHero 组件单测
+// 三步流程：1 装插件动画演示 / 2 引导固定（真实检测+手动确认兜底） / 3 打开示例文章
+//
+// 注意：本仓库 upstream 工作区当前存在已知的 pnpm 依赖分裂问题——`vue` 自身解析到
+// typescript@6.0.3 的 peer 变体，而 @vue/test-utils / @nuxt/test-utils / nuxt 解析到
+// typescript@5.9.3 的变体，导致同一进程内出现两份 vue 实例。表现为：mount 后由
+// onMounted/事件回调触发的 ref 变化，不会反映到 @vue/test-utils 的 wrapper DOM 快照里
+// （即便 await nextTick()/flushPromises()）。这是项目已有的 lockfile 问题，与本次需求
+// 无关，本次不修复 lockfile。因此涉及"mount 之后异步状态变化才反映到 DOM"的场景，改用
+// mock useExtensionDetection/usePinnedDetection 让 currentStep 在 mount 那一刻就算出目标值
+// （computed 是同步求值，mount 时即定值，不依赖后续响应式更新走到 DOM），规避该问题。
+import BookmarksOnboardingHero from '~~/layers/core/app/components/BookmarkList/BookmarksOnboardingHero.vue'
+
+import { mountWithApp } from '~~/tests/setup/mount'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+const { mockUseExtensionDetection, mockUsePinnedDetection } = vi.hoisted(() => ({
+  mockUseExtensionDetection: vi.fn(() => ({ isInstalled: { value: false }, checked: { value: true } })),
+  mockUsePinnedDetection: vi.fn(() => ({ isPinned: { value: false } }))
+}))
+
+vi.mock('#layers/core/app/composables/useExtensionDetection', () => ({
+  useExtensionDetection: mockUseExtensionDetection
+}))
+
+vi.mock('#layers/core/app/composables/usePinnedDetection', () => ({
+  usePinnedDetection: mockUsePinnedDetection
+}))
+
+describe('BookmarksOnboardingHero', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+    vi.clearAllMocks()
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
+    mockUsePinnedDetection.mockReturnValue({ isPinned: { value: false } })
+  })
+
+  it('步骤1（未装插件）：渲染标题 + 浏览器演示 + 安装按钮 + setup note + 稍后再说按钮', () => {
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.onboarding-hero').exists()).toBe(true)
+    expect(wrapper.find('.hero-skip-btn').exists()).toBe(true)
+    expect(wrapper.find('.hero-title').exists()).toBe(true)
+    expect(wrapper.find('.browser-save-demo').exists()).toBe(true)
+    expect(wrapper.find('.hero-install-btn').exists()).toBe(true)
+    expect(wrapper.find('.hero-setup-time').exists()).toBe(true)
+    expect(wrapper.find('.pin-card').exists()).toBe(false)
+  })
+
+  it('步骤1：渲染浏览器演示内部结构：tabs/地址栏/插件图标区/toast/游标', () => {
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.demo-browser-tabs').exists()).toBe(true)
+    expect(wrapper.find('.demo-address').exists()).toBe(true)
+    expect(wrapper.find('.demo-reader-icon img').attributes('src')).toContain('icon-logo-bookmark')
+    expect(wrapper.find('.demo-toast').exists()).toBe(true)
+    expect(wrapper.find('.demo-cursor').exists()).toBe(true)
+  })
+
+  it('步骤1：点击安装按钮 → window.open(pluginUrl)', async () => {
+    const mockOpen = vi.fn()
+    vi.stubGlobal('open', mockOpen)
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    await wrapper.find('.hero-install-btn').trigger('click')
+    expect(mockOpen).toHaveBeenCalledWith(expect.stringContaining('chromewebstore.google.com'))
+  })
+
+  it('已装插件但未置顶 → mount 时直接渲染步骤2（固定引导 + 手动确认按钮），不停在步骤1', () => {
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.browser-save-demo').exists()).toBe(false)
+    expect(wrapper.find('.pin-illustration').exists()).toBe(true)
+    expect(wrapper.find('.pin-confirm-btn').exists()).toBe(true)
+    expect(wrapper.find('.getting-started-button').exists()).toBe(false)
+  })
+
+  it('已装插件且已置顶（真实检测命中）→ mount 时直接渲染步骤3', () => {
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
+    mockUsePinnedDetection.mockReturnValue({ isPinned: { value: true } })
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.pin-illustration').exists()).toBe(false)
+    expect(wrapper.find('.getting-started-button').exists()).toBe(true)
+  })
+
+  it('步骤2：点击"我已置顶插件，继续"手动确认按钮 → 前进到步骤3（旧版本插件无真实检测时的兜底路径）', async () => {
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.pin-confirm-btn').exists()).toBe(true)
+    await wrapper.find('.pin-confirm-btn').trigger('click')
+    expect(wrapper.find('.getting-started-button').exists()).toBe(true)
+  })
+
+  it('步骤3：链接指向新的 blog 文章 URL', () => {
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
+    mockUsePinnedDetection.mockReturnValue({ isPinned: { value: true } })
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(wrapper.find('.getting-started-button').attributes('href')).toBe('https://slax.com/blog/built-an-open-source-tool-to-save-content-permanently-and-simplify-learning/')
+  })
+
+  it('步骤3：点击"打开我们准备的文章" → emit complete（供父级清除 onboarding 标记）', async () => {
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
+    mockUsePinnedDetection.mockReturnValue({ isPinned: { value: true } })
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    await wrapper.find('.getting-started-button').trigger('click')
+    expect(wrapper.emitted('complete')).toBeTruthy()
+  })
+
+  it('点击"稍后再说" → emit skip（供父级清除 onboarding 标记）', async () => {
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    await wrapper.find('.hero-skip-btn').trigger('click')
+    expect(wrapper.emitted('skip')).toBeTruthy()
+  })
+
+  it('挂载 + 定时器推进 + 卸载全流程不抛错（步骤1 动画循环生命周期完整跑通）', async () => {
+    vi.useFakeTimers()
+    const wrapper = mountWithApp(BookmarksOnboardingHero)
+    expect(() => {
+      vi.advanceTimersByTime(20000) // 覆盖多轮 LOOP_DELAY(5590ms) 循环
+    }).not.toThrow()
+    wrapper.unmount()
+    expect(() => vi.advanceTimersByTime(20000)).not.toThrow()
+  })
+})

@@ -1,0 +1,136 @@
+// useInboxOnboardingState 单元测试
+// 三态：A 未装插件+订阅0+inbox空（onboarding，落 onboarding 标记）/ B 未装插件+有订阅或有内容/
+// C 已装插件；未就位返回 null。标记生效期间恒定 A；inbox 变非空自动清除标记。
+// mock useExtensionDetection（含 onMounted，走最小宿主组件挂载），localStorage 真实读写
+import { computed, defineComponent, ref } from 'vue'
+
+import { useInboxOnboardingState } from '~~/layers/core/app/composables/bookmark/useInboxOnboardingState'
+import { mountWithApp } from '~~/tests/setup/mount'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { mockUseExtensionDetection } = vi.hoisted(() => ({
+  mockUseExtensionDetection: vi.fn()
+}))
+
+vi.mock('#layers/core/app/composables/useExtensionDetection', () => ({
+  useExtensionDetection: mockUseExtensionDetection
+}))
+
+const detectionState = (overrides: { isInstalled?: boolean; checked?: boolean } = {}) => ({
+  isInstalled: { value: overrides.isInstalled ?? false },
+  checked: { value: overrides.checked ?? true }
+})
+
+const mountState = (
+  params: {
+    isCurrentInboxTab?: boolean
+    subscribedCount?: number
+    subscriptionReady?: boolean
+    isDataEmpty?: boolean
+    userId?: number
+  } = {}
+) => {
+  const isCurrentInboxTab = ref(params.isCurrentInboxTab ?? true)
+  const subscribedCount = ref(params.subscribedCount ?? 0)
+  const subscriptionReady = ref(params.subscriptionReady ?? true)
+  const isDataEmpty = ref(params.isDataEmpty ?? true)
+  const userId = ref<number | undefined>(params.userId ?? 1)
+  let api: ReturnType<typeof useInboxOnboardingState> | undefined
+  const Host = defineComponent({
+    setup() {
+      api = useInboxOnboardingState({ isCurrentInboxTab, subscribedCount, subscriptionReady, isDataEmpty, userId })
+      return () => null
+    }
+  })
+  const wrapper = mountWithApp(Host)
+  return { wrapper, api: api!, isDataEmpty, subscribedCount }
+}
+
+describe('useInboxOnboardingState', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    localStorage.clear()
+  })
+
+  it('未就位（探测未完成）且无标记 → inboxState=null', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ checked: false }))
+    const { api } = mountState()
+    expect(api.inboxState.value).toBeNull()
+  })
+
+  it('未就位（订阅数据未完成）且无标记 → inboxState=null', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ checked: true }))
+    const { api } = mountState({ subscriptionReady: false })
+    expect(api.inboxState.value).toBeNull()
+  })
+
+  it('非 inbox tab → inboxState=null（即使数据已就位）', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ checked: true }))
+    const { api } = mountState({ isCurrentInboxTab: false })
+    expect(api.inboxState.value).toBeNull()
+  })
+
+  it('未装插件 + 订阅数 0 + inbox 空 → A，且落 onboarding 标记', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: false, checked: true }))
+    const { api } = mountState({ subscribedCount: 0, isDataEmpty: true, userId: 10 })
+    expect(api.inboxState.value).toBe('A')
+    expect(localStorage.getItem('slax_onboarding_pending_10')).toBe('true')
+  })
+
+  it('未装插件 + 订阅数 0 + inbox 非空 → B（不满足 A 的 isDataEmpty 条件，修复"老用户被整页覆盖"的 bug）', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: false, checked: true }))
+    const { api } = mountState({ subscribedCount: 0, isDataEmpty: false })
+    expect(api.inboxState.value).toBe('B')
+  })
+
+  it('未装插件 + 订阅数 > 0 → B', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: false, checked: true }))
+    const { api } = mountState({ subscribedCount: 2, isDataEmpty: true })
+    expect(api.inboxState.value).toBe('B')
+  })
+
+  it('已装插件（不管订阅数）→ C', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: true, checked: true }))
+    const { api } = mountState({ subscribedCount: 5 })
+    expect(api.inboxState.value).toBe('C')
+  })
+
+  it('已落标记后，即使插件探测未就位，仍立刻返回 A（不闪现侧边栏/其它态）', () => {
+    localStorage.setItem('slax_onboarding_pending_1', 'true')
+    mockUseExtensionDetection.mockReturnValue(detectionState({ checked: false }))
+    const { api } = mountState({ userId: 1 })
+    expect(api.inboxState.value).toBe('A')
+  })
+
+  it('已落标记后，即使已装插件/有订阅，仍返回 A（避免刷新后从整页引导退回列表内提示）', () => {
+    localStorage.setItem('slax_onboarding_pending_1', 'true')
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: true, checked: true }))
+    const { api } = mountState({ userId: 1, subscribedCount: 5, isDataEmpty: false })
+    expect(api.inboxState.value).toBe('A')
+  })
+
+  it('标记生效期间 inbox 变为非空 → 自动清除标记，inboxState 回落', async () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: false, checked: true }))
+    const { api, isDataEmpty } = mountState({ subscribedCount: 0, isDataEmpty: true, userId: 5 })
+    expect(api.inboxState.value).toBe('A')
+    expect(localStorage.getItem('slax_onboarding_pending_5')).toBe('true')
+
+    isDataEmpty.value = false
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(localStorage.getItem('slax_onboarding_pending_5')).toBeNull()
+    expect(api.inboxState.value).toBe('B')
+  })
+
+  it('clearOnboardingPending 由消费方主动调用（如"稍后再说"/走完引导）→ 标记清除', () => {
+    mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: false, checked: true }))
+    const { api } = mountState({ subscribedCount: 0, isDataEmpty: true, userId: 8 })
+    expect(localStorage.getItem('slax_onboarding_pending_8')).toBe('true')
+    api.clearOnboardingPending()
+    expect(localStorage.getItem('slax_onboarding_pending_8')).toBeNull()
+  })
+})

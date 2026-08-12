@@ -17,12 +17,13 @@ export interface BookmarkEmptyEntry {
 
 // 各 filterStatus 对应的空态配置
 export const BOOKMARK_EMPTY_CONFIG: Record<string, BookmarkEmptyEntry> = {
-  // PC 非首屏走 QuickStart
+  // inbox 此配置只用于「已装扩展」态（BookmarksEmptyState 三态判定里的状态 C）；
+  // 未装扩展的两态（onboarding 巨幅引导 / 列表内安装提示）走各自专属文案，不复用这里
   inbox: {
     iconPath: DESIGN_ICONS.emptyInbox.markup,
     iconViewBox: DESIGN_ICONS.emptyInbox.viewBox,
-    titleKey: 'page.bookmarks_index.empty',
-    descKey: ''
+    titleKey: 'page.bookmarks_index.empty_inbox_title',
+    descKey: 'page.bookmarks_index.empty_inbox_desc'
   },
   starred: {
     iconPath: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',

@@ -9,7 +9,9 @@ export enum MessageTypeAction {
   CheckLogined = 'check-logined',
   QueryUserInfo = 'query-user-info',
   PageUrlUpdate = 'page-url-update',
-  BookmarkStatusRefresh = 'bookmark-status-refresh'
+  BookmarkStatusRefresh = 'bookmark-status-refresh',
+  QueryPinnedStatus = 'query-pinned-status',
+  PinnedStatusUpdate = 'pinned-status-update'
 }
 
 export type MessageType =
@@ -21,6 +23,11 @@ export type MessageType =
         | MessageTypeAction.OpenWelcome
         | MessageTypeAction.CheckLogined
         | MessageTypeAction.BookmarkStatusRefresh
+        | MessageTypeAction.QueryPinnedStatus
+    }
+  | {
+      action: MessageTypeAction.PinnedStatusUpdate
+      isOnToolbar: boolean
     }
   | ({
       action: MessageTypeAction.RecordBookmark

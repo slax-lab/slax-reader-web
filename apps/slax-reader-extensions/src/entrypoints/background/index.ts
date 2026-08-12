@@ -156,6 +156,9 @@ export default defineBackground(() => {
   // 监听插件图标点击事件
   browser.action.onClicked.addListener(tab => BrowserService.openCollectPopup(tab, 'open_collect', authService))
 
+  // 监听插件置顶状态变化，推送给所有标签页（不依赖 visibilitychange）
+  BrowserService.watchPinnedStatusChanges()
+
   // 监听快捷键
   browser.commands.onCommand.addListener((command, tab) => tab && BrowserService.openCollectPopup(tab, command, authService))
 

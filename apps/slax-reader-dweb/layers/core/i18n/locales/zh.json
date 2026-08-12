@@ -561,7 +561,35 @@
       "empty_collections_title": "还没有合集内容",
       "empty_collections_desc": "选择一个合集，查看其中收录的文章",
       "empty_notifications_title": "暂无通知",
-      "empty_notifications_desc": "当有新的评论或回复时，通知会出现在这里"
+      "empty_notifications_desc": "当有新的评论或回复时，通知会出现在这里",
+      "empty_inbox_title": "收藏你的第一篇文章",
+      "empty_inbox_desc": "打开任何想读的网页，点浏览器工具栏上的 Slax Reader 图标。",
+      "empty_inbox_prompt": {
+        "title": "收藏的文章会出现在这里",
+        "desc": "安装浏览器扩展，在任何网页一键收藏。",
+        "install": "安装浏览器扩展",
+        "note": "约 1 分钟完成设置"
+      }
+    },
+    "bookmarks_onboarding": {
+      "skip": "稍后再说",
+      "step1": {
+        "title": "任何想读的网页，点一下就收藏了",
+        "setupTime": "约 1 分钟完成设置",
+        "install": "安装浏览器扩展",
+        "toast": "收藏成功"
+      },
+      "step2": {
+        "title": "把 Slax Reader 固定到工具栏",
+        "copy": "点地址栏右侧的「拼图」图标，找到 Slax Reader，再点旁边的「图钉」",
+        "extensionsMenu": "扩展程序",
+        "confirm": "我已置顶插件，继续"
+      },
+      "step3": {
+        "title": "试试收藏你的第一篇文章",
+        "copy": "打开我们准备的文章，然后用刚固定好的扩展图标收藏它。",
+        "button": "打开我们准备的文章"
+      }
     },
     "c_detail": {
       "subscribe_text": "来自 {user} 的订阅收藏"
@@ -732,23 +760,6 @@
           "title": "AI 助手"
         }
       }
-    },
-    "quickStart": {
-      "getLink": "立刻安装",
-      "step1": {
-        "subtitle": "在Chrome应用商店搜 Slax Reader  →",
-        "title": "先安装个插件"
-      },
-      "step2": {
-        "subtitle": "看到感兴趣的文章，点下插件图标就能保存",
-        "title": "随手存网页"
-      },
-      "step3": {
-        "subtitle": "你做的所有笔记都会自动保存（原网页和快照页自动同步），下次打开还在老地方~",
-        "title": "直接在网页上玩起来"
-      },
-      "subtitle": "看视频秒懂 👇 ",
-      "title": "快速入门指南"
     },
     "share_detail": {
       "share_text": "{user} 分享于 {date}",

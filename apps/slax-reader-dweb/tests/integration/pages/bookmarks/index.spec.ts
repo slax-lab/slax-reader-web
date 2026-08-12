@@ -38,8 +38,8 @@ const {
   mockRequestPushPermission,
   mockShowFeedbackModal,
   mockToastShowToast,
-  mockIsPC,
-  mockIsSafari
+  mockIsSafari,
+  mockUseExtensionDetection
 } = vi.hoisted(() => {
   const captured: { value: any } = { value: null }
   const mockGet = vi.fn()
@@ -74,8 +74,9 @@ const {
     mockRequestPushPermission,
     mockShowFeedbackModal: vi.fn(),
     mockToastShowToast: vi.fn(),
-    mockIsPC: vi.fn(() => true),
-    mockIsSafari: vi.fn(() => false)
+    mockIsSafari: vi.fn(() => false),
+    // 默认已装插件（走状态 C 纯净空态），个别用例按需覆盖返回值
+    mockUseExtensionDetection: vi.fn(() => ({ isInstalled: { value: true }, checked: { value: true } }))
   }
 })
 
@@ -127,8 +128,12 @@ vi.mock('#layers/core/app/stores/user', () => ({
 
 vi.mock('@commons/utils/is', async () => {
   const actual = await vi.importActual<any>('@commons/utils/is')
-  return { ...actual, isPC: mockIsPC, isSafari: mockIsSafari }
+  return { ...actual, isSafari: mockIsSafari }
 })
+
+vi.mock('#layers/core/app/composables/useExtensionDetection', () => ({
+  useExtensionDetection: mockUseExtensionDetection
+}))
 
 vi.mock('@vueuse/core', async () => {
   const actual = await vi.importActual<any>('@vueuse/core')
@@ -155,6 +160,7 @@ const baseStubs = {
       <slot name="content-header" />
       <slot name="content-list" />
     </div>`,
+    props: ['hideSidebar'],
     emits: ['search', 'feedback', 'checkAll'],
     methods: { isSmallScreen: () => false }
   },
@@ -177,9 +183,9 @@ const baseStubs = {
   TagsHeader: { name: 'TagsHeader', template: '<div class="tags-header" />', emits: ['select-tag'] },
   CollectionHeader: { name: 'CollectionHeader', template: '<div class="collection-header" />', emits: ['select-collect', 'code-update'] },
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
-  QuickStart: { name: 'QuickStart', template: '<div class="quick-start" />' },
+  BookmarksOnboardingHero: { name: 'BookmarksOnboardingHero', template: '<div class="onboarding-hero" />' },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
-  BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc'] }
+  BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc', 'actionText', 'actionNote'] }
 }
 
 const mountIndexPage = () =>
@@ -202,6 +208,8 @@ describe('pages/bookmarks/index.vue', () => {
     mockUseRoute.mockReturnValue(routeState)
     mockGetUserInfo.mockResolvedValue(baseUser)
     mockGet.mockResolvedValue([])
+    // 默认已装插件（走状态 C 纯净空态）；clearAllMocks 不清实现，需每例重置，避免跨用例串味
+    mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: true }, checked: { value: true } })
   })
 
   afterEach(() => {
@@ -216,12 +224,12 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksLayout' }).exists()).toBe(true)
     })
 
-    it('C2: 默认无 bookmarks → 空数据视图渲染（onLoadMore 后 isFirstLoad=false 让 quick-start 显示）', async () => {
+    it('C2: 默认无 bookmarks + 已装插件（mock 默认）→ inbox 走纯净空态 BookmarksEmptyView', async () => {
       const wrapper = mountIndexPage()
       await flushPromises()
-      // useInfiniteScroll mock 后立即调 onLoadMore → isFirstLoad=false + ending=true
-      // inbox + isPC=true + isFirstLoad=false → quick-start 渲染
-      expect(wrapper.find('.quick-start').exists()).toBe(true)
+      // 已装插件 → 状态 C：纯净 BookmarksEmptyView，不展示 onboarding hero
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
+      expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
     })
 
     it('C3: route.query.filter="trashed" → isInTrash=true', async () => {
@@ -234,9 +242,9 @@ describe('pages/bookmarks/index.vue', () => {
       mockUseRoute.mockReturnValue(routeState)
       const wrapper = mountIndexPage()
       await flushPromises()
-      // trashed 是非 inbox tab + 空数据 → 渲染通用空态 BookmarksEmptyView（而非 inbox 的 quick-start）
+      // trashed 是非 inbox tab + 空数据 → 渲染通用空态 BookmarksEmptyView（不受插件三态逻辑影响）
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
-      expect(wrapper.find('.quick-start').exists()).toBe(false)
+      expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
     })
 
     it('C4: filterStatus="highlights" + highlights=[] → isDataEmpty=true', async () => {
@@ -281,12 +289,24 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
-    it('C7: 默认 inbox + isDataEmpty=true + PC → QuickStart 空态（非通用 EmptyView）', async () => {
+    it('C7: 默认 inbox + isDataEmpty=true + 未装插件 → 渲染 onboarding hero（非通用 EmptyView）', async () => {
+      mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // inbox + 空数据 + isPC=true + 非首屏 → 走 QuickStart 引导，不展示通用 BookmarksEmptyView
-      expect(wrapper.find('.quick-start').exists()).toBe(true)
+      // inbox + 空数据 + 未装插件 + 无订阅（社区版无合集概念，subscribedCount 默认 0）→ 状态 A
+      expect(wrapper.find('.onboarding-hero').exists()).toBe(true)
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
+    })
+
+    it('C7b: 状态 A（onboarding hero）时 sidebar/页头整个不渲染，不止是列表区域', async () => {
+      mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
+      const wrapper = mountIndexPage()
+      await flushPromises()
+      // 整页替换：sidebar-left slot 内容（TabsSidebar）不应渲染，而不仅仅是内容区多了一个大盒子
+      expect(wrapper.findComponent({ name: 'TabsSidebar' }).exists()).toBe(false)
+      // BookmarksLayout 收到 hideSidebar=true（真实组件据此不渲染 <aside class="sidebar">，见 BookmarksLayout 单测）
+      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
+      expect(layout.props('hideSidebar')).toBe(true)
     })
   })
 
@@ -505,9 +525,9 @@ describe('pages/bookmarks/index.vue', () => {
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 返回 [] → bookmarks 为空 → 无 BookmarkCell；inbox 空态走 quick-start
+      // 返回 [] → bookmarks 为空 → 无 BookmarkCell；已装插件（mock 默认）→ inbox 走纯净空态
       expect(wrapper.findAllComponents({ name: 'BookmarkCell' })).toHaveLength(0)
-      expect(wrapper.find('.quick-start').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })
 
     it('C23: filterStatus="topics" + topicId=0 → resetBookmarks + ending=true 早退', async () => {
@@ -577,14 +597,13 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks?filter=notifications', expect.objectContaining({ replace: false }))
     })
 
-    it('C28: 非 PC + inbox 空态 → 走通用 BookmarksEmptyView（isPC 分支，原 checkMore 死代码已移除）', async () => {
-      // isPC=false → 即使 inbox 也不走 QuickStart，而是通用空态视图
-      mockIsPC.mockReturnValue(false)
+    it('C28: 插件探测未就位（checked=false）→ inbox 空态不渲染任何结论态', async () => {
+      mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: false } })
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountIndexPage()
       await flushPromises()
-      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
-      expect(wrapper.find('.quick-start').exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
+      expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
     })
   })
 
@@ -852,6 +871,7 @@ describe('pages/bookmarks/index.vue', () => {
             <slot name="content-header" />
             <slot name="content-list" />
           </div>`,
+          props: ['hideSidebar'],
           emits: ['search', 'feedback', 'checkAll'],
           methods: { isSmallScreen: () => true }
         },
