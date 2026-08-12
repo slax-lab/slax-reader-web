@@ -70,6 +70,9 @@ export class BrowserService {
 
   // 避免 fork/社区版重复注册
   static watchPinnedStatusChanges(): void {
+    // 该 API 仅新版 Chrome 支持
+    if (!browser.action.onUserSettingsChanged) return
+
     browser.action.onUserSettingsChanged.addListener(change => {
       if (change.isOnToolbar === undefined) return
       this.notifyPinnedStatusUpdate(change.isOnToolbar)

@@ -11,17 +11,20 @@ export const useInboxOnboardingState = (params: {
   subscribedCount: Ref<number> | ComputedRef<number>
   subscriptionReady: Ref<boolean> | ComputedRef<boolean>
   isDataEmpty: Ref<boolean> | ComputedRef<boolean>
+  isFirstLoad: Ref<boolean> | ComputedRef<boolean>
   userId: Ref<number | undefined> | ComputedRef<number | undefined>
 }) => {
   const detection = useExtensionDetection()
   const onboarding = useOnboardingPending(params.userId)
-  // 数据未就位前不下结论
-  const dataReady = computed(() => detection.checked.value && toValue(params.subscriptionReady))
+  // 首次加载完成前不下结论，避免误判老用户
+  const dataReady = computed(() => detection.checked.value && toValue(params.subscriptionReady) && !toValue(params.isFirstLoad))
 
   const inboxState = computed<InboxOnboardingState>(() => {
     if (!toValue(params.isCurrentInboxTab)) return null
     if (onboarding.isPending.value) return 'A'
     if (!dataReady.value) return null
+    // 已跳过/完成引导不再回退到 A
+    if (onboarding.isDismissed.value) return detection.isInstalled.value ? 'C' : 'B'
     if (!detection.isInstalled.value) return toValue(params.subscribedCount) === 0 && toValue(params.isDataEmpty) ? 'A' : 'B'
     return 'C'
   })
@@ -43,5 +46,11 @@ export const useInboxOnboardingState = (params: {
     }
   )
 
-  return { inboxState, clearOnboardingPending: onboarding.clearPending }
+  // 清 pending 并落终态，防止被重新判回 A
+  const clearOnboardingPending = () => {
+    onboarding.clearPending()
+    onboarding.setDismissed()
+  }
+
+  return { inboxState, clearOnboardingPending }
 }

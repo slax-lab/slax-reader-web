@@ -17,7 +17,7 @@ export function useExtensionDetection() {
       return
     }
 
-    // 监听 + 超时兜底
+    // 超时不代表停止监听，避免错过迟到的标记
     const observer = new MutationObserver(() => {
       if (matchMarker()) {
         isInstalled.value = true
@@ -31,7 +31,6 @@ export function useExtensionDetection() {
 
     const timer = setTimeout(() => {
       checked.value = true
-      observer.disconnect()
     }, DETECTION_TIMEOUT)
 
     onUnmounted(() => {

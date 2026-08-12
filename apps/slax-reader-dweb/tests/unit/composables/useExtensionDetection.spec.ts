@@ -55,7 +55,7 @@ describe('useExtensionDetection', () => {
     expect(api.isInstalled.value).toBe(true)
   })
 
-  it('超时未探测到标记：判定未安装', () => {
+  it('超时未探测到标记：判定未安装（但仍继续监听）', () => {
     vi.useFakeTimers()
     const { api } = mountDetection()
 
@@ -64,6 +64,23 @@ describe('useExtensionDetection', () => {
 
     expect(api.isInstalled.value).toBe(false)
     expect(api.checked.value).toBe(true)
+  })
+
+  it('超时后标记才迟到插入（扩展 shadow-root 注入慢于探测超时）：isInstalled 补判为已安装，修复"已装插件被永久误判为未装"', () => {
+    vi.useFakeTimers()
+    const { api } = mountDetection()
+
+    vi.advanceTimersByTime(1500)
+    expect(api.checked.value).toBe(true)
+    expect(api.isInstalled.value).toBe(false)
+
+    // observer 超时后不能断开，否则永远错过这次迟到的插入
+    const panel = document.createElement('slax-reader-panel')
+    document.body.appendChild(panel)
+
+    return vi.waitFor(() => {
+      expect(api.isInstalled.value).toBe(true)
+    })
   })
 
   it('组件卸载时清理 observer/timer，不再触发状态变更', () => {

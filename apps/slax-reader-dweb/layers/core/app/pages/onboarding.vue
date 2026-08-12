@@ -23,7 +23,7 @@ useHead({
 })
 
 const userId = computed(() => userStore.userInfo?.userId)
-const { isPending, clearPending } = useOnboardingPending(userId)
+const { isPending, clearPending, setDismissed } = useOnboardingPending(userId)
 
 // 无标记 → 退回 /bookmarks
 watch(
@@ -36,9 +36,10 @@ watch(
 
 userStore.getUserInfo({ refresh: true })
 
-// 清标记 + 回到 /bookmarks
+// 清标记 + 落终态，回到 /bookmarks
 const finish = () => {
   clearPending()
+  setDismissed()
   navigateTo('/bookmarks', { replace: true })
 }
 

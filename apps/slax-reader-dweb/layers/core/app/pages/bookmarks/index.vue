@@ -144,6 +144,7 @@ const {
   loading,
   ending,
   isTransitioning,
+  isFirstLoad,
   groupedBookmarks,
   isRefreshLoading,
   lastUpdatedText,
@@ -182,6 +183,7 @@ const { inboxState } = useInboxOnboardingState({
   subscribedCount: computed(() => 0),
   subscriptionReady: computed(() => true),
   isDataEmpty,
+  isFirstLoad,
   userId: computed(() => userStore.userInfo?.userId)
 })
 

@@ -68,6 +68,22 @@ describe('useOnboardingPending', () => {
     expect(localStorage.getItem('slax_onboarding_pending_2')).toBeNull()
   })
 
+  it('setDismissed → isDismissed=true + localStorage 写入按 userId 命名的 dismissed key', () => {
+    const userId = ref<number | undefined>(42)
+    const { api } = mountPending(userId)
+    api.setDismissed()
+    expect(api.isDismissed.value).toBe(true)
+    expect(localStorage.getItem('slax_onboarding_dismissed_42')).toBe('true')
+  })
+
+  it('mount 时 localStorage 已有该 userId 的 dismissed 标记 → isDismissed 初始为 true', async () => {
+    localStorage.setItem('slax_onboarding_dismissed_7', 'true')
+    const userId = ref<number | undefined>(7)
+    const { api } = mountPending(userId)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(api.isDismissed.value).toBe(true)
+  })
+
   it('userId 切换（切账号）→ isPending 重新读取新 key 对应的值', async () => {
     localStorage.setItem('slax_onboarding_pending_2', 'true')
     const userId = ref<number | undefined>(1)

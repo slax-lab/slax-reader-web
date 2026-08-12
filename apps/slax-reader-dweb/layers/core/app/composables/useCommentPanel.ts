@@ -23,7 +23,8 @@ export interface CommentPanelExistingEvent {
 export function useCommentPanel({ activePanel, articleSelection }: { activePanel: Ref<SnapshotPanelId | null>; articleSelection: Ref<DwebArticleSelection | null> }) {
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
-  const pendingQuote = ref<QuoteData | null>(null)
+  // 内含 DOM Range，深度解包会导致类型报错
+  const pendingQuote = shallowRef<QuoteData | null>(null)
   // 给纯划线补评论的意图：true 才弹输入框
   const composeStroke = ref(false)
   // 重复点同一目标 watch 不触发
