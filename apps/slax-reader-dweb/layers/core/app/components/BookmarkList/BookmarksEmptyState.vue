@@ -1,6 +1,7 @@
 <template>
-  <!-- 空数据视图：inbox 按扩展安装/订阅状态分 B 列表内安装提示 / C 纯净空态两种（A 巨幅引导由页面层
-       接管，整页替换渲染 BookmarksOnboardingHero，不经过本组件），其余 tab 走通用 BOOKMARK_EMPTY_CONFIG。
+  <!-- 空数据视图：inbox 按扩展安装/订阅状态分 B 列表内安装提示 / C 纯净空态两种，其余 tab 走通用
+       BOOKMARK_EMPTY_CONFIG。状态 A（全新用户）由页面层 watch(inboxState) 触发跳转 /onboarding，
+       页面层在跳转期间会把传给本组件的 inboxState 映射成 'B'，本组件本身不需要感知 A。
        inboxState 由页面层的 useInboxOnboardingState 统一计算后传入，避免多处各自探测扩展安装状态。 -->
   <BookmarksEmptyView v-if="inboxState === 'B'" :title="promptTitle" :desc="promptDesc" :action-text="promptInstall" :action-note="promptNote" @action="installExtension">
     <template #icon>
@@ -23,8 +24,8 @@ import { BOOKMARK_EMPTY_CONFIG, BOOKMARK_EMPTY_FALLBACK } from '#layers/core/app
 const props = defineProps<{
   filterStatus: string
   isCurrentInboxTab: boolean
-  // inbox 三态判断结果：A 由页面层直接渲染 BookmarksOnboardingHero 接管，不会传到这里；
-  // B/C/null（未就位）由本组件处理
+  // inbox 三态判断结果：A 由页面层映射成 'B' 后才传入（跳转 /onboarding 期间的过渡展示）；
+  // B/C/null（未就位）本组件按原样处理
   inboxState: InboxOnboardingState
 }>()
 

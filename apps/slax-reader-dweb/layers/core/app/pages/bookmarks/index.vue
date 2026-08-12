@@ -13,11 +13,11 @@
     <!-- FAB：浮动添加按钮 -->
     <BookmarksFab @click="isShowTopModal = true" />
 
-    <BookmarksLayout ref="bookmarksLayout" :hide-sidebar="inboxState === 'A'" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
-      <template v-if="inboxState !== 'A'" v-slot:sidebar-left>
+    <BookmarksLayout ref="bookmarksLayout" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
+      <template v-slot:sidebar-left>
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
-      <template v-if="inboxState !== 'A'" v-slot:content-header>
+      <template v-slot:content-header>
         <BookmarksContentHeader
           :search-text="searchText"
           :filter-status="filterStatus"
@@ -34,45 +34,49 @@
         />
       </template>
       <template v-slot:content-list>
-        <!-- 状态 A：全新用户（未装插件+订阅数0+inbox空），整页内容区替换成安装引导，不显示列表/侧栏 -->
-        <BookmarksOnboardingHero v-if="inboxState === 'A'" @skip="clearOnboardingPending" @complete="clearOnboardingPending" />
-        <template v-else>
-          <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签、且列表非空时显示（
-               对齐 redesign.html 的 .main.view-empty 隐藏 .layout-switcher 规则，避免空数据/
-               需求#2 安装提示旁边还挂着一个切换按钮；isTransitioning 时保留，避免删完最后一条时切换器
-               在删除动画播放中就先跳变消失，与下方 EmptyState/ListBottomStatus 的显隐判断保持一致） -->
-          <ListLayoutSwitcher
-            v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId) && !(isDataEmpty && !isTransitioning)"
-            v-model="listMode"
-            :last-updated-text="lastUpdatedText"
-          />
+        <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签、且列表非空时显示（
+             对齐 redesign.html 的 .main.view-empty 隐藏 .layout-switcher 规则，避免空数据/
+             需求#2 安装提示旁边还挂着一个切换按钮；isTransitioning 时保留，避免删完最后一条时切换器
+             在删除动画播放中就先跳变消失，与下方 EmptyState/ListBottomStatus 的显隐判断保持一致） -->
+        <ListLayoutSwitcher
+          v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId) && !(isDataEmpty && !isTransitioning)"
+          v-model="listMode"
+          :last-updated-text="lastUpdatedText"
+        />
 
-          <BookmarkListContent
-            v-if="showList"
+        <BookmarkListContent
+          v-if="showList"
+          :filter-status="filterStatus"
+          :grouped-bookmarks="groupedBookmarks"
+          :highlights="highlights"
+          :notifications="notifications"
+          :list-mode="listMode"
+          :filter-collection-code="filterCollectionCode"
+          @delete="handleDelete"
+          @archive-update="handleCellArchive"
+          @alias-title-update="handleCellAliasTitle"
+          @bookmark-update="handleCellBookmarkUpdate"
+        />
+        <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
+          <!-- 状态 A 期间：/onboarding 跳转有耗时，这里按状态 B（列表内安装提示）展示，避免用户
+               在跳转过程中看到一个"莫名其妙空掉"的列表；真正的 A 由 useInboxOnboardingState 的
+               watch 负责触发跳转（见下方） -->
+          <BookmarksEmptyState
+            v-if="!loading && isDataEmpty"
             :filter-status="filterStatus"
-            :grouped-bookmarks="groupedBookmarks"
-            :highlights="highlights"
-            :notifications="notifications"
-            :list-mode="listMode"
-            :filter-collection-code="filterCollectionCode"
-            @delete="handleDelete"
-            @archive-update="handleCellArchive"
-            @alias-title-update="handleCellAliasTitle"
-            @bookmark-update="handleCellBookmarkUpdate"
+            :is-current-inbox-tab="isCurrentInboxTab"
+            :inbox-state="inboxState === 'A' ? 'B' : inboxState"
           />
-          <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
-            <BookmarksEmptyState v-if="!loading && isDataEmpty" :filter-status="filterStatus" :is-current-inbox-tab="isCurrentInboxTab" :inbox-state="inboxState" />
-            <ListBottomStatus
-              v-else
-              :loading="loading"
-              :ending="ending"
-              :is-refresh-loading="isRefreshLoading"
-              :is-in-trash="isInTrash"
-              :filter-status="filterStatus"
-              :filter-topic-id="filterTopicId"
-              :filter-collection-id="filterCollectionId"
-            />
-          </template>
+          <ListBottomStatus
+            v-else
+            :loading="loading"
+            :ending="ending"
+            :is-refresh-loading="isRefreshLoading"
+            :is-in-trash="isInTrash"
+            :filter-status="filterStatus"
+            :filter-topic-id="filterTopicId"
+            :filter-collection-id="filterCollectionId"
+          />
         </template>
       </template>
     </BookmarksLayout>
@@ -87,7 +91,6 @@ import BookmarkListContent from '#layers/core/app/components/BookmarkList/Bookma
 import BookmarksContentHeader from '#layers/core/app/components/BookmarkList/BookmarksContentHeader.vue'
 import BookmarksEmptyState from '#layers/core/app/components/BookmarkList/BookmarksEmptyState.vue'
 import BookmarksFab from '#layers/core/app/components/BookmarkList/BookmarksFab.vue'
-import BookmarksOnboardingHero from '#layers/core/app/components/BookmarkList/BookmarksOnboardingHero.vue'
 import ListBottomStatus from '#layers/core/app/components/BookmarkList/ListBottomStatus.vue'
 import ListLayoutSwitcher from '#layers/core/app/components/BookmarkList/ListLayoutSwitcher.vue'
 import TabsSidebar from '#layers/core/app/components/BookmarkList/TabsSidebar.vue'
@@ -179,13 +182,25 @@ const {
 const { listMode } = useListLayoutMode()
 
 // inbox 空态三态：社区版无合集/订阅概念，subscribedCount 固定 0（数据天然就位）
-const { inboxState, clearOnboardingPending } = useInboxOnboardingState({
+const { inboxState } = useInboxOnboardingState({
   isCurrentInboxTab,
   subscribedCount: computed(() => 0),
   subscriptionReady: computed(() => true),
   isDataEmpty,
   userId: computed(() => userStore.userInfo?.userId)
 })
+
+// 状态 A 命中 → 跳转独立引导页 /onboarding（该页自行读取 onboarding 标记决定具体展示哪一步）。
+// 跳转本身有耗时，模板侧在此期间按状态 B 展示列表内安装提示，不留一个突然空掉的列表。
+// immediate:true：inboxState 首次计算即为 A 时（如已带 onboarding 标记刷新进来）也要立刻跳转，
+// 不带 immediate 的 watch 只在"变化"时触发，拿不到初始值这一档。
+watch(
+  inboxState,
+  state => {
+    if (state === 'A') navigateTo('/onboarding', { replace: true })
+  },
+  { immediate: true }
+)
 
 const addLog = () => {
   const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'highlights' | 'archive' | 'trash' | 'notifications'> = {

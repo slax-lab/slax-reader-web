@@ -8,8 +8,8 @@
 
     <!-- 主体：顶部留出 header 高度，sidebar + main 布局 -->
     <div class="layout">
-      <!-- 左侧导航：sticky，≤920px 隐藏；hideSidebar 时整个容器不渲染（非仅清空 slot，避免固定宽度占位） -->
-      <aside class="sidebar" v-if="!hideSidebar">
+      <!-- 左侧导航：sticky，≤920px 隐藏 -->
+      <aside class="sidebar">
         <slot name="sidebar-left" />
       </aside>
 
@@ -24,13 +24,6 @@
 
 <script lang="ts" setup>
 import BookmarksTopBar from '#layers/core/app/components/BookmarkList/BookmarksTopBar.vue'
-
-withDefaults(
-  defineProps<{
-    hideSidebar?: boolean
-  }>(),
-  { hideSidebar: false }
-)
 
 const emit = defineEmits<{
   search: [keyword: string]

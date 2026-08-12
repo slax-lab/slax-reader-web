@@ -423,7 +423,7 @@
       "suggestion_3": "作者的主要论据是什么？"
     },
     "snapshot_comment": {
-      "empty_desc": "还没有评论。选中这篇文章里的文字，即可留下一条评论。"
+      "empty_desc": "还没有评论。\n选中这篇文章里的文字，即可留下一条评论。"
     },
     "snapshot_status_modal": {
       "dont_remind_again": "以后不再提醒",

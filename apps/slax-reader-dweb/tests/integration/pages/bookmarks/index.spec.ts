@@ -160,7 +160,6 @@ const baseStubs = {
       <slot name="content-header" />
       <slot name="content-list" />
     </div>`,
-    props: ['hideSidebar'],
     emits: ['search', 'feedback', 'checkAll'],
     methods: { isSmallScreen: () => false }
   },
@@ -183,7 +182,6 @@ const baseStubs = {
   TagsHeader: { name: 'TagsHeader', template: '<div class="tags-header" />', emits: ['select-tag'] },
   CollectionHeader: { name: 'CollectionHeader', template: '<div class="collection-header" />', emits: ['select-collect', 'code-update'] },
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
-  BookmarksOnboardingHero: { name: 'BookmarksOnboardingHero', template: '<div class="onboarding-hero" />' },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
   BookmarksEmptyView: { name: 'BookmarksEmptyView', template: '<div class="bookmarks-empty-view" />', props: ['title', 'desc', 'actionText', 'actionNote'] }
 }
@@ -289,24 +287,22 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
-    it('C7: 默认 inbox + isDataEmpty=true + 未装插件 → 渲染 onboarding hero（非通用 EmptyView）', async () => {
+    it('C7: 默认 inbox + isDataEmpty=true + 未装插件 → 跳转 /onboarding，列表侧按状态 B 展示（非通用 EmptyView）', async () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // inbox + 空数据 + 未装插件 + 无订阅（社区版无合集概念，subscribedCount 默认 0）→ 状态 A
-      expect(wrapper.find('.onboarding-hero').exists()).toBe(true)
-      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
+      // inbox + 空数据 + 未装插件 + 无订阅（社区版无合集概念，subscribedCount 默认 0）→ 状态 A → 跳转 /onboarding
+      expect(mockNavigateTo).toHaveBeenCalledWith('/onboarding', { replace: true })
+      // 跳转期间模板把 inboxState 映射成 B 展示，避免列表突然空掉；状态 B 走 BookmarksEmptyView（安装提示），非纯净空态
+      expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })
 
-    it('C7b: 状态 A（onboarding hero）时 sidebar/页头整个不渲染，不止是列表区域', async () => {
+    it('C7b: 状态 A 期间 sidebar/页头仍正常渲染（不再整页替换，只是触发跳转）', async () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 整页替换：sidebar-left slot 内容（TabsSidebar）不应渲染，而不仅仅是内容区多了一个大盒子
-      expect(wrapper.findComponent({ name: 'TabsSidebar' }).exists()).toBe(false)
-      // BookmarksLayout 收到 hideSidebar=true（真实组件据此不渲染 <aside class="sidebar">，见 BookmarksLayout 单测）
-      const layout = wrapper.findComponent({ name: 'BookmarksLayout' })
-      expect(layout.props('hideSidebar')).toBe(true)
+      // 不再有整页替换逻辑：TabsSidebar 正常渲染
+      expect(wrapper.findComponent({ name: 'TabsSidebar' }).exists()).toBe(true)
     })
   })
 
@@ -597,13 +593,13 @@ describe('pages/bookmarks/index.vue', () => {
       expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks?filter=notifications', expect.objectContaining({ replace: false }))
     })
 
-    it('C28: 插件探测未就位（checked=false）→ inbox 空态不渲染任何结论态', async () => {
+    it('C28: 插件探测未就位（checked=false）→ inbox 空态不渲染任何结论态，也不触发跳转 /onboarding', async () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: false } })
       mockGet.mockResolvedValueOnce([])
       const wrapper = mountIndexPage()
       await flushPromises()
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
-      expect(wrapper.find('.onboarding-hero').exists()).toBe(false)
+      expect(mockNavigateTo).not.toHaveBeenCalledWith('/onboarding', expect.anything())
     })
   })
 
@@ -871,7 +867,6 @@ describe('pages/bookmarks/index.vue', () => {
             <slot name="content-header" />
             <slot name="content-list" />
           </div>`,
-          props: ['hideSidebar'],
           emits: ['search', 'feedback', 'checkAll'],
           methods: { isSmallScreen: () => true }
         },

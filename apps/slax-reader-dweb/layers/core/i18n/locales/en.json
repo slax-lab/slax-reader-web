@@ -423,7 +423,7 @@
       "suggestion_3": "What are the author's main arguments?"
     },
     "snapshot_comment": {
-      "empty_desc": "No comments yet. Select text in this article to leave one."
+      "empty_desc": "No comments yet.\nSelect text in this article to leave one."
     },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",

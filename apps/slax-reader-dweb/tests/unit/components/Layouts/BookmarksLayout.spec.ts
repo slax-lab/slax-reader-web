@@ -23,20 +23,6 @@ describe('Layouts/BookmarksLayout', () => {
     expect(wrapper.find('.custom-left').exists()).toBe(true)
   })
 
-  it('hideSidebar=true → .sidebar 容器整个不渲染（非仅清空 slot 内容）', () => {
-    const wrapper = mountWithApp(BookmarksLayout, {
-      props: { hideSidebar: true },
-      slots: { 'sidebar-left': '<div class="custom-left">L</div>' }
-    })
-    expect(wrapper.find('.sidebar').exists()).toBe(false)
-    expect(wrapper.find('.custom-left').exists()).toBe(false)
-  })
-
-  it('hideSidebar 默认 false → .sidebar 容器正常渲染', () => {
-    const wrapper = mountWithApp(BookmarksLayout)
-    expect(wrapper.find('.sidebar').exists()).toBe(true)
-  })
-
   it('具名 slot content-header / content-list 渲染', () => {
     const wrapper = mountWithApp(BookmarksLayout, {
       slots: {
