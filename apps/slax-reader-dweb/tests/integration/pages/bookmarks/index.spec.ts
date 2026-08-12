@@ -287,12 +287,12 @@ describe('pages/bookmarks/index.vue', () => {
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(false)
     })
 
-    it('C7: 默认 inbox + isDataEmpty=true + 未装插件 → 跳转 /onboarding，列表侧按状态 B 展示（非通用 EmptyView）', async () => {
+    it('C7: 默认 inbox + isDataEmpty=true + 未装插件 → 状态 A（跳转逻辑暂时下线，不触发 navigateTo），列表侧按状态 B 展示（非通用 EmptyView）', async () => {
       mockUseExtensionDetection.mockReturnValue({ isInstalled: { value: false }, checked: { value: true } })
       const wrapper = mountIndexPage()
       await flushPromises()
-      // 状态 A → 跳转 + 按 B 展示
-      expect(mockNavigateTo).toHaveBeenCalledWith('/onboarding', { replace: true })
+      // 跳转 watch 暂时注释，恢复时把这两行换回 toHaveBeenCalledWith
+      expect(mockNavigateTo).not.toHaveBeenCalledWith('/onboarding', expect.anything())
       expect(wrapper.findComponent({ name: 'BookmarksEmptyView' }).exists()).toBe(true)
     })
 

@@ -185,14 +185,14 @@ const { inboxState } = useInboxOnboardingState({
   userId: computed(() => userStore.userInfo?.userId)
 })
 
-// 状态 A → 跳转 /onboarding
-watch(
-  inboxState,
-  state => {
-    if (state === 'A') navigateTo('/onboarding', { replace: true })
-  },
-  { immediate: true }
-)
+// 状态 A → 跳转 /onboarding（暂时下线，下周再上）
+// watch(
+//   inboxState,
+//   state => {
+//     if (state === 'A') navigateTo('/onboarding', { replace: true })
+//   },
+//   { immediate: true }
+// )
 
 const addLog = () => {
   const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'highlights' | 'archive' | 'trash' | 'notifications'> = {
