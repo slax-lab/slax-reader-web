@@ -671,7 +671,19 @@ onUnmounted(() => {
 .pin-card {
   width: min(100%, 920px);
   margin-top: 0;
-  padding: 0;
+  padding: 32px 0 0;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(100%, 650px);
+    height: 1px;
+    background: var(--slax-border);
+    transform: translateX(-50%);
+  }
 }
 
 .pin-copy {
