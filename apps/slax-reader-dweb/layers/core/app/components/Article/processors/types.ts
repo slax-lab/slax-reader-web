@@ -74,6 +74,6 @@ export interface DOMProcessor {
   process(context: WebProcessorContext): void | Promise<void>
   // 可选：实现即视为 SSR 可用
   ssr?: {
-    registerRewriter(rewriter: SsrRewriter, ctx: SsrRewriteContext): void
+    registerRewriter(rewriter: SsrRewriter): void
   }
 }

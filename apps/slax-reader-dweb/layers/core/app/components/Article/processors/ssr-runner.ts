@@ -22,7 +22,7 @@ export async function runArticleSsrProcessors(html: string, ctx: SsrRewriteConte
   try {
     const rewriter = new Rewriter()
     for (const processor of processors) {
-      processor.ssr!.registerRewriter(rewriter, ctx)
+      processor.ssr!.registerRewriter(rewriter)
     }
     // 显式标 HTML 类型
     const transformed = rewriter.transform(new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } }))
