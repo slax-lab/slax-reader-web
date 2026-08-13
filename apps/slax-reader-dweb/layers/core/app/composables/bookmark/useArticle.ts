@@ -30,7 +30,8 @@ export const useArticleDetail = (detail: Ref<BookmarkArticleDetail>) => {
   const bookmarkId = isBookmarkDetail(detail.value) ? detail.value.bookmark_id : undefined
   const shareCode = isShareBookmarkDetail(detail.value) ? detail.value.share_info.share_code : undefined
   // 公开快照页 /b/[id]：用 bookmark_uuid（后端 bookmark_uid）读写 marks
-  const bookmarkUid = isSnapshotBookmarkDetail(detail.value) ? detail.value.bookmark_uuid : undefined
+  // 基础仓类型中无快照分支，bookmark_uuid 由 fork 仓（slax-reader）的 SnapshotBookmarkDetail 提供
+  const bookmarkUid = isSnapshotBookmarkDetail(detail.value) ? (detail.value as { bookmark_uuid?: string }).bookmark_uuid : undefined
 
   // updateStarred 用 computed 包裹，确保 detail 加载后能正确返回函数而非 undefined
   const updateStarred = computed(() => {
