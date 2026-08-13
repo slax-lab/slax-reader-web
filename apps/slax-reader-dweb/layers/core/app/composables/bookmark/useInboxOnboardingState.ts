@@ -39,7 +39,7 @@ export const useInboxOnboardingState = (params: {
     { immediate: true }
   )
 
-  // 非空或已装插件后自动清标记（immediate：挂载时条件已满足也要清）
+  // 非空或已装插件后自动清标记
   watch(
     () => onboarding.isPending.value && (!toValue(params.isDataEmpty) || (detection.checked.value && detection.isInstalled.value)),
     shouldClear => {
