@@ -72,7 +72,8 @@ const onPlayerTime = (e: Event) => {
   const arr = props.cues
   let idx = -1
   for (let i = 0; i < arr.length; i++) {
-    if (now >= arr[i].t) idx = i
+    const cue = arr[i]
+    if (cue && now >= cue.t) idx = i
     else break
   }
   if (idx !== activeIndex.value) {
