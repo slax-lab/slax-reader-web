@@ -1,15 +1,27 @@
 /** 列表标题字数上限 */
 export const TITLE_DISPLAY_MAX = 48
 
-/**
- * 标题截断到 max 字，超出加省略号。
- * Array.from 计数，避免截断 emoji。
- */
+/** 中文记 2 宽度，其余记 1 */
+const CJK_REGEX = /[　-〿぀-ヿ㐀-䶿一-鿿豈-﫿＀-￯]/
+
+/** 按视觉宽度截断标题，超出加省略号 */
 export function truncateTitle(title?: string | null, max = TITLE_DISPLAY_MAX): string {
   const str = title ?? ''
   const chars = Array.from(str)
-  if (chars.length <= max) return str
-  return `${chars.slice(0, max).join('')}…`
+  const maxWidth = max * 2
+
+  let width = 0
+  let cutAt = chars.length
+  for (const [i, char] of chars.entries()) {
+    width += CJK_REGEX.test(char) ? 2 : 1
+    if (width > maxWidth) {
+      cutAt = i
+      break
+    }
+  }
+
+  if (cutAt >= chars.length) return str
+  return `${chars.slice(0, cutAt).join('')}…`
 }
 
 export function urlBase64ToUint8Array(base64String: string) {
