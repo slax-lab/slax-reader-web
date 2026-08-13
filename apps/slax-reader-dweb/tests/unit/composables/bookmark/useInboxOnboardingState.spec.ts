@@ -105,11 +105,14 @@ describe('useInboxOnboardingState', () => {
     expect(api.inboxState.value).toBe('A')
   })
 
-  it('已落标记后，即使已装插件/有订阅，仍返回 A（避免刷新后从整页引导退回列表内提示）', () => {
-    localStorage.setItem('slax_onboarding_pending_1', 'true')
+  it('已落标记后装上插件 → 标记失效并清除，按 C 展示（修复"装插件后仍卡在安装引导"的死路）', async () => {
+    localStorage.setItem('slax_onboarding_pending_2', 'true')
     mockUseExtensionDetection.mockReturnValue(detectionState({ isInstalled: true, checked: true }))
-    const { api } = mountState({ userId: 1, subscribedCount: 5, isDataEmpty: false })
-    expect(api.inboxState.value).toBe('A')
+    const { api } = mountState({ userId: 2, subscribedCount: 0, isDataEmpty: true })
+    expect(api.inboxState.value).toBe('C')
+
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(localStorage.getItem('slax_onboarding_pending_2')).toBeNull()
   })
 
   it('标记生效期间 inbox 变为非空 → 自动清除标记，inboxState 回落', async () => {

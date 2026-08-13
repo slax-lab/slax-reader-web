@@ -21,7 +21,8 @@ export const useInboxOnboardingState = (params: {
 
   const inboxState = computed<InboxOnboardingState>(() => {
     if (!toValue(params.isCurrentInboxTab)) return null
-    if (onboarding.isPending.value) return 'A'
+    // 已装插件时 pending 标记失效，避免装完插件仍卡在 A
+    if (onboarding.isPending.value && !detection.isInstalled.value) return 'A'
     if (!dataReady.value) return null
     // 已跳过/完成引导不再回退到 A
     if (onboarding.isDismissed.value) return detection.isInstalled.value ? 'C' : 'B'
@@ -38,12 +39,13 @@ export const useInboxOnboardingState = (params: {
     { immediate: true }
   )
 
-  // 非空后自动清标记
+  // 非空或已装插件后自动清标记（immediate：挂载时条件已满足也要清）
   watch(
-    () => onboarding.isPending.value && !toValue(params.isDataEmpty),
+    () => onboarding.isPending.value && (!toValue(params.isDataEmpty) || (detection.checked.value && detection.isInstalled.value)),
     shouldClear => {
       if (shouldClear) onboarding.clearPending()
-    }
+    },
+    { immediate: true }
   )
 
   // 清 pending 并落终态，防止被重新判回 A
