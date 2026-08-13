@@ -292,7 +292,7 @@ defineExpose({
       font-family: var(--slax-font-serif);
       font-size: var(--slax-fs-h2);
       font-weight: 500;
-      margin-top: 48px;
+      margin-top: 24px;
     }
 
     img {
