@@ -10,6 +10,8 @@
     </div>
     <h3 class="empty-view-title">{{ title }}</h3>
     <p class="empty-view-desc">{{ desc }}</p>
+    <button v-if="actionText" class="empty-view-action" type="button" @click="emit('action')">{{ actionText }}</button>
+    <p v-if="actionNote" class="empty-view-action-note">{{ actionNote }}</p>
   </div>
 </template>
 
@@ -17,7 +19,11 @@
 defineProps<{
   title: string
   desc: string
+  actionText?: string
+  actionNote?: string
 }>()
+
+const emit = defineEmits<{ action: [] }>()
 </script>
 
 <style lang="scss" scoped>
@@ -62,6 +68,45 @@ defineProps<{
   color: var(--slax-text-light);
   margin: 0;
   line-height: 1.7;
-  max-width: 360px;
+  max-width: 400px;
+}
+
+.empty-view-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin-top: 24px;
+  padding: 7px 16px;
+  border: 1px solid var(--slax-accent);
+  border-radius: var(--slax-radius-sm, 8px);
+  background: var(--slax-accent);
+  color: var(--slax-btn-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+.empty-view-action-note {
+  margin: 12px 0 0;
+  color: var(--slax-text-light);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
 }
 </style>

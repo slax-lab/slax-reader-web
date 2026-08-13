@@ -34,9 +34,9 @@
         />
       </template>
       <template v-slot:content-list>
-        <!-- 布局切换器：非搜索、非 highlights/notifications、非话题未选标签时显示 -->
+        <!-- 列表非空时才显示切换器 -->
         <ListLayoutSwitcher
-          v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId)"
+          v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId) && !(isDataEmpty && !isTransitioning)"
           v-model="listMode"
           :last-updated-text="lastUpdatedText"
         />
@@ -55,7 +55,13 @@
           @bookmark-update="handleCellBookmarkUpdate"
         />
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
-          <BookmarksEmptyState v-if="!loading && isDataEmpty" :filter-status="filterStatus" :is-current-inbox-tab="isCurrentInboxTab" :is-first-load="isFirstLoad" />
+          <!-- 跳转期间按 B 展示 -->
+          <BookmarksEmptyState
+            v-if="!loading && isDataEmpty"
+            :filter-status="filterStatus"
+            :is-current-inbox-tab="isCurrentInboxTab"
+            :inbox-state="inboxState === 'A' ? 'B' : inboxState"
+          />
           <ListBottomStatus
             v-else
             :loading="loading"
@@ -91,6 +97,7 @@ import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast from '#layers/core/app/components/Toast'
 import { useBookmarkData } from '#layers/core/app/composables/bookmark/useBookmarkData'
 import { useBookmarkFilter } from '#layers/core/app/composables/bookmark/useBookmarkFilter'
+import { useInboxOnboardingState } from '#layers/core/app/composables/bookmark/useInboxOnboardingState'
 import { useListLayoutMode } from '#layers/core/app/composables/bookmark/useListLayoutMode'
 import { useRefreshIndicator } from '#layers/core/app/composables/bookmark/useRefreshIndicator'
 import useNotification from '#layers/core/app/composables/useNotification'
@@ -169,6 +176,25 @@ const {
 
 // 列表布局模式（card / text），localStorage 持久化
 const { listMode } = useListLayoutMode()
+
+// 社区版无订阅概念，固定 0
+const { inboxState } = useInboxOnboardingState({
+  isCurrentInboxTab,
+  subscribedCount: computed(() => 0),
+  subscriptionReady: computed(() => true),
+  isDataEmpty,
+  isFirstLoad,
+  userId: computed(() => userStore.userInfo?.userId)
+})
+
+// 状态 A → 跳转 /onboarding（暂时下线，下周再上）
+// watch(
+//   inboxState,
+//   state => {
+//     if (state === 'A') navigateTo('/onboarding', { replace: true })
+//   },
+//   { immediate: true }
+// )
 
 const addLog = () => {
   const sectionMap: Record<string, 'inbox' | 'starred' | 'topics' | 'highlights' | 'archive' | 'trash' | 'notifications'> = {

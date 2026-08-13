@@ -52,4 +52,30 @@ export class BrowserService {
     const message = { action: MessageTypeAction.BookmarkStatusRefresh }
     await browser.tabs.sendMessage(tab.id!, message)
   }
+
+  // 推送置顶状态给所有标签页
+  static async notifyPinnedStatusUpdate(isOnToolbar: boolean): Promise<void> {
+    const message = { action: MessageTypeAction.PinnedStatusUpdate, isOnToolbar }
+    const tabs = await browser.tabs.query({ url: ['http://*/*', 'https://*/*'] })
+
+    for (const tab of tabs) {
+      if (!tab.id) continue
+      try {
+        await browser.tabs.sendMessage(tab.id, message)
+      } catch {
+        // 内置页无 content script，忽略
+      }
+    }
+  }
+
+  // 避免 fork/社区版重复注册
+  static watchPinnedStatusChanges(): void {
+    // 该 API 仅新版 Chrome 支持
+    if (!browser.action.onUserSettingsChanged) return
+
+    browser.action.onUserSettingsChanged.addListener(change => {
+      if (change.isOnToolbar === undefined) return
+      this.notifyPinnedStatusUpdate(change.isOnToolbar)
+    })
+  }
 }

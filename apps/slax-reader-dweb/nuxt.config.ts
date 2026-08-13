@@ -116,7 +116,7 @@ export default defineNuxtConfig({
       failOnError: true
     },
     routeRules: {
-      ...['/', '/bookmarks', '/user', '/login', '/guide', '/auth'].reduce(
+      ...['/', '/bookmarks', '/onboarding', '/user', '/login', '/guide', '/auth'].reduce(
         (rules, route) => {
           rules[route] = { ssr: false, prerender: true }
           return rules
@@ -167,7 +167,7 @@ export default defineNuxtConfig({
     groups: [
       {
         allow: ['/s/*'],
-        disallow: ['/bookmarks', '/user', '/login', '/guide', '/auth']
+        disallow: ['/bookmarks', '/onboarding', '/user', '/login', '/guide', '/auth']
       }
     ],
     credits: false

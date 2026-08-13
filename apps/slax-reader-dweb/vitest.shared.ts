@@ -350,12 +350,6 @@ export const sharedThresholdsByFile: NonNullable<CoverageOptions['thresholds']> 
   },
 
   // sprint 5 batch 2
-  'layers/core/app/components/QuickStart.vue': {
-    lines: 80,
-    branches: 70,
-    functions: 85,
-    statements: 80
-  },
   'layers/core/app/components/BookmarkList/SearchTopModal.vue': {
     lines: 80,
     branches: 70,

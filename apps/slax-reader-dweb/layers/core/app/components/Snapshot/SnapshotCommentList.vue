@@ -224,6 +224,7 @@ const displayCards = computed((): DisplayCard[] => {
     font-size: 13px;
     color: var(--slax-text-muted);
     line-height: 1.6;
+    white-space: pre-line;
   }
 }
 

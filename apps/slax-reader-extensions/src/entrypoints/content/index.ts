@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 import CollectPopup from '@/components/Collect.vue'
 import SidePanel from '@/components/SidePanel.vue'
 
+import { watchPinnedStatus } from '@/utils/pinnedStatus'
+
 import '@/styles/reset.scss'
 import 'uno.css'
 import { analytics } from '#analytics'
@@ -85,5 +87,7 @@ export default defineContentScript({
     })
 
     panelUI.mount()
+
+    watchPinnedStatus(panelUI.shadowHost)
   }
 })

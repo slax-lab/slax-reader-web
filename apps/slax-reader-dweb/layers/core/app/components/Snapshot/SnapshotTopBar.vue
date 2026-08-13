@@ -28,7 +28,7 @@
 }
 
 .topbar-inner {
-  --style: h-full max-w-shell mx-auto px-24px flex items-center justify-between;
+  --style: h-full max-w-960px mx-auto px-24px flex items-center justify-between;
 }
 
 .topbar-left {

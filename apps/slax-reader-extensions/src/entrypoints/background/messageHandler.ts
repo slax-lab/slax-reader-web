@@ -42,6 +42,10 @@ export class MessageHandler {
       case MessageTypeAction.QueryUserInfo:
         this.handleQueryUserInfo(receiveMessage, sendResponse)
         return true
+
+      case MessageTypeAction.QueryPinnedStatus:
+        this.handleQueryPinnedStatus(sendResponse)
+        return true
     }
 
     return false
@@ -116,6 +120,17 @@ export class MessageHandler {
       sendResponse({ success: true, data: userInfo })
     } catch (error) {
       console.error('Error querying user info:', error)
+      sendResponse({ success: false, data: error })
+    }
+  }
+
+  // 需特权上下文调用
+  private async handleQueryPinnedStatus(sendResponse: (response?: unknown) => void) {
+    try {
+      const settings = await browser.action.getUserSettings()
+      sendResponse({ success: true, data: { isOnToolbar: settings.isOnToolbar } })
+    } catch (error) {
+      console.error('Error querying pinned status:', error)
       sendResponse({ success: false, data: error })
     }
   }

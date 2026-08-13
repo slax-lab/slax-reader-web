@@ -423,7 +423,7 @@
       "suggestion_3": "What are the author's main arguments?"
     },
     "snapshot_comment": {
-      "empty_desc": "No comments yet. Select text in this article to leave one."
+      "empty_desc": "No comments yet.\nSelect text in this article to leave one."
     },
     "snapshot_status_modal": {
       "dont_remind_again": "Don't remind me again",
@@ -561,7 +561,35 @@
       "empty_collections_title": "No collection content",
       "empty_collections_desc": "Select a collection to view its articles",
       "empty_notifications_title": "No notifications",
-      "empty_notifications_desc": "New comments and replies will appear here"
+      "empty_notifications_desc": "New comments and replies will appear here",
+      "empty_inbox_title": "Save your first article",
+      "empty_inbox_desc": "Open any page you want to read and click the Slax Reader icon in your browser toolbar.",
+      "empty_inbox_prompt": {
+        "title": "Your saved articles will show up here",
+        "desc": "Install the browser extension to save any page in one click.",
+        "install": "Install Browser Extension",
+        "note": "Setup takes about a minute"
+      }
+    },
+    "bookmarks_onboarding": {
+      "skip": "Maybe later",
+      "step1": {
+        "title": "Save any page with one click",
+        "setupTime": "Setup takes about a minute",
+        "install": "Install Browser Extension",
+        "toast": "Collected"
+      },
+      "step2": {
+        "title": "Pin Slax Reader to your toolbar",
+        "copy": "Click the puzzle icon to the right of the address bar, find Slax Reader, then click the pin next to it.",
+        "extensionsMenu": "Extensions",
+        "confirm": "I've pinned it, continue"
+      },
+      "step3": {
+        "title": "Try saving your first article",
+        "copy": "Open the article we prepared, then save it with the extension icon you just pinned.",
+        "button": "Open the article we prepared"
+      }
     },
     "c_detail": {
       "subscribe_text": "Originally collected by {user}"
@@ -731,23 +759,6 @@
           "title": "AI Assistant"
         }
       }
-    },
-    "quickStart": {
-      "getLink": "Get It Here",
-      "step1": {
-        "subtitle": "Add Slax Reader to your browser from the Chrome Web Store → ",
-        "title": "Install the extension "
-      },
-      "step2": {
-        "subtitle": "Visit any web page and click the extension icon to save it for later reading. Save once, access forever.",
-        "title": "Save any webpage"
-      },
-      "step3": {
-        "subtitle": "Your notes will stay there whenever you open the page again.",
-        "title": "Engage with content directly on the original webpage"
-      },
-      "subtitle": "This is how it works  👇 ",
-      "title": "Quick Start Guide"
     },
     "share_detail": {
       "share_text": "{user} shared on {date}",
