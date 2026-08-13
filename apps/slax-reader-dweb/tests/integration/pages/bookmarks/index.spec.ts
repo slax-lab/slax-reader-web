@@ -398,7 +398,7 @@ describe('pages/bookmarks/index.vue', () => {
       // inbox + cancel=false → id=1 移除
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').id).toBe(2)
+      expect(cells[0]!.props('bookmark').id).toBe(2)
     })
 
     it('C15: archive cancel=true + filterStatus="archive" → bookmark filter 移除', async () => {
@@ -421,7 +421,7 @@ describe('pages/bookmarks/index.vue', () => {
       // archive + cancel=true → id=1 移除
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').id).toBe(2)
+      expect(cells[0]!.props('bookmark').id).toBe(2)
     })
 
     it('C16: star cancel=false + filterStatus="starred" → reloadList', async () => {
@@ -462,7 +462,7 @@ describe('pages/bookmarks/index.vue', () => {
       // trashed tab + trashed=true → id=1 移除
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').id).toBe(2)
+      expect(cells[0]!.props('bookmark').id).toBe(2)
     })
 
     it('C18: trashed=false + filterStatus="inbox" → reloadList', async () => {
@@ -616,7 +616,7 @@ describe('pages/bookmarks/index.vue', () => {
       // inbox + archive=true → id=1 被移除，仅剩 id=2
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').id).toBe(2)
+      expect(cells[0]!.props('bookmark').id).toBe(2)
     })
 
     it('C30: handleCellArchive id 不存在 → fallback 修改 archived', async () => {
@@ -630,7 +630,7 @@ describe('pages/bookmarks/index.vue', () => {
       // 列表项保留（未移除），archived 被 fallback 设为 'inbox'
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').archived).toBe('inbox')
+      expect(cells[0]!.props('bookmark').archived).toBe('inbox')
     })
 
     it('C31: BookmarkCell aliasTitleUpdate(id, "New") → bookmark.alias_title 修改', async () => {
@@ -669,7 +669,7 @@ describe('pages/bookmarks/index.vue', () => {
       // delete → id=1 被 filter 移除，仅剩 id=2
       const cells = wrapper.findAllComponents({ name: 'BookmarkCell' })
       expect(cells).toHaveLength(1)
-      expect(cells[0].props('bookmark').id).toBe(2)
+      expect(cells[0]!.props('bookmark').id).toBe(2)
     })
   })
 

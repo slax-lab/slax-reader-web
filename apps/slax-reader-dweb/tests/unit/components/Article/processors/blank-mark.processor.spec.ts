@@ -137,9 +137,9 @@ describe('BlankMarkProcessor', () => {
     const ctx = buildContext('<section></section><section></section><section>visible</section>')
     processor.process(ctx)
     const sections = ctx.container.querySelectorAll('section')
-    expect(hasBlankFlag(sections[0])).toBe(true)
-    expect(hasBlankFlag(sections[1])).toBe(true)
-    expect(hasBlankFlag(sections[2])).toBe(false)
+    expect(hasBlankFlag(sections[0]!)).toBe(true)
+    expect(hasBlankFlag(sections[1]!)).toBe(true)
+    expect(hasBlankFlag(sections[2]!)).toBe(false)
   })
 
   it('容器无候选标签：不抛错', () => {
@@ -195,7 +195,7 @@ describe('BlankMarkProcessor SSR 空白标记', () => {
   it('顶层空白候选：正常打标记', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     const el = open('div')
     const inserted = el.fireEndTag()
@@ -206,7 +206,7 @@ describe('BlankMarkProcessor SSR 空白标记', () => {
   it('嵌套：内层含真实内容 → 外层靠冒泡不误判空白', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     const outer = open('section')
     const inner = open('p')
@@ -221,7 +221,7 @@ describe('BlankMarkProcessor SSR 空白标记', () => {
   it('嵌套：内外都空白 → 内外都打标记', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     const outer = open('section')
     const inner = open('p')
@@ -240,7 +240,7 @@ describe('BlankMarkProcessor SSR 合并 preline', () => {
   it('内层多行 <p>：落 preline marker，不落 blank', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     open('div') // 外层容器
     const p = open('p')
@@ -254,7 +254,7 @@ describe('BlankMarkProcessor SSR 合并 preline', () => {
   it('内层空白 <p>：落 blank marker，不落 preline', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     open('div') // 外层容器
     const p = open('p')
@@ -268,7 +268,7 @@ describe('BlankMarkProcessor SSR 合并 preline', () => {
   it('单行 <p>：既不落 preline 也不落 blank', () => {
     const processor = new BlankMarkProcessor()
     const { rewriter, open } = createFakeRewriter()
-    processor.ssr!.registerRewriter(rewriter, {})
+    processor.ssr!.registerRewriter(rewriter)
 
     open('div') // 外层容器
     const p = open('p')
