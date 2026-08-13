@@ -68,7 +68,7 @@ const emit = defineEmits<{ action: [] }>()
   color: var(--slax-text-light);
   margin: 0;
   line-height: 1.7;
-  max-width: 360px;
+  max-width: 400px;
 }
 
 .empty-view-action {
