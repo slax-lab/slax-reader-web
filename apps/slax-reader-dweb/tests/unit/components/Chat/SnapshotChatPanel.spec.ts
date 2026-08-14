@@ -47,6 +47,8 @@ import SnapshotChatPanel from '~~/layers/core/app/components/Snapshot/SnapshotCh
 const mountPanel = (props: any = {}) =>
   mountWithApp(SnapshotChatPanel, {
     props,
+    // attachTo: v-ime-guard 靠 document 捕获阶段拦截 Enter，元素必须真实挂在 document 树上才生效
+    attachTo: document.body,
     global: { stubs: { QuestionMessage: true, TipsMessage: true, DotLoading: true } }
   })
 
@@ -74,29 +76,31 @@ describe('SnapshotChatPanel.vue', () => {
     vi.useRealTimers()
   })
 
-  describe('A. 空态与建议问题', () => {
-    it('A1: 空态渲染星形图标 + 3 条建议问题胶囊', () => {
+  describe('A. 空态', () => {
+    // 建议问题胶囊功能已从组件移除，空态现仅剩图标 + 标题 + 说明文案
+    it('A1: 空态渲染星形图标 + 标题 + 说明文案', () => {
       const wrapper = mountPanel({ bookmarkId: 1 })
       expect(wrapper.find('.chat-empty-icon').exists()).toBe(true)
-      expect(wrapper.findAll('.chat-suggestion-pill').length).toBe(3)
+      expect(wrapper.find('.chat-empty-title').exists()).toBe(true)
+      expect(wrapper.find('.chat-empty-desc').exists()).toBe(true)
     })
 
-    it('A2: 建议问题点击 → bot.chat(CONTENT) + 用户气泡出现', async () => {
+    it('A2: textarea 发送 → bot.chat(CONTENT) + 用户气泡出现', async () => {
       const wrapper = mountPanel({ bookmarkId: 1 })
-      const firstKey = 'component.snapshot_chat.suggestion_1'
-      await wrapper.findAll('.chat-suggestion-pill')[0]!.trigger('click')
-      expect(mockBotChat).toHaveBeenCalledWith(expect.objectContaining({ type: 'CONTENT', content: firstKey }))
+      const textarea = wrapper.find('textarea')
+      await textarea.setValue('hello bot')
+      await textarea.trigger('keydown', { key: 'Enter' })
+      expect(mockBotChat).toHaveBeenCalledWith(expect.objectContaining({ type: 'CONTENT', content: 'hello bot' }))
       await nextTick()
       const user = wrapper.find('.chat-msg-user')
       expect(user.exists()).toBe(true)
-      expect(user.text()).toBe(firstKey)
+      expect(user.text()).toBe('hello bot')
     })
 
-    it('A3: chatting 中点击建议问题不发送（防重入）', async () => {
+    it('A3: chatting 中发送不重入', async () => {
       const wrapper = mountPanel({ bookmarkId: 1 })
       setChatting(true)
       await nextTick()
-      // chatting 时空态胶囊隐藏，直接走发送路径仍应被 isChatting 拦截
       const textarea = wrapper.find('textarea')
       await textarea.setValue('hi')
       await textarea.trigger('keydown', { key: 'Enter' })
@@ -105,7 +109,9 @@ describe('SnapshotChatPanel.vue', () => {
 
     it('A4: 有消息后空态消失', async () => {
       const wrapper = mountPanel({ bookmarkId: 1 })
-      await wrapper.findAll('.chat-suggestion-pill')[0]!.trigger('click')
+      const textarea = wrapper.find('textarea')
+      await textarea.setValue('hi')
+      await textarea.trigger('keydown', { key: 'Enter' })
       await nextTick()
       expect(wrapper.find('.chat-empty').exists()).toBe(false)
     })

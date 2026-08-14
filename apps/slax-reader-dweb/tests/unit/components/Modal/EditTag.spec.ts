@@ -107,7 +107,8 @@ describe('Modal/EditTag', () => {
   })
 
   it('composition 期间 Enter → 不触发 submitTagName', async () => {
-    const wrapper = mountWithApp(EditTag, { props: { tagId: 5, tagName: 'old' } })
+    // attachTo: v-ime-guard 靠 document 捕获阶段拦截 Enter，元素必须真实挂在 document 树上才生效
+    const wrapper = mountWithApp(EditTag, { props: { tagId: 5, tagName: 'old' }, attachTo: document.body })
     const textarea = wrapper.find('textarea')
     await textarea.trigger('compositionstart')
     await textarea.setValue('foo')

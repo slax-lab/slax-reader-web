@@ -429,7 +429,8 @@ describe('ChatBot.vue', () => {
     })
 
     it('C31: composition 中 + Enter → 不触发 sendMessage', async () => {
-      const wrapper = mountChatBot({ bookmarkId: 1 })
+      // attachTo: v-ime-guard 靠 document 捕获阶段拦截 Enter，元素必须真实挂在 document 树上才生效
+      const wrapper = mountWithApp(ChatBot, { props: { bookmarkId: 1 }, global: { stubs: baseStubs }, attachTo: document.body })
       const textarea = wrapper.find('textarea')
       await textarea.setValue('hi')
       await textarea.trigger('compositionstart')
