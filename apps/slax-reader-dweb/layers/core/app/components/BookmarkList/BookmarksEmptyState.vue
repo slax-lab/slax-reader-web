@@ -1,11 +1,18 @@
 <template>
-  <!-- B 提示 / C 空态 -->
-  <BookmarksEmptyView v-if="inboxState === 'B'" :title="promptTitle" :desc="promptDesc" :action-text="promptInstall" :action-note="promptNote" @action="installExtension">
+  <!-- B 提示 / C 空态（移动端不装扩展，B 态回退空态） -->
+  <BookmarksEmptyView
+    v-if="inboxState === 'B' && !isMobile"
+    :title="promptTitle"
+    :desc="promptDesc"
+    :action-text="promptInstall"
+    :action-note="promptNote"
+    @action="installExtension"
+  >
     <template #icon>
       <svg width="32" height="32" :viewBox="emptyIconViewBox" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyIconPath" />
     </template>
   </BookmarksEmptyView>
-  <BookmarksEmptyView v-else-if="inboxState === 'C' || !isCurrentInboxTab" :title="emptyTitle" :desc="emptyDesc">
+  <BookmarksEmptyView v-else-if="inboxState === 'C' || (inboxState === 'B' && isMobile) || !isCurrentInboxTab" :title="emptyTitle" :desc="emptyDesc">
     <template #icon>
       <svg width="32" height="32" :viewBox="emptyIconViewBox" fill="none" stroke="currentColor" stroke-width="1.5" v-html="emptyIconPath" />
     </template>
@@ -14,6 +21,8 @@
 
 <script setup lang="ts">
 import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
+
+import { isMobileBrowser } from '#layers/core/app/utils/environment'
 
 import type { InboxOnboardingState } from '#layers/core/app/composables/bookmark/useInboxOnboardingState'
 import { BOOKMARK_EMPTY_CONFIG, BOOKMARK_EMPTY_FALLBACK } from '#layers/core/app/constants/bookmarkEmptyConfig'
@@ -25,6 +34,8 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+
+const isMobile = isMobileBrowser()
 
 const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_empty_state'
 const installExtension = () => window.open(pluginUrl)
@@ -40,5 +51,9 @@ const emptyIconPath = computed(() => entry.value.iconPath)
 // 优先用 icon 自带 viewBox
 const emptyIconViewBox = computed(() => entry.value.iconViewBox ?? '0 0 24 24')
 const emptyTitle = computed(() => t(entry.value.titleKey))
-const emptyDesc = computed(() => (entry.value.descKey ? t(entry.value.descKey) : ''))
+// inbox desc 提到浏览器工具栏，移动端没有该入口
+const emptyDesc = computed(() => {
+  if (isMobile && props.filterStatus === 'inbox') return ''
+  return entry.value.descKey ? t(entry.value.descKey) : ''
+})
 </script>
