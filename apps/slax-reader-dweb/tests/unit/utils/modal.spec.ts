@@ -18,6 +18,7 @@ const { actualCreateAppRef, createAppMock, makeAppStub } = vi.hoisted(() => {
     mount: ReturnType<typeof vi.fn>
     unmount: ReturnType<typeof vi.fn>
     use: ReturnType<typeof vi.fn>
+    directive: ReturnType<typeof vi.fn>
   }
   const actualCreateAppRef: { value: ((...args: unknown[]) => unknown) | null } = { value: null }
   const makeAppStub = (componentName?: string): AppStub => {
@@ -26,7 +27,8 @@ const { actualCreateAppRef, createAppMock, makeAppStub } = vi.hoisted(() => {
       _container: null,
       mount: vi.fn(),
       unmount: vi.fn(),
-      use: vi.fn()
+      use: vi.fn(),
+      directive: vi.fn()
     }
     stub.mount.mockImplementation((el: HTMLElement) => {
       stub._container = el
