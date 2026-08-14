@@ -32,10 +32,10 @@ describe('Toast/index showToast 工厂', () => {
     expect(list[0]).toBe(existing)
   })
 
-  it('容器 z-index 设为 100', () => {
+  it('容器 z-index 设为 9999（需盖过全站最高 z-index 弹层）', () => {
     ToastModule.showToast({ text: 'X' })
     const container = document.querySelector('.toast.toast-start') as HTMLElement
-    expect(container.style.getPropertyValue('z-index')).toBe('100')
+    expect(container.style.getPropertyValue('z-index')).toBe('9999')
   })
 
   it('options.type 透传到 Toast 组件 props', () => {

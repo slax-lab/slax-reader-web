@@ -81,9 +81,9 @@ describe('SocialPostProcessor', () => {
       verified: 'true'
     })
     // 未提供的字段应为 undefined，而非 0/空串
-    expect(userArgs[0].followings).toBeUndefined()
-    expect(userArgs[0].description).toBeUndefined()
-    expect(userArgs[0].website).toBeUndefined()
+    expect(userArgs[0]!.followings).toBeUndefined()
+    expect(userArgs[0]!.description).toBeUndefined()
+    expect(userArgs[0]!.website).toBeUndefined()
   })
 
   it('social-post-footer 替换 + 平台指标透传（Reddit 仅 score/comment/link）', () => {
@@ -98,9 +98,9 @@ describe('SocialPostProcessor', () => {
       redditLink: 'https://reddit.com/x'
     })
     // Reddit 无转发/点赞/分享
-    expect(footerArgs[0].repostCount).toBeUndefined()
-    expect(footerArgs[0].likeCount).toBeUndefined()
-    expect(footerArgs[0].shareCount).toBeUndefined()
+    expect(footerArgs[0]!.repostCount).toBeUndefined()
+    expect(footerArgs[0]!.likeCount).toBeUndefined()
+    expect(footerArgs[0]!.shareCount).toBeUndefined()
   })
 
   it('容器无 social-post-header / social-post-footer：不抛错', () => {

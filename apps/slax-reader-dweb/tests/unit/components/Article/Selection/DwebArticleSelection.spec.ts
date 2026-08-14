@@ -337,7 +337,8 @@ describe('DwebArticleSelection', () => {
       window.getSelection()!.removeAllRanges()
       window.getSelection()!.addRange(range)
 
-      const existingInfo = { id: 'm1', source: [{ type: 'text', path: 'p', start: 0, end: 2 }] }
+      // stroke: [] → 无划线纯评论标记，走 showPanel 分支（非 showExistingMarkMenus）
+      const existingInfo = { id: 'm1', source: [{ type: 'text', path: 'p', start: 0, end: 2 }], stroke: [] }
       mockManager.markItemInfos.value = [existingInfo]
       mockManager.getElementInfo.mockReturnValue({
         list: [{ type: 'text', text: 'hi', node: p.firstChild, startOffset: 0, endOffset: 2 }],
@@ -412,14 +413,15 @@ describe('DwebArticleSelection', () => {
       void inst
     })
 
-    it('noActionCallback：调 updateCurrentMarkItemInfo(null) + clearSelectContent', async () => {
-      const { modal } = setupAndTrigger()
+    it('noActionCallback：调 clearSelection（关闭即清选区，防滚动重弹）', async () => {
+      const { modal, inst } = setupAndTrigger()
       await vi.runAllTimersAsync()
       const args = modal.showMenus.mock.calls[0]![0] as { noActionCallback: () => void }
-      mockManager.updateCurrentMarkItemInfo.mockClear()
       args.noActionCallback()
-      expect(mockManager.updateCurrentMarkItemInfo).toHaveBeenCalledWith(null)
-      expect(mockManager.clearSelectContent).toHaveBeenCalled()
+      // clearSelection 在基类里才真正调 manager.updateCurrentMarkItemInfo(null) + clearSelectContent；
+      // 本文件把基类整体 mock 掉了（见顶部 vi.mock('@slax-reader/selection')），
+      // 这里只能断言到 clearSelection 这一层被调用
+      expect((inst as unknown as { clearSelection: ReturnType<typeof vi.fn> }).clearSelection).toHaveBeenCalled()
     })
 
     it('callback type=stroke：分配 uuid + 调 manager.strokeSelection + clearSelection', async () => {

@@ -3,12 +3,22 @@
 // 失败 → Toast Error；成功 → progressData 设值
 // emit close (modal-overlay self click + close-btn click)
 // 多个 helper：getStatusText / getStatusClass / getPlatformIcon / formatDate
+import { ref } from 'vue'
+
 import ImportProgressModal from '~~/layers/core/app/components/ThirdPartyImport/ImportProgressModal.vue'
 
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('@vueuse/core', async () => {
+  const actual = await vi.importActual<any>('@vueuse/core')
+  return {
+    ...actual,
+    useScrollLock: () => ref(false)
+  }
+})
 
 const { mockRequest, mockGet, mockToastShowToast } = vi.hoisted(() => {
   const mockGet = vi.fn((): Promise<unknown> => Promise.resolve([]))
@@ -107,13 +117,13 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     wrapper.unmount()
   })
 
-  it('status=3 → status-success class + "Success" 文本', async () => {
+  it('status=3 → status-complete class + "Complete" 文本', async () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 3 }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = document.querySelector('.col-status span') as HTMLElement
-    expect(statusSpan?.className).toContain('status-success')
-    expect(statusSpan?.textContent).toBe('Success')
+    const statusSpan = document.querySelector('.status span') as HTMLElement
+    expect(statusSpan?.className).toContain('status-complete')
+    expect(statusSpan?.textContent).toBe('Complete')
     wrapper.unmount()
   })
 
@@ -121,7 +131,7 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 0 }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    const statusSpan = document.querySelector('.status span') as HTMLElement
     expect(statusSpan?.className).toContain('status-pending')
     expect(statusSpan?.textContent).toBe('Pending')
     wrapper.unmount()
@@ -131,19 +141,19 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, status: 2 }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    const statusSpan = document.querySelector('.status span') as HTMLElement
     expect(statusSpan?.className).toContain('status-failed')
     expect(statusSpan?.textContent).toBe('Failed')
     wrapper.unmount()
   })
 
-  it('status=1 → status-processing class + "Processing"', async () => {
-    mockGet.mockResolvedValueOnce([{ ...baseItem, status: 1 }])
+  it('status=1 → status-processing class + "Processing (percentage%)"', async () => {
+    mockGet.mockResolvedValueOnce([{ ...baseItem, status: 1, current_count: 30, batch_count: 100 }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const statusSpan = document.querySelector('.col-status span') as HTMLElement
+    const statusSpan = document.querySelector('.status span') as HTMLElement
     expect(statusSpan?.className).toContain('status-processing')
-    expect(statusSpan?.textContent).toBe('Processing')
+    expect(statusSpan?.textContent).toBe('Processing (30%)')
     wrapper.unmount()
   })
 
@@ -151,7 +161,7 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'omnivore' }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    const img = document.querySelector('.platform img') as HTMLImageElement
     expect(img?.src).toContain('omnivore')
     wrapper.unmount()
   })
@@ -160,7 +170,7 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'pocket' }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    const img = document.querySelector('.platform img') as HTMLImageElement
     expect(img?.src).toContain('pocket')
     wrapper.unmount()
   })
@@ -169,19 +179,18 @@ describe('ThirdPartyImport/ImportProgressModal', () => {
     mockGet.mockResolvedValueOnce([{ ...baseItem, type: 'unknown' }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    const img = document.querySelector('.col-platform img') as HTMLImageElement
+    const img = document.querySelector('.platform img') as HTMLImageElement
     expect(img?.getAttribute('src') || '').toBe('')
     wrapper.unmount()
   })
 
-  it('progress 计算 = round(current_count / batch_count * 100)', async () => {
-    mockGet.mockResolvedValueOnce([{ ...baseItem, current_count: 30, batch_count: 100 }])
+  it('count 列展示 item.count 原值', async () => {
+    mockGet.mockResolvedValueOnce([{ ...baseItem, count: 42 }])
     const wrapper = mountWithApp(ImportProgressModal, { attachTo: document.body })
     await flushPromises()
-    // 跳过 header 行，取数据行的 col-batches
-    const batchesCells = document.querySelectorAll('.col-batches')
-    const dataCell = Array.from(batchesCells).find(el => !el.closest('.table-header')) as HTMLElement
-    expect(dataCell?.textContent).toBe('30%')
+    // 跳过 header 行，取数据行的 count 列
+    const countCells = document.querySelectorAll('.table-body .count')
+    expect(countCells[0]?.textContent).toBe('42')
     wrapper.unmount()
   })
 })

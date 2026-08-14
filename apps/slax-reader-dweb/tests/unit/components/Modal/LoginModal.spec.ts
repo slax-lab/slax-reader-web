@@ -29,11 +29,11 @@ describe('Modal/LoginModal', () => {
     vi.useRealTimers()
   })
 
-  it('mount → 渲染 .edit-name-modal + .modal-content + close button', () => {
+  it('mount → 渲染 .login-modal + .modal-shell + close button', () => {
     const wrapper = mountWithApp(LoginModal, { props: { redirect: '/foo' } })
-    expect(wrapper.find('.edit-name-modal').exists()).toBe(true)
-    expect(wrapper.find('.modal-content').exists()).toBe(true)
-    expect(wrapper.find('button.close').exists()).toBe(true)
+    expect(wrapper.find('.login-modal').exists()).toBe(true)
+    expect(wrapper.find('.modal-shell').exists()).toBe(true)
+    expect(wrapper.find('button.modal-close').exists()).toBe(true)
   })
 
   it('GoogleLoginButton 子组件渲染', () => {
@@ -49,13 +49,13 @@ describe('Modal/LoginModal', () => {
 
   it('close button click → appear=false', async () => {
     const wrapper = mountWithApp(LoginModal, { props: { redirect: '/foo' } })
-    await wrapper.find('button.close').trigger('click')
+    await wrapper.find('button.modal-close').trigger('click')
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('外层 .edit-name-modal click → 触发 closeModal', async () => {
+  it('外层 .login-modal click → 触发 closeModal', async () => {
     const wrapper = mountWithApp(LoginModal, { props: { redirect: '/foo' } })
-    await wrapper.find('.edit-name-modal').trigger('click')
+    await wrapper.find('.login-modal').trigger('click')
     expect(wrapper.exists()).toBe(true)
   })
 

@@ -386,6 +386,9 @@ importers:
 
   commons/utils:
     dependencies:
+      '@vscode/markdown-it-katex':
+        specifier: ^1.1.2
+        version: 1.1.2
       approx-string-match:
         specifier: ^2.0.0
         version: 2.0.0
@@ -395,13 +398,31 @@ importers:
       dom-anchor-text-position:
         specifier: ^5.0.0
         version: 5.0.0
+      dompurify:
+        specifier: ^3.4.5
+        version: 3.4.5
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
+      markdown-it:
+        specifier: ^14.1.1
+        version: 14.1.1
+      markdown-it-cjk-friendly:
+        specifier: ^2.0.2
+        version: 2.0.2(@types/markdown-it@14.1.2)(markdown-it@14.1.1)
+      markdown-it-link-attributes:
+        specifier: ^4.0.1
+        version: 4.0.1
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
 
 packages:
 
@@ -13825,7 +13846,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.10.0
+      '@emnapi/runtime': 1.11.3
     optional: true
 
   '@img/sharp-wasm32@0.35.2':
@@ -23704,7 +23725,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
-      semver: 7.8.0
+      semver: 7.8.5
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.5
       '@img/sharp-darwin-x64': 0.34.5
@@ -25089,7 +25110,7 @@ snapshots:
       eslint-visitor-keys: 5.0.1
       espree: 11.2.0
       esquery: 1.7.0
-      semver: 7.8.0
+      semver: 7.8.5
     transitivePeerDependencies:
       - supports-color
 

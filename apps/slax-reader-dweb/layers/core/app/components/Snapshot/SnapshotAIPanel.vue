@@ -602,6 +602,13 @@ watch(
     margin-top: 10px !important;
   }
 
+  // 子列表是 li 的第一个子元素时去掉 margin-top，
+  // 让外层圆点与内层第一个圆点高度对齐
+  :deep(.markdown-content li > ul:first-child),
+  :deep(.markdown-content li > ol:first-child) {
+    margin-top: 0 !important;
+  }
+
   // 嵌套列表圆点改空心
   // 选择器更具体，压过实心规则
   :deep(.markdown-content ul ul li::before),

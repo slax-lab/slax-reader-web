@@ -27,7 +27,9 @@ export const isBookmarkDetail = (detail: BookmarkArticleDetail): detail is Bookm
 export const isShareBookmarkDetail = (detail: BookmarkArticleDetail): detail is ShareBookmarkDetail => 'share_info' in detail
 export const isBookmarkBrief = (detail: WebBookmarkArticleDetail): detail is BookmarkBriefDetail => 'target_url' in detail && 'created_at' in detail && 'updated_at' in detail
 export const isInlineBookmarkDetail = (detail: WebBookmarkArticleDetail): detail is InlineBookmarkDetail => 'share_info' in detail && 'user_info' in detail
-export const isSnapshotBookmarkDetail = (detail: BookmarkArticleDetail) => false
+// 基础仓 BookmarkArticleDetail 联合类型不含快照分支；此处恒不匹配，类型收窄为 never
+// fork 仓（slax-reader）通过 commons/types-pro 扩展 SnapshotBookmarkDetail 并覆盖本函数
+export const isSnapshotBookmarkDetail = (detail: BookmarkArticleDetail): detail is never => false
 
 export const BookmarkTabTypes = ['inbox', 'starred', 'topics', 'highlights', 'archive']
 

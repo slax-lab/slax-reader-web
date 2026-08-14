@@ -110,6 +110,62 @@ describe('客户端环境', () => {
       expect(isSlaxReaderApp()).toBe(false)
     })
   })
+
+  describe('isMobileBrowser', () => {
+    it.each(['iPhone', 'iPad', 'iPod', 'Android', 'IEMobile', 'Windows Phone', 'BlackBerry', 'Opera Mini'])('UserAgent 含 "%s" → true', async keyword => {
+      vi.stubGlobal('navigator', {
+        languages: [],
+        language: '',
+        userAgent: `Mozilla/5.0 (${keyword}) AppleWebKit/605.1.15`
+      })
+      const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+      expect(isMobileBrowser()).toBe(true)
+    })
+
+    it('桌面 UserAgent（Windows Chrome）→ false', async () => {
+      vi.stubGlobal('navigator', {
+        languages: [],
+        language: '',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36'
+      })
+      const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+      expect(isMobileBrowser()).toBe(false)
+    })
+
+    it('桌面 UserAgent（macOS Safari）→ false', async () => {
+      vi.stubGlobal('navigator', {
+        languages: [],
+        language: '',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15'
+      })
+      const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+      expect(isMobileBrowser()).toBe(false)
+    })
+
+    it('iPadOS 13+ Safari 伪装桌面 UA（无 "iPad" 关键字）+ 触屏 + MacIntel → true', async () => {
+      vi.stubGlobal('navigator', {
+        languages: [],
+        language: '',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15',
+        maxTouchPoints: 5,
+        platform: 'MacIntel'
+      })
+      const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+      expect(isMobileBrowser()).toBe(true)
+    })
+
+    it('真实 Mac 电脑（MacIntel 但无触屏）→ false', async () => {
+      vi.stubGlobal('navigator', {
+        languages: [],
+        language: '',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15',
+        maxTouchPoints: 0,
+        platform: 'MacIntel'
+      })
+      const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+      expect(isMobileBrowser()).toBe(false)
+    })
+  })
 })
 
 describe('服务端环境', () => {
@@ -134,5 +190,10 @@ describe('服务端环境', () => {
   it('isClient=false 时 isSlaxReaderApp 返回 false', async () => {
     const { isSlaxReaderApp } = await import('~~/layers/core/app/utils/environment')
     expect(isSlaxReaderApp()).toBe(false)
+  })
+
+  it('isClient=false 时 isMobileBrowser 返回 false', async () => {
+    const { isMobileBrowser } = await import('~~/layers/core/app/utils/environment')
+    expect(isMobileBrowser()).toBe(false)
   })
 })

@@ -150,7 +150,7 @@ describe('useBookmarkData', () => {
       expect(groups).toHaveLength(2)
       expect(cells).toHaveLength(3)
       // 首项是 group（同月的第一条前插标签）
-      expect(items[0].type).toBe('group')
+      expect(items[0]!.type).toBe('group')
     })
 
     it('highlights tab → 不分组（返回空数组）', async () => {

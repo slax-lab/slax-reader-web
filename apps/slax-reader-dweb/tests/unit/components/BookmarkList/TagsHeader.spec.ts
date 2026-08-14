@@ -198,7 +198,8 @@ describe('TagsHeader', () => {
 
     it('composition 期间 Enter → 短路（不调 saveTag）', async () => {
       mockGet.mockResolvedValueOnce([])
-      const wrapper = mountWithApp(TagsHeader)
+      // attachTo: v-ime-guard 靠 document 捕获阶段拦截 Enter，元素必须真实挂在 document 树上才生效
+      const wrapper = mountWithApp(TagsHeader, { attachTo: document.body })
       await flushPromises()
       await wrapper.find('.tag-add').trigger('click')
       const input = wrapper.find('.tag-input-wrap input')

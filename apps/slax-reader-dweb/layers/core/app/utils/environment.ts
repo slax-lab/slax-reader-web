@@ -56,3 +56,19 @@ export const isSlaxReaderApp = (): boolean => {
 
   return navigator.userAgent.includes('SlaxReader')
 }
+
+/**
+ * 判断当前浏览器是否运行在移动设备上
+ */
+export const isMobileBrowser = (): boolean => {
+  if (!isClient) {
+    return false
+  }
+
+  if (/Android|iPhone|iPad|iPod|IEMobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent)) {
+    return true
+  }
+
+  // iPadOS 13+ 的 Safari UA 伪装成桌面 Mac，用触屏兜底
+  return navigator.maxTouchPoints > 1 && navigator.platform === 'MacIntel'
+}

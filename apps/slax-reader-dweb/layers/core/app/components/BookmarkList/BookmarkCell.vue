@@ -86,6 +86,7 @@
 import { inject } from 'vue'
 
 import { urlHttpString } from '@commons/utils/string'
+import { truncateTitle } from '#layers/core/app/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkItem, type EmptyBookmarkResp } from '@commons/types/interface'

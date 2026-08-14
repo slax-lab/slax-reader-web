@@ -51,7 +51,14 @@ const {
     findQuote: vi.fn(),
     isMonitoring: false
   }
-  const mockT = vi.fn((k: string) => k)
+  // 真实 vue-i18n 会把 { date } 插值进消息模板；这里手写一份最小映射，
+  // 覆盖本文件断言用到的 key，而非只回显 key 本身
+  const mockT = vi.fn((k: string, params?: Record<string, unknown>) => {
+    if (k === 'page.bookmarks_detail.saved_at' && params?.date) {
+      return `First saved on ${params.date}`
+    }
+    return k
+  })
   const mockPost = vi.fn(() => Promise.resolve({}))
   return {
     mockRoute: { path: '/bookmarks/1', query: {} as Record<string, string>, fullPath: '/bookmarks/1', params: {} },
@@ -162,11 +169,16 @@ vi.mock('~~/layers/core/app/components/Article/processors', () => {
     ArticleStyle: { Default: 'default', Twitter: 'twitter', SocialPost: 'social-post', PhotoSwipeTopic: 'photo-swipe-topic' },
     DOMPipeline: FakeDOMPipeline,
     AnchorProcessor: class {},
+    BLANK_FLAG_CLASS: 'blank-flag',
+    BlankMarkProcessor: class {},
+    ClassIsolationProcessor: class {},
     DetailsProcessor: class {},
     IFrameProcessor: class {},
     ImageProcessor: class {},
     ListProcessor: class {},
     PhotoSwipeProcessor: class {},
+    PRELINE_FLAG_CLASS: 'preline-flag',
+    PreLineProcessor: class {},
     SocialPostProcessor: class {},
     SpanProcessor: class {},
     SvgProcessor: class {},
@@ -247,7 +259,7 @@ describe('Article/BookmarkArticle', () => {
       expect(wrapper.find('.bookmark-article').exists()).toBe(true)
       expect(wrapper.find('.article-title').text()).toBe('Test Title')
       expect(wrapper.find('.article-author').text()).toBe('Author')
-      expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-date').text()).toBe('First saved on 2026-01-01')
     })
 
     it('article-detail v-html 渲染 detail.content 并补 lazy loading', () => {
@@ -275,7 +287,7 @@ describe('Article/BookmarkArticle', () => {
     it('detail.byline 为空：不渲染 .article-author', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail({ byline: '' }) }, global: { stubs } })
       expect(wrapper.find('.article-author').exists()).toBe(false)
-      expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-date').text()).toBe('First saved on 2026-01-01')
     })
   })
 
@@ -308,28 +320,22 @@ describe('Article/BookmarkArticle', () => {
   })
 
   describe('dateString computed', () => {
-    it('published_at 优先', () => {
+    // dateString 现仅取 created_at（published_at 分支已从源码移除），
+    // 缺失时返回空串（无 '--' 兜底）
+    it('created_at 存在：格式化为 YYYY-MM-DD 并套 saved_at 文案', () => {
       const wrapper = mountWithApp(BookmarkArticle, {
-        props: { detail: buildDetail({ published_at: '2025-12-31T00:00:00.000Z', created_at: '2024-01-01T00:00:00.000Z' }) },
+        props: { detail: buildDetail({ created_at: '2024-06-15T00:00:00.000Z' }) },
         global: { stubs }
       })
-      expect(wrapper.find('.article-date').text()).toBe('2025-12-31')
+      expect(wrapper.find('.article-date').text()).toBe('First saved on 2024-06-15')
     })
 
-    it('published_at 缺失：fallback 到 created_at', () => {
+    it('created_at 缺失：返回空串', () => {
       const wrapper = mountWithApp(BookmarkArticle, {
-        props: { detail: buildDetail({ published_at: undefined, created_at: '2024-06-15T00:00:00.000Z' }) },
+        props: { detail: buildDetail({ created_at: undefined }) },
         global: { stubs }
       })
-      expect(wrapper.find('.article-date').text()).toBe('2024-06-15')
-    })
-
-    it('两个日期都缺：返回 "--"', () => {
-      const wrapper = mountWithApp(BookmarkArticle, {
-        props: { detail: buildDetail({ published_at: undefined, created_at: undefined }) },
-        global: { stubs }
-      })
-      expect(wrapper.find('.article-date').text()).toBe('--')
+      expect(wrapper.find('.article-date').text()).toBe('')
     })
   })
 
@@ -360,11 +366,11 @@ describe('Article/BookmarkArticle', () => {
   })
 
   describe('handleHTML + handleDrawMark 流程', () => {
-    it('onMounted 后：DOMPipeline 注册 13 个 processor 并 run 一次', async () => {
+    it('onMounted 后：DOMPipeline 注册 17 个 processor 并 run 一次', async () => {
       mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       await flushPromises()
       await flushPromises()
-      expect(pipelineRegistered.length).toBe(13)
+      expect(pipelineRegistered.length).toBe(17)
       expect(pipelineRunCalls.length).toBe(1)
     })
 

@@ -181,6 +181,7 @@ export interface BookmarkDetail extends BaseBookmarkDetail {
   archived: 'inbox' | 'archive' | 'later'
   starred: 'star' | 'unstar'
   trashed_at: string | null
+  type: 'shortcut' | 'article'
 }
 
 export interface BookmarkTag {

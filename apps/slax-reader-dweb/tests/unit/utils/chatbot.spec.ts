@@ -120,7 +120,8 @@ describe('ChatBot chat — createMessages 路径', () => {
           { role: 'user', content: '前一条' },
           { role: 'user', content: '你好' }
         ],
-        quote: undefined
+        quote: undefined,
+        platform: 'desktop'
       }
     })
   })
@@ -141,7 +142,8 @@ describe('ChatBot chat — createMessages 路径', () => {
         bm_id: undefined,
         share_code: 'sc-X',
         messages: [{ role: 'user', content: 'hi share' }],
-        quote: undefined
+        quote: undefined,
+        platform: 'desktop'
       }
     })
   })
@@ -172,7 +174,8 @@ describe('ChatBot chat — createMessages 路径', () => {
         collection_code: 'col-A',
         cb_id: 7,
         messages: [{ role: 'user', content: '基于引用回答' }],
-        quote: quoteWithData.data
+        quote: quoteWithData.data,
+        platform: 'desktop'
       }
     })
   })

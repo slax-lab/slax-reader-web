@@ -4,8 +4,8 @@
 //      searchResultTags 过滤已选 + 名称匹配 / searchTagClick 调 ADD_BOOKMARK_TAG /
 //      onKeyDown Enter：已存在同名跳过 / 命中 search → addBookmarkTag(tagId) / 未命中 → addBookmarkTag(tagName) /
 //      bookmarkId 缺失：addBookmarkTag/deleteBookmarkTag 短路
-// 关键约束：v-show 包在 <Transition> 内，happy-dom 不真触发 transition，wrapper.find('.search-list').isVisible()
-//          离开态仍 truthy；统一通过断言 inline style.display 来验证关闭态
+// 关键约束：search-list 面板用 v-if 整块挂卸（非 v-show），isPanelHidden 对
+//          "元素不存在" 和 "display:none" 均视为已关闭
 import BookmarkTags from '~~/layers/core/app/components/BookmarkTags.vue'
 
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -31,8 +31,9 @@ const baseTags = [
 ]
 
 function isPanelHidden(wrapper: ReturnType<typeof mountWithApp>): boolean {
-  const el = wrapper.find('.search-list').element as HTMLElement
-  return el.style.display === 'none'
+  const el = wrapper.find('.search-list')
+  if (!el.exists()) return true
+  return (el.element as HTMLElement).style.display === 'none'
 }
 
 beforeEach(() => {
@@ -70,6 +71,7 @@ describe('components/BookmarkTags', () => {
     it('props.tags 变化：watch 同步 bookmarkTags', async () => {
       const wrapper = mountWithApp(BookmarkTags, { props: { tags: [...baseTags], bookmarkId: 7 } })
       await wrapper.setProps({ tags: [{ id: 9, show_name: 'newone', system: false }] })
+      await flushPromises() // displayTags 走 nextTick 去抖，setProps 后需再等一拍
       expect(wrapper.findAll('.tag')).toHaveLength(1)
       expect(wrapper.find('.tag span').text()).toBe('newone')
     })

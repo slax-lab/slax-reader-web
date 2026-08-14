@@ -8,7 +8,7 @@
       :select-collect-id="filterCollectionId"
       :select-collect-name="filterCollectionName"
       @code-update="(code: string) => emit('code-update', code)"
-      @select-collect="info => emit('select-collect', info)"
+      @select-collect="(info: { id: number; name: string; code: string } | null) => emit('select-collect', info)"
     />
     <NotificationHeader v-if="filterStatus === 'notifications'" @back="emit('notification-back')" />
   </template>

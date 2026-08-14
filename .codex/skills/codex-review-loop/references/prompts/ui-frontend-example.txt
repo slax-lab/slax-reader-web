@@ -1,0 +1,19 @@
+审查 SPEC_PATH 中的前端 UI/布局实现方案（不是测试 spec）。这是把 /b/[id] 快照页小屏侧边栏从「右侧全屏滑入」改为「底部上滑 bottom sheet」的方案，参照 design demo slax-reader-snapshot.html。请按以下维度找问题，逐条核对源码与设计 demo：
+
+1) 文件/源码结构匹配：方案引用的文件路径、组件 props/emit、CSS token 名（--slax-side-panel-min-w/max-w、--slax-header-h-mobile）、useSnapshotLayout 暴露的字段（isH5/panelWidth/isDragging/startDrag）、当前 SnapshotSidePanel.vue 的真实结构是否与方案描述一致？有无臆造的行号/字段？
+
+2) Nuxt 层 alias 覆盖机制：把 #layers/core/.../SnapshotSidePanel.vue alias 到 fork 文件，是否真的会让 upstream 子模块内的消费页（s/[id]、bookmarks/[id]）也用上 fork 版？这个范式（NotificationCell/BookmarksTopBar）是否被正确理解？4 个消费页是否都被覆盖、有无遗漏页面？
+
+3) Vue3 多根组件正确性：overlay + aside 双根 + 调用处 v-if + 未传 class/style → $attrs fallthrough 是否真的无告警？多根 fragment 被 v-if 包裹是否合法？
+
+4) SSR/hydration：isH5 SSR=false、客户端真实值；overlay 用 v-show（非 v-if）是否确实规避 mismatch？isH5 在 setup 阶段解构、watch(isH5) 自动收起的时序是否安全？
+
+5) 抓手拖拽事件：touchmove passive:false + preventDefault、window 监听的挂载/解绑（onUp + onBeforeUnmount）、仅 client 执行——是否有内存泄漏、SSR 报错、或多次拖拽叠加监听的隐患？
+
+6) z-index / 布局：overlay(29)/sheet(30)/底栏(20)/topbar 的层级是否自洽？sheet 打开时底栏让位（4 页都已有 v-show guard）是否成立？body 滚动锁在非 /b 页（未置 panelOpen）的退化是否被正确识别？
+
+7) 与 demo 行为一致性：sheet 高度策略（auto / min 40vh / max 90vh / 拖拽 --sheet-h 接管）、translateY 滑入、圆角抓手、遮罩点击关闭、进入 H5 自动收起——有无遗漏或与 demo 不符之处？
+
+8) 任何施工时会卡死/返工的技术隐患，以及裁决点（A 范围/B 自动收起/C 落点/D 拖拽调高）是否定义清晰、默认值合理。
+
+如果没有问题，明确回复"通过"。
