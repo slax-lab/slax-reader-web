@@ -103,22 +103,24 @@ describe('Modal/Feedback', () => {
           type: 'parse_error',
           content: 'this is feedback',
           platform: 'web',
-          allow_follow_up: false,
+          // allowFollowUp 默认 true（ref(true)），非手动切换时保持默认值
+          allow_follow_up: true,
           entry_point: 'inbox'
         })
       })
     )
   })
 
-  it('follow-up click → allowFollowUp 切换 → 提交 body 含 allow_follow_up=true', async () => {
+  it('follow-up click → allowFollowUp 切换 → 提交 body 含 allow_follow_up=false', async () => {
     const wrapper = mountWithApp(Feedback, { props: { reportType: 'x', email: 'foo@bar.com' } })
+    // 默认 true，点击一次切到 false
     await wrapper.find('.follow-up').trigger('click')
     await wrapper.find('textarea').setValue('feedback')
     await wrapper.find('button.submit').trigger('click')
     await flushPromises()
     expect(mockPost).toHaveBeenCalledWith(
       expect.objectContaining({
-        body: expect.objectContaining({ allow_follow_up: true })
+        body: expect.objectContaining({ allow_follow_up: false })
       })
     )
   })
