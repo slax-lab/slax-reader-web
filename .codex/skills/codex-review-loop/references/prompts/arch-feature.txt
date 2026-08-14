@@ -1,0 +1,19 @@
+审查 SPEC_PATH 中的架构方案文档（这是一个功能实现方案，不是测试 spec）。请按以下维度找问题：
+
+1) **文件操作正确性**：删除/新增/修改的文件是否与源码实际结构匹配？路径是否正确？有无遗漏（如遗漏使用了被删组件的其他文件）？
+
+2) **Nuxt 层系统兼容性**：upstream 的 definePageMeta alias、auth middleware 修改，在 fork 层覆盖场景下是否能正确工作？fork 的覆盖页面是否需要同步添加？
+
+3) **Auth 流程完整性**：三条主要路径（/ 根路径、/[blogger]-reader、login 页）的认证重定向逻辑是否有漏洞？redirect 参数的传递和解析是否正确？登录后的回跳链路是否无死循环？
+
+4) **SSR/CSR 兼容**：useCookies 在 SSR 环境下的限制是否已处理？navigateTo 在 server side 是否安全？
+
+5) **遗漏的边界情况**：
+   - /zh、/en 访问后 SEO 影响
+   - 旧 /zh、/en 书签/外链的 fallback
+   - KOC 链接 blogger 查不到时的降级
+   - 已登录用户访问 / 时 query param 如 ?filter=collections 的完整性
+
+6) **实施顺序风险**：Phase 1 → Phase 2 的顺序是否会造成中间状态下的功能断裂？
+
+如果没有问题，明确回复"通过"。
