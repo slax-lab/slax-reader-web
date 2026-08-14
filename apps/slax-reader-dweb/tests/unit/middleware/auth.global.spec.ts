@@ -111,21 +111,24 @@ describe('middleware/auth.global', () => {
     expect(mockNavigateTo).not.toHaveBeenCalled()
   })
 
-  it('未登录 + 目标首页：跳过', async () => {
+  it('未登录 + 目标首页：无豁免，仍 navigateTo /login', async () => {
     await runMiddleware(makeRoute({ path: '/', fullPath: '/' }), makeRoute({ fullPath: '/x' }))
-    expect(mockNavigateTo).not.toHaveBeenCalled()
+    expect(mockNavigateTo).toHaveBeenCalledTimes(1)
+    const arg = mockNavigateTo.mock.calls[0]![0] as string
+    expect(arg.startsWith('/login?')).toBe(true)
   })
 
-  it('未登录 + from=homepage：login redirect query 含 from=homepage', async () => {
+  it('未登录 + 带 from=homepage query：redirect 里保留该 query', async () => {
     await runMiddleware(makeRoute({ path: '/bookmarks', fullPath: '/bookmarks?from=homepage', query: { from: 'homepage' } }), makeRoute({ path: '/foo', fullPath: '/foo' }))
     const arg = mockNavigateTo.mock.calls[0]![0] as string
-    expect(arg).toContain('from=homepage')
+    expect(arg).toContain('from%3Dhomepage')
   })
 
-  it('未登录 + 来自首页：不附 redirect 参数', async () => {
+  it('未登录 + 来自 /zh：仍附 redirect 参数（当前无首页/语言路径豁免）', async () => {
     await runMiddleware(makeRoute({ path: '/bookmarks', fullPath: '/bookmarks' }), makeRoute({ path: '/zh', fullPath: '/zh' }))
     const arg = mockNavigateTo.mock.calls[0]![0] as string
-    expect(arg).toBe('/login')
+    expect(arg.startsWith('/login?')).toBe(true)
+    expect(arg).toContain('redirect=')
   })
 
   it('已登录 + 目标 /login + 含 redirect 参数：navigateTo decoded redirect external=true', async () => {
