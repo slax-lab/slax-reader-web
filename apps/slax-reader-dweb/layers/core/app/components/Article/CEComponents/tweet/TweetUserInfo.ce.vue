@@ -160,7 +160,7 @@ const t = (text: string) => {
   }
 
   .description-info {
-    --style: text-(meta txt) line-height-20px mt-14px;
+    --style: text-(meta txt) line-height-20px mt-14px whitespace-pre-line;
   }
 
   .tail-info {
