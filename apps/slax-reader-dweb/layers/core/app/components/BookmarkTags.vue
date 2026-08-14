@@ -149,7 +149,7 @@ const searchResultTags = computed(() => {
 watch(
   () => props.tags,
   newTags => {
-    if (localActive) return // LF：不接 props.tags
+    if (localActive.value) return // LF：不接 props.tags
     restBookmarkTags.value = newTags
   },
   { deep: true }
@@ -183,7 +183,7 @@ onMounted(() => {
 })
 
 const searchingTags = async () => {
-  if (localActive) return // LF：searchTags 走 userTags
+  if (localActive.value) return // LF：searchTags 走 userTags
   if (isAddingLoading.value) return
   isAddingLoading.value = true
   const res = await request().get<BookmarkTag[]>({ url: RESTMethodPath.TAG_LIST })
@@ -197,7 +197,7 @@ const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
   if (tagName && tagId) return
 
   // LF：本地建标签 + 关联
-  if (tagSrc) {
+  if (tagSrc.value) {
     isAddingLoading.value = true
     try {
       let tagUuid = tagId ? String(tagId) : ''
