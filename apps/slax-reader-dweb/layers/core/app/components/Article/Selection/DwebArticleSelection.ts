@@ -77,6 +77,12 @@ export class DwebArticleSelection extends BaseArticleSelection {
     return range
   }
 
+  // 选区仍有效时，说明是 click-outside 误判，不应清空
+  private hasActiveSelection(): boolean {
+    const sel = this.getSelection()
+    return !!sel && sel.rangeCount > 0 && !sel.isCollapsed && sel.toString().trim().length > 0
+  }
+
   // 选区与上次一致即视为重复，跳过
   private isSameSelectionAsLastMenu(range: Range): boolean {
     const r = this.lastMenuRange
@@ -248,7 +254,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
         },
         positionCallback: ({ y }) => (menusY = y),
         noActionCallback: () => {
-          // 关闭即清选区，防滚动重弹
+          // 选区仍有效说明是误判，不清空
+          if (this.hasActiveSelection()) return
           this.clearSelection()
         }
       })
@@ -307,7 +314,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
       },
       positionCallback: ({ y }) => (menusY = y),
       noActionCallback: () => {
-        // 关闭即清选区，防滚动重弹
+        // 选区仍有效说明是误判，不清空
+        if (this.hasActiveSelection()) return
         this.clearSelection()
       }
     })
@@ -362,7 +370,8 @@ export class DwebArticleSelection extends BaseArticleSelection {
       },
       positionCallback: ({ y }) => (menusY = y),
       noActionCallback: () => {
-        // 关闭即清选区，防滚动重弹
+        // 选区仍有效说明是误判，不清空
+        if (this.hasActiveSelection()) return
         this.clearSelection()
       }
     })
