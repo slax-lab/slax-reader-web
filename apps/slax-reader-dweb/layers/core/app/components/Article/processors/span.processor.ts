@@ -11,7 +11,7 @@ export class SpanProcessor implements DOMProcessor {
     const spans = Array.from(context.container.querySelectorAll('span')) as HTMLSpanElement[]
 
     spans.forEach(span => {
-      if (span.textContent?.replace(/ /g, '').trim().length === 0 && !span.querySelector('img[src], video[src], picture:has(source[srcset]), svg, canvas')) {
+      if (span.textContent?.replace(/ /g, '').trim().length === 0 && !span.querySelector('img[src], video[src], picture:has(source[srcset]), svg, canvas, br')) {
         span.style.display = 'none'
       }
     })

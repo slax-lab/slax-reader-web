@@ -46,6 +46,12 @@ describe('SpanProcessor', () => {
     expect((ctx.container.querySelector('span') as HTMLElement).style.display).not.toBe('none')
   })
 
+  it('空内容 span 含 br（代码块换行占位）：不隐藏', () => {
+    const ctx = buildContext('<span><br></span>')
+    processor.process(ctx)
+    expect((ctx.container.querySelector('span') as HTMLElement).style.display).not.toBe('none')
+  })
+
   it('容器无 span：不抛错', () => {
     const ctx = buildContext('<p>纯文字</p>')
     expect(() => processor.process(ctx)).not.toThrow()
