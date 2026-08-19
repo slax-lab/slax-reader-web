@@ -133,7 +133,7 @@ const displayCards = computed((): DisplayCard[] => {
     // 有自己的划线且页面允许才显示
     const canUnhighlight = !!props.allowUnhighlight && !!uid && info.stroke.some(s => s.userId === uid)
     // 已删除评论不展示
-    const liveComments = info.comments.filter(c => !c.isDeleted)
+    const liveComments = info.comments.filter(c => !c.isDeleted || c.children.some(child => !child.isDeleted))
     if (liveComments.length > 0) {
       for (const comment of liveComments) {
         // 本人纯评论才显示删除
