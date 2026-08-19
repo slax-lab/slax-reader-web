@@ -13,14 +13,16 @@
       <span v-else class="comment-scope-badge">{{ $t('page.bookmarks_detail.comment_all') }}</span>
 
       <!-- 评论正文 -->
-      <p v-if="mainComment.comment" class="comment-reply">{{ mainComment.comment }}</p>
+      <p v-if="mainComment.isDeleted || mainComment.comment" class="comment-reply">
+        {{ mainComment.isDeleted ? $t('component.article_selection.comment_deleted') : mainComment.comment }}
+      </p>
 
       <div class="comment-meta">
         <span>
-          <span class="comment-author">{{ mainComment.username }}</span>
+          <span class="comment-author">{{ mainComment.isDeleted ? $t('component.article_selection.user_deleted') : mainComment.username }}</span>
           <template v-if="mainComment.createdAt"> · {{ formatYmd(mainComment.createdAt) }}</template>
         </span>
-        <span v-if="allowAction" class="comment-meta-actions">
+        <span v-if="allowAction && !mainComment.isDeleted" class="comment-meta-actions">
           <!-- 划线则取消划线，纯评论则删评论 -->
           <button v-if="canUnhighlight || canDeleteComment" class="comment-delete-trigger" :class="{ 'is-confirming': confirmingDelete }" @click.stop="onDeleteClick">
             {{ confirmingDelete ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
