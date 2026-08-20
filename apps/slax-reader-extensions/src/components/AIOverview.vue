@@ -82,7 +82,11 @@ const tags = ref<BookmarkTag[]>(props.bookmarkBriefInfo.tags)
 const bookmarkId = computed(() => props.bookmarkBriefInfo.bookmark_id)
 const overviewContent = ref(props.bookmarkBriefInfo.overview)
 const keyTakaways = ref<string[]>(props.bookmarkBriefInfo.key_takeaways)
-const haveReconnected = ref(false)
+
+const MAX_RETRY_COUNT = 3
+const RETRY_DELAY_MS = 1500
+const retryCount = ref(0)
+let lastError: Error | null = null
 
 const markdownedOverview = computed(() => {
   if (overviewContent.value.length > 0) {
@@ -235,19 +239,18 @@ const queryOverview = async (
       } catch (error) {
         console.log(error, text)
 
+        lastError = error instanceof Error ? error : new Error(String(error))
         callback(null, true)
-
-        Toast.showToast({
-          text: `${error}`,
-          type: ToastType.Error
-        })
       }
     })
 }
 
-const loadOverview = (options?: { refresh: boolean }) => {
+const loadOverview = (options?: { refresh?: boolean; isRetry?: boolean }) => {
   if (isLoading.value) {
     return
+  }
+  if (!options?.isRetry) {
+    retryCount.value = 0
   }
 
   let step = 0
@@ -292,14 +295,20 @@ const loadOverview = (options?: { refresh: boolean }) => {
     isQueryDone = done
 
     if (isQueryDone) {
-      isLoading.value = false
       isDone.value = true
       clearInterval(timeInterval)
 
-      if (overviewContent.value.length === 0 && !haveReconnected.value) {
-        haveReconnected.value = true
+      if (overviewContent.value.length === 0 && retryCount.value < MAX_RETRY_COUNT) {
+        // 避免闪一下重试按钮
+        // 等退避完再真正重试
+        retryCount.value += 1
         isDone.value = false
-        loadOverview(options)
+        setTimeout(() => loadOverview({ ...options, isRetry: true }), RETRY_DELAY_MS)
+      } else {
+        isLoading.value = false
+        if (overviewContent.value.length === 0 && lastError) {
+          Toast.showToast({ text: `${lastError}`, type: ToastType.Error })
+        }
       }
     } else if (executeStep < step) {
       executeStep = step
