@@ -314,8 +314,8 @@ importers:
   apps/slax-reader-extensions:
     dependencies:
       '@slax-lab/readability':
-        specifier: ^0.6.3
-        version: 0.6.3
+        specifier: ^0.6.4
+        version: 0.6.4
       '@slax-reader/selection':
         specifier: workspace:*
         version: link:../../commons/selection
@@ -4821,8 +4821,8 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@slax-lab/readability@0.6.3':
-    resolution: {integrity: sha512-ipVCKokORVH2jWxZMmc/Qe6oLEDu6PxWgJ0IMnJGu3v1+U2ZHplGuV6tp83ssrFfBOdsT7ow7j+cBa3rYVjFUA==}
+  '@slax-lab/readability@0.6.4':
+    resolution: {integrity: sha512-GiEs2FpUmjnISzNnzHb0CU3QRYwyiUEUAHi4PCUv0Wp5DHdWvah3KNazdXQ0Ulpdxbpp6gQjQ8AKAYOtufs7gg==}
     engines: {node: '>=14.0.0'}
 
   '@socket.io/component-emitter@3.1.2':
@@ -16294,7 +16294,7 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@slax-lab/readability@0.6.3': {}
+  '@slax-lab/readability@0.6.4': {}
 
   '@socket.io/component-emitter@3.1.2': {}
 
