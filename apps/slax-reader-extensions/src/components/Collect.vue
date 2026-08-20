@@ -128,11 +128,13 @@ props.browser.runtime.onMessage.addListener(
     switch (action) {
       case MessageTypeAction.ShowCollectPopup: {
         showPopup.value = true
+        break
       }
       case MessageTypeAction.OpenWelcome:
         props.browser.tabs.create({
           url: `${process.env.PUBLIC_BASE_URL}/login?from=extension`
         })
+        break
 
       case MessageTypeAction.QueryHTMLContent:
         sendResponse({
