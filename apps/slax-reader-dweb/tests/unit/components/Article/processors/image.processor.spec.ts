@@ -7,12 +7,12 @@ import type { WebProcessorContext } from '~~/layers/core/app/components/Article/
 import { ArticleStyle } from '~~/layers/core/app/components/Article/processors/types'
 import { describe, expect, it, vi } from 'vitest'
 
-function buildContext(html: string, articleStyle = ArticleStyle.Default): WebProcessorContext {
+function buildContext(html: string, articleStyle = ArticleStyle.Default, url = new URL('https://example.com/')): WebProcessorContext {
   const container = document.createElement('div')
   container.innerHTML = html
   return {
     container,
-    url: new URL('https://example.com/'),
+    url,
     articleStyle,
     callbacks: {
       screenLockUpdate: vi.fn(),
@@ -81,6 +81,7 @@ describe('ImageProcessor', () => {
     setNaturalSize(img, 800, 400)
     img.onload?.(new Event('load'))
     expect(img.getAttribute('style')).toContain('height: auto')
+    expect(img.getAttribute('style')).toContain('padding: 0')
 
     expect(img.onclick).not.toBeNull()
     img.onclick!.call(img, new MouseEvent('click') as unknown as PointerEvent)
@@ -93,6 +94,60 @@ describe('ImageProcessor', () => {
     }
     previewArg.dismissHandler()
     expect(ctx.callbacks.screenLockUpdate).toHaveBeenLastCalledWith(false)
+  })
+
+  it('微信文章大图：保留原始 style，且在缺失 padding/height 时基于原样式补齐（非覆盖）', () => {
+    const ctx = buildContext(
+      '<p><span>x</span><img src="https://mmbiz.qpic.cn/i.png" style="vertical-align: middle;max-width: 100%;width: 100%;box-sizing: border-box;"></p>',
+      ArticleStyle.Default,
+      new URL('https://mp.weixin.qq.com/s/xxx')
+    )
+    const img = ctx.container.querySelector('img') as HTMLImageElement
+    processor.process(ctx)
+    setNaturalSize(img, 800, 400)
+    img.onload?.(new Event('load'))
+    // 原始声明保留
+    expect(img.getAttribute('style')).toContain('vertical-align: middle')
+    expect(img.getAttribute('style')).toContain('max-width: 100%')
+    // 原样式缺 padding/height，补齐上去
+    expect(img.getAttribute('style')).toContain('padding: 0 !important')
+    expect(img.getAttribute('style')).toContain('height: auto !important')
+  })
+
+  it('微信文章大图：原样式已带 height，不覆盖其值，只补齐缺失的 padding', () => {
+    const ctx = buildContext('<p><span>x</span><img src="https://mmbiz.qpic.cn/i.png" style="height: 300px;"></p>', ArticleStyle.Default, new URL('https://mp.weixin.qq.com/s/xxx'))
+    const img = ctx.container.querySelector('img') as HTMLImageElement
+    processor.process(ctx)
+    setNaturalSize(img, 800, 400)
+    img.onload?.(new Event('load'))
+    expect(img.getAttribute('style')).toContain('height: 300px')
+    expect(img.getAttribute('style')).not.toContain('height: auto')
+    expect(img.getAttribute('style')).toContain('padding: 0 !important')
+  })
+
+  it('微信文章大图：原样式已带 padding + height，原样保留不追加', () => {
+    const originalStyle = 'padding: 4px; height: 300px;'
+    const ctx = buildContext(
+      `<p><span>x</span><img src="https://mmbiz.qpic.cn/i.png" style="${originalStyle}"></p>`,
+      ArticleStyle.Default,
+      new URL('https://mp.weixin.qq.com/s/xxx')
+    )
+    const img = ctx.container.querySelector('img') as HTMLImageElement
+    processor.process(ctx)
+    setNaturalSize(img, 800, 400)
+    img.onload?.(new Event('load'))
+    expect(img.getAttribute('style')).toBe(originalStyle)
+  })
+
+  it('非微信文章大图：仍覆盖为 padding/height（默认行为不受白名单影响）', () => {
+    const ctx = buildContext('<p><span>x</span><img src="https://x.com/i.png" style="vertical-align: middle;"></p>')
+    const img = ctx.container.querySelector('img') as HTMLImageElement
+    processor.process(ctx)
+    setNaturalSize(img, 800, 400)
+    img.onload?.(new Event('load'))
+    expect(img.getAttribute('style')).toContain('height: auto')
+    expect(img.getAttribute('style')).toContain('padding: 0')
+    expect(img.getAttribute('style')).not.toContain('vertical-align')
   })
 
   it('img onload PhotoSwipeTopic 风格：跳过尺寸调整分支', () => {
