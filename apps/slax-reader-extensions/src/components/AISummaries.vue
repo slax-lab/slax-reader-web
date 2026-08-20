@@ -159,6 +159,10 @@ const loadingInterval = ref<NodeJS.Timeout>()
 
 const retryCount = ref(0)
 const done = ref(false)
+
+const MAX_EMPTY_RETRY = 3
+const EMPTY_RETRY_DELAY_MS = 1500
+const emptyRetryCount = ref(0)
 const anchorRefs: Record<string, string> = {}
 const anchorInfo: AnchorInfo = {
   useful: [],
@@ -303,10 +307,6 @@ const getSummariesList = async () => {
 }
 
 const querySummaries = async (refresh: boolean, callback: (text: string, done: boolean, error?: Error) => void) => {
-  if (loading.value) {
-    return
-  }
-
   loading.value = true
   const callBack = await request.stream({
     url: RESTMethodPath.BOOKMARK_AI_SUMMARIES,
@@ -328,12 +328,13 @@ const querySummaries = async (refresh: boolean, callback: (text: string, done: b
     callBack((text: string, isDone: boolean) => {
       callback(text, isDone)
 
-      loading.value = markdownText.value.length === 0
-      if (isDone) {
-        done.value = true
-        retryCount.value = Math.max(retryCount.value - 1, 0)
-        updateSummaryInList()
+      if (!isDone) {
+        loading.value = markdownText.value.length === 0
+        return
       }
+
+      retryCount.value = Math.max(retryCount.value - 1, 0)
+      updateSummaryInList()
     })
 }
 
@@ -572,16 +573,29 @@ const refresh = async () => {
 }
 
 const loadSummaries = (options?: { refresh: boolean }) => {
+  if (loading.value) {
+    return
+  }
+  emptyRetryCount.value = 0
+  runSummariesQuery(options)
+}
+
+// 重试跳过重入保护
+// 否则定时器永远进不来
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+let isDisposed = false
+
+const runSummariesQuery = (options?: { refresh?: boolean; isRetry?: boolean }) => {
   let step = 0
   const timeInterval = setInterval(() => {
     step += 1
   }, 2000)
   let executeStep = 0
   let result = ''
-  querySummaries(options?.refresh || false, (text: string, done: boolean) => {
+  querySummaries(options?.refresh || false, (text: string, isDone: boolean) => {
     result += text
-    let needUpdateText = done || executeStep < step
-    if (done) {
+    const needUpdateText = isDone || executeStep < step
+    if (isDone) {
       clearInterval(timeInterval)
     } else if (executeStep < step) {
       executeStep = step
@@ -589,8 +603,24 @@ const loadSummaries = (options?: { refresh: boolean }) => {
     if (needUpdateText) {
       rawMarkdownText.value = extractMarkdownFromText(result) || ''
     }
+
+    if (!isDone || isDisposed) return
+
+    if (markdownText.value.length === 0 && emptyRetryCount.value < MAX_EMPTY_RETRY) {
+      emptyRetryCount.value += 1
+      done.value = false
+      retryTimer = setTimeout(() => runSummariesQuery({ ...options, isRetry: true }), EMPTY_RETRY_DELAY_MS)
+    } else {
+      done.value = true
+      loading.value = false
+    }
   })
 }
+
+onUnmounted(() => {
+  isDisposed = true
+  if (retryTimer) clearTimeout(retryTimer)
+})
 
 const anchorClick = async (link: string) => {
   findTextInWeb(anchorRefs[link])

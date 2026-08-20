@@ -254,6 +254,9 @@ const loadOverview = (options?: { refresh?: boolean }) => {
 
 // 重试要跳过重入保护
 // 否则定时器永远进不来
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+let isDisposed = false
+
 const runOverviewQuery = (options?: { refresh?: boolean; isRetry?: boolean }) => {
   if (!options?.isRetry) {
     retryCount.value = 0
@@ -303,13 +306,14 @@ const runOverviewQuery = (options?: { refresh?: boolean; isRetry?: boolean }) =>
     if (isQueryDone) {
       isDone.value = true
       clearInterval(timeInterval)
+      if (isDisposed) return
 
       if (overviewContent.value.length === 0 && retryCount.value < MAX_RETRY_COUNT) {
         // 避免闪一下重试按钮
         // 等退避完再真正重试
         retryCount.value += 1
         isDone.value = false
-        setTimeout(() => runOverviewQuery({ ...options, isRetry: true }), RETRY_DELAY_MS)
+        retryTimer = setTimeout(() => runOverviewQuery({ ...options, isRetry: true }), RETRY_DELAY_MS)
       } else {
         isLoading.value = false
         if (overviewContent.value.length === 0 && lastError) {
@@ -321,6 +325,11 @@ const runOverviewQuery = (options?: { refresh?: boolean; isRetry?: boolean }) =>
     }
   })
 }
+
+onUnmounted(() => {
+  isDisposed = true
+  if (retryTimer) clearTimeout(retryTimer)
+})
 
 const parseConcatenatedJson = (inputString: string) => {
   const trimmedString = inputString.trim()
