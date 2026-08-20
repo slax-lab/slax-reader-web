@@ -19,6 +19,27 @@ function unwrapImgAnchorsInTweet(container: HTMLElement) {
   })
 }
 
+// 微信公众号文章的图片 style 已由后端保留（含 !important 声明），前端不应再整体覆盖
+const STYLE_PRESERVED_HOSTS = ['mp.weixin.qq.com']
+
+function hasStyleDeclaration(style: string, prop: string): boolean {
+  return new RegExp(`(^|;)\\s*${prop}\\s*:`, 'i').test(style)
+}
+
+// 在已有 style 基础上补齐缺失的 padding/height，而不是整体覆盖
+function ensurePaddingAndHeightStyle(img: HTMLImageElement): void {
+  const currentStyle = img.getAttribute('style') || ''
+  const missing = [!hasStyleDeclaration(currentStyle, 'padding') && 'padding: 0 !important', !hasStyleDeclaration(currentStyle, 'height') && 'height: auto !important'].filter(
+    (declaration): declaration is string => !!declaration
+  )
+
+  if (!missing.length) return
+
+  const trimmedStyle = currentStyle.trim()
+  const separator = trimmedStyle ? (trimmedStyle.endsWith(';') ? ' ' : '; ') : ''
+  img.setAttribute('style', `${trimmedStyle}${separator}${missing.join('; ')};`)
+}
+
 export class ImageProcessor implements DOMProcessor {
   readonly name = 'ImageProcessor'
 
@@ -29,6 +50,7 @@ export class ImageProcessor implements DOMProcessor {
   process(context: WebProcessorContext): void {
     unwrapImgAnchorsInTweet(context.container)
 
+    const preserveStyle = STYLE_PRESERVED_HOSTS.includes(context.url.host)
     const loadingKey = 'slax-image-loading'
     const imgs = Array.from(context.container.querySelectorAll('img')) as HTMLImageElement[]
 
@@ -53,9 +75,10 @@ export class ImageProcessor implements DOMProcessor {
             return
           }
 
-          ;[`padding: 0 !important`, `height: auto !important;`].forEach(style => {
-            img.setAttribute('style', style)
-          })
+          if (!preserveStyle) {
+            img.removeAttribute('style')
+          }
+          ensurePaddingAndHeightStyle(img)
         }
 
         img.onclick = () => {
