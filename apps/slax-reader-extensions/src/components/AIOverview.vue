@@ -245,10 +245,16 @@ const queryOverview = async (
     })
 }
 
-const loadOverview = (options?: { refresh?: boolean; isRetry?: boolean }) => {
+const loadOverview = (options?: { refresh?: boolean }) => {
   if (isLoading.value) {
     return
   }
+  runOverviewQuery(options)
+}
+
+// 重试要跳过重入保护
+// 否则定时器永远进不来
+const runOverviewQuery = (options?: { refresh?: boolean; isRetry?: boolean }) => {
   if (!options?.isRetry) {
     retryCount.value = 0
   }
@@ -303,7 +309,7 @@ const loadOverview = (options?: { refresh?: boolean; isRetry?: boolean }) => {
         // 等退避完再真正重试
         retryCount.value += 1
         isDone.value = false
-        setTimeout(() => loadOverview({ ...options, isRetry: true }), RETRY_DELAY_MS)
+        setTimeout(() => runOverviewQuery({ ...options, isRetry: true }), RETRY_DELAY_MS)
       } else {
         isLoading.value = false
         if (overviewContent.value.length === 0 && lastError) {
