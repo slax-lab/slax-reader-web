@@ -16,6 +16,120 @@ function normalizeWithRanges(raw: string) {
   return { text, ranges }
 }
 
+// 跳过脚本/样式，防止误配水合数据
+const NON_VISIBLE_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'TITLE'])
+
+// 块级标签换行处补一个空格
+const LINE_BREAK_TAGS = new Set([
+  'P',
+  'DIV',
+  'LI',
+  'UL',
+  'OL',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'BLOCKQUOTE',
+  'TABLE',
+  'THEAD',
+  'TBODY',
+  'TFOOT',
+  'TR',
+  'TD',
+  'TH',
+  'SECTION',
+  'ARTICLE',
+  'HEADER',
+  'FOOTER',
+  'NAV',
+  'ASIDE',
+  'MAIN',
+  'PRE',
+  'HR',
+  'DL',
+  'DT',
+  'DD',
+  'FIGURE',
+  'FIGCAPTION',
+  'DETAILS',
+  'SUMMARY',
+  'FORM',
+  'ADDRESS'
+])
+
+// trueLength：内容真实长度
+// 末尾越界时用它兜底
+type SearchableText = { content: string; rawOffsets: number[]; trueLength: number }
+
+/**
+ * 构造带换行分隔符的可搜索文本
+ * 按元素缓存，避免重复遍历
+ */
+function getSearchableText(root: Element, cache: WeakMap<Element, SearchableText>): SearchableText {
+  const cached = cache.get(root)
+  if (cached) {
+    return cached
+  }
+
+  let content = ''
+  const rawOffsets: number[] = []
+  let trueOffset = 0
+
+  function appendSeparator() {
+    if (content.length > 0 && !/\s$/.test(content)) {
+      content += ' '
+      rawOffsets.push(trueOffset)
+    }
+  }
+
+  function walk(node: ChildNode) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.nodeValue || ''
+      for (let i = 0; i < text.length; i++) {
+        content += text[i]
+        rawOffsets.push(trueOffset)
+        trueOffset++
+      }
+      return
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return
+    }
+
+    const element = node as Element
+    if (NON_VISIBLE_TAGS.has(element.tagName)) {
+      trueOffset += (element.textContent || '').length
+      return
+    }
+
+    if (element.tagName === 'BR') {
+      appendSeparator()
+      return
+    }
+
+    // 递归查缓存，未命中才遍历
+    const childResult = getSearchableText(element, cache)
+    const base = trueOffset
+    content += childResult.content
+    childResult.rawOffsets.forEach(offset => rawOffsets.push(base + offset))
+    trueOffset += childResult.trueLength
+
+    if (LINE_BREAK_TAGS.has(element.tagName)) {
+      appendSeparator()
+    }
+  }
+
+  root.childNodes.forEach(walk)
+
+  const result: SearchableText = { content, rawOffsets, trueLength: trueOffset }
+  cache.set(root, result)
+  return result
+}
+
 // 查找最合适的匹配元素
 export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true): { element: HTMLElement; match: { start: number; end: number; errors: number } } | null {
   const normalizedText = text.trim().replace(/\s+/g, ' ')
@@ -30,6 +144,9 @@ export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true
     } | null
   } = { candidate: null }
 
+  // 缓存子树文本，避免重复遍历
+  const searchableTextCache = new WeakMap<Element, SearchableText>()
+
   function traverse(node: Node) {
     if (node.nodeType === Node.ELEMENT_NODE) {
       const element = node as HTMLElement
@@ -39,8 +156,10 @@ export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true
         return
       }
 
-      const content = element.textContent
-      const { text, ranges } = normalizeWithRanges(content || '')
+      const { content, rawOffsets, trueLength } = getSearchableText(element, searchableTextCache)
+      const { text, ranges } = normalizeWithRanges(content)
+      // 换算回真实下标，越界用 trueLength 兜底
+      const toRawOffset = (index: number) => (index < rawOffsets.length ? rawOffsets[index]! : trueLength)
 
       if (content && content.length >= normalizedText.length - maxErrors) {
         const matches = search(text, normalizedText, maxErrors)
@@ -53,8 +172,8 @@ export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true
             bestMatchInElement.errors < result.candidate.errors ||
             (bestMatchInElement.errors === result.candidate.errors && content.length <= result.candidate.length)
           ) {
-            const rawStart = ranges[bestMatchInElement.start]!.start
-            const rawEnd = ranges[bestMatchInElement.end - 1]!.end
+            const rawStart = toRawOffset(ranges[bestMatchInElement.start]!.start)
+            const rawEnd = toRawOffset(ranges[bestMatchInElement.end - 1]!.end)
 
             result.candidate = {
               element,
@@ -77,8 +196,8 @@ export function findBestMatch(text: string, dom?: Element, fuzzy: boolean = true
               errors: 0,
               length: content.length,
               match: {
-                start: exactMatch.index,
-                end: exactMatch.index + exactMatch[0].length,
+                start: toRawOffset(exactMatch.index),
+                end: toRawOffset(exactMatch.index + exactMatch[0].length),
                 errors: 0
               }
             }

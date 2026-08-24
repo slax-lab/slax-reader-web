@@ -203,6 +203,38 @@ export const createStyleWithSearchRules = async (searchRules: string[]) => {
   return styleElement
 }
 
+// 避免选区带上尾部换行
+export const trimRangeEnd = (range: Range, doc: Document = document): Range => {
+  if (range.collapsed) return range
+
+  const trimTextOffset = (text: string, offset: number): number => {
+    while (offset > 0 && /\s/.test(text[offset - 1])) offset--
+    return offset
+  }
+
+  if (range.endContainer.nodeType === Node.TEXT_NODE) {
+    const endNode = range.endContainer as Text
+    const trimmedOffset = trimTextOffset(endNode.data, range.endOffset)
+
+    if (trimmedOffset > 0 || endNode === range.startContainer) {
+      range.setEnd(endNode, trimmedOffset)
+      return range
+    }
+
+    // 退到前一非空白节点
+    // 同样需 trim 尾部
+    const textNodes = getTextNodesInRange(range, doc)
+    for (let i = textNodes.length - 1; i >= 0; i--) {
+      if (textNodes[i] === endNode) continue
+      const prevNode = textNodes[i] as Text
+      range.setEnd(prevNode, trimTextOffset(prevNode.data, prevNode.data.length))
+      return range
+    }
+  }
+
+  return range
+}
+
 export const getTextNodesInRange = (range: Range, doc: Document = document): Node[] => {
   const nodes: Node[] = []
 

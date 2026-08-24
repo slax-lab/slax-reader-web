@@ -1,3 +1,4 @@
+import { trimRangeEnd } from '@commons/utils/dom'
 import { HighlightRange, type HighlightRangeInfo } from '@commons/utils/range'
 import { getRangeTextWithNewlines } from '@commons/utils/string'
 import { RESTMethodPath } from '@commons/types/const'
@@ -559,8 +560,10 @@ export class MarkManager extends Base {
    * @returns 元素信息
    */
   getElementInfo(range: Range): { list: SelectTextInfo[]; approx: HighlightRangeInfo | undefined } {
-    const list = this.getElementsList(range)
-    const approx = this.getApproxText(range)
+    // 避免影响原生选区高亮
+    const trimmedRange = trimRangeEnd(range.cloneRange(), this.document)
+    const list = this.getElementsList(trimmedRange)
+    const approx = this.getApproxText(trimmedRange)
 
     return {
       list,

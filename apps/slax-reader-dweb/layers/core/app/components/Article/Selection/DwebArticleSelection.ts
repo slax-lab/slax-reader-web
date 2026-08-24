@@ -77,10 +77,13 @@ export class DwebArticleSelection extends BaseArticleSelection {
     return range
   }
 
-  // 选区仍有效时，说明是 click-outside 误判，不应清空
+  // 选区仍有效「且」与弹菜单时不同（如 shift+click 扩展），才说明是 click-outside 误判，不应清空；
+  // 若选区与弹菜单时完全一致（例如点击空白处但原生选区未被真正清除），仍需清空，
+  // 否则 lastMenuRange 不会重置，导致重选同一区域时被 isSameSelectionAsLastMenu 误判为重复而不再弹出菜单
   private hasActiveSelection(): boolean {
     const sel = this.getSelection()
-    return !!sel && sel.rangeCount > 0 && !sel.isCollapsed && sel.toString().trim().length > 0
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed || sel.toString().trim().length === 0) return false
+    return !this.isSameSelectionAsLastMenu(sel.getRangeAt(0))
   }
 
   // 选区与上次一致即视为重复，跳过
