@@ -116,9 +116,8 @@ const getScrollParent = (el: HTMLElement): HTMLElement | null => {
   return null
 }
 
-// 固定 360ms 平滑滚动并居中
-// 原生 smooth 太慢会错过高亮
-const smoothScrollToCenter = (el: HTMLElement, duration = 360): Promise<void> => {
+// 固定时长平滑滚动至居中（原生 smooth 太慢易错过高亮），跨段落时传 range 矩形定位
+const smoothScrollToCenter = (el: HTMLElement, rect: DOMRect = el.getBoundingClientRect(), duration = 360): Promise<void> => {
   return new Promise(resolve => {
     const scroller = getScrollParent(el)
     const isWindow = !scroller
@@ -126,7 +125,7 @@ const smoothScrollToCenter = (el: HTMLElement, duration = 360): Promise<void> =>
     const scrollHeight = isWindow ? document.documentElement.scrollHeight : scroller!.scrollHeight
     const startTop = isWindow ? window.scrollY : scroller!.scrollTop
 
-    const elRect = el.getBoundingClientRect()
+    const elRect = rect
     const baseTop = isWindow ? elRect.top + window.scrollY : startTop + (elRect.top - scroller!.getBoundingClientRect().top)
     const maxTop = Math.max(0, scrollHeight - viewportH)
     const targetTop = Math.max(0, Math.min(baseTop - viewportH / 2 + elRect.height / 2, maxTop))
@@ -158,13 +157,62 @@ const smoothScrollToCenter = (el: HTMLElement, duration = 360): Promise<void> =>
   })
 }
 
+// 按文字用 <mark> 包裹高亮，而非整个容器
+const flashRange = (range: Range): HTMLElement[] => {
+  const textNodes: Text[] = []
+  const root = range.commonAncestorContainer
+  if (root.nodeType === Node.TEXT_NODE) {
+    // 未跨元素时本身就是文本节点
+    textNodes.push(root as Text)
+  } else {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: node => (range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT)
+    })
+    let node = walker.nextNode()
+    while (node) {
+      textNodes.push(node as Text)
+      node = walker.nextNode()
+    }
+  }
+
+  const marks: HTMLElement[] = []
+  textNodes.forEach(textNode => {
+    const subRange = document.createRange()
+    subRange.selectNodeContents(textNode)
+    if (textNode === range.startContainer) subRange.setStart(textNode, range.startOffset)
+    if (textNode === range.endContainer) subRange.setEnd(textNode, range.endOffset)
+    if (subRange.collapsed) return
+
+    const mark = document.createElement('mark')
+    mark.className = 'anchor-flash'
+    try {
+      subRange.surroundContents(mark)
+      marks.push(mark)
+    } catch {
+      // 极少数情况会抛错，跳过
+    }
+  })
+
+  return marks
+}
+
+const unflash = (marks: HTMLElement[]) => {
+  marks.forEach(mark => {
+    const parent = mark.parentNode
+    if (!parent) return
+    while (mark.firstChild) parent.insertBefore(mark.firstChild, mark)
+    parent.removeChild(mark)
+    parent.normalize()
+  })
+}
+
 const handleAnchorClick = async (link: string) => {
   const refText = anchorRefs[link]
   if (!refText) return
   // 在正文区查找目标文本
   const contentEl = document.querySelector('.bookmark-detail .detail') || document.body
   const result = findMatchingElement(refText, contentEl)
-  if (result?.element) {
+  if (result?.element && result.range) {
     const el = result.element as HTMLElement
     // 小屏先收起侧栏避免遮挡
     if (isH5.value) {
@@ -173,11 +221,9 @@ const handleAnchorClick = async (link: string) => {
       await nextTick()
     }
     // 先滚到位再高亮，确保可见
-    await smoothScrollToCenter(el)
-    el.classList.remove('anchor-flash')
-    void el.offsetWidth // 强制 reflow 重触发动画
-    el.classList.add('anchor-flash')
-    setTimeout(() => el.classList.remove('anchor-flash'), 3000)
+    await smoothScrollToCenter(el, result.range.getBoundingClientRect())
+    const marks = flashRange(result.range)
+    setTimeout(() => unflash(marks), 3000)
   }
 }
 
@@ -670,13 +716,13 @@ watch(
   }
 }
 
-// anchor-flash：锚点点击后正文元素的高亮动画
-// 用 :global 因为 anchor-flash 类加在正文 DOM 上（组件外部）
-// 静态底色兜底：E-ink 禁动画时仍可见
+// 锚点点击后的高亮动画，:global 因为类加在组件外正文 DOM 上；E-ink 禁动画时靠静态底色兜底
+// 也会加到跨段落临时插入的 <mark> 上，需重置其 UA 默认样式（黑字黄底）以跟随正文颜色
 :global(.anchor-flash) {
   --anchor-flash-bg: color-mix(in srgb, var(--slax-accent) 22%, transparent);
 
   background-color: var(--anchor-flash-bg);
+  color: inherit;
   border-radius: 4px;
   animation: anchor-flash 3s ease-out forwards;
 }

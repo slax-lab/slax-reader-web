@@ -101,15 +101,17 @@ const getStrokeUser = (info: MarkItemInfo) => {
 }
 
 const getQuoteText = (info: MarkItemInfo): string => {
-  // 优先用 approx.exact（服务端存储的精确文本，不依赖 DOM）
-  if (info.approx?.exact) return info.approx.exact
-
   if (!info.source.length) return ''
-  const textItems = info.source.filter(s => s.type === 'text')
-  if (!textItems.length) return ''
+  const hasImage = info.source.some(s => s.type === 'image')
+
+  // 纯文本划线优先用 approx.exact（服务端存储的精确文本，不依赖 DOM）
+  if (!hasImage && info.approx?.exact) return info.approx.exact
+
+  // 含图片时按原始顺序逐项拼接，图片以 emoji 占位（对齐 Chat 侧的引用展示）
   try {
-    return textItems
+    return info.source
       .map(item => {
+        if (item.type === 'image') return '🖼️'
         const el = document.querySelector(item.path)
         if (!el) return ''
         const text = el.textContent || ''
@@ -117,7 +119,7 @@ const getQuoteText = (info: MarkItemInfo): string => {
       })
       .join('')
   } catch {
-    return ''
+    return hasImage ? '🖼️' : ''
   }
 }
 

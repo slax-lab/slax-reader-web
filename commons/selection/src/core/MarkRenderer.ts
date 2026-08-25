@@ -101,8 +101,13 @@ export class MarkRenderer extends Base {
     if (!this.config.commentTailIndicator) return
     marks.forEach(m => m.classList.remove('slax-mk-comment-tail'))
     if (!isComment || marks.length === 0) return
+
+    // 跳过空段，防止误标尾段
+    const hasContent = (m: HTMLElement) => (m.textContent?.trim().length ?? 0) > 0 || Array.from(m.children).some(el => el.tagName === 'IMG')
+    const tail = [...marks].reverse().find(hasContent)
+    if (!tail) return
+
     // 末段是图片则跳过（已有 ···）
-    const tail = marks[marks.length - 1]
     if (Array.from(tail.children).some(el => el.tagName === 'IMG')) return
     tail.classList.add('slax-mk-comment-tail')
   }
@@ -128,20 +133,25 @@ export class MarkRenderer extends Base {
   addMarksInRange(range: Range, baseInfo: DrawMarkBaseInfo) {
     const markHandler = this.addMark.bind(this)
 
+    // 避免生成零宽空 mark
+    const hasContent = (node: Node, start: number, end: number) => end > start && (node.textContent || '').slice(start, end).trim().length > 0
+
     if (range.startContainer === range.endContainer) {
-      markHandler({
-        ...baseInfo,
-        node: range.startContainer,
-        start: range.startOffset,
-        end: range.endOffset
-      })
+      if (hasContent(range.startContainer, range.startOffset, range.endOffset)) {
+        markHandler({
+          ...baseInfo,
+          node: range.startContainer,
+          start: range.startOffset,
+          end: range.endOffset
+        })
+      }
       return
     }
 
     const nodes = getTextNodesInRange(range, this.document)
 
     if (nodes.length > 0) {
-      if (nodes[0] === range.startContainer) {
+      if (nodes[0] === range.startContainer && hasContent(nodes[0], range.startOffset, (nodes[0].textContent || '').length)) {
         markHandler({
           ...baseInfo,
           node: nodes[0],
@@ -159,7 +169,7 @@ export class MarkRenderer extends Base {
         })
       }
 
-      if (nodes.length > 1 && nodes[nodes.length - 1] === range.endContainer) {
+      if (nodes.length > 1 && nodes[nodes.length - 1] === range.endContainer && hasContent(nodes[nodes.length - 1], 0, range.endOffset)) {
         markHandler({
           ...baseInfo,
           node: nodes[nodes.length - 1],
