@@ -12,6 +12,16 @@ const RESERVED_EXACT = new Set([
   // 通用 / 列表
   'has-li',
   'img-caption',
+  // 知乎问答卡片（_custom-classes.scss）
+  'zhihu-qa',
+  'zhihu-qa-answer',
+  'zhihu-qa-user',
+  'zhihu-qa-avatar',
+  'zhihu-qa-user-info',
+  'zhihu-qa-user-name',
+  'zhihu-qa-user-headline',
+  'zhihu-qa-answer-meta',
+  'zhihu-qa-answer-content',
   // 推特卡片（_twitter.scss）
   'tweet',
   'tweet-content',
