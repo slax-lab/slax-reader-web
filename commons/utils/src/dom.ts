@@ -221,8 +221,7 @@ export const trimRangeEnd = (range: Range, doc: Document = document): Range => {
       return range
     }
 
-    // 退到前一非空白节点
-    // 同样需 trim 尾部
+    // 退到前一个非空白节点，同样需 trim 尾部
     const textNodes = getTextNodesInRange(range, doc)
     for (let i = textNodes.length - 1; i >= 0; i--) {
       if (textNodes[i] === endNode) continue

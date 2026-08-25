@@ -60,14 +60,10 @@ const LINE_BREAK_TAGS = new Set([
   'ADDRESS'
 ])
 
-// trueLength：内容真实长度
-// 末尾越界时用它兜底
+// trueLength 为内容真实长度，越界回退用它兜底
 type SearchableText = { content: string; rawOffsets: number[]; trueLength: number }
 
-/**
- * 构造带换行分隔符的可搜索文本
- * 按元素缓存，避免重复遍历
- */
+// 构造带换行分隔符的可搜索文本，按元素缓存避免重复遍历
 function getSearchableText(root: Element, cache: WeakMap<Element, SearchableText>): SearchableText {
   const cached = cache.get(root)
   if (cached) {

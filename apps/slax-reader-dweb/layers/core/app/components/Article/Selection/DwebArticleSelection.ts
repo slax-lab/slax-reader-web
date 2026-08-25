@@ -77,9 +77,7 @@ export class DwebArticleSelection extends BaseArticleSelection {
     return range
   }
 
-  // 选区仍有效「且」与弹菜单时不同（如 shift+click 扩展），才说明是 click-outside 误判，不应清空；
-  // 若选区与弹菜单时完全一致（例如点击空白处但原生选区未被真正清除），仍需清空，
-  // 否则 lastMenuRange 不会重置，导致重选同一区域时被 isSameSelectionAsLastMenu 误判为重复而不再弹出菜单
+  // 选区仍有效且与上次弹菜单时不同才算误清空，否则 lastMenuRange 不重置会导致重选同一区域不再弹菜单
   private hasActiveSelection(): boolean {
     const sel = this.getSelection()
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed || sel.toString().trim().length === 0) return false

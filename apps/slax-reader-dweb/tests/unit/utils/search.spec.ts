@@ -2,8 +2,7 @@ import { findBestMatch } from '@commons/utils/search'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-// happy-dom 无真实布局，
-// 打桩 offset 值模拟可见
+// happy-dom 无真实布局，打桩 offset 值模拟可见
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 1 })
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 1 })

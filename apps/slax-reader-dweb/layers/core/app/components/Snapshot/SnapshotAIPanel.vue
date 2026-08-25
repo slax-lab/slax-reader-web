@@ -116,9 +116,7 @@ const getScrollParent = (el: HTMLElement): HTMLElement | null => {
   return null
 }
 
-// 固定 360ms 平滑滚动并居中
-// 原生 smooth 太慢会错过高亮
-// 跨段落时传 range 的矩形定位
+// 固定时长平滑滚动至居中（原生 smooth 太慢易错过高亮），跨段落时传 range 矩形定位
 const smoothScrollToCenter = (el: HTMLElement, rect: DOMRect = el.getBoundingClientRect(), duration = 360): Promise<void> => {
   return new Promise(resolve => {
     const scroller = getScrollParent(el)
@@ -159,8 +157,7 @@ const smoothScrollToCenter = (el: HTMLElement, rect: DOMRect = el.getBoundingCli
   })
 }
 
-// 按文字包 <mark> 高亮
-// 不直接高亮整个容器
+// 按文字用 <mark> 包裹高亮，而非整个容器
 const flashRange = (range: Range): HTMLElement[] => {
   const textNodes: Text[] = []
   const root = range.commonAncestorContainer
@@ -719,11 +716,8 @@ watch(
   }
 }
 
-// anchor-flash：锚点点击后正文元素的高亮动画
-// 用 :global 因为 anchor-flash 类加在正文 DOM 上（组件外部）
-// 静态底色兜底：E-ink 禁动画时仍可见
-// 现在也会加到临时插入的 <mark> 上（跨段落锚点按文本片段包裹高亮），
-// 需要显式重置 <mark> 的 UA 默认样式（黑字黄底），保持跟随正文颜色
+// 锚点点击后的高亮动画，:global 因为类加在组件外正文 DOM 上；E-ink 禁动画时靠静态底色兜底
+// 也会加到跨段落临时插入的 <mark> 上，需重置其 UA 默认样式（黑字黄底）以跟随正文颜色
 :global(.anchor-flash) {
   --anchor-flash-bg: color-mix(in srgb, var(--slax-accent) 22%, transparent);
 
