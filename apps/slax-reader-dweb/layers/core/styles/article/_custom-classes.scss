@@ -7,4 +7,68 @@
   p:has(> .oc-preline-flag) {
     --style: 'whitespace-pre-line';
   }
+
+  .zhihu-qa-answer {
+    margin-top: 28px;
+    padding: 20px;
+    border: 1px solid var(--slax-border);
+    border-radius: var(--slax-radius-sm);
+    background: var(--slax-surface-solid);
+    box-shadow: var(--slax-shadow-sm);
+  }
+
+  .zhihu-qa-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .zhihu-qa-avatar {
+    display: block;
+    width: 40px !important;
+    min-width: 40px;
+    max-width: 40px !important;
+    height: 40px !important;
+    flex: 0 0 40px;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    clip-path: circle(50%);
+    object-fit: cover;
+  }
+
+  .zhihu-qa-user-info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .zhihu-qa-user-name {
+    color: var(--slax-text);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .zhihu-qa-user-headline {
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--slax-text-muted);
+    font-size: 13px;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .zhihu-qa-answer-meta {
+    margin-top: 12px !important;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--slax-border);
+    color: var(--slax-text-light);
+    font-size: 13px;
+  }
+
+  .zhihu-qa-answer-content > :first-child {
+    margin-top: 0 !important;
+  }
 }
