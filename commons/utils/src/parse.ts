@@ -3,7 +3,6 @@ import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import MdCjkFriendly from 'markdown-it-cjk-friendly'
-import MdLinkAttributes from 'markdown-it-link-attributes'
 
 const highlightBlock = (str: string, lang?: string) => {
   return `<pre class="code-block-wrapper"><div class="code-block-header"><span class="code-block-header__lang">${lang}</span><span class="code-block-header__copy"></span></div><code class="hljs code-block-body ${lang}">${str}</code></pre>`
@@ -47,12 +46,21 @@ const mdi = new MarkdownIt({
   }
 })
 
+const defaultLinkOpen = mdi.renderer.rules.link_open ?? ((tokens, index, options, _env, self) => self.renderToken(tokens, index, options))
+mdi.renderer.rules.link_open = (tokens, index, options, env, self) => {
+  const token = tokens[index]
+  if (!token.attrGet('target')) token.attrSet('target', '_blank')
+  if (!token.attrGet('rel')) token.attrSet('rel', 'noopener')
+  return defaultLinkOpen(tokens, index, options, env, self)
+}
+
+// The plugin runtime supports Markdown It 15, but its published declarations
+// still reference the separate Markdown It 14 types package.
+const mdKatexPlugin = MdKatex as unknown as (md: typeof mdi) => void
+
 // 修复 CJK 加粗：** 紧邻全角标点
 // 时无法闭合，导致加粗失效
-mdi
-  .use(MdCjkFriendly)
-  .use(MdLinkAttributes, { attrs: { target: '_blank', rel: 'noopener' } })
-  .use(MdKatex)
+mdi.use(MdCjkFriendly).use(mdKatexPlugin)
 
 // 转换markdown内容
 export const parseMarkdownText = (text: string) => {
