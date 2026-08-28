@@ -1,7 +1,7 @@
 import projects from '../configs/cmd'
 
 import { bold, cyan, magentaBright, red } from 'colorette'
-import { execaCommand } from 'execa'
+import { execa } from 'execa'
 import * as readline from 'node:readline'
 
 function startProject(prd: string) {
@@ -10,9 +10,8 @@ function startProject(prd: string) {
     throw new Error(`>>> 未找到项目：${bold(red(prd))}`)
   }
   console.log(`>>> 当前项目：${bold(magentaBright(project.enName))}`)
-  const cmd = `pnpm --F @apps/${project.enName} run dev `
   const envVars = { selectedProject: project.enName, product: prd }
-  execaCommand(cmd, { stdio: 'inherit', env: envVars })
+  execa('pnpm', ['--F', `@apps/${project.enName}`, 'run', 'dev'], { stdio: 'inherit', env: envVars })
 }
 
 // 支持命令行参数：pnpm dev dweb / pnpm dev extensions / pnpm dev slax-reader-dweb
