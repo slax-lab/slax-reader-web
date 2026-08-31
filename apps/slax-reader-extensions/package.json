@@ -21,23 +21,25 @@
   "dependencies": {
     "@slax-lab/readability": "^0.6.4",
     "@slax-reader/selection": "workspace:*",
-    "@wxt-dev/analytics": "^0.5.4",
-    "@wxt-dev/i18n": "^0.2.5",
-    "@wxt-dev/storage": "^1.2.8",
-    "md5": "^2.3.0"
+    "@wxt-dev/analytics": "0.5.6",
+    "@wxt-dev/i18n": "0.2.7",
+    "@wxt-dev/storage": "1.2.9",
+    "md5": "^2.3.0",
+    "vue": "^3.5.42"
   },
   "devDependencies": {
-    "@types/chrome": "^0.2.7",
+    "@types/chrome": "0.2.7",
     "@types/md5": "^2.3.6",
+    "@vitejs/plugin-vue": "6.0.8",
     "@wxt-dev/module-vue": "^1.0.3",
     "@wxt-dev/unocss": "^1.0.1",
-    "esbuild": "^0.28.2",
-    "sass": "^1.103.1",
-    "tsx": "^4.23.12",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.13",
-    "vue-tsc": "^3.3.1",
-    "wxt": "^0.20.26"
+    "esbuild": "0.28.2",
+    "sass": "1.103.1",
+    "tsx": "4.23.12",
+    "vite": "8.2.2",
+    "vue-tsc": "3.3.11",
+    "web-ext": "10.6.0",
+    "wxt": "0.21.4"
   },
   "keywords": [],
   "author": "",
