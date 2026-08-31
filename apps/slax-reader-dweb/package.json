@@ -59,6 +59,7 @@
     "@rollup/plugin-replace": "^6.0.3",
     "@testing-library/vue": "^8.1.0",
     "@types/katex": "^0.16.8",
+    "@unocss/cli": "66.8.1",
     "@unocss/nuxt": "66.8.1",
     "@vitest/coverage-v8": "4.1.11",
     "@vue/test-utils": "2.5.0",
