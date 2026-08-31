@@ -310,15 +310,18 @@ const clickDelete = async (event: MouseEvent) => {
   // LF：软删本地，列表自动移除
   if (lfActions) {
     await lfActions.setTrashed(lfKey(), true)
+    Toast.showToast({ text: t('common.tips.trash_success'), type: ToastType.Success })
     return
   }
 
-  request().post<EmptyBookmarkResp>({
+  await request().post<EmptyBookmarkResp>({
     url: RESTMethodPath.TRASH_BOOKMARK,
     body: {
       bookmark_id: id
     }
   })
+
+  Toast.showToast({ text: t('common.tips.trash_success'), type: ToastType.Success })
 
   removeCell(true)
 }
@@ -523,11 +526,8 @@ const starBookmark = async (isStar: boolean) => {
 
 // 标题按钮
 .article-title {
-  // 最多两行，超出省略号
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  // 单行标题，超出省略号
+  display: block;
   max-width: 100%;
   text-align: left;
   background: transparent;
@@ -543,6 +543,7 @@ const starBookmark = async (isStar: boolean) => {
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   // va:bottom 会裁中文字顶，不用
   transition: color 0.12s;
   position: relative;

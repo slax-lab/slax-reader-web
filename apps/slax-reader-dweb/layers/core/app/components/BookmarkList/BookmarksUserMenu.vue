@@ -1,8 +1,8 @@
 <template>
   <!-- 头像 + popover 菜单，复用 useExclusivePopover 互斥逻辑 -->
-  <div class="user-menu-wrap">
+  <div class="user-menu-wrap" @mouseenter="openOnHover" @mouseleave="closeOnHover">
     <!-- 头像按钮 -->
-    <button class="user-avatar" :class="{ active: isOpen }" @click.stop="toggle" type="button">
+    <button class="user-avatar" :class="{ active: isOpen }" @click.stop="openOnHover" type="button">
       <img :src="userStore.userInfo?.picture || defaultAvatarUrl" alt="" />
     </button>
 
@@ -51,12 +51,22 @@ const emit = defineEmits<{
   feedback: []
 }>()
 
-const { isOpen, toggle, close } = useExclusivePopover()
+const { isOpen, close } = useExclusivePopover()
 const userStore = useUserStore()
 const auth = useAuth()
 
 // 默认头像 URL（与 UserOperateIcon 保持一致）
 const defaultAvatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).href
+let closeTimer: ReturnType<typeof setTimeout> | undefined
+
+const openOnHover = () => {
+  if (closeTimer) clearTimeout(closeTimer)
+  isOpen.value = true
+}
+
+const closeOnHover = () => {
+  closeTimer = setTimeout(() => close(), 120)
+}
 
 // 跳转个人信息页
 const goProfile = () => {

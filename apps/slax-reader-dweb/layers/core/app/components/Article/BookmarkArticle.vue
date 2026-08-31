@@ -9,6 +9,7 @@
         <time class="article-date">{{ dateString }}</time>
       </div>
       <BookmarkTags
+        v-if="effAllowTagged"
         class="article-tags"
         :bookmarkId="bookmarkId || 0"
         :bookmarkUid="bookmarkUid"
