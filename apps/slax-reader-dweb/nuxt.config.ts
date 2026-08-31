@@ -240,29 +240,6 @@ export default defineNuxtConfig({
           type: 'image/png'
         }
       ],
-      screenshots: [
-        {
-          src: '/screenshots/bookmark.png',
-          sizes: '1280x800',
-          type: 'image/png',
-          form_factor: 'wide',
-          label: 'Slax Reader Bookmark'
-        },
-        {
-          src: '/screenshots/ai-summary.png',
-          sizes: '1280x800',
-          type: 'image/png',
-          form_factor: 'wide',
-          label: 'Slax Reader AI Summary'
-        },
-        {
-          src: '/screenshots/chatbot.png',
-          sizes: '1280x800',
-          type: 'image/png',
-          form_factor: 'wide',
-          label: 'Slax Reader Chatbot'
-        }
-      ]
     },
     scope: '/',
     registerWebManifestInRouteRules: true,
