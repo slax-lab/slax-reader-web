@@ -21,9 +21,11 @@
 
       <div class="tag-add-wrap" v-if="!props.readonly">
         <button ref="add" class="tag-add" :title="$t('common.operate.add')" @click="addingTagClick">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <line x1="5" y1="1" x2="5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            <line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <g transform="translate(4, 4)" fill="currentColor">
+              <polygon points="5.25 0 6.75 0 6.75 12 5.25 12" />
+              <polygon transform="translate(6, 6) rotate(-90) translate(-6, -6)" points="5.25 0 6.75 0 6.75 12 5.25 12" />
+            </g>
           </svg>
         </button>
         <!-- v-if 而非 v-show：整子树挂卸 -->

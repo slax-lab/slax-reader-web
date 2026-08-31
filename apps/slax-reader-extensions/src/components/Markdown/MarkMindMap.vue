@@ -16,9 +16,7 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { base64toBlob } from '@commons/utils/data'
 
 import dom2Img, { AutoFitByRatio } from 'easy-dom2img'
-import type Renderer from 'markdown-it/lib/renderer.mjs'
-import Token from 'markdown-it/lib/token.mjs'
-import { type INode, wrapFunction } from 'markmap-common'
+import { type INode } from 'markmap-common'
 import { builtInPlugins, Transformer } from 'markmap-lib'
 import { type IMarkmapOptions, Markmap } from 'markmap-view'
 
@@ -42,23 +40,11 @@ const transformer = new Transformer([
     name: 'target-blank',
     transform(transformHooks) {
       transformHooks.parser.tap(md => {
-        md.renderer.rules.link_open = (tokens: Token[], idx: number) => {
-          const token = tokens[idx]
-          return `<a href="${token.attrGet('href')}">`
+        md.renderer.rules.link_open = (tokens, idx) => {
+          const href = md.utils.escapeHtml(tokens[idx].attrGet('href') ?? '')
+          return `<a data-link="${href}" class="slax_link">`
         }
-
-        md.renderer.rules.link_close = () => {
-          return '</a>'
-        }
-
-        md.renderer.rules.link_open = wrapFunction<[tokens: Token[], idx: number, options: Record<string, any>, env: any, self: Renderer], string>(
-          md.renderer.rules.link_open,
-          (render, tokens, idx, options: any, ...args) => {
-            const anchorOpenTag = render(tokens, idx, { ...options, linkTarget: '_self' }, ...args)
-            const anchorOpenTagWithData = anchorOpenTag.replace(`href="${tokens[idx].attrGet('href')}"`, `data-link="${tokens[idx].attrGet('href')}"`)
-            return `${anchorOpenTagWithData.substring(0, anchorOpenTagWithData.length - 1)} class="slax_link" >`
-          }
-        )
+        md.renderer.rules.link_close = () => '</a>'
       })
 
       return {}

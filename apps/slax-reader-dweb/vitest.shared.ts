@@ -63,8 +63,7 @@ export const sharedExcludeBase = [
  * ## 第三类：静态营销页 / OAuth 入口（phase6 一并 e2e 冒烟）
  *
  * - pages/auth.vue / login.vue：OAuth 回调与入口
- * - pages/contact.vue / download.vue / guide.vue / user.vue：静态营销 / 用户设置页
- * - pages/index/[lang].vue：首页 lang 路由
+ * - pages/guide.vue / user.vue：静态营销 / 用户设置页
  * - pages/s/[id].vue：share 详情页（与 w/sw 同档，含 425 行 iframe + SW 链路）
  * - pages/[...slug].vue：404 fallback
  *
@@ -110,13 +109,10 @@ export const phase4ExcludeAdditions = [
   // 注意：vitest exclude 用 picomatch，方括号是字符类元字符，需要用 glob 通配（**/path/?...）规避
   'layers/core/app/pages/auth.vue',
   'layers/core/app/pages/login.vue',
-  'layers/core/app/pages/contact.vue',
-  'layers/core/app/pages/download.vue',
   'layers/core/app/pages/guide.vue',
   'layers/core/app/pages/user.vue',
-  // [lang].vue / [id].vue / [...slug].vue：方括号在 picomatch 是字符类，escape 不可移植；
-  // 改用通配模式 *lang*.vue / s/*.vue / *slug*.vue 让 glob 匹配文件名内的方括号
-  'layers/core/app/pages/index/*lang*.vue',
+  // [id].vue / [...slug].vue：方括号在 picomatch 是字符类，escape 不可移植；
+  // 改用通配模式 s/*.vue / *slug*.vue 让 glob 匹配文件名内的方括号
   'layers/core/app/pages/s/*.vue',
   'layers/core/app/pages/*slug*.vue'
 ]

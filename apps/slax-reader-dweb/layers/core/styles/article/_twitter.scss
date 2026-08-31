@@ -71,9 +71,8 @@
   }
 
   .tweet-media {
-    --style: mt-28px;
     img {
-      --style: max-w-full rounded-8px mt-10px;
+      --style: 'first:(!mt-0) last:(!mb-0) not max-w-full rounded-8px';
     }
   }
 

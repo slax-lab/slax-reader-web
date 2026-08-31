@@ -284,7 +284,7 @@ const localeSelect = (index: number) => {
 .content {
   width: 100%;
   max-width: var(--slax-content-w);
-  padding: calc(var(--slax-header-height) + 32px) 24px 88px;
+  padding: calc(var(--slax-header-height) + 16px) 24px 88px;
 
   @media (max-width: 768px) {
     padding-left: 16px;
@@ -299,11 +299,6 @@ const localeSelect = (index: number) => {
   border-radius: var(--slax-radius);
   box-shadow: inset 0 1px 0 var(--slax-inset-hi);
   padding: 24px;
-  margin-top: 16px;
-
-  &:first-child {
-    margin-top: 0;
-  }
 }
 
 .detail {

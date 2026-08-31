@@ -634,12 +634,13 @@ watch(
     }
   }
 
-  // 子条目间距 4px
+  // 嵌套列表中的每个条目与上一个条目保持 10px 间距，
+  // 与顶层列表项一致，避免层级加深后间距被覆盖。
   :deep(.markdown-content ul ul li:not(:first-child)),
   :deep(.markdown-content ul ol li:not(:first-child)),
   :deep(.markdown-content ol ul li:not(:first-child)),
   :deep(.markdown-content ol ol li:not(:first-child)) {
-    margin-top: 4px !important;
+    margin-top: 10px !important;
   }
 
   // 覆盖默认的 16px
