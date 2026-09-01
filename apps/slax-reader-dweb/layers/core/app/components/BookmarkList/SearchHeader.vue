@@ -29,9 +29,19 @@
     <ListEndHint v-if="!isSearching && searchResults.length > 0" class="search-end" :text="$t('page.bookmarks_index.no_more')" />
 
     <!-- 空态 -->
-    <div class="search-empty" v-if="!isSearching && searchResults.length === 0 && defaultSearchText">
-      {{ $t('component.search_header.empty') }}
-    </div>
+    <BookmarksEmptyView
+      v-if="!isSearching && searchResults.length === 0 && defaultSearchText"
+      class="search-empty"
+      :title="$t('component.search_header.empty')"
+      :desc="$t('component.search_header.empty_desc')"
+    >
+      <template #icon>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-4-4" />
+        </svg>
+      </template>
+    </BookmarksEmptyView>
 
     <!-- 加载中 -->
     <div class="search-loading" v-if="isSearching">
@@ -41,6 +51,7 @@
 </template>
 
 <script lang="ts" setup>
+import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
 import ListEndHint from '#layers/core/app/components/ListEndHint.vue'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -229,13 +240,6 @@ const search = async (text: string) => {
 
 .search-end {
   margin-top: 32px;
-}
-
-.search-empty {
-  padding: 48px 0;
-  text-align: center;
-  color: var(--slax-text-light);
-  font-size: 14px;
 }
 
 .search-loading {

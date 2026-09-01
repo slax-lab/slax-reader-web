@@ -171,6 +171,10 @@ const emit = defineEmits<{
     margin-left: 0;
     color: var(--slax-text-light);
     font-weight: 300;
+
+    &:hover {
+      color: var(--slax-accent);
+    }
   }
 
   // 星标：缩小 icon，绝对定位并与标题垂直居中
@@ -240,6 +244,10 @@ const emit = defineEmits<{
       color: var(--slax-text-light);
       padding: 0 0 0 8px;
       max-width: 54vw;
+
+      &:hover {
+        color: var(--slax-accent);
+      }
     }
 
     .article-actions {

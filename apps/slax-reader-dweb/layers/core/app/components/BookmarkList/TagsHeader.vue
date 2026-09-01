@@ -51,6 +51,20 @@
           </div>
         </div>
       </div>
+
+      <BookmarksEmptyView
+        v-if="!isTagLoading && tags.length === 0"
+        class="tags-empty"
+        :title="$t('page.bookmarks_index.empty_topics_title')"
+        :desc="$t('page.bookmarks_index.empty_topics_desc')"
+      >
+        <template #icon>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41 11 3.83V3H4v7h.83l9.58 9.59a2 2 0 0 0 2.82 0l3.36-3.36a2 2 0 0 0 0-2.82Z" />
+            <circle cx="7.5" cy="6.5" r="1" />
+          </svg>
+        </template>
+      </BookmarksEmptyView>
     </template>
 
     <!-- 已选标签：显示返回 + 标签名 -->
@@ -66,6 +80,8 @@
 </template>
 
 <script lang="ts" setup>
+import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
+
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnKeyStroke } from '@vueuse/components'
