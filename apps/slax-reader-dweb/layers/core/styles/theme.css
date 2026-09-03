@@ -28,6 +28,12 @@ body {
   -webkit-backdrop-filter: none !important;
 }
 
+/* E-ink source hover */
+html[data-slax-theme='eink'] .article-card .article-source:hover {
+  color: var(--slax-text) !important;
+  background-color: #b8b8b8 !important;
+}
+
 /* E-ink 关闭 Nuxt View Transition（::view-transition-* 挂在 transition root，
    不被普通 * 选择器覆盖，必须显式禁用） */
 :root[data-slax-theme='eink']::view-transition-old(*),

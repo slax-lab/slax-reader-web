@@ -29,8 +29,6 @@ export class BrowserService {
 
   static registerContextMenus(): void {
     const menus: Browser.contextMenus.CreateProperties[] = [
-      { id: 'setting', title: i18n.t('extended_settings'), contexts: ['action'] },
-      { id: 'shortcutKeySetting', title: i18n.t('shortcut_settings'), contexts: ['action'] },
       { id: 'collectList', title: i18n.t('slax_collection_list'), contexts: ['action'] },
       { id: 'collect', title: i18n.t('collect_page'), contexts: ['page'] }
     ]

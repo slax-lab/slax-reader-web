@@ -69,6 +69,8 @@ describe('components/BookmarkList/BookmarkCell', () => {
       expect(wrapper.find('.article-title').text()).toBe(baseBookmarkItem.title)
       expect(wrapper.find('.article-source').text()).toBe('Example Site')
       expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-card-link').attributes('href')).toBe('/bookmarks/1000001')
+      expect(wrapper.find('.article-title').attributes('href')).toBe('/bookmarks/1000001')
       // 操作按钮：编辑 + 归档 + 删除 = 3 个
       expect(wrapper.findAll('.article-action').length).toBe(3)
     })

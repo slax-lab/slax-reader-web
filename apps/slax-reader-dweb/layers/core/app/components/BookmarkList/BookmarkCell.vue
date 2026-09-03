@@ -1,15 +1,24 @@
 <template>
   <!-- 卡片条目：点击整卡跳快照 -->
-  <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }" @click="clickCard">
+  <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }">
+    <a class="article-card-link" :href="articleHref" target="_blank" rel="noopener noreferrer" :aria-label="bookmark.alias_title || bookmark.title" @click.stop.prevent="clickCard"></a>
     <!-- 序号 -->
     <span class="article-num">{{ index !== undefined ? index + 1 : '' }}</span>
 
     <div class="article-body">
-      <!-- 标题区：正常态为 button，编辑态为 input -->
+      <!-- 标题区 -->
       <div class="title-wrap">
-        <button v-if="!isEditingTitle" class="article-title" :class="{ stroking: isStroking }" @click.stop="clickTitle">
+        <a
+          v-if="!isEditingTitle"
+          class="article-title"
+          :class="{ stroking: isStroking }"
+          :href="articleHref"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click.stop.prevent="clickTitle"
+        >
           {{ truncateTitle(bookmark.alias_title || bookmark.title, 48) || bookmark.target_url }}
-        </button>
+        </a>
         <input
           ref="input"
           type="text"
@@ -32,7 +41,7 @@
       <!-- meta 行：日期 + 来源 + hover 操作区 -->
       <div class="article-meta">
         <span class="article-date">{{ dateString }}</span>
-        <span class="article-source" @click.stop="clickHref">{{ getSiteName() }}</span>
+        <a class="article-source" :href="articleHref" target="_blank" rel="noopener noreferrer" @click.stop.prevent="clickHref">{{ getSiteName() }}</a>
 
         <!-- hover 操作区 -->
         <div class="article-actions">
@@ -213,6 +222,18 @@ const getSiteName = () => {
   const siteName = bookmark.value.site_name || bookmark.value.host_url
   return bookmark.value.type === 'shortcut' ? t('component.bookmark_cell.shortcut') + ' ' + siteName : siteName
 }
+
+const articleHref = computed(() => {
+  if (props.isSubscribe) {
+    const uuid = bookmark.value.bookmark_user_uuid
+    if (uuid) return `/b/${uuid}`
+    if (props.collectionCode) return `/c/${props.collectionCode}/${bookmark.value.id}`
+  }
+
+  return bookmark.value.status === 'success' && bookmark.value.type !== 'shortcut'
+    ? useSlaxRoutes().snapshotRoute(bookmark.value) || urlHttpString(bookmark.value.target_url)
+    : urlHttpString(bookmark.value.target_url)
+})
 
 const archiveBookmark = async (archive: boolean) => {
   if (isRequesting.value) {
@@ -472,6 +493,8 @@ const starBookmark = async (isStar: boolean) => {
   max-height: 200px;
   margin-bottom: 8px;
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 
   // 编辑态：恢复默认光标
   &.editing {
@@ -483,6 +506,10 @@ const starBookmark = async (isStar: boolean) => {
       var(--slax-shadow-warm),
       inset 0 1px 0 var(--slax-inset-hi, rgba(255, 255, 255, 0.06));
     transform: translateY(-1px);
+
+    .article-title {
+      color: var(--slax-accent);
+    }
   }
 
   // 删除动画
@@ -496,6 +523,13 @@ const starBookmark = async (isStar: boolean) => {
   }
 }
 
+.article-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+
 // 序号：衬线字体，右对齐，固定宽度
 // 不设 line-height 防与标题错位
 .article-num {
@@ -507,16 +541,19 @@ const starBookmark = async (isStar: boolean) => {
   text-align: right;
   flex-shrink: 0;
   user-select: none;
+  pointer-events: none;
 }
 
 // 内容区：flex-1，右侧留出星标空间
 .article-body {
+  position: relative;
+  z-index: 1;
   flex: 1;
   min-width: 0;
   padding-right: 24px;
+  pointer-events: none;
 }
 
-// 标题外层容器：控制截断，让 button 宽度由文字决定
 .title-wrap {
   display: block;
   width: 100%;
@@ -524,7 +561,6 @@ const starBookmark = async (isStar: boolean) => {
   margin-bottom: 8px;
 }
 
-// 标题按钮
 .article-title {
   // 单行标题，超出省略号
   display: block;
@@ -533,6 +569,7 @@ const starBookmark = async (isStar: boolean) => {
   background: transparent;
   border: none;
   padding: 0;
+  text-decoration: none;
   font-family: var(--slax-font-serif);
   font-size: 17px;
   font-weight: 400;
@@ -547,6 +584,7 @@ const starBookmark = async (isStar: boolean) => {
   // va:bottom 会裁中文字顶，不用
   transition: color 0.12s;
   position: relative;
+  pointer-events: auto;
 
   &:hover {
     color: var(--slax-accent);
@@ -585,6 +623,7 @@ const starBookmark = async (isStar: boolean) => {
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
+  pointer-events: auto;
 
   &:focus {
     border-color: var(--slax-accent);
@@ -628,6 +667,8 @@ const starBookmark = async (isStar: boolean) => {
   cursor: pointer;
   flex-shrink: 1;
   transition: all 0.12s;
+  text-decoration: none;
+  pointer-events: auto;
 
   &:hover {
     color: var(--slax-accent);
@@ -643,6 +684,7 @@ const starBookmark = async (isStar: boolean) => {
   opacity: 0;
   transition: opacity 0.15s;
   flex-shrink: 0;
+  pointer-events: auto;
 
   .article-card:hover & {
     opacity: 1;
@@ -677,6 +719,7 @@ const starBookmark = async (isStar: boolean) => {
 // 星标按钮：绝对定位右侧
 .article-star {
   position: absolute;
+  z-index: 1;
   right: 0;
   top: 16px;
   height: 28px;
