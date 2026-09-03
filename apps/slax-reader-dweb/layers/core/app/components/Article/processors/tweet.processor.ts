@@ -1,4 +1,4 @@
-import { TweetFooterInfoElement, TweetUserInfoElement } from '../CEComponents'
+import { TweetFooterInfoElement } from '../CEComponents'
 import type { DOMProcessor, WebProcessorContext } from './types'
 import { ArticleStyle } from './types'
 
@@ -12,20 +12,7 @@ export class TweetProcessor implements DOMProcessor {
   process(context: WebProcessorContext): void {
     const tweetHeader = context.container.querySelector('tweet-header')
     if (tweetHeader && tweetHeader instanceof HTMLElement) {
-      const tweetHeaderElement = new TweetUserInfoElement({
-        href: tweetHeader.dataset['href'],
-        avatar: tweetHeader.dataset['avatar'],
-        name: tweetHeader.dataset['name'],
-        description: tweetHeader.dataset['description'],
-        screenName: tweetHeader.dataset['screenName'],
-        location: tweetHeader.dataset['location'],
-        website: tweetHeader.dataset['website'],
-        createdAt: tweetHeader.dataset['createdAt'],
-        followers: parseInt(tweetHeader.dataset['followers'] || '0'),
-        followings: parseInt(tweetHeader.dataset['followings'] || '0')
-      })
-
-      tweetHeader.parentElement?.replaceChild(tweetHeaderElement, tweetHeader)
+      tweetHeader.remove()
     }
 
     const tweetFooter = context.container.querySelector('tweet-footer')
