@@ -64,15 +64,18 @@ const authorName = computed(() => {
   gap: 5px;
   max-width: min(100%, 520px);
   width: fit-content;
-  padding: 3px 0;
-  font-size: 13px;
+  padding: 3px 10px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--slax-text-muted);
+  background: var(--slax-accent-bg);
+  border-radius: 20px;
   text-decoration: none;
   transition: all 0.15s;
 
   &:hover {
     color: var(--slax-accent);
+    background: color-mix(in srgb, var(--slax-accent) 10%, transparent);
   }
 
   .article-source-label {
@@ -93,10 +96,6 @@ const authorName = computed(() => {
 
   .article-source-separator {
     flex-shrink: 0;
-    color: var(--slax-text-muted);
-  }
-
-  .article-source-author {
     color: var(--slax-text-muted);
   }
 
