@@ -519,17 +519,23 @@ const onKeyDown = (e: KeyboardEvent) => {
     return
   }
 
-  const commonPreLineKey = e.ctrlKey || e.shiftKey
-  if ((commonPreLineKey && !isMac) || ((commonPreLineKey || e.metaKey) && isMac)) {
+  // Shift+Enter 交给浏览器原生处理
+  if (e.shiftKey) {
+    return
+  }
+
+  const preLineKey = isMac ? e.metaKey : e.ctrlKey
+  if (preLineKey) {
     if (!e.target || !(e.target instanceof HTMLTextAreaElement)) {
       return
     }
 
+    // Ctrl/Cmd+Enter 手动插入换行
     const textareaTarget = e.target as HTMLTextAreaElement
     const cursorPosition = textareaTarget.selectionStart
     const textBeforeCursor = inputText.value.slice(0, cursorPosition)
     const textAfterCursor = inputText.value.slice(cursorPosition)
-    !e.shiftKey && (inputText.value = textBeforeCursor + '\n' + textAfterCursor)
+    inputText.value = textBeforeCursor + '\n' + textAfterCursor
 
     nextTick(() => {
       textareaTarget.selectionStart = cursorPosition + 1
