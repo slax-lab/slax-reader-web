@@ -1,7 +1,14 @@
 <template>
   <!-- 卡片条目：点击整卡跳快照 -->
   <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }">
-    <a class="article-card-link" :href="articleHref" target="_blank" rel="noopener noreferrer" :aria-label="bookmark.alias_title || bookmark.title" @click.stop.prevent="clickCard"></a>
+    <a
+      class="article-card-link"
+      :href="articleHref"
+      target="_blank"
+      rel="noopener noreferrer"
+      :aria-label="bookmark.alias_title || bookmark.title"
+      @click.stop.prevent="clickCard"
+    ></a>
     <!-- 序号 -->
     <span class="article-num">{{ index !== undefined ? index + 1 : '' }}</span>
 
@@ -41,12 +48,18 @@
       <!-- meta 行：日期 + 来源 + hover 操作区 -->
       <div class="article-meta">
         <span class="article-date">{{ dateString }}</span>
-        <a class="article-source" :href="articleHref" target="_blank" rel="noopener noreferrer" @click.stop.prevent="clickHref">{{ getSiteName() }}</a>
+        <button v-if="sourceFilterable && sourceDomain" class="article-source" type="button" @click.stop="selectSource">{{ getSiteName() }}</button>
+        <a v-else class="article-source" :href="originalHref" target="_blank" rel="noopener noreferrer" @click.stop="clickHref">{{ getSiteName() }}</a>
 
         <!-- hover 操作区 -->
         <div class="article-actions">
+          <!-- 打开原文 -->
+          <button v-if="sourceFilterable && sourceDomain" class="article-action open-original" @click.stop="clickHref" type="button">
+            {{ $t('common.operate.open_original') }}
+          </button>
+
           <!-- 编辑标题 -->
-          <button class="article-action" ref="editTitleButton" @click.stop="clickEdit" type="button">
+          <button class="article-action edit-title" ref="editTitleButton" @click.stop="clickEdit" type="button">
             {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
           </button>
 
@@ -95,6 +108,7 @@
 import { inject } from 'vue'
 
 import { urlHttpString } from '@commons/utils/string'
+import { getBookmarkSourceDomain } from '#layers/core/app/utils/bookmarkSource'
 import { truncateTitle } from '#layers/core/app/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -122,11 +136,21 @@ const props = defineProps({
   collectionCode: {
     type: String,
     required: false
+  },
+  sourceFilterable: {
+    type: Boolean,
+    default: false
   }
 })
 
 const { index, bookmark } = toRefs(props)
-const emits = defineEmits(['delete', 'archiveUpdate', 'aliasTitleUpdate', 'bookmarkUpdate'])
+const emits = defineEmits<{
+  delete: [id: number]
+  archiveUpdate: [id: number, archive: boolean]
+  aliasTitleUpdate: [id: number, aliasTitle: string]
+  bookmarkUpdate: [id: number, bookmark: BookmarkItem]
+  sourceFilter: [source: { domain: string; label: string }]
+}>()
 
 // local-first 可写；null 则回退 REST
 // local tab 下 id 即本地 uuid
@@ -219,8 +243,19 @@ const clickEdit = () => {
 }
 
 const getSiteName = () => {
-  const siteName = bookmark.value.site_name || bookmark.value.host_url
+  const siteName = bookmark.value.site_name || bookmark.value.host_url || getBookmarkSourceDomain(bookmark.value)
   return bookmark.value.type === 'shortcut' ? t('component.bookmark_cell.shortcut') + ' ' + siteName : siteName
+}
+
+const sourceDomain = computed(() => getBookmarkSourceDomain(bookmark.value))
+const originalHref = computed(() => urlHttpString(bookmark.value.target_url))
+
+const selectSource = () => {
+  if (isRequesting.value) return
+  const domain = sourceDomain.value
+  if (!domain) return
+  trackListItemInteract('source_filter')
+  emits('sourceFilter', { domain, label: getSiteName() || domain })
 }
 
 const articleHref = computed(() => {
@@ -653,8 +688,11 @@ const starBookmark = async (isStar: boolean) => {
   white-space: nowrap;
 }
 
-// 来源标签：胶囊形，点击跳转原链接
+// 来源：胶囊形
 .article-source {
+  border: none;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 12px;
   color: var(--slax-text-muted);
   background: var(--slax-accent-bg);

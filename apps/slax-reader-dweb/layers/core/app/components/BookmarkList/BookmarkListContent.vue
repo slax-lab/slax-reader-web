@@ -16,7 +16,9 @@
                 :is-subscribe="filterStatus === 'collections'"
                 :bookmark="item.bookmark"
                 :collection-code="filterCollectionCode"
+                :source-filterable="filterStatus === 'inbox'"
                 :class="{ 'text-mode': effectiveMode === 'text' }"
+                @source-filter="source => emit('source-filter', source)"
                 @delete="(id: number) => emit('delete', id)"
                 @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
                 @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -34,7 +36,9 @@
               :is-subscribe="filterStatus === 'collections'"
               :bookmark="item.bookmark"
               :collection-code="filterCollectionCode"
+              :source-filterable="filterStatus === 'inbox'"
               :class="{ 'text-mode': effectiveMode === 'text' }"
+              @source-filter="source => emit('source-filter', source)"
               @delete="(id: number) => emit('delete', id)"
               @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
               @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -90,6 +94,7 @@ const emit = defineEmits<{
   'archive-update': [id: number, archive: boolean]
   'alias-title-update': [id: number, aliasTitle: string]
   'bookmark-update': [id: number, bookmark: BookmarkItem]
+  'source-filter': [source: { domain: string; label: string }]
 }>()
 </script>
 

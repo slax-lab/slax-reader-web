@@ -76,6 +76,7 @@
       "more": "More",
       "off": "OFF",
       "on": "ON",
+      "open_original": "Open original",
       "payment": {
         "completed": "Payment Completed",
         "confirm_desc": "Have you completed the payment?",
@@ -257,6 +258,9 @@
       "bookmarks_source": "Bookmark source:",
       "links_source": "Information source:",
       "related_questions": "Related:"
+    },
+    "snapshot_article_source": {
+      "label": "Source:"
     },
     "chat_tips_message": {
       "generate_question_title": "You might want to ask..."

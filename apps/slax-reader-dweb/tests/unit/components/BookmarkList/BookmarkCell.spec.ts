@@ -71,7 +71,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
       expect(wrapper.find('.article-card-link').attributes('href')).toBe('/bookmarks/1000001')
       expect(wrapper.find('.article-title').attributes('href')).toBe('/bookmarks/1000001')
-      // 操作按钮：编辑 + 归档 + 删除 = 3 个
+      // 非 inbox：编辑 + 归档 + 删除 = 3 个
       expect(wrapper.findAll('.article-action').length).toBe(3)
     })
 
@@ -90,7 +90,6 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('isTrashed=true：渲染恢复按钮 + 不渲染删除按钮', () => {
       const bm = makeBookmarkItem({ trashed_at: '2026-01-02T00:00:00.000Z' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      // isTrashed=true：[0]=编辑, [1]=恢复，无 danger 按钮
       expect(wrapper.findAll('.article-action').length).toBe(2)
       expect(wrapper.find('.article-action.danger').exists()).toBe(false)
       expect(wrapper.find('.article-date').text()).toBe('2026-01-02')
@@ -107,7 +106,6 @@ describe('components/BookmarkList/BookmarkCell', () => {
         props: { bookmark: baseBookmarkItem, isSubscribe: true, collectionCode: 'COL1' }
       })
       expect(wrapper.find('.article-star').exists()).toBe(false)
-      // isSubscribe=true：只有编辑按钮，无归档/删除
       expect(wrapper.findAll('.article-action').length).toBe(1)
     })
 
@@ -185,6 +183,30 @@ describe('components/BookmarkList/BookmarkCell', () => {
     })
   })
 
+  describe('来源筛选 + 打开原文', () => {
+    it('sourceFilterable=true：来源为按钮，点击发出规范化域名且不打开页面', async () => {
+      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+      const bm = makeBookmarkItem({ host_url: 'https://WWW.Example.com:443/path', site_name: 'Example Site' })
+      const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false, sourceFilterable: true } })
+
+      expect(wrapper.find('.article-source').element.tagName).toBe('BUTTON')
+      await wrapper.find('.article-source').trigger('click')
+
+      expect(wrapper.emitted('sourceFilter')).toEqual([[{ domain: 'www.example.com', label: 'Example Site' }]])
+      expect(openSpy).not.toHaveBeenCalled()
+      expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ element: 'source_filter' }))
+    })
+
+    it('“打开原文”始终打开 target_url，而不是快照链接', async () => {
+      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+      const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: baseBookmarkItem, isSubscribe: false, sourceFilterable: true } })
+
+      await wrapper.find('.article-action.open-original').trigger('click')
+
+      expect(openSpy).toHaveBeenCalledWith('https://example.com/article-1', '_blank')
+    })
+  })
+
   describe('star / archive / trash / revert', () => {
     it('starBookmark：调 BOOKMARK_STAR + emit bookmarkUpdate + analyticsLog', async () => {
       mockPost.mockResolvedValueOnce({ bookmark_id: 1000001, status: 'star' })
@@ -205,8 +227,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      // article-actions 内：[0]=编辑, [1]=归档, [2]=删除
-      const archiveBtn = wrapper.findAll('.article-action')[1]!
+      const archiveBtn = wrapper.find('.article-action:not(.open-original):not(.edit-title):not(.danger)')
       expect(archiveBtn).toBeDefined()
       await archiveBtn.trigger('click')
       await flushPromises()
@@ -221,8 +242,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const bm = makeBookmarkItem({ archived: 'archive' })
       mockPost.mockResolvedValueOnce({ bookmark_id: 1000001, status: 'inbox' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      // [0]=编辑, [1]=归档（unarchive）
-      const unarchiveBtn = wrapper.findAll('.article-action')[1]!
+      const unarchiveBtn = wrapper.find('.article-action:not(.open-original):not(.edit-title):not(.danger)')
       expect(unarchiveBtn).toBeDefined()
       await unarchiveBtn.trigger('click')
       await flushPromises()
@@ -237,7 +257,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const archiveBtn = wrapper.findAll('.article-action')[1]!
+      const archiveBtn = wrapper.find('.article-action:not(.open-original):not(.edit-title):not(.danger)')
       await archiveBtn.trigger('click')
       await flushPromises()
       expect(mockToastShowToast).toHaveBeenCalled()
@@ -264,8 +284,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('clickRevert：调 REVERT_BOOKMARK + emit delete（无 stroke）', async () => {
       const bm = makeBookmarkItem({ trashed_at: '2026-01-02T00:00:00.000Z' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      // isTrashed=true 时：[0]=编辑, [1]=恢复
-      const revertBtn = wrapper.findAll('.article-action')[1]!
+      const revertBtn = wrapper.find('.article-action:not(.open-original):not(.edit-title)')
       expect(revertBtn).toBeDefined()
       await revertBtn.trigger('click')
       await flushPromises()
@@ -280,8 +299,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      // 编辑按钮是 article-actions 中第一个 article-action
-      const editBtn = wrapper.findAll('.article-action')[0]!
+      const editBtn = wrapper.find('.article-action.edit-title')
       expect(editBtn).toBeDefined()
       await editBtn.trigger('click')
       expect(wrapper.find('input').exists()).toBe(true)
@@ -293,7 +311,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const editBtn = wrapper.findAll('.article-action')[0]!
+      const editBtn = wrapper.find('.article-action.edit-title')
       await editBtn.trigger('click')
       const input = wrapper.find('input')
       await input.setValue('新标题')
@@ -311,7 +329,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('编辑后值与原 alias_title 一致：短路不调 post，仅退出编辑态', async () => {
       const bm = makeBookmarkItem({ alias_title: '已存在' })
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      const editBtn = wrapper.findAll('.article-action')[0]!
+      const editBtn = wrapper.find('.article-action.edit-title')
       await editBtn.trigger('click')
       const input = wrapper.find('input')
       await input.setValue('已存在')
@@ -326,7 +344,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, {
         props: { bookmark: baseBookmarkItem, isSubscribe: false }
       })
-      const editBtn = wrapper.findAll('.article-action')[0]!
+      const editBtn = wrapper.find('.article-action.edit-title')
       await editBtn.trigger('click')
       mockPost.mockClear()
       await wrapper.find('input').trigger('keydown', { key: 'Esc' })
