@@ -21,13 +21,14 @@
         <BookmarksContentHeader
           :search-text="searchText"
           :filter-status="filterStatus"
-          :filter-topic-id="filterTopicId"
+          :filter-topic-ids="filterTopicIds"
           :filter-topic-name="filterTopicName"
           :filter-collection-id="filterCollectionId"
           :filter-collection-name="filterCollectionName"
           @back="() => (searchText = '')"
           @search-status-update="status => (isSearching = status)"
-          @select-tag="selectTopic"
+          @select-tag="selectTopics"
+          @select-untagged="() => inboxClick('untagged')"
           @select-collect="selectCollection"
           @code-update="(code: string) => (filterCollectionCode = code)"
           @notification-back="notificationBack"
@@ -36,7 +37,12 @@
       <template v-slot:content-list>
         <!-- 列表非空时才显示切换器 -->
         <ListLayoutSwitcher
-          v-if="!searchText && !['highlights', 'notifications'].includes(filterStatus) && !(filterStatus === 'topics' && !filterTopicId) && !(isDataEmpty && !isTransitioning)"
+          v-if="
+            !searchText &&
+            !['highlights', 'notifications'].includes(filterStatus) &&
+            !(filterStatus === 'topics' && filterTopicIds.length < 1) &&
+            !(isDataEmpty && !isTransitioning)
+          "
           v-model="listMode"
           :last-updated-text="lastUpdatedText"
         />
@@ -53,6 +59,7 @@
           @archive-update="handleCellArchive"
           @alias-title-update="handleCellAliasTitle"
           @bookmark-update="handleCellBookmarkUpdate"
+          @select-tag="selectTagFromCell"
         />
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
           <!-- 跳转期间按 B 展示 -->
@@ -69,7 +76,7 @@
             :is-refresh-loading="isRefreshLoading"
             :is-in-trash="isInTrash"
             :filter-status="filterStatus"
-            :filter-topic-id="filterTopicId"
+            :filter-topic-ids="filterTopicIds"
             :filter-collection-id="filterCollectionId"
           />
         </template>
@@ -81,6 +88,7 @@
 <script lang="ts" setup>
 definePageMeta({ alias: ['/'] })
 
+import type { BookmarkTag } from '@commons/types/interface'
 import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopModal.vue'
 import BookmarkListContent from '#layers/core/app/components/BookmarkList/BookmarkListContent.vue'
 import BookmarksContentHeader from '#layers/core/app/components/BookmarkList/BookmarksContentHeader.vue'
@@ -125,14 +133,14 @@ const isShowTopModal = ref(false)
 // 筛选状态 + 纯导航 helper（编排动作 selectTopic/selectCollection/inboxClick 留在本页）
 const {
   filterStatus,
-  filterTopicId,
+  filterTopicIds,
   filterTopicName,
   filterCollectionId,
   filterCollectionCode,
   filterCollectionName,
   isInTrash,
   isCurrentInboxTab,
-  applyTopic,
+  applyTopics,
   applyCollection,
   applyTab
 } = useBookmarkFilter()
@@ -160,14 +168,14 @@ const {
 } = useBookmarkData(
   {
     filterStatus,
-    filterTopicId,
+    filterTopicIds,
     filterTopicName,
     filterCollectionId,
     filterCollectionCode,
     filterCollectionName,
     isInTrash,
     isCurrentInboxTab,
-    applyTopic,
+    applyTopics,
     applyCollection,
     applyTab
   },
@@ -247,11 +255,30 @@ onMounted(() => {
   addLog()
 })
 
-// 编排动作：选择话题。filterStatus 不变（始终 'topics'），故手动 reset + load
-const selectTopic = async (info: { id: number; name: string } | null) => {
+// 编排动作：选择一组话题（交集）。filterStatus 不变（始终 'topics'），故手动 reset + load
+const selectTopics = async (ids: string[], name = '') => {
   resetBookmarks()
-  await applyTopic(info)
+  await applyTopics(ids, name)
   await onLoadMore()
+}
+
+// 编排动作：列表卡片上点了一个标签 → 进标签筛选页，只选这一个
+const selectTagFromCell = async (tag: BookmarkTag) => {
+  const ids = [String(tag.id)]
+  if (filterStatus.value === 'topics') {
+    await selectTopics(ids, tag.show_name)
+    return
+  }
+  if (searchText.value) {
+    searchText.value = ''
+    y.value = 0
+  }
+  resetBookmarks()
+  // 先把 ids 摆好，再翻 filterStatus，watch 触发的 reloadList 才会按这组标签加载
+  filterTopicIds.value = ids
+  filterTopicName.value = tag.show_name
+  filterStatus.value = 'topics'
+  await applyTopics(ids, tag.show_name)
 }
 
 // 编排动作：选择合集。filterStatus 不变（始终 'collections'），故手动 reset + load

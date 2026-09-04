@@ -5,11 +5,18 @@
 //   以此避免与 useBookmarkData 形成构造期循环依赖。
 import { computed, ref } from 'vue'
 
+/** "a,b" 或 ["a","b"] → 去空去重的字符串数组；0 / NaN 之类的旧占位值不算 */
+export const parseTopicIds = (raw: unknown): string[] => {
+  const parts = Array.isArray(raw) ? raw.map(v => `${v ?? ''}`) : `${raw ?? ''}`.split(',')
+  return [...new Set(parts.map(p => p.trim()).filter(p => p.length > 0 && p !== '0'))]
+}
+
 export const useBookmarkFilter = () => {
   const route = useRoute()
 
   const filterStatus = ref(`${route.query.filter || 'inbox'}`)
-  const filterTopicId = ref(Number(route.query.topic_id || ''))
+  // 多标签交集：topic_ids=a,b（hashid 或 local-first uuid，都是字符串）；旧链接的 topic_id 也认
+  const filterTopicIds = ref<string[]>(parseTopicIds(route.query.topic_ids ?? route.query.topic_id))
   const filterTopicName = ref(`${route.query.topic_name || ''}`)
   const filterCollectionId = ref(Number(route.query.c_id || ''))
   const filterCollectionCode = ref<string>(String(route.query.c_code || ''))
@@ -18,21 +25,13 @@ export const useBookmarkFilter = () => {
   const isInTrash = computed(() => filterStatus.value === 'trashed')
   const isCurrentInboxTab = computed(() => filterStatus.value === 'inbox' || !filterStatus.value)
 
-  // 纯导航：选择话题。改 topic ref + navigateTo（replace:true），不触发列表加载
-  const applyTopic = async (info: { id: number; name: string } | null) => {
-    const topicParams: Record<string, number | string> = {}
-    if (info) {
-      info.id && (topicParams.topic_id = info.id)
-    }
+  // 纯导航：选择一组话题（空数组 = 回到标签列表）。改 ref + navigateTo（replace:true），不触发列表加载
+  const applyTopics = async (ids: string[], name = '') => {
+    const clean = [...new Set(ids.map(id => `${id}`.trim()).filter(id => id.length > 0))]
+    filterTopicIds.value = clean
+    filterTopicName.value = clean.length > 0 ? name : ''
 
-    filterTopicId.value = info?.id || 0
-    filterTopicName.value = info?.name || ''
-
-    const paramsStr = Object.keys(topicParams)
-      .map(key => `${key}=${topicParams[key]}`)
-      .join('&')
-
-    await navigateTo(`/bookmarks?filter=topics${paramsStr.length > 0 ? '&' + paramsStr : ''}`, {
+    await navigateTo(`/bookmarks?filter=topics${clean.length > 0 ? '&topic_ids=' + encodeURIComponent(clean.join(',')) : ''}`, {
       replace: true
     })
   }
@@ -65,7 +64,7 @@ export const useBookmarkFilter = () => {
   const applyTab = async (type: string) => {
     filterStatus.value = type
     filterCollectionId.value = 0
-    filterTopicId.value = 0
+    filterTopicIds.value = []
 
     await navigateTo(`/bookmarks?filter=${type}`, {
       replace: type !== 'notifications'
@@ -74,14 +73,14 @@ export const useBookmarkFilter = () => {
 
   return {
     filterStatus,
-    filterTopicId,
+    filterTopicIds,
     filterTopicName,
     filterCollectionId,
     filterCollectionCode,
     filterCollectionName,
     isInTrash,
     isCurrentInboxTab,
-    applyTopic,
+    applyTopics,
     applyCollection,
     applyTab
   }

@@ -58,18 +58,18 @@ import { useBookmarkFilter } from '~~/layers/core/app/composables/bookmark/useBo
 // 构造一个可控的 filter stub（不依赖 useRoute，直接给定 filterStatus 等 ref）
 const makeFilter = (overrides: Partial<Record<string, any>> = {}): ReturnType<typeof useBookmarkFilter> => {
   const filterStatus = ref(overrides.filterStatus ?? 'inbox')
-  const filterTopicId = ref(overrides.filterTopicId ?? 0)
+  const filterTopicIds = ref<string[]>(overrides.filterTopicIds ?? [])
   const filterCollectionId = ref(overrides.filterCollectionId ?? 0)
   return {
     filterStatus,
-    filterTopicId,
+    filterTopicIds,
     filterTopicName: ref(''),
     filterCollectionId,
     filterCollectionCode: ref(''),
     filterCollectionName: ref(''),
     isInTrash: ref(false) as any,
     isCurrentInboxTab: ref(true) as any,
-    applyTopic: vi.fn(),
+    applyTopics: vi.fn(),
     applyCollection: vi.fn(),
     applyTab: vi.fn()
   } as unknown as ReturnType<typeof useBookmarkFilter>
@@ -100,6 +100,22 @@ describe('useBookmarkData', () => {
   })
 
   describe('loadData 分页 + ending', () => {
+    it('加载中途 reset，过期响应丢掉，不重复 push、page 不动', async () => {
+      let resolveFirst: (v: any) => void = () => {}
+      mockGet.mockReturnValueOnce(new Promise(resolve => (resolveFirst = resolve)))
+      mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 2 }])
+      const filter = makeFilter()
+      const { api } = mountData(filter)
+      await flushPromises()
+      // 第一页还没回来就 reset 并再加载一次
+      api.resetBookmarks()
+      await api.onLoadMore()
+      resolveFirst([{ ...baseBookmarkItem, id: 1 }])
+      await flushPromises()
+      expect(api.bookmarks.value.map(b => b.id)).toEqual([2])
+      expect(api.loading.value).toBe(false)
+    })
+
     it('返回非空数据 → page 递增、不 ending（第二页继续请求）', async () => {
       // 首屏（page=1）返回 1 条，useInfiniteScroll 自动触发一次 onLoadMore
       mockGet.mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
@@ -124,8 +140,24 @@ describe('useBookmarkData', () => {
       expect(api.ending.value).toBe(true)
     })
 
+    it('topics 选了两个标签 → 请求带 topic_ids=a,b', async () => {
+      mockGet.mockResolvedValue([])
+      const filter = makeFilter({ filterStatus: 'topics', filterTopicIds: ['a', 'b'] })
+      mountData(filter)
+      await flushPromises()
+      expect(mockGet).toHaveBeenCalledWith(expect.objectContaining({ query: expect.objectContaining({ filter: 'topics', topic_ids: 'a,b' }) }))
+    })
+
+    it('untagged 当普通列表请求，filter=untagged', async () => {
+      mockGet.mockResolvedValue([])
+      const filter = makeFilter({ filterStatus: 'untagged' })
+      mountData(filter)
+      await flushPromises()
+      expect(mockGet).toHaveBeenCalledWith(expect.objectContaining({ query: expect.objectContaining({ filter: 'untagged', topic_ids: '' }) }))
+    })
+
     it('topics 且 topicId<1 → 早退 ending=true、不发请求', async () => {
-      const filter = makeFilter({ filterStatus: 'topics', filterTopicId: 0 })
+      const filter = makeFilter({ filterStatus: 'topics', filterTopicIds: [] })
       const { api } = mountData(filter)
       await flushPromises()
       expect(api.ending.value).toBe(true)
@@ -172,7 +204,7 @@ describe('useBookmarkData', () => {
     })
 
     it('topics 未选 topicId → isDataEmpty=false（占位态，非空）', async () => {
-      const filter = makeFilter({ filterStatus: 'topics', filterTopicId: 0 })
+      const filter = makeFilter({ filterStatus: 'topics', filterTopicIds: [] })
       const { api } = mountData(filter)
       await flushPromises()
       expect(api.isDataEmpty.value).toBe(false)

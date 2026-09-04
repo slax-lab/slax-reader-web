@@ -18,9 +18,10 @@
           ></textarea>
         </div>
 
-        <!-- 正常态底部：保存 + 删除 -->
+        <!-- 正常态底部：删除 + 移出我的标签（仅 mine）+ 保存 -->
         <div class="bottom" v-if="!confirmingDelete">
           <button class="delete-btn" @click="confirmingDelete = true">{{ t('common.operate.delete') }}</button>
+          <button class="demote-btn" v-if="source === 'mine'" @click="demoteTag">{{ t('component.tags_header.demote') }}</button>
           <button @click="submitTagName">{{ t('common.operate.save') }}</button>
         </div>
 
@@ -46,16 +47,29 @@
 
 <script lang="ts" setup>
 import { RESTMethodPath } from '@commons/types/const'
+import type { BookmarkTag } from '@commons/types/interface'
 import { vOnKeyStroke } from '@vueuse/components'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 
 const props = defineProps({
   bookmarkId: Number,
-  tagId: Number,
-  tagName: String
+  // REST 下是 hashid 字符串，local-first 下是 uuid；靠 idKind 区分
+  tagId: [Number, String],
+  tagName: String,
+  source: {
+    type: String as PropType<'auto' | 'mine'>,
+    default: 'auto'
+  },
+  idKind: {
+    type: String as PropType<'hashid' | 'uuid'>,
+    default: 'hashid'
+  }
 })
 
-const emits = defineEmits(['close', 'dismiss', 'success', 'delete'])
+const emits = defineEmits(['close', 'dismiss', 'success', 'delete', 'demote'])
+
+// uuid 永远走 tag_uuid，绝不当 tag_id 发
+const tagIdBody = () => (props.idKind === 'uuid' ? { tag_uuid: props.tagId } : { tag_id: props.tagId })
 
 const isLoading = ref(false)
 const isLocked = useScrollLock(window)
@@ -93,7 +107,7 @@ const editTagName = async () => {
 
   isLoading.value = true
   const req = {
-    tag_id: props.tagId,
+    ...tagIdBody(),
     tag_name: editname.value
   }
 
@@ -116,9 +130,7 @@ const deleteTag = async () => {
 
   const res = await request().post<{ ok: boolean }>({
     url: RESTMethodPath.DELETE_USER_TAG,
-    body: {
-      tag_id: props.tagId
-    }
+    body: tagIdBody()
   })
 
   isLoading.value = false
@@ -129,6 +141,32 @@ const deleteTag = async () => {
   } else {
     Toast.showToast({
       text: t('common.tips.delete_tag_failed'),
+      type: ToastType.Error
+    })
+  }
+}
+
+// 移出“我的标签”：降回 auto；本地行经 sync 回流
+const demoteTag = async () => {
+  if (isLoading.value) {
+    return
+  }
+
+  isLoading.value = true
+
+  const res = await request().post<BookmarkTag>({
+    url: RESTMethodPath.DEMOTE_USER_TAG,
+    body: tagIdBody()
+  })
+
+  isLoading.value = false
+
+  if (res) {
+    closeModal()
+    emits('demote', props.tagId)
+  } else {
+    Toast.showToast({
+      text: t('common.error.network'),
       type: ToastType.Error
     })
   }
@@ -266,7 +304,7 @@ const t = (text: string) => {
     align-items: center;
     gap: 16px;
 
-    button:not(.delete-btn):not(.cancel-btn):not(.danger-btn) {
+    button:not(.delete-btn):not(.demote-btn):not(.cancel-btn):not(.danger-btn) {
       padding: 8px 18px;
       background: var(--slax-accent);
       color: var(--slax-btn-text);
@@ -300,6 +338,22 @@ const t = (text: string) => {
 
       &:hover {
         color: var(--slax-danger);
+      }
+    }
+
+    .demote-btn {
+      margin-right: auto;
+      padding: 0;
+      background: transparent;
+      color: var(--slax-text-light);
+      border: none;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color 0.12s;
+
+      &:hover {
+        color: var(--slax-accent);
       }
     }
   }

@@ -179,7 +179,7 @@ const baseStubs = {
   NotificationCell: { name: 'NotificationCell', template: '<div class="notification-cell" />', props: ['notification'] },
   SearchHeader: { name: 'SearchHeader', template: '<div class="search-header" />', emits: ['back', 'search-status-update'], props: ['defaultSearchText'] },
   AddUrlTopModal: { name: 'AddUrlTopModal', template: '<div class="add-url-top-modal" />', emits: ['add-url-success', 'update:show'] },
-  TagsHeader: { name: 'TagsHeader', template: '<div class="tags-header" />', emits: ['select-tag'] },
+  TagsHeader: { name: 'TagsHeader', template: '<div class="tags-header" />', emits: ['select-tag', 'select-untagged'] },
   CollectionHeader: { name: 'CollectionHeader', template: '<div class="collection-header" />', emits: ['select-collect', 'code-update'] },
   NotificationHeader: { name: 'NotificationHeader', template: '<div class="notification-header" />', emits: ['back'] },
   BookmarksFab: { name: 'BookmarksFab', template: '<button class="bookmarks-fab" />', emits: ['click'] },
@@ -552,9 +552,9 @@ describe('pages/bookmarks/index.vue', () => {
       const wrapper = mountIndexPage()
       await flushPromises()
       const tagsHeader = wrapper.findComponent({ name: 'TagsHeader' })
-      await tagsHeader.vm.$emit('select-tag', { id: 5, name: 'tech' })
+      await tagsHeader.vm.$emit('select-tag', ['5'], 'tech')
       await flushPromises()
-      expect(mockNavigateTo).toHaveBeenCalledWith(expect.stringContaining('/bookmarks?filter=topics'), expect.objectContaining({ replace: true }))
+      expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks?filter=topics&topic_ids=5', expect.objectContaining({ replace: true }))
     })
 
     it('C25: CollectionHeader emit select-collect → selectCollection + navigateTo', async () => {

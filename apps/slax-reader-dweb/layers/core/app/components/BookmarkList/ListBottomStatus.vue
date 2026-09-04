@@ -20,12 +20,12 @@ const props = defineProps<{
   isRefreshLoading: boolean
   isInTrash: boolean
   filterStatus: string
-  filterTopicId: number
+  filterTopicIds: string[]
   filterCollectionId: number
 }>()
 
 // 复刻原 guard：话题/合集 tab 未选择具体 id 时，不展示底部状态（停留在选择占位态）
-const showStatus = computed(() => !((props.filterStatus === 'topics' && !props.filterTopicId) || (props.filterStatus === 'collections' && !props.filterCollectionId)))
+const showStatus = computed(() => !((props.filterStatus === 'topics' && props.filterTopicIds.length < 1) || (props.filterStatus === 'collections' && !props.filterCollectionId)))
 
 // 延迟显示，避免闪烁
 const DELAY = 500

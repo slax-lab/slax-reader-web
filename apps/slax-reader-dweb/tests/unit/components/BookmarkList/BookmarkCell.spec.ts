@@ -1,15 +1,16 @@
 // components/BookmarkList/BookmarkCell.vue 单测（Phase 4 卡片化重设计后更新）
 // 新结构：.article-card、.article-title、.article-star、.article-action、.article-date、.article-source
-import { reactive } from 'vue'
+import { defineComponent, reactive } from 'vue'
 
 import BookmarkCell from '~~/layers/core/app/components/BookmarkList/BookmarkCell.vue'
 
-import { BookmarkParseStatus } from '@commons/types/interface'
+import { BookmarkParseStatus, type BookmarkTag } from '@commons/types/interface'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { baseBookmarkItem, makeBookmarkItem } from '~~/tests/fixtures/bookmark'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { PropType } from 'vue'
 
 const { mockGet, mockPost, mockRequest, mockPwaOpen, mockAnalyticsLog, mockToastShowToast, mockShowSnapshot, mockUseRoute, mockRoute } = vi.hoisted(() => {
   const get = vi.fn()
@@ -37,6 +38,42 @@ vi.mock('#layers/core/app/components/Modal', () => ({
   showSnapshotStatusModal: mockShowSnapshot
 }))
 
+// 内存版 Storage：只实现组件与用例用到的方法
+const createMemoryStorage = () => {
+  const store = new Map<string, string>()
+  return {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => void store.set(key, String(value)),
+    removeItem: (key: string) => void store.delete(key),
+    clear: () => store.clear(),
+    key: (index: number) => Array.from(store.keys())[index] ?? null,
+    get length() {
+      return store.size
+    }
+  }
+}
+
+// BookmarkTags 轻量替身：渲染传入 tags，可发出 change / select-tag
+const BookmarkTagsStub = defineComponent({
+  name: 'BookmarkTags',
+  props: {
+    tags: { type: Array as PropType<BookmarkTag[]>, default: () => [] },
+    bookmarkId: { type: [Number, String], default: undefined },
+    bookmarkUid: { type: String, default: '' },
+    // lfKey() 原样透传 bookmark.id：REST 下是 number/hashid，LF 下是 uuid
+    bookmarkUuid: { type: [String, Number], default: '' },
+    compact: { type: Boolean, default: false },
+    readonly: { type: Boolean, default: false }
+  },
+  emits: ['change', 'select-tag'],
+  template: `<div class="bookmark-tags-stub">
+    <span v-for="tag in tags" :key="tag.id" class="stub-chip" @click="$emit('select-tag', tag)">{{ tag.show_name }}</span>
+    <button class="stub-add" type="button" @click="$emit('change', [...tags, { id: 99, name: 'new', show_name: 'New' }])">+</button>
+  </div>`
+})
+
+const mountCell = (props: Record<string, unknown>) => mountWithApp(BookmarkCell, { props, global: { stubs: { BookmarkTags: BookmarkTagsStub } } })
+
 mockNuxtImport('request', () => mockRequest)
 mockNuxtImport('pwaOpen', () => mockPwaOpen)
 mockNuxtImport('analyticsLog', () => mockAnalyticsLog)
@@ -51,8 +88,10 @@ beforeEach(() => {
   mockShowSnapshot.mockClear()
   mockPost.mockResolvedValue({ ok: true, bookmark_id: 1, status: 'inbox' })
   mockRoute.query = {}
-  // 清除 localStorage 影响 reminderKey
-  localStorage.clear()
+  // Node >= 25 自带 globalThis.localStorage 访问器；没配 --localstorage-file 时它是个没有
+  // Storage 方法的空对象，happy-dom 不会覆盖已存在的全局访问器，导致 clear/setItem 不是函数。
+  // 这里换成内存版 Storage，每个用例重置，顺带清掉 reminderKey。
+  vi.stubGlobal('localStorage', createMemoryStorage())
 })
 
 afterEach(() => {
@@ -349,6 +388,71 @@ describe('components/BookmarkList/BookmarkCell', () => {
       mockPost.mockClear()
       await wrapper.find('input').trigger('keydown', { key: 'Esc' })
       expect(mockPost).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('标签行', () => {
+    const tags: BookmarkTag[] = [
+      { id: 1, name: 'vue', show_name: 'Vue', source: 'mine', added_by: 'user' },
+      { id: 2, name: 'ai', show_name: 'AI', source: 'auto', added_by: 'ai' }
+    ]
+
+    it('textMode=false：渲染 .article-tags，标签经子组件渲染，并把 id/uid/uuid 传给子组件', () => {
+      const bm = makeBookmarkItem({ tags, bookmark_user_uuid: 'uid-1' })
+      const wrapper = mountCell({ bookmark: bm, isSubscribe: false })
+      const row = wrapper.find('.article-body .article-tags')
+      expect(row.exists()).toBe(true)
+      expect(row.findAll('.stub-chip').map(c => c.text())).toEqual(['Vue', 'AI'])
+      const child = wrapper.findComponent(BookmarkTagsStub)
+      // REST 下没有 local-first uuid，传空串；bookmarkId 是 hashid
+      expect(child.props()).toMatchObject({ bookmarkId: 1000001, bookmarkUid: 'uid-1', bookmarkUuid: '', compact: true, readonly: false, tags })
+    })
+
+    it('无 tags：子组件仍渲染（自带 "+"）', () => {
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags: undefined }), isSubscribe: false })
+      expect(wrapper.find('.article-tags').exists()).toBe(true)
+      expect(wrapper.findComponent(BookmarkTagsStub).props('tags')).toEqual([])
+    })
+
+    it('textMode=true：不渲染标签行', () => {
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags }), isSubscribe: false, textMode: true })
+      expect(wrapper.find('.article-tags').exists()).toBe(false)
+      expect(wrapper.findComponent(BookmarkTagsStub).exists()).toBe(false)
+    })
+
+    it('trashed：不渲染标签行', () => {
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags, trashed_at: '2026-01-02T00:00:00.000Z' }), isSubscribe: false })
+      expect(wrapper.find('.article-tags').exists()).toBe(false)
+    })
+
+    it('isSubscribe=true：不渲染标签行', () => {
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags }), isSubscribe: true, collectionCode: 'COL1' })
+      expect(wrapper.find('.article-tags').exists()).toBe(false)
+    })
+
+    it('点击标签行内元素：不打开文章（pwaOpen / window.open 均未调用）', async () => {
+      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags }), isSubscribe: false })
+      await wrapper.find('.article-tags .stub-chip').trigger('click')
+      await wrapper.find('.article-tags').trigger('click')
+      expect(mockPwaOpen).not.toHaveBeenCalled()
+      expect(openSpy).not.toHaveBeenCalled()
+    })
+
+    it('子组件 change → emit bookmarkUpdate，携带合并后的 tags', async () => {
+      const bm = makeBookmarkItem({ tags })
+      const wrapper = mountCell({ bookmark: bm, isSubscribe: false })
+      await wrapper.find('.article-tags .stub-add').trigger('click')
+      const events = wrapper.emitted('bookmarkUpdate')!
+      expect(events).toHaveLength(1)
+      expect(events[0]![0]).toBe(1000001)
+      expect(events[0]![1]).toMatchObject({ ...bm, tags: [...tags, { id: 99, name: 'new', show_name: 'New' }] })
+    })
+
+    it('子组件 select-tag → emit selectTag', async () => {
+      const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags }), isSubscribe: false })
+      await wrapper.find('.article-tags .stub-chip').trigger('click')
+      expect(wrapper.emitted('selectTag')).toEqual([[tags[0]]])
     })
   })
 

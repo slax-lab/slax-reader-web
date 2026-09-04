@@ -2,7 +2,13 @@
   <!-- content-header slot 分发：搜索态优先，否则按 filterStatus 展示 话题/合集/通知 头部 -->
   <SearchHeader v-if="searchText" :default-search-text="searchText" @back="emit('back')" @search-status-update="status => emit('search-status-update', status)" />
   <template v-else>
-    <TagsHeader v-if="filterStatus === 'topics'" :select-tag-id="filterTopicId" :select-tag-name="filterTopicName" @select-tag="info => emit('select-tag', info)" />
+    <TagsHeader
+      v-if="filterStatus === 'topics'"
+      :select-tag-ids="filterTopicIds"
+      :select-tag-name="filterTopicName"
+      @select-tag="(ids: string[], name?: string) => emit('select-tag', ids, name)"
+      @select-untagged="emit('select-untagged')"
+    />
     <CollectionHeader
       v-if="filterStatus === 'collections'"
       :select-collect-id="filterCollectionId"
@@ -24,7 +30,7 @@ import NotificationHeader from '#layers/core/app/components/Notification/Notific
 defineProps<{
   searchText: string
   filterStatus: string
-  filterTopicId: number
+  filterTopicIds: string[]
   filterTopicName: string
   filterCollectionId: number
   filterCollectionName: string
@@ -33,7 +39,8 @@ defineProps<{
 const emit = defineEmits<{
   back: []
   'search-status-update': [status: boolean]
-  'select-tag': [info: { id: number; name: string } | null]
+  'select-tag': [ids: string[], name?: string]
+  'select-untagged': []
   'select-collect': [info: { id: number; name: string; code: string } | null]
   'code-update': [code: string]
   'notification-back': []
