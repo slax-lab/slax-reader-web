@@ -17,12 +17,12 @@
               <span class="name">Slax Reader</span>
               <span class="version">{{ VERSION }}</span>
             </div>
-            <div class="header-toggle">
-              <span>{{ isAutoToggle ? $t('component.panel.auto_toggle.on') : $t('component.panel.auto_toggle.off') }}</span>
-              <TextTips :tips="isAutoToggle ? $t('component.panel.auto_toggle.enabled_tips') : $t('component.panel.auto_toggle.disabled_tips', [shortcutString])">
+            <TextTips :tips="isAutoToggle ? $t('component.panel.auto_toggle.enabled_tips') : $t('component.panel.auto_toggle.disabled_tips', [shortcutString])">
+              <div class="header-toggle">
+                <span>{{ isAutoToggle ? $t('component.panel.auto_toggle.on') : $t('component.panel.auto_toggle.off') }}</span>
                 <button :class="{ enabled: isAutoToggle }" @click="switchClick"></button>
-              </TextTips>
-            </div>
+              </div>
+            </TextTips>
           </div>
           <div class="sidebar-content">
             <slot name="content" />

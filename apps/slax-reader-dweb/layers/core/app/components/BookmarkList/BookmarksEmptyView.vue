@@ -34,6 +34,8 @@ const emit = defineEmits<{ action: [] }>()
   justify-content: center;
   text-align: center;
   padding: 96px 24px 48px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .empty-view-icon {

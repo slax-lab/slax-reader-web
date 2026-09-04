@@ -1,13 +1,16 @@
 <template>
   <div class="bookmark-article snapshot" ref="bookmarkArticle" :class="{ [articleStyle]: true }">
     <header class="article-header">
-      <SnapshotArticleSource v-if="detail.target_url" :url="detail.target_url" />
+      <SnapshotArticleSource
+        v-if="detail.target_url"
+        :url="detail.target_url"
+        :site-name="detail.site_name"
+        :column-name="(detail as BookmarkArticleDetail & { column_name?: string }).column_name"
+        :author="detail.byline"
+        :host-url="detail.host_url"
+      />
       <div class="article-divider" />
       <h1 class="article-title" :title="title">{{ title }}</h1>
-      <div class="article-info">
-        <span v-if="detail.byline" class="article-author">{{ detail.byline }}</span>
-        <time class="article-date">{{ dateString }}</time>
-      </div>
       <BookmarkTags
         v-if="effAllowTagged"
         class="article-tags"
@@ -36,7 +39,6 @@ import { registerComponents } from './CEComponents'
 import { ArticleStyle } from './processors'
 import { ArticleSelectionAdaptersKey } from './Selection/injection'
 import type { MarkDetail } from '@commons/types/interface'
-import { formatDate } from '@vueuse/core'
 import type { QuoteData } from '#layers/core/app/components/Chat/type'
 import CursorToast from '#layers/core/app/components/CursorToast'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
@@ -108,13 +110,6 @@ const articleStyle = computed(() => {
   }
 
   return ArticleStyle.Default
-})
-
-const dateString = computed(() => {
-  const date = detail.value.created_at ?? ''
-  if (!date) return ''
-
-  return t('page.bookmarks_detail.saved_at', { date: formatDate(new Date(date), 'YYYY-MM-DD') })
 })
 
 const articleHTML = computed(() => {
@@ -242,22 +237,6 @@ defineExpose({
     padding: 2px 6px;
     margin-left: -6px;
     cursor: text;
-  }
-}
-
-.article-info {
-  --style: flex items-center flex-wrap gap-x-16px gap-y-4px;
-
-  .article-author {
-    font-size: 14px;
-    color: var(--slax-text-muted);
-    font-weight: 400;
-  }
-
-  .article-date {
-    font-size: 13px;
-    font-weight: 300;
-    color: var(--slax-text-light);
   }
 }
 

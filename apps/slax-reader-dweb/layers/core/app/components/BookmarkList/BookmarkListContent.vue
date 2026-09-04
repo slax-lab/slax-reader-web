@@ -16,7 +16,9 @@
                 :is-subscribe="filterStatus === 'collections'"
                 :bookmark="item.bookmark"
                 :collection-code="filterCollectionCode"
+                :source-filterable="filterStatus === 'inbox'"
                 :class="{ 'text-mode': effectiveMode === 'text' }"
+                @source-filter="source => emit('source-filter', source)"
                 @delete="(id: number) => emit('delete', id)"
                 @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
                 @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -34,7 +36,9 @@
               :is-subscribe="filterStatus === 'collections'"
               :bookmark="item.bookmark"
               :collection-code="filterCollectionCode"
+              :source-filterable="filterStatus === 'inbox'"
               :class="{ 'text-mode': effectiveMode === 'text' }"
+              @source-filter="source => emit('source-filter', source)"
               @delete="(id: number) => emit('delete', id)"
               @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
               @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -90,6 +94,7 @@ const emit = defineEmits<{
   'archive-update': [id: number, archive: boolean]
   'alias-title-update': [id: number, aliasTitle: string]
   'bookmark-update': [id: number, bookmark: BookmarkItem]
+  'source-filter': [source: { domain: string; label: string }]
 }>()
 </script>
 
@@ -171,6 +176,10 @@ const emit = defineEmits<{
     margin-left: 0;
     color: var(--slax-text-light);
     font-weight: 300;
+
+    &:hover {
+      color: var(--slax-accent);
+    }
   }
 
   // 星标：缩小 icon，绝对定位并与标题垂直居中
@@ -240,6 +249,10 @@ const emit = defineEmits<{
       color: var(--slax-text-light);
       padding: 0 0 0 8px;
       max-width: 54vw;
+
+      &:hover {
+        color: var(--slax-accent);
+      }
     }
 
     .article-actions {

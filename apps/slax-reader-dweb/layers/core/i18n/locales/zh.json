@@ -76,6 +76,7 @@
       "more": "更多",
       "off": "已关闭",
       "on": "已开启",
+      "open_original": "打开原文",
       "payment": {
         "completed": "已完成支付",
         "confirm_desc": "您是否已完成支付？",
@@ -257,6 +258,9 @@
       "bookmarks_source": "书签来源：",
       "links_source": "信息来源：",
       "related_questions": "相关的："
+    },
+    "snapshot_article_source": {
+      "label": "来源："
     },
     "chat_tips_message": {
       "generate_question_title": "读者最关心："

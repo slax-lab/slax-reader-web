@@ -7,7 +7,7 @@ import { showSnapshotStatusModal } from '#layers/core/app/components/Modal'
 
 type ListSection = 'inbox' | 'starred' | 'topics' | 'archive' | 'trash' | 'notifications'
 
-type InteractElement = 'title' | 'orginal' | 'snapshot' | 'edit_title' | 'star' | 'archive' | 'trash'
+type InteractElement = 'title' | 'orginal' | 'snapshot' | 'source_filter' | 'edit_title' | 'star' | 'archive' | 'trash'
 
 export interface UseBookmarkCellNavigationOptions {
   bookmark: Ref<BookmarkItem>

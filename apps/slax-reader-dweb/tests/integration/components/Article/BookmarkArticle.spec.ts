@@ -1,5 +1,5 @@
 // BookmarkArticle.vue 集成测试 —— 第五期 Sprint B.1
-// 覆盖：渲染（title/byline/date/url/star）/ articleStyle 三种风格 / dateString 三分支 / urlString 计算 /
+// 覆盖：渲染（title/source/star）/ articleStyle 三种风格 /
 //      starBookmark（成功/失败 + Toast）/ websiteClick / handleHTML（DOMPipeline run）/ handleDrawMark / jumpToHighLight
 // 关键约束：
 //  - 真实依赖按 phase5-plan §B.1 修订 4 mock 链路（含 ToastType / processors 13+ArticleStyle/DOMPipeline / Toast/CursorToast/ImagePreview）
@@ -21,9 +21,7 @@ const {
   mockNavigateTo,
   mockPostChannelMessage,
   mockRequest,
-  mockPost,
   mockUseI18n,
-  mockT,
   mockUseArticleDetail,
   mockArticleDetailReturn,
   mockToastShowToast,
@@ -203,7 +201,12 @@ vi.mock('@commons/types/interface', async () => {
 
 // BookmarkTags 子组件 stub（避免引入 BookmarkTags spec 的 mock 链）
 const stubs = {
-  BookmarkTags: { name: 'BookmarkTags', template: '<div class="bookmark-tags-stub" />', props: ['bookmarkId', 'tags', 'readonly'] }
+  BookmarkTags: { name: 'BookmarkTags', template: '<div class="bookmark-tags-stub" />', props: ['bookmarkId', 'tags', 'readonly'] },
+  SnapshotArticleSource: {
+    name: 'SnapshotArticleSource',
+    template: '<div class="article-source-stub" />',
+    props: ['url', 'siteName', 'columnName', 'author', 'hostUrl']
+  }
 }
 
 function buildDetail(overrides: Record<string, unknown> = {}) {
@@ -254,12 +257,14 @@ afterEach(() => {
 
 describe('Article/BookmarkArticle', () => {
   describe('渲染', () => {
-    it('mount → 渲染 .bookmark-article + title + byline + date', () => {
+    it('mount → 渲染 .bookmark-article + title + source', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail() }, global: { stubs } })
       expect(wrapper.find('.bookmark-article').exists()).toBe(true)
       expect(wrapper.find('.article-title').text()).toBe('Test Title')
-      expect(wrapper.find('.article-author').text()).toBe('Author')
-      expect(wrapper.find('.article-date').text()).toBe('First saved on 2026-01-01')
+      expect(wrapper.findComponent({ name: 'SnapshotArticleSource' }).props()).toMatchObject({
+        url: 'https://example.com/article',
+        author: 'Author'
+      })
     })
 
     it('article-detail v-html 渲染 detail.content 并补 lazy loading', () => {
@@ -284,10 +289,9 @@ describe('Article/BookmarkArticle', () => {
       expect(wrapper.find('.star').exists()).toBe(false)
     })
 
-    it('detail.byline 为空：不渲染 .article-author', () => {
+    it('detail.byline 为空：source author 为空', () => {
       const wrapper = mountWithApp(BookmarkArticle, { props: { detail: buildDetail({ byline: '' }) }, global: { stubs } })
-      expect(wrapper.find('.article-author').exists()).toBe(false)
-      expect(wrapper.find('.article-date').text()).toBe('First saved on 2026-01-01')
+      expect(wrapper.findComponent({ name: 'SnapshotArticleSource' }).props('author')).toBe('')
     })
   })
 
@@ -316,26 +320,6 @@ describe('Article/BookmarkArticle', () => {
         global: { stubs }
       })
       expect(wrapper.find('.article-detail').classes()).toContain('default')
-    })
-  })
-
-  describe('dateString computed', () => {
-    // dateString 现仅取 created_at（published_at 分支已从源码移除），
-    // 缺失时返回空串（无 '--' 兜底）
-    it('created_at 存在：格式化为 YYYY-MM-DD 并套 saved_at 文案', () => {
-      const wrapper = mountWithApp(BookmarkArticle, {
-        props: { detail: buildDetail({ created_at: '2024-06-15T00:00:00.000Z' }) },
-        global: { stubs }
-      })
-      expect(wrapper.find('.article-date').text()).toBe('First saved on 2024-06-15')
-    })
-
-    it('created_at 缺失：返回空串', () => {
-      const wrapper = mountWithApp(BookmarkArticle, {
-        props: { detail: buildDetail({ created_at: undefined }) },
-        global: { stubs }
-      })
-      expect(wrapper.find('.article-date').text()).toBe('')
     })
   })
 

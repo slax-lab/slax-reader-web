@@ -1,8 +1,10 @@
 <template>
   <!-- 列表工具栏：最近更新时间 + 布局切换器（card / text）。显隐 guard 由父级控制 -->
-  <div class="page-toolbar">
-    <p class="page-subtitle" v-if="lastUpdatedText">{{ lastUpdatedText }}</p>
-    <div v-else />
+  <div class="page-toolbar" :class="{ 'has-leading': showLeading }">
+    <div class="toolbar-leading">
+      <slot v-if="showLeading" name="leading" />
+      <p class="page-subtitle" v-else-if="lastUpdatedText">{{ lastUpdatedText }}</p>
+    </div>
     <div class="layout-switcher">
       <!-- 文字列表：三条横线 icon -->
       <button class="layout-btn" :class="{ active: listMode === 'text' }" @click="listMode = 'text'" :title="$t('page.bookmarks_index.layout_text')" type="button">
@@ -25,6 +27,7 @@
 <script setup lang="ts">
 defineProps<{
   lastUpdatedText: string
+  showLeading?: boolean
 }>()
 
 // 布局模式：'card'（卡片）| 'text'（紧凑文字），由父级 v-model 持久化
@@ -38,7 +41,20 @@ const listMode = defineModel<'card' | 'text'>({ required: true })
   // ≤768：隐藏布局切换器
   @media (max-width: 768px) {
     display: none;
+
+    // 移动端保留来源筛选关闭入口
+    &.has-leading {
+      display: flex;
+
+      .layout-switcher {
+        display: none;
+      }
+    }
   }
+}
+
+.toolbar-leading {
+  min-width: 0;
 }
 
 .page-subtitle {
