@@ -383,10 +383,10 @@ const addingTagClick = (e: MouseEvent) => {
   }
 
   .search-result {
-    --style: mt-12px overflow-y-scroll relative;
+    --style: mt-12px relative;
 
     .result-wrapper {
-      --style: max-h-422px py-4px overflow-y-scroll;
+      --style: max-h-422px py-4px overflow-y-auto;
 
       .search-tag {
         --style: 'rounded-sm flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-normal whitespace-nowrap';
