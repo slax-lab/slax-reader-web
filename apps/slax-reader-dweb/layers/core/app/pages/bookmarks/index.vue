@@ -88,7 +88,6 @@
 <script lang="ts" setup>
 definePageMeta({ alias: ['/'] })
 
-import type { BookmarkTag } from '@commons/types/interface'
 import AddUrlTopModal from '#layers/core/app/components/BookmarkList/AddUrlTopModal.vue'
 import BookmarkListContent from '#layers/core/app/components/BookmarkList/BookmarkListContent.vue'
 import BookmarksContentHeader from '#layers/core/app/components/BookmarkList/BookmarksContentHeader.vue'
@@ -101,6 +100,7 @@ import BookmarksLayout from '#layers/core/app/components/Layouts/BookmarksLayout
 
 import { isSafari } from '@commons/utils/is'
 
+import type { BookmarkTag } from '@commons/types/interface'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast from '#layers/core/app/components/Toast'
 import { useBookmarkData } from '#layers/core/app/composables/bookmark/useBookmarkData'

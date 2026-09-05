@@ -18,8 +18,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { BookmarkTag } from '@commons/types/interface'
 import { getCurrentInstance } from 'vue'
+
+import type { BookmarkTag } from '@commons/types/interface'
 
 const props = defineProps<{
   tag: BookmarkTag
