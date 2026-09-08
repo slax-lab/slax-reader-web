@@ -1141,12 +1141,12 @@ defineExpose({ addQuoteData, focusTextarea })
         font-family: var(--slax-font-mono);
       }
 
-      // 日夜强调色，E-ink 蓝 + 🔗
+      // 日夜强调色，E-ink 蓝 + ↗︎
       :deep(a) {
         color: var(--slax-link);
 
-        &::before {
-          content: var(--slax-link-prefix, '');
+        &::after {
+          content: var(--slax-link-suffix, '');
         }
       }
 

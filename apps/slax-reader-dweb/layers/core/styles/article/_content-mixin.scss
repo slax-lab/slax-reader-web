@@ -150,13 +150,13 @@
     border-bottom-right-radius: var(--slax-radius-sm);
   }
 
-  /* 链接：日夜强调色，E-ink 蓝 + 🔗 */
+  /* 链接：日夜强调色，E-ink 蓝 + ↗︎ */
   a {
     --style: underline-none border-none decoration-none cursor-pointer;
     color: var(--slax-link);
 
-    &::before {
-      content: var(--slax-link-prefix, '');
+    &::after {
+      content: var(--slax-link-suffix, '');
     }
   }
 
