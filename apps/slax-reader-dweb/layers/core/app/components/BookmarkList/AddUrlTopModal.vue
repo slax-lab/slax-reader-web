@@ -53,6 +53,8 @@
 
 <script setup lang="ts">
 import { RESTMethodPath } from '@commons/types/const'
+import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { useLabFeatures } from '#layers/core/app/composables/useLabFeatures'
 
 const show = defineModel('show')
 const emits = defineEmits(['addUrlSuccess'])
@@ -60,6 +62,7 @@ const emits = defineEmits(['addUrlSuccess'])
 const addUrlText = ref('')
 const searchModalLoading = ref(false)
 const showError = ref(false)
+const labs = useLabFeatures()
 
 watch(
   () => show.value,
@@ -87,11 +90,22 @@ const topModalClick = async () => {
   }
   const targetUrl = trimmedUrl.value
   searchModalLoading.value = true
-  await request().post<{ bookmark_id: number; status: string }>({
-    url: RESTMethodPath.ADD_URL_BOOKMARK,
-    body: { target_url: targetUrl }
-  })
-  searchModalLoading.value = false
+  try {
+    await request().post<{ bookmark_id: number; status: string }>({
+      url: RESTMethodPath.ADD_URL_BOOKMARK,
+      body: { target_url: targetUrl },
+      // 替换全局的错误 toast：实验室拦截给一个带“去打开”的 toast，其余照旧只显示文案
+      errorInterceptors: err => {
+        if (labs.handleSaveError(err)) return
+        Toast.showToast({ text: err instanceof Error ? err.message : String(err), type: ToastType.Error })
+      }
+    })
+  } catch {
+    // 失败时弹窗留着，用户可以改链接再试
+    return
+  } finally {
+    searchModalLoading.value = false
+  }
   show.value = false
   emits('addUrlSuccess', targetUrl)
   addUrlText.value = ''

@@ -155,5 +155,6 @@
       "search_bookmark_finished": "Knowledge base search complete",
       "search_finished": "Search complete"
     }
-  }
+  },
+  "open_labs_in_settings": "Turn on in web settings ↗"
 }

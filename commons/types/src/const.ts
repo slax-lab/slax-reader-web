@@ -35,6 +35,7 @@ enum RESTMethodPath {
   TOKEN_REFRESH = '/v1/user/refresh',
   USER_INFO_ENABLE_SETTING = '/v1/user/setting/enable',
   USER_INFO_DISABLE_SETTING = '/v1/user/setting/disable',
+  USER_LABS = '/v1/user/labs',
   DELETE_MY_ACCOUNT = '/v1/user/delete_my_account',
   ADD_MARK = '/v1/mark/create',
   DELETE_MARK = '/v1/mark/delete',

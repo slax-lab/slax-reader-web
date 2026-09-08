@@ -156,7 +156,8 @@
       "trash_success": "Bookmark moved to trash",
       "unarchive_success": "Content has been Unarchive",
       "unstar_success": "Content has been unstarred",
-      "unsubscribe_success": "Unsubscribe successful!"
+      "unsubscribe_success": "Unsubscribe successful!",
+      "lab_open": "Turn on"
     }
   },
   "component": {
@@ -904,7 +905,18 @@
       "update_share_status_failed": "Failed to update sharing status",
       "update_stripe_info": "Update Stripe info",
       "url_count": "URL Count",
-      "view_import_progress": "View import progress"
+      "view_import_progress": "View import progress",
+      "labs": {
+        "title": "Labs",
+        "intro": "These features are still rough. They may have bugs and may be removed at any time. If something breaks after you turn one on, tell us in the Telegram group.",
+        "status_active": "In Labs",
+        "status_graduated": "Released",
+        "youtube": {
+          "name": "YouTube videos",
+          "desc": "Save a YouTube link and read along with its transcript. English captions are preferred for now, and the app does not follow the transcript yet.",
+          "blocked": "YouTube videos are still in Labs. Turn it on in Settings, then save again"
+        }
+      }
     }
   },
   "util": {
