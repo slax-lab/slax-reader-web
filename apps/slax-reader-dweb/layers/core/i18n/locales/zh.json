@@ -541,6 +541,8 @@
     "bookmarks_index": {
       "untagged": "未打标签",
       "Trash": "回收站",
+      "sidebar_collapse": "收起侧栏",
+      "sidebar_expand": "展开侧栏",
       "add_url": "添加",
       "archive": "归档",
       "collections": "合集",

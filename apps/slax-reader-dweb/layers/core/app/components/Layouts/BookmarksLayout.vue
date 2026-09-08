@@ -8,8 +8,8 @@
 
     <!-- 主体：顶部留出 header 高度，sidebar + main 布局 -->
     <div class="layout">
-      <!-- 左侧导航：sticky，≤920px 隐藏 -->
-      <aside class="sidebar">
+      <!-- 左侧导航：sticky，≤920px 隐藏；collapsed 时收窄为图标栏 -->
+      <aside class="sidebar" :class="{ collapsed }">
         <slot name="sidebar-left" />
       </aside>
 
@@ -25,11 +25,15 @@
 <script lang="ts" setup>
 import BookmarksTopBar from '#layers/core/app/components/BookmarkList/BookmarksTopBar.vue'
 
+import { useSidebarCollapsed } from '#layers/core/app/composables/bookmark/useSidebarCollapsed'
+
 const emit = defineEmits<{
   search: [keyword: string]
   feedback: []
   checkAll: []
 }>()
+
+const { collapsed } = useSidebarCollapsed()
 
 const smallScreenTrigger = ref<HTMLDivElement>()
 
@@ -72,12 +76,20 @@ defineExpose({
 
 // 左侧导航：sticky，≤920px 隐藏
 .sidebar {
-  width: 240px;
+  width: var(--slax-sidebar-w, 240px);
   flex-shrink: 0;
   position: sticky;
   top: var(--slax-header-height);
   height: calc(100vh - var(--slax-header-height));
   overflow-y: auto;
+  transition: width var(--slax-dur-normal) var(--slax-ease-spring);
+
+  // 折叠态：只剩图标列；仅桌面端生效，不碰移动端横条
+  @media (min-width: 921px) {
+    &.collapsed {
+      width: 72px;
+    }
+  }
 
   @media (max-width: 920px) {
     display: none;

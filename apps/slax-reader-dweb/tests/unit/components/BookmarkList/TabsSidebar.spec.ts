@@ -4,8 +4,9 @@
 // 暴露 getAllButtons() 方法
 import TabsSidebar from '~~/layers/core/app/components/BookmarkList/TabsSidebar.vue'
 
+import { useSidebarCollapsed } from '~~/layers/core/app/composables/bookmark/useSidebarCollapsed'
 import { mountWithApp } from '~~/tests/setup/mount'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 describe('TabsSidebar', () => {
   describe('渲染', () => {
@@ -61,6 +62,27 @@ describe('TabsSidebar', () => {
       const events = wrapper.emitted('changeTab')
       expect(events).toBeTruthy()
       expect(events![0]![0]).toBe('inbox')
+    })
+  })
+
+  describe('折叠态', () => {
+    afterEach(() => {
+      useSidebarCollapsed().collapsed.value = false
+    })
+
+    it('默认无 collapsed class；每个 .sidebar-item 带 title 供悬停提示', () => {
+      const wrapper = mountWithApp(TabsSidebar)
+      expect(wrapper.find('.tabs-sidebar').classes()).not.toContain('collapsed')
+      for (const item of wrapper.findAll('.sidebar-item')) {
+        expect(item.attributes('title')).toBeTruthy()
+      }
+    })
+
+    it('collapsed=true → .tabs-sidebar 有 collapsed class', async () => {
+      const wrapper = mountWithApp(TabsSidebar)
+      useSidebarCollapsed().collapsed.value = true
+      await wrapper.vm.$nextTick()
+      expect(wrapper.find('.tabs-sidebar').classes()).toContain('collapsed')
     })
   })
 
