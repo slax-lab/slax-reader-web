@@ -541,6 +541,8 @@
     "bookmarks_index": {
       "untagged": "Untagged",
       "Trash": "Trash",
+      "sidebar_collapse": "Collapse sidebar",
+      "sidebar_expand": "Expand sidebar",
       "add_url": "Add",
       "archive": "Archive",
       "collections": "Collections",

@@ -4,8 +4,9 @@
 // expose: isSmallScreen() 基于 smallScreenTrigger.opacity
 import BookmarksLayout from '~~/layers/core/app/components/Layouts/BookmarksLayout.vue'
 
+import { useSidebarCollapsed } from '~~/layers/core/app/composables/bookmark/useSidebarCollapsed'
 import { mountWithApp } from '~~/tests/setup/mount'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 describe('Layouts/BookmarksLayout', () => {
   it('mount → 渲染 .bookmarks-layout + .layout + .sidebar + .main', () => {
@@ -37,5 +38,21 @@ describe('Layouts/BookmarksLayout', () => {
   it('暴露 isSmallScreen() 基于 trigger opacity（happy-dom 默认 opacity 不为 1）', () => {
     const wrapper = mountWithApp(BookmarksLayout)
     expect((wrapper.vm as any).isSmallScreen()).toBe(false)
+  })
+
+  it('collapsed=true → .sidebar 带 collapsed class；恢复后移除', async () => {
+    const wrapper = mountWithApp(BookmarksLayout)
+    const { collapsed } = useSidebarCollapsed()
+    expect(wrapper.find('.sidebar').classes()).not.toContain('collapsed')
+    collapsed.value = true
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.sidebar').classes()).toContain('collapsed')
+    collapsed.value = false
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.sidebar').classes()).not.toContain('collapsed')
+  })
+
+  afterEach(() => {
+    useSidebarCollapsed().collapsed.value = false
   })
 })

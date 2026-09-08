@@ -1,8 +1,16 @@
 <template>
   <!-- 竖向导航侧边栏：替代原横向 tab 列表 -->
-  <nav class="tabs-sidebar" ref="sidebarEl">
-    <!-- 主导航项 -->
-    <button v-for="(item, index) in tabList" :key="item.type" class="sidebar-item" :class="{ active: tabType === item.type }" @click="inboxClick(item.type, index)" type="button">
+  <nav class="tabs-sidebar" :class="{ collapsed }" ref="sidebarEl">
+    <!-- 主导航项；title 供折叠态悬停提示 -->
+    <button
+      v-for="(item, index) in tabList"
+      :key="item.type"
+      class="sidebar-item"
+      :class="{ active: tabType === item.type }"
+      :title="item.title"
+      @click="inboxClick(item.type, index)"
+      type="button"
+    >
       <!-- viewBox 随 icon 自带 -->
       <svg class="item-icon" width="18" height="18" :viewBox="item.icon.viewBox" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.icon.markup" />
       <span>{{ item.title }}</span>
@@ -12,7 +20,7 @@
     <div class="sidebar-divider" />
 
     <!-- 废纸篓 -->
-    <button class="sidebar-item" :class="{ active: tabType === 'trashed' }" @click="inboxClick('trashed')" type="button">
+    <button class="sidebar-item" :class="{ active: tabType === 'trashed' }" :title="$t('page.bookmarks_index.Trash')" @click="inboxClick('trashed')" type="button">
       <svg class="item-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <polyline points="3 6 5 6 21 6" />
         <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
@@ -23,10 +31,13 @@
 </template>
 
 <script setup lang="ts">
+import { useSidebarCollapsed } from '#layers/core/app/composables/bookmark/useSidebarCollapsed'
+
 // BookmarkTabTypes 和 TabIcons 由 Nuxt auto-import 注入
 // 不显式 import，以便 fork 对 useBookmarkRelative 的 override 能通过 layer 优先级生效
 const { t } = useI18n()
 const sidebarEl = ref<HTMLElement>()
+const { collapsed } = useSidebarCollapsed()
 
 defineProps({
   tabType: {
@@ -75,6 +86,28 @@ defineExpose({
     margin: 0 auto;
     padding: 0;
     gap: 24px;
+  }
+
+  // 折叠态（仅桌面端）：只显示图标，居中排列
+  @media (min-width: 921px) {
+    &.collapsed {
+      padding-left: 12px;
+      padding-right: 12px;
+
+      .sidebar-item {
+        justify-content: center;
+        padding: 10px 0;
+        gap: 0;
+
+        span {
+          display: none;
+        }
+      }
+
+      .sidebar-divider {
+        margin: 12px 8px;
+      }
+    }
   }
 }
 
