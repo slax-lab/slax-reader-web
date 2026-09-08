@@ -88,7 +88,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
       case 'notifications':
         return notifications.value.length === 0
       case 'topics':
-        return filter.filterTopicId.value ? bookmarks.value.length === 0 : false
+        return filter.filterTopicIds.value.length > 0 ? bookmarks.value.length === 0 : false
       case 'collections':
         return filter.filterCollectionId.value ? bookmarks.value.length === 0 : false
       default:
@@ -119,7 +119,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
         page: page.value,
         size: 20,
         filter: `${filter.filterStatus.value}`,
-        topic_id: String(filter.filterTopicId.value) || '',
+        topic_ids: filter.filterTopicIds.value.join(','),
         collection_id: String(filter.filterCollectionId.value) || ''
       }
     })
@@ -153,9 +153,13 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
 
   // === 分页 + 加载 ===
 
+  // 每次 reset 递增；请求回来时代数变了就是过期响应，直接丢，不碰 loading/page/ending
+  let loadSeq = 0
   const loadData = async <T extends any[]>(query: () => Promise<T | undefined>) => {
+    const seq = loadSeq
     loading.value = true
     const data = await query()
+    if (seq !== loadSeq) return
     loading.value = false
 
     if (!data || data.length < 1) {
@@ -168,6 +172,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
   }
 
   const resetBookmarks = () => {
+    loadSeq += 1
     bookmarks.value = []
     highlights.value = []
     notifications.value = []
@@ -185,7 +190,10 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
     }
 
     if (loading.value || ending.value) return
-    if ((filter.filterStatus.value === 'topics' && filter.filterTopicId.value < 1) || (filter.filterStatus.value === 'collections' && filter.filterCollectionId.value < 1)) {
+    if (
+      (filter.filterStatus.value === 'topics' && filter.filterTopicIds.value.length < 1) ||
+      (filter.filterStatus.value === 'collections' && filter.filterCollectionId.value < 1)
+    ) {
       resetBookmarks()
       ending.value = true
 
@@ -193,7 +201,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
     }
 
     const type = filter.filterStatus.value
-    const topicId = type === 'topics' ? filter.filterTopicId.value : 0
+    const topicKey = type === 'topics' ? filter.filterTopicIds.value.join(',') : ''
 
     if (filter.filterStatus.value === 'highlights') {
       const data = await loadData(queryHighlights)
@@ -203,7 +211,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
       type === filter.filterStatus.value && notifications.value.push(...(data || []))
     } else {
       const data = await loadData(queryBookmarks)
-      type === filter.filterStatus.value && (type !== 'topics' || topicId === filter.filterTopicId.value) && bookmarks.value.push(...(data || []))
+      type === filter.filterStatus.value && (type !== 'topics' || topicKey === filter.filterTopicIds.value.join(',')) && bookmarks.value.push(...(data || []))
     }
   }
 

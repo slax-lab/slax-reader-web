@@ -220,11 +220,17 @@
       "video_not_support_tips": ">>> 视频无法播放，请访问原文浏览 <<<"
     },
     "bookmark_cell": {
+      "add_tag": "加标签",
       "edit_title_placeholder": "请输入新标题",
       "no_title": "无标题",
       "shortcut": "link to:"
     },
     "bookmark_tags": {
+      "create": "创建“{name}”",
+      "confirm": "确定 ({n})",
+      "by_ai": "AI 添加",
+      "group_mine": "我的标签",
+      "group_auto": "自动标签",
       "placeholder": "输入新标签 (按 Enter 确认)"
     },
     "cancel_collection_modal": {
@@ -469,6 +475,17 @@
       "title": "Pro 订阅"
     },
     "tags_header": {
+      "mine": "我的标签",
+      "auto": "自动标签",
+      "mine_hint": "AI 打标签时优先用这些词",
+      "promote": "设为我的标签",
+      "demote": "移出我的标签",
+      "empty_mine": "挑几个你真的会用的词",
+      "empty_mine_desc": "选中的词会排到最上面，AI 以后优先用它们打标签。也可以直接新建一个。",
+      "untagged": "未打标签的文章",
+      "add_filter": "再加一个标签",
+      "result_count": "{n} 篇",
+      "no_candidates": "没有可以再加的标签",
       "add_tag": "添加新标签",
       "add_tag_placeholder": "输入新标签",
       "filter_tag_title": "“{title}”标签下的内容：",
@@ -522,6 +539,7 @@
       "send_hint": "Enter 发送 · Shift+Enter 换行"
     },
     "bookmarks_index": {
+      "untagged": "未打标签",
       "Trash": "回收站",
       "add_url": "添加",
       "archive": "归档",

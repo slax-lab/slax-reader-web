@@ -17,8 +17,10 @@
                 :bookmark="item.bookmark"
                 :collection-code="filterCollectionCode"
                 :source-filterable="filterStatus === 'inbox'"
+                :text-mode="effectiveMode === 'text'"
                 :class="{ 'text-mode': effectiveMode === 'text' }"
                 @source-filter="source => emit('source-filter', source)"
+                @select-tag="(tag: BookmarkTag) => emit('select-tag', tag)"
                 @delete="(id: number) => emit('delete', id)"
                 @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
                 @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -37,8 +39,10 @@
               :bookmark="item.bookmark"
               :collection-code="filterCollectionCode"
               :source-filterable="filterStatus === 'inbox'"
+              :text-mode="effectiveMode === 'text'"
               :class="{ 'text-mode': effectiveMode === 'text' }"
               @source-filter="source => emit('source-filter', source)"
+              @select-tag="(tag: BookmarkTag) => emit('select-tag', tag)"
               @delete="(id: number) => emit('delete', id)"
               @archive-update="(id: number, archive: boolean) => emit('archive-update', id, archive)"
               @alias-title-update="(id: number, aliasTitle: string) => emit('alias-title-update', id, aliasTitle)"
@@ -57,14 +61,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject, provide } from 'vue'
 
 import BookmarkCell from '#layers/core/app/components/BookmarkList/BookmarkCell.vue'
 import BookmarkDateGroup from '#layers/core/app/components/BookmarkList/BookmarkDateGroup.vue'
 import BookmarkHighlightCell from '#layers/core/app/components/BookmarkList/BookmarkHighlightCell.vue'
 
-import type { BookmarkItem, HighlightItem } from '@commons/types/interface'
+import type { BookmarkItem, BookmarkTag, HighlightItem } from '@commons/types/interface'
 import { useMediaQuery } from '@vueuse/core'
+import { LocalFirstAdapterKey, SharedUserTagsKey } from '#layers/core/app/composables/local-first/injection'
 import { WindowVirtualizer } from 'virtua/vue'
 
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
@@ -81,9 +86,13 @@ const props = defineProps<{
 // 避免分区头中英叠加
 const { locale } = useI18n()
 
-// ≤768、星标、归档、回收站强制文字列表
+// local-first 下用户词表是一份 useQuery，只建一次，整个列表的卡片共用；REST 下为 null
+const lf = inject(LocalFirstAdapterKey, null)
+provide(SharedUserTagsKey, lf?.userTagSource?.() ?? null)
+
+// ≤768、星标、回收站强制文字列表；归档 / 未打标签与收件箱一样可用卡片
 const isH5 = useMediaQuery('(max-width: 768px)')
-const isTextOnly = computed(() => ['starred', 'archive', 'trashed'].includes(props.filterStatus))
+const isTextOnly = computed(() => ['starred', 'trashed'].includes(props.filterStatus))
 const effectiveMode = computed<'card' | 'text'>(() => (isH5.value || isTextOnly.value ? 'text' : props.listMode))
 
 // 文字视图下不按月分段
@@ -95,6 +104,7 @@ const emit = defineEmits<{
   'alias-title-update': [id: number, aliasTitle: string]
   'bookmark-update': [id: number, bookmark: BookmarkItem]
   'source-filter': [source: { domain: string; label: string }]
+  'select-tag': [tag: BookmarkTag]
 }>()
 </script>
 

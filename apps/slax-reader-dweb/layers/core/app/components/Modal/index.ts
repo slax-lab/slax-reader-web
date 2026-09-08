@@ -44,21 +44,35 @@ export const showEditNameModal = (options: { bookmarkId: number; name: string; a
   })
 }
 
-export const showEditTagModal = (options: { tagId: number; tagName: string; callback?: (id: number, name: string) => void; deleteCallback?: (id: number) => void }) => {
+// tagId：REST 下是 hashid 字符串，local-first 下是 uuid（idKind = 'uuid'）
+export const showEditTagModal = (options: {
+  tagId: number | string
+  tagName: string
+  source?: 'auto' | 'mine'
+  idKind?: 'hashid' | 'uuid'
+  callback?: (id: number | string, name: string) => void
+  deleteCallback?: (id: number | string) => void
+  demoteCallback?: (id: number | string) => void
+}) => {
   const app = modalBootloader({
     ele: EditTag,
     props: {
       tagId: options.tagId,
       tagName: options.tagName || '',
+      source: options.source ?? 'auto',
+      idKind: options.idKind ?? 'hashid',
       onDismiss: () => {
         app.unmount()
         app._container?.remove()
       },
-      onSuccess: (id: number, name: string) => {
+      onSuccess: (id: number | string, name: string) => {
         options.callback && options.callback(id, name)
       },
-      onDelete: (id: number) => {
+      onDelete: (id: number | string) => {
         options.deleteCallback && options.deleteCallback(id)
+      },
+      onDemote: (id: number | string) => {
+        options.demoteCallback && options.demoteCallback(id)
       }
     }
   })

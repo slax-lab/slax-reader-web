@@ -1,6 +1,8 @@
 // Modal/EditTag 组件单测
-// props: bookmarkId / tagId / tagName
-// emit: close / dismiss / success / delete
+// props: bookmarkId / tagId / tagName / source / idKind
+// emit: close / dismiss / success / delete / demote
+// idKind='uuid' → body 用 tag_uuid，否则 tag_id
+// demoteTag: 仅 source='mine' 显示按钮；request.post(DEMOTE_USER_TAG) → emit demote；失败 → Toast Error
 // 调 useScrollLock(window) - 用 vi.mock 绕开 happy-dom
 // editTagName: editname===tagName 或空 → closeModal；否则 request.post(UPDATE_USER_TAG) + emit success
 // deleteTag: request.post(DELETE_USER_TAG) → success → emit delete；失败 → Toast Error
@@ -188,6 +190,76 @@ describe('Modal/EditTag', () => {
       resolveFn?.({ ok: true })
       await flushPromises()
       // mockPost 只被调一次
+      expect(mockPost).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('idKind = uuid', () => {
+    it('update / delete 都发 tag_uuid，绝不发 tag_id', async () => {
+      const wrapper = mountWithApp(EditTag, { props: { tagId: 'u-1', tagName: 'old', idKind: 'uuid' } })
+      await wrapper.find('textarea').setValue('renamed')
+      await wrapper.find('.bottom button:not(.delete-btn)').trigger('click')
+      await flushPromises()
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/tag/update', body: { tag_uuid: 'u-1', tag_name: 'renamed' } }))
+      expect(wrapper.emitted('success')![0]).toEqual(['u-1', 'renamed'])
+
+      await wrapper.find('.delete-btn').trigger('click')
+      await wrapper.find('.danger-btn').trigger('click')
+      await flushPromises()
+      expect(mockPost).toHaveBeenLastCalledWith(expect.objectContaining({ url: '/v1/tag/delete', body: { tag_uuid: 'u-1' } }))
+      expect(wrapper.emitted('delete')![0]).toEqual(['u-1'])
+    })
+  })
+
+  describe('demoteTag', () => {
+    it('source=mine → 显示“移出我的标签”；auto / 缺省 → 不显示', () => {
+      const mine = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x', source: 'mine' } })
+      expect(mine.find('.demote-btn').text()).toBe('Remove from my tags')
+      const auto = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x', source: 'auto' } })
+      expect(auto.find('.demote-btn').exists()).toBe(false)
+      const none = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x' } })
+      expect(none.find('.demote-btn').exists()).toBe(false)
+    })
+
+    it('成功 → request.post(DEMOTE_USER_TAG, tag_id) + emit demote', async () => {
+      mockPost.mockResolvedValueOnce({ ok: true })
+      const wrapper = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x', source: 'mine' } })
+      await wrapper.find('.demote-btn').trigger('click')
+      await flushPromises()
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/tag/demote', body: { tag_id: 'h1' } }))
+      expect(wrapper.emitted('demote')![0]).toEqual(['h1'])
+    })
+
+    it('uuid → body 用 tag_uuid', async () => {
+      const wrapper = mountWithApp(EditTag, { props: { tagId: 'u-2', tagName: 'x', source: 'mine', idKind: 'uuid' } })
+      await wrapper.find('.demote-btn').trigger('click')
+      await flushPromises()
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/tag/demote', body: { tag_uuid: 'u-2' } }))
+    })
+
+    it('失败（返 null）→ Toast Error + 不 emit demote', async () => {
+      mockPost.mockResolvedValueOnce(null)
+      const wrapper = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x', source: 'mine' } })
+      await wrapper.find('.demote-btn').trigger('click')
+      await flushPromises()
+      expect(mockToastShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(wrapper.emitted('demote')).toBeUndefined()
+    })
+
+    it('isLoading=true 期间 → 短路', async () => {
+      let resolveFn: any
+      mockPost.mockImplementationOnce(
+        () =>
+          new Promise(r => {
+            resolveFn = r
+          })
+      )
+      const wrapper = mountWithApp(EditTag, { props: { tagId: 'h1', tagName: 'x', source: 'mine' } })
+      const btn = wrapper.find('.demote-btn')
+      await btn.trigger('click')
+      await btn.trigger('click')
+      resolveFn?.({ ok: true })
+      await flushPromises()
       expect(mockPost).toHaveBeenCalledTimes(1)
     })
   })

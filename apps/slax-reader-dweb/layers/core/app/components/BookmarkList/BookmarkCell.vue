@@ -88,6 +88,20 @@
           </button>
         </div>
       </div>
+
+      <!-- 标签行：文字模式 / 废纸篓 / 订阅不显示；整行拦截点击，避免触发整卡跳转 -->
+      <div v-if="showTags" class="article-tags" @click.stop>
+        <BookmarkTags
+          compact
+          :bookmark-id="lf ? 0 : bookmark.id"
+          :bookmark-uid="bookmark.bookmark_user_uuid || ''"
+          :bookmark-uuid="lf ? lfKey() : ''"
+          :tags="bookmark.tags ?? []"
+          :readonly="false"
+          @change="onTagsChange"
+          @select-tag="(tag: BookmarkTag) => emits('selectTag', tag)"
+        />
+      </div>
     </div>
 
     <!-- 星标按钮：绝对定位右侧（非废纸篓 + 非订阅） -->
@@ -107,12 +121,14 @@
 <script lang="ts" setup>
 import { inject } from 'vue'
 
+import BookmarkTags from '#layers/core/app/components/BookmarkTags.vue'
+
 import { urlHttpString } from '@commons/utils/string'
 import { getBookmarkSourceDomain } from '#layers/core/app/utils/bookmarkSource'
 import { truncateTitle } from '#layers/core/app/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
-import { type BookmarkItem, type EmptyBookmarkResp } from '@commons/types/interface'
+import { type BookmarkItem, type BookmarkTag, type EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
 import { formatDate } from '@vueuse/core'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
@@ -140,6 +156,11 @@ const props = defineProps({
   sourceFilterable: {
     type: Boolean,
     default: false
+  },
+  // 文字列表：不渲染标签行
+  textMode: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -150,6 +171,7 @@ const emits = defineEmits<{
   aliasTitleUpdate: [id: number, aliasTitle: string]
   bookmarkUpdate: [id: number, bookmark: BookmarkItem]
   sourceFilter: [source: { domain: string; label: string }]
+  selectTag: [tag: BookmarkTag]
 }>()
 
 // local-first 可写；null 则回退 REST
@@ -176,6 +198,13 @@ const isRevertHovered = useElementHover(revertButton)
 const isTrashed = computed(() => {
   return !!props.bookmark.trashed_at
 })
+
+const showTags = computed(() => !props.textMode && !isTrashed.value && !props.isSubscribe)
+
+// 标签面板回传整份新列表；LF 下写库在 BookmarkTags 内完成，这里只同步列表态
+const onTagsChange = (tags: BookmarkTag[]) => {
+  emits('bookmarkUpdate', bookmark.value.id, { ...bookmark.value, tags })
+}
 
 const isRequesting = computed(() => {
   return isDeleting.value || isRetrying.value || isArchiving.value || isStroking.value
@@ -519,6 +548,11 @@ const starBookmark = async (isStar: boolean) => {
   display: flex;
   align-items: flex-start;
   gap: 16px;
+
+  // 标签面板开着时抬高整卡，不被下一张卡的 body 压住
+  &:has(.search-list) {
+    z-index: 5;
+  }
   padding: 18px 20px;
   background: var(--slax-surface);
   border: 1px solid var(--slax-border);
@@ -751,6 +785,25 @@ const starBookmark = async (isStar: boolean) => {
   &.danger:hover {
     color: var(--slax-danger);
     background: var(--slax-danger-bg);
+  }
+}
+
+// 标签行：位于整卡覆盖链接之上，可点
+.article-tags {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--slax-text-muted);
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .article-tags {
+    display: none;
   }
 }
 

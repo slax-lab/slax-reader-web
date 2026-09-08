@@ -4,15 +4,16 @@
       <!-- :key 随 id 集合变化整块挂卸，
            绕开 keyed v-for patch 崩溃 -->
       <div v-if="displayTags.length" :key="tagsKey" class="tags-cells">
-        <div class="tag" v-for="tag in displayTags" :key="tag.id">
-          <span class="tag-name">{{ tag.show_name }}</span>
-          <button v-if="!props.readonly" class="tag-remove" :title="$t('common.operate.delete')" @click="deleteBookmarkTag(tag.id)">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </button>
-        </div>
+        <TagChip
+          v-for="tag in displayTags"
+          :key="tag.id"
+          :tag="tag"
+          :compact="props.compact"
+          :removable="!props.readonly"
+          :ai-mark="tag.added_by === 'ai'"
+          @click="emit('select-tag', tag)"
+          @remove="deleteBookmarkTag(tag.id)"
+        />
       </div>
 
       <div class="loading" v-if="isTagLoading">
@@ -20,7 +21,7 @@
       </div>
 
       <div class="tag-add-wrap" v-if="!props.readonly">
-        <button ref="add" class="tag-add" :title="$t('common.operate.add')" @click="addingTagClick">
+        <button ref="add" class="tag-add" :class="{ compact: props.compact }" :title="$t('common.operate.add')" @click="addingTagClick">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <g transform="translate(4, 4)" fill="currentColor">
               <polygon points="5.25 0 6.75 0 6.75 12 5.25 12" />
@@ -28,8 +29,9 @@
             </g>
           </svg>
         </button>
-        <!-- v-if 而非 v-show：整子树挂卸 -->
-        <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="() => (isAddingTag = false)">
+        <!-- v-if 而非 v-show：整子树挂卸。
+             local-first 下 v-for 吃的是 PowerSync 的 live useQuery，隐藏时 patch 会崩 -->
+        <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="[onClickOutside, { ignore: [add] }]">
           <input
             ref="searchInput"
             v-ime-guard
@@ -39,12 +41,28 @@
             v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
           />
           <div class="search-result">
-            <div class="result-wrapper" v-if="searchResultTags.length > 0">
-              <div class="search-tag" v-for="tag in searchResultTags" :key="tag.id" @click="searchTagClick(tag.id)">
-                <span>{{ tag.show_name }}</span>
-                <i class="ai" v-if="tag.system" />
+            <div class="result-wrapper" ref="resultWrapper" v-if="groupedCandidates.length > 0 || createName" @scroll="onResultScroll">
+              <template v-for="group in groupedCandidates" :key="group.key">
+                <div class="group-heading">{{ $t(group.label) }}</div>
+                <div
+                  v-for="tag in group.tags"
+                  :key="tag.id"
+                  class="search-tag"
+                  :class="{ active: pending.has(String(tag.id)), attached: attachedIds.has(String(tag.id)) }"
+                  @click="toggleCandidate(tag)"
+                >
+                  <span class="tag-name">{{ tag.show_name }}</span>
+                  <i class="check" v-if="pending.has(String(tag.id)) || attachedIds.has(String(tag.id))" />
+                </div>
+              </template>
+              <div v-if="createName" class="search-tag create" :class="{ active: pending.has(newKey(createName)) }" @click="togglePending(newKey(createName))">
+                <span class="tag-name">{{ $t('component.bookmark_tags.create', { name: createName }) }}</span>
+                <i class="check" v-if="pending.has(newKey(createName))" />
               </div>
             </div>
+          </div>
+          <div class="panel-footer">
+            <button type="button" class="confirm-btn" @click="commitPending">{{ $t('component.bookmark_tags.confirm', { n: pending.size }) }}</button>
           </div>
           <div class="list-loading" v-if="isAddingLoading">
             <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
@@ -56,10 +74,13 @@
 </template>
 
 <script lang="ts" setup>
+import TagChip from '#layers/core/app/components/BookmarkList/TagChip.vue'
+
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
-import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
+import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { type BookmarkTagActions, LocalFirstAdapterKey, SharedUserTagsKey } from '#layers/core/app/composables/local-first/injection'
 
 const props = defineProps({
   bookmarkId: {
@@ -86,14 +107,30 @@ const props = defineProps({
   readonly: {
     type: Boolean,
     required: false
+  },
+  // 列表卡片：小 chip，且不开 live query（见 tagSrc）
+  compact: {
+    type: Boolean,
+    required: false,
+    default: false
   }
 })
+
+const emit = defineEmits<{
+  change: [tags: BookmarkTag[]]
+  'select-tag': [tag: BookmarkTag]
+}>()
+
+const { t } = useI18n()
 
 // 本地标签源 + catalog；null 走 REST
 const lf = inject(LocalFirstAdapterKey, null)
 // 必须在 setup 顶层创建：内部 useQuery 有此要求。
 // 传响应式 uuid，勿在 watch 里重建（否则崩）。
-const tagSrc = shallowRef(lf?.bookmarkTagSource?.(toRef(props, 'bookmarkUuid')) ?? null)
+// compact（列表卡片）不建：每张卡两条 live query 太贵，改走 bookmarkTagActions + 列表共享词表
+const tagSrc = shallowRef(!props.compact ? (lf?.bookmarkTagSource?.(toRef(props, 'bookmarkUuid')) ?? null) : null)
+const tagActions: BookmarkTagActions | null = props.compact ? (lf?.bookmarkTagActions?.() ?? null) : null
+const sharedUserTags = props.compact ? inject(SharedUserTagsKey, null) : null
 // 挂载后再激活 LF，避免水合分叉
 const isMounted = ref(false)
 const localActive = computed(() => isMounted.value && tagSrc.value !== null)
@@ -102,6 +139,7 @@ const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 const searchInput = ref<HTMLInputElement>()
+const resultWrapper = ref<HTMLDivElement>()
 
 // 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
@@ -109,7 +147,11 @@ const restSearchTags = ref<BookmarkTag[]>([])
 // LF 激活恒用本地源
 // 避免 REST/LF 切源重挂崩溃
 const bookmarkTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.tags.value : restBookmarkTags.value))
-const searchTags = computed<BookmarkTag[]>(() => (localActive.value ? tagSrc.value!.userTags.value : restSearchTags.value))
+const searchTags = computed<BookmarkTag[]>(() => {
+  if (localActive.value) return tagSrc.value!.userTags.value
+  if (sharedUserTags) return sharedUserTags.tags.value
+  return restSearchTags.value
+})
 
 // 去抖：一次写入常连发多次变更，
 // 合并到下一 tick，避免同 flush 触发崩溃。
@@ -135,17 +177,44 @@ const isTagLoading = ref(false)
 const isAddingLoading = ref(false)
 const isAddingTag = ref(false)
 const searchText = ref('')
-const currentBookmarkTagIds = computed(() => bookmarkTags.value.map(tag => tag.id) || [])
+// 面板里勾选、尚未提交的项：已有标签 → String(id)；新建 → 'new:' + name
+const pending = shallowRef(new Set<string>())
+// 重开面板时恢复列表滚动位置
+let resultScrollTop = 0
 
-const filteredSearchTags = computed(() => {
-  return searchTags.value.filter(tag => currentBookmarkTagIds.value.indexOf(tag.id) === -1)
-})
+const NEW_PREFIX = 'new:'
+const newKey = (name: string) => NEW_PREFIX + name
+const isNewKey = (key: string) => key.startsWith(NEW_PREFIX)
+
+const attachedIds = computed(() => new Set(bookmarkTags.value.map(tag => String(tag.id))))
 
 const searchResultTags = computed(() => {
-  if (!searchText.value) {
-    return filteredSearchTags.value
-  }
-  return filteredSearchTags.value.filter(tag => tag.show_name.includes(searchText.value))
+  if (!searchText.value) return searchTags.value
+  return searchTags.value.filter(tag => tag.show_name.includes(searchText.value))
+})
+
+// 分组：我的在前，自动在后；空组不出标题
+const groupedCandidates = computed(() => {
+  const mine = searchResultTags.value.filter(tag => tag.source !== 'auto')
+  const auto = searchResultTags.value.filter(tag => tag.source === 'auto')
+  const groups: { key: string; label: string; tags: BookmarkTag[] }[] = []
+  if (mine.length) groups.push({ key: 'mine', label: 'component.bookmark_tags.group_mine', tags: mine })
+  if (auto.length) groups.push({ key: 'auto', label: 'component.bookmark_tags.group_auto', tags: auto })
+  return groups
+})
+
+// 输入了词表里没有的名字（大小写敏感）→ 给一个“创建”行
+const exactMatch = computed(() => searchTags.value.find(tag => tag.show_name === searchText.value) ?? null)
+const createName = computed(() => (searchText.value && !exactMatch.value ? searchText.value : ''))
+
+// 搜索词变了，之前勾的“创建 xxx”已经看不见，不能留在 pending 里被提交
+watch(createName, name => {
+  const keep = name ? newKey(name) : ''
+  const stale = [...pending.value].filter(key => key.startsWith('new:') && key !== keep)
+  if (stale.length < 1) return
+  const next = new Set(pending.value)
+  stale.forEach(key => next.delete(key))
+  pending.value = next
 })
 
 watch(
@@ -160,23 +229,21 @@ watch(
 watch(
   () => isAddingTag.value,
   value => {
-    if (value) {
-      // v-if 弹层，nextTick 再定位/聚焦
-      nextTick(() => {
-        const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
-        const rect = add.value?.getBoundingClientRect()
-        if (eleRect && rect && searchList.value) {
-          const yOffset = rect.bottom - eleRect.top + 10
-          const xOffset = rect.left - eleRect.left
-          searchList.value.style.top = `${yOffset}px`
-          searchList.value.style.left = `${xOffset}px`
-        }
-        searchInput.value?.focus()
-      })
-      searchingTags()
-    } else {
-      searchText.value = ''
-    }
+    if (!value) return
+    // v-if 弹层，nextTick 再定位/聚焦
+    nextTick(() => {
+      const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
+      const rect = add.value?.getBoundingClientRect()
+      if (eleRect && rect && searchList.value) {
+        const yOffset = rect.bottom - eleRect.top + 10
+        const xOffset = rect.left - eleRect.left
+        searchList.value.style.top = `${yOffset}px`
+        searchList.value.style.left = `${xOffset}px`
+      }
+      searchInput.value?.focus()
+      restoreResultScroll()
+    })
+    searchingTags()
   }
 )
 
@@ -184,57 +251,146 @@ onMounted(() => {
   isMounted.value = true
 })
 
+const onResultScroll = (e: Event) => {
+  resultScrollTop = (e.target as HTMLElement).scrollTop
+}
+
+const restoreResultScroll = () => {
+  if (resultWrapper.value && resultScrollTop) resultWrapper.value.scrollTop = resultScrollTop
+}
+
 const searchingTags = async () => {
-  if (localActive.value) return // LF：searchTags 走 userTags
+  if (localActive.value || sharedUserTags) return // LF：候选来自本地词表
   if (isAddingLoading.value) return
   isAddingLoading.value = true
   const res = await request().get<BookmarkTag[]>({ url: RESTMethodPath.TAG_LIST })
   if (res) restSearchTags.value = res
   isAddingLoading.value = false
+  nextTick(restoreResultScroll)
 }
 
-const addBookmarkTag = async (params: { tagName?: string; tagId?: number }) => {
-  const { tagName, tagId } = params
-  if (!tagName && !tagId) return
-  if (tagName && tagId) return
+const togglePending = (key: string) => {
+  const next = new Set(pending.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  pending.value = next
+}
 
-  // LF：本地建标签 + 关联
-  if (tagSrc.value) {
-    isAddingLoading.value = true
-    try {
-      let tagUuid = tagId ? String(tagId) : ''
-      if (!tagUuid && tagName) {
-        const created = await tagSrc.value!.createUserTag(tagName)
-        tagUuid = String(created.id)
-      }
-      if (tagUuid) await tagSrc.value!.add(props.bookmarkUuid, tagUuid)
-    } finally {
-      isAddingLoading.value = false
-      isAddingTag.value = false
-    }
-    return
-  }
+const toggleCandidate = (tag: BookmarkTag) => {
+  if (attachedIds.value.has(String(tag.id))) return // 已贴上的只展示
+  togglePending(String(tag.id))
+}
 
-  // 非 LF REST：保留 bookmark_uid
-  // owner 在 bookmarkId=0 时靠它增删
-  if (!props.bookmarkId && !props.bookmarkUid) return
-  isAddingLoading.value = true
-  const res = await request().post<BookmarkTag>({
-    url: RESTMethodPath.ADD_BOOKMARK_TAG,
-    body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId, tag_name: tagName }
-  })
-  if (res) {
-    restBookmarkTags.value.push(res)
-    restSearchTags.value.push({ ...res })
+const mergeTags = (base: BookmarkTag[], extra: BookmarkTag[]) => {
+  const seen = new Set(base.map(tag => String(tag.id)))
+  const merged = [...base]
+  for (const tag of extra) {
+    if (seen.has(String(tag.id))) continue
+    seen.add(String(tag.id))
+    merged.push(tag)
   }
-  isAddingLoading.value = false
+  return merged
+}
+
+const closePanel = () => {
   isAddingTag.value = false
 }
 
+// 一次提交面板里所有勾选；出错保留 pending 让用户重试
+let isCommitting = false
+const commitPending = async () => {
+  if (isCommitting) return
+  if (pending.value.size === 0) {
+    closePanel()
+    return
+  }
+  const keys = [...pending.value]
+  const existingKeys = keys.filter(key => !isNewKey(key))
+  const newNames = keys.filter(isNewKey).map(key => key.slice(NEW_PREFIX.length))
+  const byKey = new Map(searchTags.value.map(tag => [String(tag.id), tag]))
+
+  isCommitting = true
+  isAddingLoading.value = true
+  try {
+    let added: BookmarkTag[]
+    if (tagSrc.value || tagActions) {
+      added = await commitLocal(tagSrc.value ?? tagActions!, existingKeys, newNames, byKey)
+    } else if (lf) {
+      // LF 环境但 adapter 没给写入器：uuid 不能落到 REST 的 hashid 解码上
+      Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+      return
+    } else {
+      // 非 LF REST：保留 bookmark_uid，owner 在 bookmarkId=0 时靠它增删
+      if (!props.bookmarkId && !props.bookmarkUid) {
+        closePanel()
+        return
+      }
+      const res = await request().post<BookmarkTag[]>({
+        url: RESTMethodPath.ADD_BOOKMARK_TAGS,
+        body: {
+          bookmark_id: props.bookmarkId || undefined,
+          bookmark_uid: props.bookmarkUid || undefined,
+          tags: [...existingKeys.map(key => ({ id: byKey.get(key)?.id ?? key })), ...newNames.map(name => ({ name }))]
+        }
+      })
+      if (!res) return // request 层已 toast
+      added = res
+      restSearchTags.value = mergeTags(restSearchTags.value, res)
+    }
+
+    const merged = mergeTags(bookmarkTags.value, added)
+    if (!localActive.value) restBookmarkTags.value = merged
+    emit('change', merged)
+    pending.value = new Set()
+    searchText.value = ''
+    closePanel()
+  } catch (error) {
+    console.error(error)
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+  } finally {
+    isCommitting = false
+    isAddingLoading.value = false
+  }
+}
+
+// LF：先建新标签，再一次 setTags；源不支持 setTags 时退回逐个 add
+const commitLocal = async (
+  writer: Pick<BookmarkTagActions, 'add' | 'createUserTag'> & Partial<Pick<BookmarkTagActions, 'setTags'>>,
+  existingKeys: string[],
+  newNames: string[],
+  byKey: Map<string, BookmarkTag>
+) => {
+  const created: BookmarkTag[] = []
+  for (const name of newNames) created.push(await writer.createUserTag(name))
+  const newIds = [...existingKeys, ...created.map(tag => String(tag.id))]
+  const currentIds = bookmarkTags.value.map(tag => String(tag.id))
+  if (writer.setTags) {
+    await writer.setTags(props.bookmarkUuid, [...currentIds, ...newIds])
+  } else {
+    for (const id of newIds) await writer.add(props.bookmarkUuid, id)
+  }
+  return [...existingKeys.map(key => byKey.get(key)).filter((tag): tag is BookmarkTag => !!tag), ...created]
+}
+
 const deleteBookmarkTag = async (tagId: number) => {
+  const remaining = () => bookmarkTags.value.filter(tag => tag.id !== tagId)
+
   // LF：本地解除标签关联
-  if (tagSrc.value) {
-    await tagSrc.value!.remove(props.bookmarkUuid, String(tagId))
+  const writer = tagSrc.value ?? tagActions
+  if (writer) {
+    const next = remaining()
+    try {
+      await writer.remove(props.bookmarkUuid, String(tagId))
+    } catch {
+      Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
+      return
+    }
+    if (!localActive.value) restBookmarkTags.value = next
+    emit('change', next)
+    return
+  }
+  if (lf) {
+    Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
     return
   }
 
@@ -244,33 +400,35 @@ const deleteBookmarkTag = async (tagId: number) => {
     url: RESTMethodPath.DELETE_BOOKMARK_TAG,
     body: { bookmark_id: props.bookmarkId || undefined, bookmark_uid: props.bookmarkUid || undefined, tag_id: tagId }
   })
-  const index = restBookmarkTags.value.findIndex(tag => tag.id === tagId)
-  if (index > -1) restBookmarkTags.value.splice(index, 1)
+  restBookmarkTags.value = remaining()
+  emit('change', restBookmarkTags.value)
 }
 
+// Enter：先把精确命中（或“创建”行）加进 pending，再提交
 const onKeyDown = async (e: KeyboardEvent) => {
   if (e.key !== 'Enter' || !isAddingTag.value) return
-  if (bookmarkTags.value.find(tag => tag.show_name === searchText.value)) {
-    isAddingTag.value = false
-    return
+  const text = searchText.value
+  if (text) {
+    const match = exactMatch.value
+    const key = match ? String(match.id) : newKey(text)
+    const attached = match ? attachedIds.value.has(key) : false
+    if (!attached && !pending.value.has(key)) togglePending(key)
   }
-  const tag = searchTags.value.find(tag => tag.show_name === searchText.value)
-  if (tag) {
-    await addBookmarkTag({ tagId: tag.id })
-    isAddingTag.value = false
-    return
-  }
-  await addBookmarkTag({ tagName: searchText.value })
-  isAddingTag.value = false
+  await commitPending()
 }
 
-const searchTagClick = async (tagId: number) => {
-  await addBookmarkTag({ tagId })
+const onClickOutside = () => {
+  void commitPending()
 }
 
 const addingTagClick = (e: MouseEvent) => {
   e.stopPropagation()
-  isAddingTag.value = !isAddingTag.value
+  // 面板开着时按 + 等同确认：click-outside 也会走一遍 commit，isCommitting 兜底去重
+  if (isAddingTag.value) {
+    void commitPending()
+    return
+  }
+  isAddingTag.value = true
 }
 </script>
 
@@ -288,56 +446,9 @@ const addingTagClick = (e: MouseEvent) => {
   }
 }
 
-// 不生成盒子，.tag 仍是 flex 子项
+// 不生成盒子，chip 仍是 flex 子项
 .tags-cells {
   display: contents;
-}
-
-.tag {
-  display: flex;
-  align-items: center;
-  padding: 4px 10px;
-  font-size: 13px;
-  color: var(--slax-text-muted);
-  background: transparent;
-  border: 1px solid var(--slax-border);
-  border-radius: 6px;
-  cursor: default;
-  transition: all 0.15s;
-
-  .tag-name {
-    --style: 'max-w-150px overflow-hidden whitespace-nowrap text-ellipsis';
-  }
-
-  .tag-remove {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 14px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: var(--slax-text-light);
-    border-radius: 3px;
-    transition: all 0.15s;
-    border-left: 1px solid var(--slax-border);
-    opacity: 0;
-    width: 0;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-
-  &:hover .tag-remove {
-    opacity: 1;
-    width: 14px;
-    margin-left: 6px;
-    padding-left: 6px;
-  }
-
-  .tag-remove:hover {
-    color: var(--slax-accent);
-  }
 }
 
 .loading {
@@ -352,10 +463,15 @@ const addingTagClick = (e: MouseEvent) => {
   height: 28px;
   border: 1px dashed var(--slax-border);
   background: transparent;
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
   color: var(--slax-text-light);
   transition: all 0.15s;
+
+  &.compact {
+    width: 22px;
+    height: 22px;
+  }
 
   &:hover {
     border-color: var(--slax-accent);
@@ -386,23 +502,68 @@ const addingTagClick = (e: MouseEvent) => {
     --style: mt-12px relative;
 
     .result-wrapper {
-      --style: max-h-422px py-4px overflow-y-auto;
+      --style: max-h-360px py-4px overflow-y-auto;
+
+      .group-heading {
+        --style: 'px-10px pt-8px pb-4px not-first:(mt-4px) text-(11px txt-light) uppercase tracking-wide select-none';
+      }
 
       .search-tag {
-        --style: 'rounded-sm flex items-center justify-between cursor-pointer px-10px py-9px not-first:(mt-6px) transition-all duration-normal whitespace-nowrap';
+        --style: 'rounded-sm flex items-center justify-between gap-8px cursor-pointer px-10px py-8px mt-4px transition-all duration-normal whitespace-nowrap';
         border: 1px solid var(--slax-border);
         color: var(--slax-text-muted);
         font-size: var(--slax-fs-meta);
+
+        .tag-name {
+          --style: overflow-hidden text-ellipsis;
+        }
 
         &:hover {
           border-color: var(--slax-accent-soft);
           background: var(--slax-accent-bg);
         }
 
-        .ai {
-          --style: bg-contain w-16px h-16px shrink-0;
-          background-image: url('@images/cell-ai-style-icon.png');
+        &.active {
+          border-color: var(--slax-accent);
+          background: var(--slax-accent-bg);
+          color: var(--slax-accent);
         }
+
+        &.attached {
+          cursor: default;
+          opacity: 0.5;
+
+          &:hover {
+            border-color: var(--slax-border);
+            background: transparent;
+          }
+        }
+
+        &.create {
+          border-style: dashed;
+        }
+
+        .check {
+          --style: shrink-0 w-12px h-6px;
+          border-left: 2px solid currentColor;
+          border-bottom: 2px solid currentColor;
+          transform: translateY(-2px) rotate(-45deg);
+        }
+      }
+    }
+  }
+
+  .panel-footer {
+    --style: mt-12px flex justify-end;
+
+    .confirm-btn {
+      --style: rounded-sm px-12px py-6px text-(12px) cursor-pointer transition-all duration-normal;
+      border: 1px solid var(--slax-accent);
+      background: var(--slax-accent);
+      color: var(--slax-surface-solid);
+
+      &:hover {
+        opacity: 0.9;
       }
     }
   }
@@ -411,31 +572,5 @@ const addingTagClick = (e: MouseEvent) => {
     --style: absolute inset-0 flex-center;
     background: color-mix(in srgb, var(--slax-surface-solid) 80%, transparent);
   }
-}
-
-.cell-leave-to,
-.cell-enter-from {
-  opacity: 0;
-  max-width: 0;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  margin-right: 0;
-  overflow: hidden;
-}
-
-.cell-enter-active,
-.cell-leave-active {
-  transition: all 0.25s ease-in-out;
-  overflow: hidden;
-}
-
-.opacity-enter-from,
-.opacity-leave-to {
-  --style: opacity-0;
-}
-
-.opacity-enter-active,
-.opacity-leave-active {
-  --style: transition-opacity duration-fast;
 }
 </style>

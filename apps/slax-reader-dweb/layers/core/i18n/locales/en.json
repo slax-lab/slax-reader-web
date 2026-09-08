@@ -220,11 +220,17 @@
       "video_not_support_tips": ">>> Video cannot be played, please visit the original article <<<"
     },
     "bookmark_cell": {
+      "add_tag": "Add tag",
       "edit_title_placeholder": "Enter title",
       "no_title": "No Title",
       "shortcut": "link to:"
     },
     "bookmark_tags": {
+      "create": "Create “{name}”",
+      "confirm": "Done ({n})",
+      "by_ai": "Added by AI",
+      "group_mine": "My tags",
+      "group_auto": "Auto tags",
       "placeholder": "Enter new tag (press Enter to confirm)"
     },
     "cancel_collection_modal": {
@@ -469,6 +475,17 @@
       "title": "Pro Subscription"
     },
     "tags_header": {
+      "mine": "My tags",
+      "auto": "Auto tags",
+      "mine_hint": "AI picks these first when tagging",
+      "promote": "Add to my tags",
+      "demote": "Remove from my tags",
+      "empty_mine": "Pick a few words you actually use",
+      "empty_mine_desc": "Picked words move to the top and AI prefers them when tagging. You can also create a new one.",
+      "untagged": "Untagged articles",
+      "add_filter": "Add another tag",
+      "result_count": "{n} articles",
+      "no_candidates": "No more tags to add",
       "add_tag": "Add new tag",
       "add_tag_placeholder": "Enter new tag",
       "filter_tag_title": "Content under the \"{title}\" tag:",
@@ -522,6 +539,7 @@
       "send_hint": "Enter to send · Shift+Enter for newline"
     },
     "bookmarks_index": {
+      "untagged": "Untagged",
       "Trash": "Trash",
       "add_url": "Add",
       "archive": "Archive",

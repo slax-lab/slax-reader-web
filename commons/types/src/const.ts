@@ -51,6 +51,8 @@ enum RESTMethodPath {
   ADD_USER_TAG = '/v1/tag/create',
   UPDATE_USER_TAG = '/v1/tag/update',
   DELETE_USER_TAG = '/v1/tag/delete',
+  PROMOTE_USER_TAG = '/v1/tag/promote',
+  DEMOTE_USER_TAG = '/v1/tag/demote',
   IMPORT_THIRD_PARTY_DATA = '/v1/bookmark/import',
   IMPORT_THIRD_PARTY_DATA_PROGRESS = '/v1/bookmark/import_status',
   IMPORT_FAILURE_LIST = '/v1/bookmark/import_failed',
