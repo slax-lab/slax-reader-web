@@ -13,6 +13,7 @@ enum RESTMethodPath {
   REVERT_BOOKMARK = '/v1/bookmark/trash_revert',
   BOOKMARK_DETAIL = '/v1/bookmark/detail',
   BOOKMARK_METADATA = '/v1/bookmark/metadata',
+  BOOKMARK_EXPORT = '/v1/bookmark/export',
   BOOKMARK_LIST = '/v1/bookmark/list',
   BOOKMARK_BRIEF = '/v1/bookmark/brief',
   BOOKMARK_MARK_LIST = '/v1/bookmark/mark_list',

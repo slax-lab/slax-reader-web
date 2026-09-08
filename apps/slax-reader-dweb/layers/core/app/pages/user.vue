@@ -51,6 +51,7 @@
 
           <!-- 导入（UserImportSection 自带 .settings-card） -->
           <UserImportSection />
+          <UserExportSection />
 
           <!-- 帮助与支持卡片 -->
           <div class="settings-card">
@@ -74,6 +75,7 @@ import NavigateStyleButton from '#layers/core/app/components/NavigateStyleButton
 import OptionsBar from '#layers/core/app/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/app/components/Tips/AILanguageTips.vue'
 import UserDeleteAccountSection from '#layers/core/app/components/UserDeleteAccountSection.vue'
+import UserExportSection from '#layers/core/app/components/UserExportSection.vue'
 import UserImportSection from '#layers/core/app/components/UserImportSection.vue'
 import UserPageSkeleton from '#layers/core/app/components/UserPageSkeleton.vue'
 

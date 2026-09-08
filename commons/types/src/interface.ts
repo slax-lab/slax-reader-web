@@ -486,3 +486,19 @@ export interface LocalConfig {
   autoToggle?: boolean
   sidebarWidthSync?: boolean
 }
+
+export interface BookmarkExportItem {
+  url: string
+  title: string
+  tags: { name: string; source: string }[]
+  saved_at: string
+  is_read: boolean
+  is_archived: boolean
+  is_starred: boolean
+  type: 'article' | 'shortcut'
+}
+
+export interface BookmarkExportPage {
+  items: BookmarkExportItem[]
+  next_cursor: string | null
+}
