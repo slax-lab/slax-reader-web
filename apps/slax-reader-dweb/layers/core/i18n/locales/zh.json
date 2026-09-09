@@ -156,7 +156,8 @@
       "trash_success": "内容已移除",
       "unarchive_success": "内容已取消归档",
       "unstar_success": "内容已取消加星",
-      "unsubscribe_success": "取消订阅成功!"
+      "unsubscribe_success": "取消订阅成功!",
+      "lab_open": "去打开"
     }
   },
   "component": {
@@ -905,7 +906,18 @@
       "update_share_status_failed": "更新分享状态失败",
       "update_stripe_info": "更新 Stripe 信息",
       "url_count": "URL Count",
-      "view_import_progress": "查看导入进度"
+      "view_import_progress": "查看导入进度",
+      "labs": {
+        "title": "实验室",
+        "intro": "这里的功能还在打磨，可能有 bug，也可能随时下线。打开后遇到问题，欢迎到 Telegram 群告诉我们。",
+        "status_active": "实验中",
+        "status_graduated": "已正式发布",
+        "youtube": {
+          "name": "YouTube 视频",
+          "desc": "保存 YouTube 链接，自动拉取字幕，边看边读。目前英文字幕优先，App 端不支持字幕跟随",
+          "blocked": "YouTube 视频还在实验室里，请到设置页打开后再保存"
+        }
+      }
     }
   },
   "util": {

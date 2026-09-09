@@ -17,7 +17,13 @@ const buildDismissCleanup = (app: ReturnType<typeof createApp>, textToast: HTMLE
   }
 }
 
-const showToast = (options: { text: string; type?: ToastType }) => {
+export interface ToastAction {
+  text: string
+  onClick: () => void
+}
+
+// action: an underlined button after the text (e.g. "Turn on" → settings); duration: ms before auto-dismiss
+const showToast = (options: { text: string; type?: ToastType; action?: ToastAction; duration?: number }) => {
   let toastElement = document.querySelector('.toast.toast-start') as HTMLElement
   if (!toastElement) {
     toastElement = document.createElement('div')
@@ -37,6 +43,8 @@ const showToast = (options: { text: string; type?: ToastType }) => {
   const app = createApp(Toast, {
     text: options.text,
     type: options.type || ToastType.Normal,
+    action: options.action,
+    duration: options.duration,
     onDismiss: () => dismissCleanup?.()
   })
 

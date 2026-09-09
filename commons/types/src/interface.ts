@@ -381,6 +381,14 @@ export interface UserDetailInfo {
   ai_lang: string
 }
 
+/** One row of the Labs card; retired features never come back from the server */
+export interface LabFeature {
+  key: string
+  status: 'active' | 'graduated'
+  enabled: boolean
+  enabled_at: string | null
+}
+
 export interface UserShareCollectInfo {
   show_name: string
   price: number

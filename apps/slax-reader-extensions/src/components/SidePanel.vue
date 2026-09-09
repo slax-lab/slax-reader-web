@@ -113,6 +113,8 @@ import {
 } from './Selection/adapters'
 import { ExtensionsArticleSelection } from './Selection/ExtensionsArticleSelection'
 import { MarkModal } from './Selection/modal'
+import Toast from './Toast'
+import { ToastType } from './Toast/type'
 import { RESTMethodPath } from '@commons/types/const'
 import { type AddBookmarkReq, type AddBookmarkResp, type BookmarkBriefDetail, MarkType as BackendMarkType, type UserInfo } from '@commons/types/interface'
 import type { MarkCommentInfo, MarkItemInfo, QuoteData } from '@slax-reader/selection/types'
@@ -689,6 +691,13 @@ const addBookmark = async () => {
       bookmarkUrl.value = body.target_url
       isCollected.value = true
     }
+  } catch (error) {
+    // Labs gate: the server copy already says to turn it on in Settings
+    if (error instanceof RequestError && error.name === 'LAB_FEATURE_DISABLED') {
+      Toast.showToast({ text: error.message, type: ToastType.Error })
+      return
+    }
+    throw error
   } finally {
     isLoading.value = false
   }

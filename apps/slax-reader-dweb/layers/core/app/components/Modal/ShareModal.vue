@@ -12,13 +12,7 @@
             </svg>
             <span>{{ t('component.share_modal.title') }}</span>
           </div>
-          <button class="switch" :class="{ on: isSwitched }" :aria-pressed="isSwitched" @click="switchClick">
-            <span class="knob" :class="{ loading: isSwitchLoading }">
-              <Transition name="opacity">
-                <div class="i-svg-spinners:180-ring-with-bg text-accent text-tag" v-show="isSwitchLoading"></div>
-              </Transition>
-            </span>
-          </button>
+          <SwitchToggle class="switch" :model-value="isSwitched" :loading="isSwitchLoading" @change="switchClick" />
         </div>
         <Transition name="tips">
           <div class="tips" v-show="isShowTips">
@@ -74,6 +68,8 @@ export enum ShareModalType {
 </script>
 
 <script lang="ts" setup>
+import SwitchToggle from '#layers/core/app/components/SwitchToggle.vue'
+
 import { copyText } from '@commons/utils/string'
 
 import { RESTMethodPath } from '@commons/types/const'
@@ -351,30 +347,6 @@ const optionClick = async (index: number) => {
         font-weight: 500;
         color: var(--slax-text);
         line-height: 1.4;
-      }
-    }
-
-    .switch {
-      // 开关关态：弱化文本色淡化底，开态填 accent；遵循 design-system toggle 规范
-      --style: relative flex-none w-36px h-20px rounded-full cursor-pointer transition-colors duration-normal;
-      background: color-mix(in srgb, var(--slax-text-light) 40%, transparent);
-
-      &.on {
-        background: var(--slax-accent);
-      }
-
-      .knob {
-        --style: absolute top-2px left-2px w-16px h-16px rounded-full flex-center transition-all duration-normal;
-        background: var(--slax-surface-solid);
-        box-shadow: var(--slax-shadow-sm);
-
-        &.loading {
-          --style: bg-transparent shadow-none;
-        }
-      }
-
-      &.on .knob {
-        --style: translate-x-16px;
       }
     }
   }
