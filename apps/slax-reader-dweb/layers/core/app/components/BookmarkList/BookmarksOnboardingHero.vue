@@ -94,11 +94,11 @@
           </div>
         </div>
 
-        <button v-if="currentStep === 2" class="pin-confirm-btn" type="button" @click="confirmPinned">
+        <button v-if="currentStep === 2" class="pin-confirm-btn" type="button" data-analytics-element="welcome_pin_cta" @click="confirmPinned">
           {{ $t('page.bookmarks_onboarding.step2.confirm') }}
         </button>
 
-        <a v-else class="getting-started-button" :href="gettingStartedUrl" target="_blank" rel="noopener noreferrer" @click="complete">
+        <a v-else class="getting-started-button" :href="gettingStartedUrl" target="_blank" rel="noopener noreferrer" data-analytics-element="welcome_done_cta" @click="complete">
           <span>{{ $t('page.bookmarks_onboarding.step3.button') }}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M5 12h14" />

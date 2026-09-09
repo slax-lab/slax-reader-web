@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import BookmarksEmptyView from '#layers/core/app/components/BookmarkList/BookmarksEmptyView.vue'
 
+import { eventLog } from '@/utils/analytics'
 import { isMobileBrowser } from '#layers/core/app/utils/environment'
 
 import type { InboxOnboardingState } from '#layers/core/app/composables/bookmark/useInboxOnboardingState'
@@ -38,7 +39,10 @@ const { t } = useI18n()
 const isMobile = isMobileBrowser()
 
 const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_empty_state'
-const installExtension = () => window.open(pluginUrl)
+const installExtension = () => {
+  eventLog({ event_name: 'element_clicked', properties: { element_id: 'empty_state_install_cta', screen_name: 'bookmarks' } })
+  window.open(pluginUrl)
+}
 
 const promptTitle = computed(() => t('page.bookmarks_index.empty_inbox_prompt.title'))
 const promptDesc = computed(() => t('page.bookmarks_index.empty_inbox_prompt.desc'))
