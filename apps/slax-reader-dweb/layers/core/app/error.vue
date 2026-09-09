@@ -94,7 +94,7 @@ const errorMessage = computed(() => {
     padding-top: var(--slax-header-height);
 
     .slug-container {
-      --style: flex-center flex-col;
+      --style: flex-center flex-col z-2;
 
       .empty-illustration {
         color: var(--slax-text-muted);
