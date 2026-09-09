@@ -1,5 +1,5 @@
 <template>
-  <button class="apple-login-button" @click="loginClick">
+  <button class="apple-login-button" data-analytics-element="login_apple_cta" @click="loginClick">
     <div class="i-logos:apple text-brand w-20px" />
     <span>{{ t('component.login_view.apple_login') }}</span>
   </button>
