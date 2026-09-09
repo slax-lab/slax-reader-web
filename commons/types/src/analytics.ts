@@ -220,7 +220,15 @@ export type AnalyticsEvent =
 /**
  * Web 端埋点事件类型
  */
+export interface BookmarkExportEvent {
+  event: 'bookmark_export_start' | 'bookmark_export_complete' | 'bookmark_export_failure' | 'bookmark_export_cancel'
+  format: 'csv' | 'json'
+  item_count: number
+  duration_ms: number
+}
+
 export type WebAnalyticsEvent =
+  | BookmarkExportEvent
   | BookmarkViewEvent
   | BookmarkArchiveEvent
   | BookmarkStarEvent

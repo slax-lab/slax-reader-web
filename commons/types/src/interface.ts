@@ -381,6 +381,14 @@ export interface UserDetailInfo {
   ai_lang: string
 }
 
+/** One row of the Labs card; retired features never come back from the server */
+export interface LabFeature {
+  key: string
+  status: 'active' | 'graduated'
+  enabled: boolean
+  enabled_at: string | null
+}
+
 export interface UserShareCollectInfo {
   show_name: string
   price: number
@@ -485,4 +493,20 @@ export interface LocalConfig {
   webPanelPosition?: PanelPosition
   autoToggle?: boolean
   sidebarWidthSync?: boolean
+}
+
+export interface BookmarkExportItem {
+  url: string
+  title: string
+  tags: { name: string; source: string }[]
+  saved_at: string
+  is_read: boolean
+  is_archived: boolean
+  is_starred: boolean
+  type: 'article' | 'shortcut'
+}
+
+export interface BookmarkExportPage {
+  items: BookmarkExportItem[]
+  next_cursor: string | null
 }

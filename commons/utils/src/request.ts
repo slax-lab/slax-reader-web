@@ -35,6 +35,7 @@ export type FetchOptions = {
   query?: Record<string, number | string>
   body?: unknown
   headers?: Record<string, string>
+  signal?: AbortSignal
   stream?: boolean
 } & Pick<FetchConfig, 'errorInterceptors'>
 
@@ -172,9 +173,10 @@ export class FetchRequest {
   }
 
   async fetchRequest(options: FetchOptions) {
-    const { url, query, body, headers, method, stream } = options
+    const { url, query, body, headers, method, stream, signal } = options
     const result = await fetch(this.combineUrlWithQuery(url, query), {
       method,
+      signal,
       headers: {
         'Content-Type': !stream ? 'application/json' : 'text/event-stream',
         ...headers

@@ -34,6 +34,9 @@
             </div>
           </div>
 
+          <!-- 实验室（UserLabSection 自带 .settings-card，列表为空时不渲染） -->
+          <UserLabSection />
+
           <!-- 个人信息卡片 -->
           <div class="settings-card">
             <div class="section-title">{{ $t('page.user.personal_info') }}</div>
@@ -51,6 +54,7 @@
 
           <!-- 导入（UserImportSection 自带 .settings-card） -->
           <UserImportSection />
+          <UserExportSection />
 
           <!-- 帮助与支持卡片 -->
           <div class="settings-card">
@@ -74,7 +78,9 @@ import NavigateStyleButton from '#layers/core/app/components/NavigateStyleButton
 import OptionsBar from '#layers/core/app/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/app/components/Tips/AILanguageTips.vue'
 import UserDeleteAccountSection from '#layers/core/app/components/UserDeleteAccountSection.vue'
+import UserExportSection from '#layers/core/app/components/UserExportSection.vue'
 import UserImportSection from '#layers/core/app/components/UserImportSection.vue'
+import UserLabSection from '#layers/core/app/components/UserLabSection.vue'
 import UserPageSkeleton from '#layers/core/app/components/UserPageSkeleton.vue'
 
 import { getPreferredLanguage, isSlaxReaderApp } from '../utils/environment'

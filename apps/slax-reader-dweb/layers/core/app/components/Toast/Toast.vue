@@ -1,7 +1,8 @@
 <template>
   <Transition name="toast" @after-leave="onAfterLeave">
-    <div class="text-toast" :class="{ success: type === ToastType.Success, error: type === ToastType.Error }" v-show="showToast">
+    <div class="text-toast" :class="{ success: type === ToastType.Success, error: type === ToastType.Error, 'with-action': !!action }" v-show="showToast">
       <span>{{ text }}</span>
+      <button v-if="action" type="button" class="toast-action" @click="onAction">{{ action.text }}</button>
     </div>
   </Transition>
 </template>
@@ -12,10 +13,15 @@ import { nextTick, onUnmounted, ref } from 'vue'
 import { ToastType } from './type'
 
 const emits = defineEmits(['dismiss'])
-defineProps<{
-  type: ToastType
-  text: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    type: ToastType
+    text: string
+    action?: { text: string; onClick: () => void }
+    duration?: number
+  }>(),
+  { action: undefined, duration: 2500 }
+)
 
 const showToast = ref<boolean>(false)
 nextTick(() => {
@@ -23,8 +29,13 @@ nextTick(() => {
 
   setTimeout(() => {
     showToast.value = false
-  }, 2500)
+  }, props.duration)
 })
+
+const onAction = () => {
+  props.action?.onClick()
+  showToast.value = false
+}
 
 onUnmounted(() => {
   console.log('component dismiss.')
@@ -66,6 +77,31 @@ const onAfterLeave = () => {
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
+  }
+
+  // 带按钮时文案可以换行，按钮靠右不换行
+  &.with-action {
+    gap: 12px;
+
+    span {
+      width: auto;
+      max-height: none;
+      white-space: normal;
+      text-align: left;
+    }
+  }
+
+  .toast-action {
+    flex: none;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
 }
 

@@ -38,6 +38,37 @@ describe('Toast/index showToast 工厂', () => {
     expect(container.style.getPropertyValue('z-index')).toBe('9999')
   })
 
+  it('options.action → 渲染下划线按钮，点击后执行 onClick 并关闭', async () => {
+    vi.useFakeTimers()
+    const onClick = vi.fn()
+    ToastModule.showToast({ text: 'Blocked', type: ToastType.Error, action: { text: 'Turn on', onClick } })
+    await vi.advanceTimersByTimeAsync(0)
+    const button = document.querySelector('.text-toast .toast-action') as HTMLButtonElement
+    expect(button).not.toBeNull()
+    expect(button.textContent).toBe('Turn on')
+    const toast = document.querySelector('.text-toast') as HTMLElement
+    expect(toast.classList.contains('with-action')).toBe(true)
+    expect(toast.style.display).not.toBe('none')
+    button.click()
+    // v-show 在 Transition leave 结束后才写 display:none，happy-dom 下靠 fake timers 推一帧
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(toast.style.display).toBe('none')
+    vi.useRealTimers()
+  })
+
+  it('options.duration 覆盖默认 2500ms', async () => {
+    vi.useFakeTimers()
+    ToastModule.showToast({ text: 'Long', duration: 6000 })
+    await vi.advanceTimersByTimeAsync(0)
+    const toast = document.querySelector('.text-toast') as HTMLElement
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(toast.style.display).not.toBe('none')
+    await vi.advanceTimersByTimeAsync(3100)
+    expect(toast.style.display).toBe('none')
+    vi.useRealTimers()
+  })
+
   it('options.type 透传到 Toast 组件 props', () => {
     ToastModule.showToast({ text: 'Err', type: ToastType.Error })
     const errorToast = document.querySelector('.text-toast.error')

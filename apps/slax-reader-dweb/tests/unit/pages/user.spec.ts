@@ -1,5 +1,5 @@
 // pages/user.vue 单测
-// 覆盖：加载态骨架屏 / 内容态卡片结构 / 返回按钮 / error_alert query 处理
+// 覆盖：加载态骨架屏 / 内容态卡片结构 / 实验室卡片按 /labs 返回显隐 / 返回按钮 / error_alert query 处理
 import UserRelatedInfoSection from '~~/layers/core/app/components/global/UserRelatedInfoSection.vue'
 import UserImportSection from '~~/layers/core/app/components/UserImportSection.vue'
 import UserPage from '~~/layers/core/app/pages/user.vue'
@@ -20,7 +20,7 @@ const { mockRoute, mockNavigateTo, mockRequest, mockGet, mockAnalyticsLog, mockT
     mockGet,
     mockAnalyticsLog: vi.fn(),
     mockToastShowToast: vi.fn(),
-    mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT }))
+    mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT, te: () => true }))
   }
 })
 
@@ -50,13 +50,18 @@ const baseUserDetail = {
   ai_lang: 'en'
 }
 
+// request().get 按 url 分发：/v1/user/labs 默认返回空列表，其余返回用户详情
+let labFeatures: unknown[] = []
+const dispatchGet = ({ url }: { url: string }) => Promise.resolve(url === '/v1/user/labs' ? { features: labFeatures } : baseUserDetail)
+
 beforeEach(() => {
   mockRoute.query = {}
   mockNavigateTo.mockClear()
   mockGet.mockReset()
   mockAnalyticsLog.mockClear()
   mockToastShowToast.mockClear()
-  mockGet.mockResolvedValue(baseUserDetail)
+  labFeatures = []
+  mockGet.mockImplementation(dispatchGet)
 })
 
 afterEach(() => {
@@ -74,6 +79,10 @@ const stubs = {
   UserImportSection: {
     name: 'UserImportSection',
     template: '<section class="settings-card user-import-stub"></section>'
+  },
+  UserExportSection: {
+    name: 'UserExportSection',
+    template: '<section class="settings-card user-export-stub"></section>'
   },
   UserDeleteAccountSection: {
     name: 'UserDeleteAccountSection',
@@ -115,10 +124,21 @@ describe('pages/user', () => {
       expect(wrapper.find('.user-topbar').exists()).toBe(true)
     })
 
-    it('渲染 5 个 .settings-card（语言 + 个人信息 + 第三方绑定 + 导入 + 帮助支持）', async () => {
+    it('渲染 6 个 .settings-card（语言 + 个人信息 + 第三方绑定 + 导入 + 导出 + 帮助支持），实验室为空时不占卡', async () => {
       const wrapper = mountWithApp(UserPage, { global: { stubs } })
       await flushPromises()
-      expect(wrapper.findAll('.settings-card').length).toBe(5)
+      expect(wrapper.findAll('.settings-card').length).toBe(6)
+      expect(wrapper.find('#labs').exists()).toBe(false)
+    })
+
+    it('/labs 返回一个功能 → 第 7 张卡是实验室，放在语言卡片后面', async () => {
+      labFeatures = [{ key: 'youtube', status: 'active', enabled: false, enabled_at: null }]
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      const cards = wrapper.findAll('.settings-card')
+      expect(cards.length).toBe(7)
+      expect(cards[1]!.attributes('id')).toBe('labs')
+      expect(mockGet).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/user/labs' }))
     })
 
     it('UserRelatedInfoSection 和 UserImportSection 组件存在', async () => {

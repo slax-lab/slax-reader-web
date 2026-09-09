@@ -156,7 +156,8 @@
       "trash_success": "内容已移除",
       "unarchive_success": "内容已取消归档",
       "unstar_success": "内容已取消加星",
-      "unsubscribe_success": "取消订阅成功!"
+      "unsubscribe_success": "取消订阅成功!",
+      "lab_open": "去打开"
     }
   },
   "component": {
@@ -837,6 +838,19 @@
       "import_note1": "由于我们会对导入的数据进行重新抓取和解析，解析的用时与数量成正比。",
       "import_note2": "需要注意的是，我们仅支持基础元数据并对网站进行重新解析。如果您的数据发生了遗漏、差异、改变，建议使用我们的APP/浏览器扩展重新收藏以确保数据更完整。",
       "import_progress": "导入进度",
+      "export_title": "导出收藏链接",
+      "export_description": "导出收藏链接、标题、标签、收藏时间和阅读状态。包含已归档链接，不包含回收站内容。",
+      "export_format": "格式",
+      "export_csv": "CSV（电子表格）",
+      "export_json": "JSON（完整元数据）",
+      "export_start": "导出",
+      "export_cancel": "取消",
+      "export_retry": "重试",
+      "export_progress": "已准备 {count} 条链接",
+      "export_empty": "没有可导出的收藏链接。",
+      "export_failed": "导出失败，请检查网络和登录状态后重试。",
+      "export_cancelled": "已取消导出。",
+      "export_complete": "已下载 {count} 条收藏链接。",
       "import_third_party_data": "导入第三方数据",
       "import_time": "导入时间",
       "no_import_records": "暂无导入记录",
@@ -893,7 +907,18 @@
       "update_share_status_failed": "更新分享状态失败",
       "update_stripe_info": "更新 Stripe 信息",
       "url_count": "URL Count",
-      "view_import_progress": "查看导入进度"
+      "view_import_progress": "查看导入进度",
+      "labs": {
+        "title": "实验室",
+        "intro": "这里的功能还在打磨，可能有 bug，也可能随时下线。打开后遇到问题，欢迎到 Telegram 群告诉我们。",
+        "status_active": "实验中",
+        "status_graduated": "已正式发布",
+        "youtube": {
+          "name": "YouTube 视频",
+          "desc": "保存 YouTube 链接，自动拉取字幕，边看边读。目前英文字幕优先，App 端不支持字幕跟随",
+          "blocked": "YouTube 视频还在实验室里，请到设置页打开后再保存"
+        }
+      }
     }
   },
   "util": {

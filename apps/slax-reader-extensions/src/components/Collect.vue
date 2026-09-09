@@ -14,6 +14,7 @@
       <div class="title">
         <span class="">{{ title }}</span>
       </div>
+      <a v-if="labBlocked" class="lab-link" :href="labsUrl" target="_blank" rel="noopener">{{ t('open_labs_in_settings') }}</a>
       <div class="content" v-show="!isLoading">
         <div class="slax-buttons collected" v-if="bookmarkId > 0 && false">
           <button class="source" @click="checkSource">{{ t('click_to_view') }}</button>
@@ -54,6 +55,10 @@ const showPopup = ref(false)
 const bookmarkExists = ref(false)
 const title = ref('')
 const isUrlBlocked = ref(false)
+// Labs gate: the server copy goes in the status line, this adds a link to the web settings
+const labBlocked = ref(false)
+const labsUrl = `${process.env.PUBLIC_BASE_URL}/user#labs`
+let keepPopupOpen = false
 const bookmarkId = ref(0)
 const isLoading = computed(() => {
   return loading.value
@@ -90,6 +95,7 @@ const t = (
     | 'collection_not_supported'
     | 'recollection'
     | 'not_collected'
+    | 'open_labs_in_settings'
     | 'click_to_view'
     | 'removal'
     | 'removal_successful'
@@ -169,6 +175,8 @@ const updateTitle = () => {
 }
 
 const addBookmark = async () => {
+  labBlocked.value = false
+  keepPopupOpen = false
   showLoading(i18n.t('collection_in_progress'))
   try {
     const resp = await request.post<AddBookmarkResp>({
@@ -199,13 +207,22 @@ const addBookmark = async () => {
         hideLoading()
         return
       }
+      if (error.name === 'LAB_FEATURE_DISABLED') {
+        labBlocked.value = true
+        keepPopupOpen = true
+        showTips(error.message)
+        return
+      }
     }
 
     showTips(i18n.t('collection_failed'))
   } finally {
-    setTimeout(() => {
-      closePopup()
-    }, 2000)
+    // 实验室拦截时留着弹窗，用户要点链接去打开
+    if (!keepPopupOpen) {
+      setTimeout(() => {
+        closePopup()
+      }, 2000)
+    }
   }
 }
 
@@ -299,6 +316,10 @@ const closePopup = () => {
         --style: w-full h-full;
       }
     }
+  }
+
+  .lab-link {
+    --style: block mt-2 text-13px underline cursor-pointer text-#16b998;
   }
 
   .title {
