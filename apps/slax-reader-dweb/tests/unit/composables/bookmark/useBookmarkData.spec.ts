@@ -13,6 +13,7 @@ import { flushPromises } from '@vue/test-utils'
 import { baseBookmarkItem } from '~~/tests/fixtures/bookmark'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Ref } from 'vue'
 
 const { mockRequest, mockGet, mockPost, mockAddChannelMessageHandler, mockRemoveChannelMessageHandler, capturedChannelHandler, mockUseI18n, mockT } = vi.hoisted(() => {
   const captured: { value: any } = { value: null }
@@ -76,11 +77,11 @@ const makeFilter = (overrides: Partial<Record<string, any>> = {}): ReturnType<ty
 }
 
 // 通过最小宿主组件挂载 useBookmarkData，暴露其返回值供断言
-const mountData = (filter: ReturnType<typeof useBookmarkFilter>, searchText = ref('')) => {
+const mountData = (filter: ReturnType<typeof useBookmarkFilter>, searchText = ref(''), sourceDomain?: Ref<string | undefined>) => {
   let api: ReturnType<typeof useBookmarkData> | undefined
   const Host = defineComponent({
     setup() {
-      api = useBookmarkData(filter, searchText)
+      api = useBookmarkData(filter, searchText, sourceDomain)
       return () => null
     }
   })
@@ -100,6 +101,21 @@ describe('useBookmarkData', () => {
   })
 
   describe('loadData 分页 + ending', () => {
+    it('inbox source filter is sent to REST and changing it restarts from page 1', async () => {
+      mockGet.mockResolvedValueOnce([]).mockResolvedValueOnce([{ ...baseBookmarkItem, id: 1 }])
+      const sourceDomain = ref<string | undefined>()
+      const { api } = mountData(makeFilter(), ref(''), sourceDomain)
+      await flushPromises()
+
+      sourceDomain.value = 'example.com'
+      await flushPromises()
+
+      expect(mockGet).toHaveBeenCalledTimes(2)
+      const sourceRequest = mockGet.mock.calls[1]?.[0]
+      expect(sourceRequest).toEqual(expect.objectContaining({ query: expect.objectContaining({ page: 1, source: 'example.com' }) }))
+      expect(api.bookmarks.value.map(bookmark => bookmark.id)).toEqual([1])
+    })
+
     it('加载中途 reset，过期响应丢掉，不重复 push、page 不动', async () => {
       let resolveFirst: (v: any) => void = () => {}
       mockGet.mockReturnValueOnce(new Promise(resolve => (resolveFirst = resolve)))

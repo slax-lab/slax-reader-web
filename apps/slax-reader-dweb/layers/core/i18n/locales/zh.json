@@ -566,6 +566,7 @@
       "add_article": "添加文章",
       "date_group_format": "{year} 年 {month} 月",
       "last_updated_at": "最近更新于 {time}",
+      "source_filter_site": "站点",
       "just_now": "刚刚",
       "minutes_ago": "{n} 分钟前",
       "hours_ago": "{n} 小时前",
