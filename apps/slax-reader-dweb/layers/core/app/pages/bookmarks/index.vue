@@ -41,14 +41,28 @@
             !searchText &&
             !['highlights', 'notifications'].includes(filterStatus) &&
             !(filterStatus === 'topics' && filterTopicIds.length < 1) &&
-            !(isDataEmpty && !isTransitioning)
+            !(isDataEmpty && !isTransitioning && !sourceFilter)
           "
           v-model="listMode"
           :last-updated-text="lastUpdatedText"
-        />
+          :show-leading="!!sourceFilter"
+        >
+          <template #leading>
+            <div v-if="sourceFilter" class="source-filter-tag">
+              <span class="source-filter-prefix">{{ $t('page.bookmarks_index.source_filter_site') }}:</span>
+              <span class="source-filter-label">{{ sourceFilter.label }}</span>
+              <button class="source-filter-close" type="button" :aria-label="$t('common.operate.cancel')" @click="clearSourceFilter">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M4 4l8 8M12 4l-8 8" />
+                </svg>
+              </button>
+            </div>
+          </template>
+        </ListLayoutSwitcher>
 
         <BookmarkListContent
           v-if="showList"
+          :key="`${filterStatus}:${filterTopicIds.join(',')}:${filterCollectionId}:${sourceFilter?.domain || ''}`"
           :filter-status="filterStatus"
           :grouped-bookmarks="groupedBookmarks"
           :highlights="highlights"
@@ -59,6 +73,7 @@
           @archive-update="handleCellArchive"
           @alias-title-update="handleCellAliasTitle"
           @bookmark-update="handleCellBookmarkUpdate"
+          @source-filter="applySourceFilter"
           @select-tag="selectTagFromCell"
         />
         <template v-if="!(isTransitioning && isDataEmpty) && !searchText">
@@ -129,6 +144,7 @@ const userStore = useUserStore()
 const searchText = ref('')
 const isSearching = ref(false)
 const isShowTopModal = ref(false)
+const sourceFilter = ref<{ domain: string; label: string } | null>(null)
 
 // 筛选状态 + 纯导航 helper（编排动作 selectTopic/selectCollection/inboxClick 留在本页）
 const {
@@ -179,7 +195,8 @@ const {
     applyCollection,
     applyTab
   },
-  searchText
+  searchText,
+  computed(() => sourceFilter.value?.domain)
 )
 
 // 列表布局模式（card / text），localStorage 持久化
@@ -239,7 +256,12 @@ watch(filterStatus, (value, oldValue) => {
     return
   }
 
+  if (value !== 'inbox') sourceFilter.value = null
   reloadList()
+})
+
+watch(searchText, value => {
+  if (value) sourceFilter.value = null
 })
 
 // 刷新指示器：首屏加载时延迟 250ms 展示顶部 spinner
@@ -257,6 +279,7 @@ onMounted(() => {
 
 // 编排动作：选择一组话题（交集）。filterStatus 不变（始终 'topics'），故手动 reset + load
 const selectTopics = async (ids: string[], name = '') => {
+  sourceFilter.value = null
   resetBookmarks()
   await applyTopics(ids, name)
   await onLoadMore()
@@ -264,6 +287,7 @@ const selectTopics = async (ids: string[], name = '') => {
 
 // 编排动作：列表卡片上点了一个标签 → 进标签筛选页，只选这一个
 const selectTagFromCell = async (tag: BookmarkTag) => {
+  sourceFilter.value = null
   const ids = [String(tag.id)]
   if (filterStatus.value === 'topics') {
     await selectTopics(ids, tag.show_name)
@@ -283,6 +307,7 @@ const selectTagFromCell = async (tag: BookmarkTag) => {
 
 // 编排动作：选择合集。filterStatus 不变（始终 'collections'），故手动 reset + load
 const selectCollection = async (info: { id: number; name: string; code: string } | null) => {
+  sourceFilter.value = null
   resetBookmarks()
   await applyCollection(info)
   await onLoadMore()
@@ -300,6 +325,7 @@ const inboxClick = async (type: string, index?: number) => {
     return
   }
 
+  sourceFilter.value = null
   resetBookmarks()
   await applyTab(type)
 
@@ -307,6 +333,17 @@ const inboxClick = async (type: string, index?: number) => {
     const button = tabsSidebar.value?.getAllButtons()[index]
     button?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
+}
+
+const applySourceFilter = (source: { domain: string; label: string }) => {
+  if (filterStatus.value !== 'inbox' || !source.domain) return
+  sourceFilter.value = source
+  y.value = 0
+}
+
+const clearSourceFilter = () => {
+  sourceFilter.value = null
+  y.value = 0
 }
 
 const addUrlSuccess = () => {
@@ -339,6 +376,55 @@ const notificationBack = () => {
 </script>
 
 <style lang="scss" scoped>
+.source-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  max-width: min(100%, 320px);
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--slax-accent) 24%, var(--slax-border));
+  border-radius: 999px;
+  background: var(--slax-accent-bg);
+  color: var(--slax-accent);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.source-filter-prefix {
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.source-filter-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-filter-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 6px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+}
+
 .list-loading-enter-active,
 .list-loading-leave-active {
   transition: transform 0.4s;

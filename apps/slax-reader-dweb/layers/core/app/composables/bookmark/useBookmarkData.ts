@@ -1,7 +1,7 @@
 // 书签列表数据层：列表状态 + 分页 + 查询 + 无限滚动 + 派生计算 + cell handlers + 频道同步
 // 依赖方向：单向依赖 useBookmarkFilter（读 filter ref）+ 页面传入的 searchText，无构造期循环依赖。
 // scrollY（useScroll）归页面持有，不在此处。
-import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onActivated, onDeactivated, onMounted, onUnmounted, ref, toValue, watch } from 'vue'
 
 import { isClient } from '@commons/utils/is'
 import type { ChannelMessageData } from '#layers/core/app/utils/channel'
@@ -17,7 +17,7 @@ type BookmarkFilter = ReturnType<typeof useBookmarkFilter>
 // 日期分组条目类型
 type GroupedItem = { type: 'group'; label: string; key: string } | { type: 'bookmark'; bookmark: BookmarkItem; index: number }
 
-export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>) => {
+export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>, sourceDomain?: Ref<string | null | undefined>) => {
   const { t, locale } = useI18n()
 
   const bookmarks = ref<BookmarkItem[]>([])
@@ -113,6 +113,7 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
   // === 查询 ===
 
   const queryBookmarks = async () => {
+    const source = toValue(sourceDomain)
     return await request().get<BookmarkItem[]>({
       url: RESTMethodPath.BOOKMARK_LIST,
       query: {
@@ -120,7 +121,8 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
         size: 20,
         filter: `${filter.filterStatus.value}`,
         topic_ids: filter.filterTopicIds.value.join(','),
-        collection_id: String(filter.filterCollectionId.value) || ''
+        collection_id: String(filter.filterCollectionId.value) || '',
+        ...(filter.filterStatus.value === 'inbox' && source ? { source } : {})
       }
     })
   }
@@ -218,6 +220,14 @@ export const useBookmarkData = (filter: BookmarkFilter, searchText: Ref<string>)
   const reloadList = () => {
     resetBookmarks()
     onLoadMore()
+  }
+
+  if (sourceDomain) {
+    watch(sourceDomain, (domain, previousDomain) => {
+      if (domain === previousDomain || filter.filterStatus.value !== 'inbox') return
+      resetBookmarks()
+      onLoadMore()
+    })
   }
 
   // === 无限滚动 ===
