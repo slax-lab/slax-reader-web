@@ -244,13 +244,7 @@ export type WebAnalyticsEvent =
  * Extension 端埋点事件类型
  */
 export type ExtensionAnalyticsEvent =
-  | BookmarkArchiveEvent
-  | BookmarkStarEvent
-  | BookmarkChatInteractEvent
-  | BookmarkOverviewInteractEvent
-  | BookmarkOutlineInteractEvent
-  | FeedbackSubmitStartEvent
-  | BookmarkViewEvent
+  BookmarkArchiveEvent | BookmarkStarEvent | BookmarkChatInteractEvent | BookmarkOverviewInteractEvent | BookmarkOutlineInteractEvent | FeedbackSubmitStartEvent | BookmarkViewEvent
 
 // ==================== 工具类型 ====================
 
