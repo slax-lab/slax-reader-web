@@ -548,11 +548,6 @@ const starBookmark = async (isStar: boolean) => {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-
-  // 标签面板开着时抬高整卡，不被下一张卡的 body 压住
-  &:has(.search-list) {
-    z-index: 5;
-  }
   padding: 18px 20px;
   background: var(--slax-surface);
   border: 1px solid var(--slax-border);

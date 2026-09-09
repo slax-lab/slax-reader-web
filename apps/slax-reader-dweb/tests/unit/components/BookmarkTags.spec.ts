@@ -11,7 +11,7 @@ import BookmarkTags from '~~/layers/core/app/components/BookmarkTags.vue'
 
 import type { BookmarkTag } from '@commons/types/interface'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { flushPromises } from '@vue/test-utils'
+import { DOMWrapper, flushPromises } from '@vue/test-utils'
 import { LocalFirstAdapterKey, SharedUserTagsKey } from '~~/layers/core/app/composables/local-first/injection'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -52,18 +52,31 @@ function mountTags(options: Parameters<typeof mountWithApp>[1]) {
   return wrapper
 }
 
-function isPanelHidden(wrapper: Wrapper): boolean {
-  const el = wrapper.find('.search-list')
-  if (!el.exists()) return true
-  return (el.element as HTMLElement).style.display === 'none'
+// 面板现在 Teleport 到 document.body，不再挂在 wrapper 的子树里，
+// 需要直接查 document 而非 wrapper.find/findAll；包一层 DOMWrapper 保留 .trigger() 用法
+function isPanelHidden(): boolean {
+  const el = document.querySelector<HTMLElement>('.search-list')
+  if (!el) return true
+  return el.style.display === 'none'
 }
 
-function candidateNames(wrapper: Wrapper): string[] {
-  return wrapper.findAll('.search-tag:not(.create)').map(row => row.find('.tag-name').text())
+function candidateNames(): string[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('.search-tag:not(.create) .tag-name')).map(el => el.textContent ?? '')
 }
 
-function selectable(wrapper: Wrapper) {
-  return wrapper.findAll('.search-tag:not(.attached):not(.create)')
+function selectable(): DOMWrapper<HTMLElement>[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('.search-tag:not(.attached):not(.create)')).map(el => new DOMWrapper(el))
+}
+
+// 面板内其它元素（confirm-btn / input / result-wrapper / group-heading / search-tag.*）同理，需查 document
+function panelFind(selector: string): DOMWrapper<HTMLElement> {
+  const el = document.querySelector<HTMLElement>(selector)
+  if (!el) throw new Error(`panelFind: no element matches ${selector}`)
+  return new DOMWrapper(el)
+}
+
+function panelFindAll(selector: string): DOMWrapper<HTMLElement>[] {
+  return Array.from(document.querySelectorAll<HTMLElement>(selector)).map(el => new DOMWrapper(el))
 }
 
 async function openPanel(wrapper: Wrapper) {
@@ -167,26 +180,26 @@ describe('components/BookmarkTags', () => {
     it('候选分组：mine 标题在前、auto 在后；已绑定的显示但不可选', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      const headings = wrapper.findAll('.group-heading').map(h => h.text())
+      const headings = panelFindAll('.group-heading').map(h => h.text())
       expect(headings).toEqual(['My tags', 'Auto tags'])
-      expect(candidateNames(wrapper)).toEqual(['tech', 'design', 'ai', 'ai-tools'])
-      expect(wrapper.findAll('.search-tag.attached').map(r => r.find('.tag-name').text())).toEqual(['tech', 'ai'])
-      await wrapper.find('.search-tag.attached').trigger('click')
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (0)')
+      expect(candidateNames()).toEqual(['tech', 'design', 'ai', 'ai-tools'])
+      expect(panelFindAll('.search-tag.attached').map(r => r.find('.tag-name').text())).toEqual(['tech', 'ai'])
+      await panelFind('.search-tag.attached').trigger('click')
+      expect(panelFind('.confirm-btn').text()).toBe('Done (0)')
     })
 
     it('某组为空时不渲染该组标题', async () => {
       mockGet.mockResolvedValue([design])
       const wrapper = mountTags({ props: { tags: [], bookmarkId: 7 } })
       await openPanel(wrapper)
-      expect(wrapper.findAll('.group-heading').map(h => h.text())).toEqual(['My tags'])
+      expect(panelFindAll('.group-heading').map(h => h.text())).toEqual(['My tags'])
     })
 
     it('searchText 过滤名称包含 ai 的候选', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('input').setValue('ai')
-      expect(candidateNames(wrapper)).toEqual(['ai', 'ai-tools'])
+      await panelFind('input').setValue('ai')
+      expect(candidateNames()).toEqual(['ai', 'ai-tools'])
     })
 
     it('isAddingLoading：searchingTags 调用中再次触发返回早返', async () => {
@@ -208,45 +221,45 @@ describe('components/BookmarkTags', () => {
     it('多次点击 add 切换面板', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      expect(isPanelHidden(wrapper)).toBe(false)
+      expect(isPanelHidden()).toBe(false)
       await openPanel(wrapper)
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('挂到 document 上：+ 能关掉开着的面板，且不重复拉词表', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 }, attachTo: document.body })
       await openPanel(wrapper)
-      expect(isPanelHidden(wrapper)).toBe(false)
+      expect(isPanelHidden()).toBe(false)
       // vueuse 的 click-outside 挂在 window 的 capture 阶段，靠 setTimeout(0) 去抖
       wrapper.find('.tag-add-wrap .tag-add').element.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       await new Promise(resolve => setTimeout(resolve, 0))
       await flushPromises()
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
       expect(mockGet).toHaveBeenCalledTimes(1)
     })
 
     it('搜索词改了，之前勾的“创建 xxx”从 pending 里去掉', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('input').setValue('foo')
-      await wrapper.find('.search-tag.create').trigger('click')
-      expect(wrapper.find('.confirm-btn').text()).toContain('1')
-      await wrapper.find('input').setValue('foob')
-      expect(wrapper.find('.confirm-btn').text()).toContain('0')
+      await panelFind('input').setValue('foo')
+      await panelFind('.search-tag.create').trigger('click')
+      expect(panelFind('.confirm-btn').text()).toContain('1')
+      await panelFind('input').setValue('foob')
+      expect(panelFind('.confirm-btn').text()).toContain('0')
     })
 
     it('重开面板保留 searchText 与滚动位置', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('input').setValue('des')
-      const list = wrapper.find('.result-wrapper')
+      await panelFind('input').setValue('des')
+      const list = panelFind('.result-wrapper')
       Object.defineProperty(list.element, 'scrollTop', { value: 42, writable: true, configurable: true })
       await list.trigger('scroll')
       await openPanel(wrapper) // close
       await openPanel(wrapper) // reopen
-      expect((wrapper.find('input').element as HTMLInputElement).value).toBe('des')
-      expect(candidateNames(wrapper)).toEqual(['design'])
-      expect((wrapper.find('.result-wrapper').element as HTMLElement).scrollTop).toBe(42)
+      expect((panelFind('input').element as HTMLInputElement).value).toBe('des')
+      expect(candidateNames()).toEqual(['design'])
+      expect((panelFind('.result-wrapper').element as HTMLElement).scrollTop).toBe(42)
     })
   })
 
@@ -254,14 +267,14 @@ describe('components/BookmarkTags', () => {
     it('点击候选只切换 pending，不发请求；再点取消', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      const rows = selectable(wrapper)
+      const rows = selectable()
       await rows[0]!.trigger('click')
       expect(mockPost).not.toHaveBeenCalled()
-      expect(selectable(wrapper)[0]!.classes()).toContain('active')
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (1)')
-      await selectable(wrapper)[0]!.trigger('click')
-      expect(selectable(wrapper)[0]!.classes()).not.toContain('active')
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (0)')
+      expect(selectable()[0]!.classes()).toContain('active')
+      expect(panelFind('.confirm-btn').text()).toBe('Done (1)')
+      await selectable()[0]!.trigger('click')
+      expect(selectable()[0]!.classes()).not.toContain('active')
+      expect(panelFind('.confirm-btn').text()).toBe('Done (0)')
     })
 
     it('Done：一次 ADD_BOOKMARK_TAGS 带 tags:[{id},{id}]，合并列表 + emit change + 关闭', async () => {
@@ -271,9 +284,9 @@ describe('components/BookmarkTags', () => {
       ])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await selectable(wrapper)[1]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await selectable()[1]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(mockPost).toHaveBeenCalledTimes(1)
       const call = lastPostBody()
@@ -282,23 +295,23 @@ describe('components/BookmarkTags', () => {
       expect(wrapper.findAll('.tags-cells .tag-chip')).toHaveLength(4)
       const emitted = wrapper.emitted('change')![0]![0] as BookmarkTag[]
       expect(emitted.map(t => t.id)).toEqual([1, 2, 3, 4])
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('Done 时 pending 为空：只关闭，不发请求', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('.confirm-btn').trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(mockPost).not.toHaveBeenCalled()
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('bookmarkId 与 bookmarkUid 都缺失：不发请求', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags] } })
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(mockPost).not.toHaveBeenCalled()
     })
@@ -307,8 +320,8 @@ describe('components/BookmarkTags', () => {
       mockPost.mockResolvedValueOnce([design])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkUid: 'u1' } })
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(lastPostBody().body).toEqual({ bookmark_id: undefined, bookmark_uid: 'u1', tags: [{ id: 3 }] })
     })
@@ -317,41 +330,41 @@ describe('components/BookmarkTags', () => {
       mockPost.mockResolvedValueOnce([{ id: 99, name: 'brand-new', show_name: 'brand-new', source: 'mine', added_by: 'user' }])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('input').setValue('brand-new')
-      const create = wrapper.find('.search-tag.create')
+      await panelFind('input').setValue('brand-new')
+      const create = panelFind('.search-tag.create')
       expect(create.exists()).toBe(true)
       expect(create.text()).toContain('Create “brand-new”')
       await create.trigger('click')
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (1)')
-      await wrapper.find('.confirm-btn').trigger('click')
+      expect(panelFind('.confirm-btn').text()).toBe('Done (1)')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(lastPostBody().body.tags).toEqual([{ name: 'brand-new' }])
       expect(wrapper.findAll('.tags-cells .tag-chip')).toHaveLength(3)
       // 提交成功后清空 searchText
       await openPanel(wrapper)
-      expect((wrapper.find('input').element as HTMLInputElement).value).toBe('')
+      expect((panelFind('input').element as HTMLInputElement).value).toBe('')
     })
 
     it('搜索精确匹配某候选（大小写敏感）：不出现 create 行', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await wrapper.find('input').setValue('design')
-      expect(wrapper.find('.search-tag.create').exists()).toBe(false)
-      await wrapper.find('input').setValue('Design')
-      expect(wrapper.find('.search-tag.create').exists()).toBe(true)
+      await panelFind('input').setValue('design')
+      expect(document.querySelector('.search-tag.create')).toBeNull()
+      await panelFind('input').setValue('Design')
+      expect(document.querySelector('.search-tag.create')).not.toBeNull()
     })
 
     it('出错：toast 报错、pending 保留、面板不关', async () => {
       mockPost.mockRejectedValueOnce(new Error('boom'))
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
-      expect(isPanelHidden(wrapper)).toBe(false)
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (1)')
-      expect(selectable(wrapper)[0]!.classes()).toContain('active')
+      expect(isPanelHidden()).toBe(false)
+      expect(panelFind('.confirm-btn').text()).toBe('Done (1)')
+      expect(selectable()[0]!.classes()).toContain('active')
       expect(wrapper.emitted('change')).toBeUndefined()
     })
   })
@@ -360,33 +373,33 @@ describe('components/BookmarkTags', () => {
     it('文本是已绑定的 tag 名：直接关闭不调 post', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      const input = wrapper.find('input')
+      const input = panelFind('input')
       await input.setValue('tech')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
       expect(mockPost).not.toHaveBeenCalled()
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('文本精确命中候选：加入 pending 并提交 {id}', async () => {
       mockPost.mockResolvedValueOnce([design])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      const input = wrapper.find('input')
+      const input = panelFind('input')
       await input.setValue('design')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
       expect(mockPost).toHaveBeenCalledTimes(1)
       expect(lastPostBody().body.tags).toEqual([{ id: 3 }])
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('文本未命中：提交 {name}，连同已勾选的候选', async () => {
       mockPost.mockResolvedValueOnce([aiTools, { id: 99, name: 'brand-new-tag', show_name: 'brand-new-tag' }])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      await selectable(wrapper)[1]!.trigger('click')
-      const input = wrapper.find('input')
+      await selectable()[1]!.trigger('click')
+      const input = panelFind('input')
       await input.setValue('brand-new-tag')
       await input.trigger('keydown', { key: 'Enter' })
       await flushPromises()
@@ -396,7 +409,7 @@ describe('components/BookmarkTags', () => {
     it('面板已关闭：Enter 不调 post', async () => {
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 } })
       await openPanel(wrapper)
-      const input = wrapper.find('input')
+      const input = panelFind('input')
       await input.setValue('design')
       await openPanel(wrapper) // close
       await input.trigger('keydown', { key: 'Enter' })
@@ -410,14 +423,14 @@ describe('components/BookmarkTags', () => {
       mockPost.mockResolvedValueOnce([design])
       const wrapper = mountTags({ props: { tags: [...baseTags], bookmarkId: 7 }, attachTo: document.body })
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
+      await selectable()[0]!.trigger('click')
       await tick() // vueuse onClickOutside 用 setTimeout(0) 去重连点
       document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       await flushPromises()
       await tick()
       expect(mockPost).toHaveBeenCalledTimes(1)
       expect(lastPostBody().url).toBe('/v1/bookmark/add_tags')
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
   })
 
@@ -454,12 +467,12 @@ describe('components/BookmarkTags', () => {
       expect(bookmarkTagSource).toHaveBeenCalledTimes(1)
       await openPanel(wrapper)
       expect(mockGet).not.toHaveBeenCalled()
-      expect(candidateNames(wrapper)).toEqual(['tech', 'design', 'ai-tools'])
-      await selectable(wrapper)[0]!.trigger('click')
-      await selectable(wrapper)[1]!.trigger('click')
-      await wrapper.find('input').setValue('fresh')
-      await wrapper.find('.search-tag.create').trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      expect(candidateNames()).toEqual(['tech', 'design', 'ai-tools'])
+      await selectable()[0]!.trigger('click')
+      await selectable()[1]!.trigger('click')
+      await panelFind('input').setValue('fresh')
+      await panelFind('.search-tag.create').trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(src.createUserTag).toHaveBeenCalledTimes(1)
       expect(src.createUserTag).toHaveBeenCalledWith('fresh')
@@ -469,7 +482,7 @@ describe('components/BookmarkTags', () => {
       expect(mockPost).not.toHaveBeenCalled()
       const emitted = wrapper.emitted('change')![0]![0] as BookmarkTag[]
       expect(emitted.map(t => t.id)).toEqual(['t-1', 't-3', 't-4', 't-new'])
-      expect(isPanelHidden(wrapper)).toBe(true)
+      expect(isPanelHidden()).toBe(true)
     })
 
     it('非 compact：源没有 setTags 时逐个 add', async () => {
@@ -482,9 +495,9 @@ describe('components/BookmarkTags', () => {
       })
       await flushPromises()
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await selectable(wrapper)[1]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await selectable()[1]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(src.add).toHaveBeenCalledTimes(2)
       expect(src.add).toHaveBeenNthCalledWith(1, 'b-1', 't-3')
@@ -527,11 +540,11 @@ describe('components/BookmarkTags', () => {
       expect(bookmarkTagSource).not.toHaveBeenCalled()
       await openPanel(wrapper)
       expect(mockGet).not.toHaveBeenCalled()
-      expect(candidateNames(wrapper)).toEqual(['tech', 'design', 'ai-tools'])
-      await selectable(wrapper)[0]!.trigger('click')
-      await wrapper.find('input').setValue('fresh')
-      await wrapper.find('.search-tag.create').trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      expect(candidateNames()).toEqual(['tech', 'design', 'ai-tools'])
+      await selectable()[0]!.trigger('click')
+      await panelFind('input').setValue('fresh')
+      await panelFind('.search-tag.create').trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(actions.createUserTag).toHaveBeenCalledWith('fresh')
       expect(actions.setTags).toHaveBeenCalledTimes(1)
@@ -560,7 +573,7 @@ describe('components/BookmarkTags', () => {
       })
       await openPanel(wrapper)
       expect(mockGet).toHaveBeenCalledTimes(1)
-      expect(candidateNames(wrapper)).toEqual(['tech', 'design', 'ai', 'ai-tools'])
+      expect(candidateNames()).toEqual(['tech', 'design', 'ai', 'ai-tools'])
     })
 
     it('LF 出错：toast + pending 保留', async () => {
@@ -572,12 +585,12 @@ describe('components/BookmarkTags', () => {
       })
       await flushPromises()
       await openPanel(wrapper)
-      await selectable(wrapper)[0]!.trigger('click')
-      await wrapper.find('.confirm-btn').trigger('click')
+      await selectable()[0]!.trigger('click')
+      await panelFind('.confirm-btn').trigger('click')
       await flushPromises()
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
-      expect(isPanelHidden(wrapper)).toBe(false)
-      expect(wrapper.find('.confirm-btn').text()).toBe('Done (1)')
+      expect(isPanelHidden()).toBe(false)
+      expect(panelFind('.confirm-btn').text()).toBe('Done (1)')
     })
   })
 })
