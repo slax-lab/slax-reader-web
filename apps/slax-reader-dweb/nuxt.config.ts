@@ -239,7 +239,7 @@ export default defineNuxtConfig({
           sizes: '512x512',
           type: 'image/png'
         }
-      ],
+      ]
     },
     scope: '/',
     registerWebManifestInRouteRules: true,

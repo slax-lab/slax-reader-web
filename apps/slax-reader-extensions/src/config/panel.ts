@@ -28,14 +28,14 @@ import starHighlightedImage from '~/assets/panel-item-star-highlighted.png'
 import starSelectedImage from '~/assets/panel-item-star-selected.png'
 
 export enum PanelItemType {
-  'AI' = 'ai',
-  'Outline' = 'outline',
-  'Chat' = 'chat',
-  'Share' = 'share',
-  'Comments' = 'comments',
-  'Archieve' = 'archieve',
-  'Star' = 'star',
-  'Feedback' = 'feedback'
+  AI = 'ai',
+  Outline = 'outline',
+  Chat = 'chat',
+  Share = 'share',
+  Comments = 'comments',
+  Archieve = 'archieve',
+  Star = 'star',
+  Feedback = 'feedback'
 }
 
 export interface PanelItem {

@@ -46,14 +46,7 @@
 
 ## TS / JS 语法糖
 
-| 模式                      | 搜什么                                                     |
-| ------------------------- | ---------------------------------------------------------- | --- | ----------------------------------- | --- | ----------------------------------- |
-| `using` / `await using`   | `"TypeScript using declaration support"` + 是否需 polyfill |
-| `Promise.withResolvers()` | `"Promise.withResolvers browser support"`                  |
-| `structuredClone`         | `"structuredClone browser support"`                        |
-| `satisfies`               | 一般 OK，看 TS 版本                                        |
-| `??` / `??=` vs `         |                                                            | `   | `"nullish coalescing pitfalls"`（`x |     | default` 在 0/''/false 时错误兜底） |
-| Top-level await           | Nuxt/Vite 支持情况                                         |
+| 模式 | 搜什么 | | ------------------------- | ---------------------------------------------------------- | --- | ----------------------------------- | --- | ----------------------------------- | | `using` / `await using` | `"TypeScript using declaration support"` + 是否需 polyfill | | `Promise.withResolvers()` | `"Promise.withResolvers browser support"` | | `structuredClone` | `"structuredClone browser support"` | | `satisfies` | 一般 OK，看 TS 版本 | | `??` / `??=` vs `        |                                                            |` | `"nullish coalescing pitfalls"`（`x |     | default` 在 0/''/false 时错误兜底） | | Top-level await | Nuxt/Vite 支持情况 |
 
 ## 类型断言 / 绕过
 
