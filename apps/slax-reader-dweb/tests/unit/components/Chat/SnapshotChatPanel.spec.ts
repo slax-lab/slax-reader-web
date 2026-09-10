@@ -242,6 +242,21 @@ describe('SnapshotChatPanel.vue', () => {
       await ta.trigger('keydown', { key: 'Enter' })
       expect(mockBotChat).not.toHaveBeenCalled()
     })
+    // Shift+Enter 不应移动光标
+    // happy-dom 不模拟原生插入换行
+    it('E3: Shift+Enter 不手动挪动光标', async () => {
+      const wrapper = mountPanel({ bookmarkId: 1 })
+      const ta = wrapper.find('textarea')
+      const el = ta.element as HTMLTextAreaElement
+      await ta.setValue('asdfghjkl')
+      el.selectionStart = 3
+      el.selectionEnd = 3
+      await ta.trigger('keydown', { key: 'Enter', shiftKey: true })
+      await nextTick()
+      expect(el.selectionStart).toBe(3)
+      expect(el.selectionEnd).toBe(3)
+      expect(el.value).toBe('asdfghjkl')
+    })
   })
 
   describe('F. SSE 回调 / buffer', () => {
