@@ -12,8 +12,11 @@
     <span class="tag-name">{{ tag.show_name }}</span>
     <span v-if="typeof count === 'number'" class="tag-count">{{ count }}</span>
     <i v-if="aiMark" class="tag-ai" :title="$t('component.bookmark_tags.by_ai')">AI</i>
-    <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
-    <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
+    <!-- 操作按钮浮在右缘：悬停时 chip 宽度不变，列表不会跳动 -->
+    <span v-if="promotable || removable" class="tag-acts">
+      <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
+      <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
+    </span>
   </span>
 </template>
 
@@ -45,6 +48,7 @@ void props
 
 <style lang="scss" scoped>
 .tag-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -110,8 +114,19 @@ void props
     font-style: normal;
   }
 
-  .tag-act {
+  // 绝对定位在右缘，不占布局宽度；遮住标签名尾部是预期的
+  .tag-acts {
     display: none;
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    gap: 2px;
+  }
+
+  .tag-act {
+    display: inline-grid;
+    place-items: center;
     width: 16px;
     height: 16px;
     padding: 0;
@@ -129,10 +144,9 @@ void props
     }
   }
 
-  &:hover .tag-act,
-  &:focus-within .tag-act {
-    display: inline-grid;
-    place-items: center;
+  &:hover .tag-acts,
+  &:focus-within .tag-acts {
+    display: inline-flex;
   }
 }
 </style>
