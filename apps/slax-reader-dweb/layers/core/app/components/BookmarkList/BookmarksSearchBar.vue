@@ -52,6 +52,11 @@
 <script lang="ts" setup>
 import { vOnClickOutside } from '@vueuse/components'
 
+// The page's current search text; when it changes (a ?q= handoff, or "back" out of a search) the box follows
+const props = defineProps<{
+  searchText?: string
+}>()
+
 const emit = defineEmits<{
   search: [keyword: string]
 }>()
@@ -139,6 +144,13 @@ const clearKeyword = () => {
   keyword.value = ''
   emit('search', '')
 }
+
+watch(
+  () => props.searchText,
+  value => {
+    if (value !== undefined) keyword.value = value
+  }
+)
 
 onMounted(() => {
   loadHistory()

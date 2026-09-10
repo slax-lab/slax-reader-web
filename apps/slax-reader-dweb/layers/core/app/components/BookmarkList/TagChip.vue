@@ -2,7 +2,7 @@
 <template>
   <span
     class="tag-chip"
-    :class="{ mine: tag.source === 'mine', active, compact, clickable: !!onClickListener }"
+    :class="{ mine: tag.source === 'mine', active, compact, clickable: !!onClickListener, 'has-acts': promotable || removable }"
     :title="tag.show_name"
     role="button"
     :tabindex="onClickListener ? 0 : -1"
@@ -12,8 +12,11 @@
     <span class="tag-name">{{ tag.show_name }}</span>
     <span v-if="typeof count === 'number'" class="tag-count">{{ count }}</span>
     <i v-if="aiMark" class="tag-ai" :title="$t('component.bookmark_tags.by_ai')">AI</i>
-    <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
-    <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
+    <!-- Actions sit in a gutter reserved on the right: the chip keeps its width on hover and nothing gets covered -->
+    <span v-if="promotable || removable" class="tag-acts">
+      <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
+      <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
+    </span>
   </span>
 </template>
 
@@ -45,6 +48,7 @@ void props
 
 <style lang="scss" scoped>
 .tag-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -110,8 +114,29 @@ void props
     font-style: normal;
   }
 
+  // Chips with actions keep a gutter on the right at all times, so showing the buttons never changes the width
+  &.has-acts {
+    padding-right: 28px;
+  }
+
+  &.compact.has-acts {
+    padding-right: 24px;
+  }
+
+  // Hidden, not display:none, so the buttons stay reachable by keyboard
+  .tag-acts {
+    display: inline-flex;
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    gap: 2px;
+  }
+
   .tag-act {
-    display: none;
+    display: inline-grid;
+    place-items: center;
     width: 16px;
     height: 16px;
     padding: 0;
@@ -129,10 +154,9 @@ void props
     }
   }
 
-  &:hover .tag-act,
-  &:focus-within .tag-act {
-    display: inline-grid;
-    place-items: center;
+  &:hover .tag-acts,
+  &:focus-within .tag-acts {
+    visibility: visible;
   }
 }
 </style>

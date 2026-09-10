@@ -1,5 +1,5 @@
 // pages/user.vue 单测
-// 覆盖：加载态骨架屏 / 内容态卡片结构 / 实验室卡片按 /labs 返回显隐 / 返回按钮 / error_alert query 处理
+// 覆盖：加载态骨架屏 / 内容态卡片结构 / 实验室卡片按 /labs 返回显隐 / 共用顶栏的搜索与反馈 / error_alert query 处理
 import UserRelatedInfoSection from '~~/layers/core/app/components/global/UserRelatedInfoSection.vue'
 import UserImportSection from '~~/layers/core/app/components/UserImportSection.vue'
 import UserPage from '~~/layers/core/app/pages/user.vue'
@@ -9,7 +9,7 @@ import { flushPromises } from '@vue/test-utils'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { mockRoute, mockNavigateTo, mockRequest, mockGet, mockAnalyticsLog, mockToastShowToast, mockUseI18n } = vi.hoisted(() => {
+const { mockRoute, mockNavigateTo, mockRequest, mockGet, mockAnalyticsLog, mockToastShowToast, mockUseI18n, mockShowFeedbackModal } = vi.hoisted(() => {
   const route = { query: {} as Record<string, unknown>, path: '/user', params: {}, fullPath: '/user' }
   const mockGet = vi.fn()
   const mockT = vi.fn((key: string) => key)
@@ -20,9 +20,14 @@ const { mockRoute, mockNavigateTo, mockRequest, mockGet, mockAnalyticsLog, mockT
     mockGet,
     mockAnalyticsLog: vi.fn(),
     mockToastShowToast: vi.fn(),
-    mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT, te: () => true }))
+    mockUseI18n: vi.fn(() => ({ locale: { value: 'en' }, t: mockT, te: () => true })),
+    mockShowFeedbackModal: vi.fn()
   }
 })
+
+vi.mock('#layers/core/app/components/Modal', () => ({
+  showFeedbackModal: mockShowFeedbackModal
+}))
 
 vi.mock('#layers/core/app/components/Toast', () => ({
   default: { showToast: mockToastShowToast },
@@ -70,6 +75,13 @@ afterEach(() => {
 
 // 子组件 stub，避免子组件内部副作用
 const stubs = {
+  // Top bar shared with the inbox: only the search / feedback events matter here
+  BookmarksTopBar: {
+    name: 'BookmarksTopBar',
+    template: '<header class="bookmarks-topbar-stub"></header>',
+    props: ['sidebarToggle', 'searchText'],
+    emits: ['search', 'feedback', 'checkAll']
+  },
   UserRelatedInfoSection: {
     name: 'UserRelatedInfoSection',
     template: '<section class="settings-card user-related-stub"></section>',
@@ -117,11 +129,13 @@ describe('pages/user', () => {
   })
 
   describe('内容态', () => {
-    it('加载完成后渲染 .detail + .user-topbar', async () => {
+    it('加载完成后渲染 .detail，顶栏用收件箱同款 BookmarksTopBar，不再有自己的返回栏', async () => {
       const wrapper = mountWithApp(UserPage, { global: { stubs } })
       await flushPromises()
       expect(wrapper.find('.detail').exists()).toBe(true)
-      expect(wrapper.find('.user-topbar').exists()).toBe(true)
+      expect(wrapper.findComponent({ name: 'BookmarksTopBar' }).exists()).toBe(true)
+      expect(wrapper.find('.user-topbar').exists()).toBe(false)
+      expect(wrapper.find('.back-btn').exists()).toBe(false)
     })
 
     it('渲染 6 个 .settings-card（语言 + 个人信息 + 第三方绑定 + 导入 + 导出 + 帮助支持），实验室为空时不占卡', async () => {
@@ -157,12 +171,36 @@ describe('pages/user', () => {
     })
   })
 
-  describe('返回按钮', () => {
-    it('点击 .back-btn 触发 navigateTo("/bookmarks", { replace: true })', async () => {
+  describe('共用顶栏', () => {
+    it('顶栏不带侧栏折叠按钮', async () => {
       const wrapper = mountWithApp(UserPage, { global: { stubs } })
       await flushPromises()
-      await wrapper.find('.back-btn').trigger('click')
-      expect(mockNavigateTo).toHaveBeenCalledWith('/bookmarks', { replace: true })
+      expect(wrapper.findComponent({ name: 'BookmarksTopBar' }).props('sidebarToggle')).toBe(false)
+    })
+
+    it('顶栏搜索 → 带 q 回到收件箱；清空（空关键词）不离开设置页', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      const topbar = wrapper.findComponent({ name: 'BookmarksTopBar' })
+      await topbar.vm.$emit('search', 'vue')
+      expect(mockNavigateTo).toHaveBeenCalledWith({ path: '/bookmarks', query: { q: 'vue' } })
+      mockNavigateTo.mockClear()
+      await topbar.vm.$emit('search', '')
+      expect(mockNavigateTo).not.toHaveBeenCalled()
+    })
+
+    it('通知“查看全部” → 跳到收件箱的通知列表', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      await wrapper.findComponent({ name: 'BookmarksTopBar' }).vm.$emit('checkAll')
+      expect(mockNavigateTo).toHaveBeenCalledWith({ path: '/bookmarks', query: { filter: 'notifications' } })
+    })
+
+    it('顶栏反馈 → showFeedbackModal 带用户邮箱和 settings 入口', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      await wrapper.findComponent({ name: 'BookmarksTopBar' }).vm.$emit('feedback')
+      expect(mockShowFeedbackModal).toHaveBeenCalledWith(expect.objectContaining({ email: 'test@example.com', params: { entry_point: 'settings' } }))
     })
   })
 
