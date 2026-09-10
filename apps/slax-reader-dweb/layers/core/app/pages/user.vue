@@ -2,18 +2,8 @@
   <div class="user-info">
     <NuxtLoadingIndicator color="var(--slax-accent)" />
 
-    <!-- 顶栏：固定 56px，毛玻璃背景 -->
-    <div class="user-topbar">
-      <div class="topbar-inner">
-        <button class="back-btn" @click="navigateToBookmarks">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          <span>{{ $t('component.search_header.back') }}</span>
-        </button>
-        <span class="topbar-logo">{{ $t('common.app.name') }}</span>
-      </div>
-    </div>
+    <!-- 顶栏：与收件箱共用同一个顶栏，页面切换时头部不变 -->
+    <BookmarksTopBar @search="searchBookmarks" @feedback="feedbackClick" />
 
     <div class="content">
       <Transition name="opacity" mode="out-in">
@@ -74,6 +64,7 @@
 </template>
 
 <script lang="ts" setup>
+import BookmarksTopBar from '#layers/core/app/components/BookmarkList/BookmarksTopBar.vue'
 import NavigateStyleButton from '#layers/core/app/components/NavigateStyleButton.vue'
 import OptionsBar from '#layers/core/app/components/OptionsBar.vue'
 import AILanguageTips from '#layers/core/app/components/Tips/AILanguageTips.vue'
@@ -87,6 +78,7 @@ import { getPreferredLanguage, isSlaxReaderApp } from '../utils/environment'
 
 import { RESTMethodPath } from '@commons/types/const'
 import { type UserDetailInfo } from '@commons/types/interface'
+import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useUserStore } from '#layers/core/app/stores/user'
 
@@ -196,9 +188,20 @@ const getUserDetailInfo = async () => {
   loading.value = false
 }
 
-const navigateToBookmarks = () => {
-  navigateTo('/bookmarks', {
-    replace: true
+// 顶栏搜索：回到收件箱并带上关键词，收件箱页读到 q 后发起搜索
+const searchBookmarks = (keyword: string) => {
+  const text = keyword.trim()
+  navigateTo(text ? { path: '/bookmarks', query: { q: text } } : '/bookmarks')
+}
+
+const feedbackClick = () => {
+  showFeedbackModal({
+    reportType: 'parse_error',
+    title: '',
+    email: userInfo.value?.email || userStore.userInfo?.email || '',
+    params: {
+      entry_point: 'settings'
+    }
   })
 }
 
@@ -232,59 +235,6 @@ const localeSelect = (index: number) => {
   --style: w-full relative flex justify-center items-start pb-88px;
 }
 
-// 顶栏：固定 56px，毛玻璃
-.user-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  background: var(--slax-topbar-bg);
-  backdrop-filter: var(--slax-blur);
-  border-bottom: 1px solid var(--slax-border);
-  z-index: 100;
-}
-
-.topbar-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  padding: 6px 0;
-  color: var(--slax-text-muted);
-  font-size: var(--slax-fs-aux);
-  font-family: inherit;
-  cursor: pointer;
-  transition: color var(--slax-dur-normal);
-
-  &:hover {
-    color: var(--slax-text);
-  }
-
-  span {
-    font-weight: 500;
-  }
-}
-
-.topbar-logo {
-  font-family: var(--slax-font-serif);
-  font-size: var(--slax-fs-brand);
-  font-weight: 500;
-  color: var(--slax-text);
-  letter-spacing: -0.02em;
-}
-
 // 内容区：顶部留出顶栏高度 + 额外间距
 // 宽度对齐 Inbox 内容区
 .content {
@@ -293,8 +243,7 @@ const localeSelect = (index: number) => {
   padding: calc(var(--slax-header-height) + 16px) 24px 88px;
 
   @media (max-width: 768px) {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: calc(var(--slax-header-h-mobile) + 16px) 16px 88px;
   }
 }
 

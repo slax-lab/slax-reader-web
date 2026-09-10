@@ -260,6 +260,17 @@ watch(filterStatus, (value, oldValue) => {
   reloadList()
 })
 
+// 其他页面（如设置页顶栏）带 ?q= 进来：转成一次搜索，再把 q 从地址栏去掉
+watch(
+  () => route.query.q,
+  value => {
+    if (typeof value !== 'string' || !value) return
+    searchText.value = value
+    useRouter().replace({ query: { ...route.query, q: undefined } })
+  },
+  { immediate: true }
+)
+
 watch(searchText, value => {
   if (value) sourceFilter.value = null
 })
