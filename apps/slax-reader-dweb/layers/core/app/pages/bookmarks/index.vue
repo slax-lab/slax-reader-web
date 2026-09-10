@@ -264,8 +264,8 @@ watch(filterStatus, (value, oldValue) => {
 // The page is kept alive, so this runs on a fresh mount and on every return to /bookmarks;
 // hooks rather than a route watcher, so a cached instance never reacts to another page's URL.
 const consumeSearchQuery = () => {
-  const q = route.query.q
-  if (typeof q !== 'string' || !q) return
+  const q = typeof route.query.q === 'string' ? route.query.q.trim() : ''
+  if (!q) return
   searchText.value = q
   // Keep the current path: a name-based replace would turn the '/' alias into '/bookmarks' and remount the page
   useRouter().replace({ path: route.path, query: { ...route.query, q: undefined } })
