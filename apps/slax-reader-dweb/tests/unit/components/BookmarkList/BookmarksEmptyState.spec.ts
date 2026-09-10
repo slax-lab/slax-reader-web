@@ -1,8 +1,15 @@
 // BookmarksEmptyState 组件单测
 import BookmarksEmptyState from '~~/layers/core/app/components/BookmarkList/BookmarksEmptyState.vue'
 
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+const { mockAnalyticsLog } = vi.hoisted(() => ({
+  mockAnalyticsLog: vi.fn()
+}))
+
+mockNuxtImport('analyticsLog', () => mockAnalyticsLog)
 
 const baseProps = {
   filterStatus: 'inbox',
@@ -12,6 +19,7 @@ const baseProps = {
 describe('BookmarksEmptyState', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+    mockAnalyticsLog.mockReset()
   })
 
   describe('inbox：B/C/null', () => {
@@ -30,11 +38,18 @@ describe('BookmarksEmptyState', () => {
       expect(iconSvg.find('circle').exists()).toBe(false)
     })
 
-    it('inboxState=B：点击安装按钮 → window.open(pluginUrl)', async () => {
+    it('inboxState=B：点击安装按钮 → analyticsLog + window.open(pluginUrl)', async () => {
       const mockOpen = vi.fn()
       vi.stubGlobal('open', mockOpen)
       const wrapper = mountWithApp(BookmarksEmptyState, { props: { ...baseProps, inboxState: 'B' } })
       await wrapper.find('.empty-view-action').trigger('click')
+      expect(mockAnalyticsLog).toHaveBeenCalledWith({
+        event: 'bookmark_list_download',
+        client: 'browser_extension'
+      })
+      expect(mockAnalyticsLog).toHaveBeenCalledTimes(1)
+      expect(mockOpen).toHaveBeenCalledTimes(1)
+      expect(mockAnalyticsLog.mock.invocationCallOrder[0]!).toBeLessThan(mockOpen.mock.invocationCallOrder[0]!)
       expect(mockOpen).toHaveBeenCalledWith(expect.stringContaining('chromewebstore.google.com'))
     })
 

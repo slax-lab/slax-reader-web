@@ -548,13 +548,6 @@ const starBookmark = async (isStar: boolean) => {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-
-  // 标签面板开着时抬高整卡，不被下一张卡的 body 压住。
-  // 虚拟列表里 item 外层有 contain: layout 的层叠上下文，
-  // 这条只在卡片直接相邻时生效，列表里靠 BookmarkListContent 抬 item
-  &:has(.search-list) {
-    z-index: 5;
-  }
   padding: 18px 20px;
   background: var(--slax-surface);
   border: 1px solid var(--slax-border);

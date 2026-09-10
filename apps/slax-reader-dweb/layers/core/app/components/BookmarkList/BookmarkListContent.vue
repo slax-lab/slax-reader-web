@@ -128,13 +128,6 @@ const emit = defineEmits<{
 .bookmarks {
   --style: relative;
 
-  // 虚拟列表给每个 item 套了一层 contain: layout style 的 div，
-  // layout containment 自带层叠上下文，卡片自己的 z-index 抬不过后面的 item。
-  // 标签面板开着时抬 item 本身，面板才能盖住下面的卡片
-  :deep(div:has(> .article-card .search-list)) {
-    z-index: 5;
-  }
-
   .card-cells-wrapper {
     --style: px-16px;
     display: flex;

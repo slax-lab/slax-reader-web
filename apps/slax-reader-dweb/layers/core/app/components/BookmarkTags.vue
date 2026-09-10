@@ -1,5 +1,5 @@
 <template>
-  <div class="bookmark-tags" ref="bookmarkTagsEle">
+  <div class="bookmark-tags">
     <div class="tags-list" :class="{ 'is-reserving': isReserving }">
       <!-- :key 随 id 集合变化整块挂卸，
            绕开 keyed v-for patch 崩溃 -->
@@ -29,45 +29,49 @@
             </g>
           </svg>
         </button>
-        <!-- v-if 而非 v-show：整子树挂卸。
-             local-first 下 v-for 吃的是 PowerSync 的 live useQuery，隐藏时 patch 会崩 -->
-        <div v-if="isAddingTag" class="search-list" ref="searchList" v-on-click-outside="[onClickOutside, { ignore: [add] }]">
-          <input
-            ref="searchInput"
-            v-ime-guard
-            type="text"
-            :placeholder="$t('component.bookmark_tags.placeholder')"
-            v-model="searchText"
-            v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
-          />
-          <div class="search-result">
-            <div class="result-wrapper" ref="resultWrapper" v-if="groupedCandidates.length > 0 || createName" @scroll="onResultScroll">
-              <template v-for="group in groupedCandidates" :key="group.key">
-                <div class="group-heading">{{ $t(group.label) }}</div>
-                <div
-                  v-for="tag in group.tags"
-                  :key="tag.id"
-                  class="search-tag"
-                  :class="{ active: pending.has(String(tag.id)), attached: attachedIds.has(String(tag.id)) }"
-                  @click="toggleCandidate(tag)"
-                >
-                  <span class="tag-name">{{ tag.show_name }}</span>
-                  <i class="check" v-if="pending.has(String(tag.id)) || attachedIds.has(String(tag.id))" />
+        <!-- Teleport 到 body：列表卡片位于 virtua 虚拟滚动的 item wrapper 内（该 wrapper 带
+             contain:layout style，会形成独立层叠上下文），面板留在卡片内部时无论 z-index
+             多高都逃不出这层 containment，会被下一张卡片盖住。挪到 body 顶层 + fixed 定位彻底绕开。
+             v-if 而非 v-show：整子树挂卸。local-first 下 v-for 吃的是 PowerSync 的 live useQuery，隐藏时 patch 会崩 -->
+        <Teleport to="body">
+          <div v-if="isAddingTag" class="search-list" ref="searchList" :style="popupStyle" v-on-click-outside="[onClickOutside, { ignore: [add] }]">
+            <input
+              ref="searchInput"
+              v-ime-guard
+              type="text"
+              :placeholder="$t('component.bookmark_tags.placeholder')"
+              v-model="searchText"
+              v-on-key-stroke:Enter="[onKeyDown, { eventName: 'keydown' }]"
+            />
+            <div class="search-result">
+              <div class="result-wrapper" ref="resultWrapper" v-if="groupedCandidates.length > 0 || createName" @scroll="onResultScroll">
+                <template v-for="group in groupedCandidates" :key="group.key">
+                  <div class="group-heading">{{ $t(group.label) }}</div>
+                  <div
+                    v-for="tag in group.tags"
+                    :key="tag.id"
+                    class="search-tag"
+                    :class="{ active: pending.has(String(tag.id)), attached: attachedIds.has(String(tag.id)) }"
+                    @click="toggleCandidate(tag)"
+                  >
+                    <span class="tag-name">{{ tag.show_name }}</span>
+                    <i class="check" v-if="pending.has(String(tag.id)) || attachedIds.has(String(tag.id))" />
+                  </div>
+                </template>
+                <div v-if="createName" class="search-tag create" :class="{ active: pending.has(newKey(createName)) }" @click="togglePending(newKey(createName))">
+                  <span class="tag-name">{{ $t('component.bookmark_tags.create', { name: createName }) }}</span>
+                  <i class="check" v-if="pending.has(newKey(createName))" />
                 </div>
-              </template>
-              <div v-if="createName" class="search-tag create" :class="{ active: pending.has(newKey(createName)) }" @click="togglePending(newKey(createName))">
-                <span class="tag-name">{{ $t('component.bookmark_tags.create', { name: createName }) }}</span>
-                <i class="check" v-if="pending.has(newKey(createName))" />
               </div>
             </div>
+            <div class="panel-footer">
+              <button type="button" class="confirm-btn" @click="commitPending">{{ $t('component.bookmark_tags.confirm', { n: pending.size }) }}</button>
+            </div>
+            <div class="list-loading" v-if="isAddingLoading">
+              <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
+            </div>
           </div>
-          <div class="panel-footer">
-            <button type="button" class="confirm-btn" @click="commitPending">{{ $t('component.bookmark_tags.confirm', { n: pending.size }) }}</button>
-          </div>
-          <div class="list-loading" v-if="isAddingLoading">
-            <div class="i-svg-spinners:90-ring w-24px" style="color: var(--slax-accent)" />
-          </div>
-        </div>
+        </Teleport>
       </div>
     </div>
   </div>
@@ -135,11 +139,12 @@ const sharedUserTags = props.compact ? inject(SharedUserTagsKey, null) : null
 const isMounted = ref(false)
 const localActive = computed(() => isMounted.value && tagSrc.value !== null)
 
-const bookmarkTagsEle = ref<HTMLDivElement>()
 const add = ref<HTMLButtonElement>()
 const searchList = ref<HTMLDivElement>()
 const searchInput = ref<HTMLInputElement>()
 const resultWrapper = ref<HTMLDivElement>()
+// 面板 fixed 定位：viewport 坐标，随外层滚动/resize 更新
+const popupStyle = ref<{ top: string; left: string }>({ top: '0px', left: '0px' })
 
 // 双轨：LF 只读 / REST ref
 const restBookmarkTags = ref<BookmarkTag[]>(props.tags || [])
@@ -226,20 +231,21 @@ watch(
   { deep: true }
 )
 
+// 按 + 按钮当前位置算 fixed 坐标（viewport 绝对值，Teleport 到 body 后不再受任何祖先 transform/offset 影响）
+const updatePopupPosition = () => {
+  const rect = add.value?.getBoundingClientRect()
+  if (!rect) return
+  popupStyle.value = { top: `${rect.bottom + 10}px`, left: `${rect.left}px` }
+}
+
 watch(
   () => isAddingTag.value,
   value => {
     if (!value) return
-    // v-if 弹层，nextTick 再定位/聚焦
+    updatePopupPosition()
+    // v-if 弹层，nextTick 再定位/聚焦（首次挂载时 rect 更准）
     nextTick(() => {
-      const eleRect = bookmarkTagsEle.value?.getBoundingClientRect()
-      const rect = add.value?.getBoundingClientRect()
-      if (eleRect && rect && searchList.value) {
-        const yOffset = rect.bottom - eleRect.top + 10
-        const xOffset = rect.left - eleRect.left
-        searchList.value.style.top = `${yOffset}px`
-        searchList.value.style.left = `${xOffset}px`
-      }
+      updatePopupPosition()
       searchInput.value?.focus()
       restoreResultScroll()
     })
@@ -247,8 +253,21 @@ watch(
   }
 )
 
+// 面板开着时列表所在容器（inbox 主区域/文章侧栏）可能滚动，+ 按钮位置会变，需跟随重新定位
+const onReposition = () => {
+  if (!isAddingTag.value) return
+  updatePopupPosition()
+}
+
 onMounted(() => {
   isMounted.value = true
+  window.addEventListener('scroll', onReposition, { passive: true, capture: true })
+  window.addEventListener('resize', onReposition, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onReposition, true)
+  window.removeEventListener('resize', onReposition)
 })
 
 const onResultScroll = (e: Event) => {
@@ -486,7 +505,8 @@ const addingTagClick = (e: MouseEvent) => {
 }
 
 .search-list {
-  --style: absolute top-full -mt-2px w-260px rounded-sm overflow-hidden border-(1px solid border) shadow-warm bg-surface-solid px-12px py-16px pb-12px z-10;
+  // fixed 定位（Teleport 到 body），top/left 由脚本按 + 按钮 rect 算好写进 style
+  --style: fixed w-260px rounded-sm overflow-hidden border-(1px solid border) shadow-warm bg-surface-solid px-12px py-16px pb-12px z-200;
 
   input {
     --style: rounded-sm bg-surface border-(1px solid border) px-10px py-9px h-36px text-(aux txt-light) line-height-18px w-full transition-all duration-300;
