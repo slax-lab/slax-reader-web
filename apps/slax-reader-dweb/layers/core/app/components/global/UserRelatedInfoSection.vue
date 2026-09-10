@@ -1,5 +1,5 @@
 <template>
-  <section class="settings-card">
+  <section class="settings-card" v-if="section === 'connections'">
     <div class="title">{{ $t('page.user.third_party_binding') }}</div>
     <div class="info">
       <div class="binding">
@@ -18,6 +18,10 @@ import type { BindedPlatformInfo, UserDetailInfo } from '@commons/types/interfac
 
 const emits = defineEmits(['update'])
 const props = defineProps({
+  section: {
+    type: String as PropType<'account' | 'connections'>,
+    default: 'connections'
+  },
   userInfo: {
     type: Object as PropType<UserDetailInfo>,
     required: true

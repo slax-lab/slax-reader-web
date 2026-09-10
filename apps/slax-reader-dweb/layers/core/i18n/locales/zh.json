@@ -798,6 +798,15 @@
       "title": "找不到页面"
     },
     "user": {
+      "navigation": {
+        "title": "设置",
+        "account": "账号",
+        "preferences": "偏好设置",
+        "connections": "连接与集成",
+        "features": "功能",
+        "data": "数据管理",
+        "support": "帮助与支持"
+      },
       "ai_response_language": "AI 回应语言:",
       "batches_progress": "进度",
       "business_name": "商户名称：",
