@@ -1,5 +1,5 @@
 <template>
-  <button class="google-login-button" @click="loginClick">
+  <button class="google-login-button" data-analytics-element="login_google_cta" @click="loginClick">
     <div class="i-logos:google-icon text-brand w-20px" />
     <span>{{ t('component.login_view.google_login') }}</span>
   </button>
