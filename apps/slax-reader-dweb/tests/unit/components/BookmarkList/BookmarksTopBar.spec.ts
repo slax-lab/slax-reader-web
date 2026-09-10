@@ -7,8 +7,9 @@ import { useSidebarCollapsed } from '~~/layers/core/app/composables/bookmark/use
 import { mountWithApp } from '~~/tests/setup/mount'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-const mountTopBar = () =>
+const mountTopBar = (props: Record<string, unknown> = {}) =>
   mountWithApp(BookmarksTopBar, {
+    props,
     global: {
       stubs: {
         BookmarksSearchBar: true,
@@ -42,6 +43,12 @@ describe('BookmarksTopBar', () => {
     const btn = wrapper.find('.topbar-menu')
     expect(btn.attributes('aria-expanded')).toBe('false')
     expect(btn.attributes('title')).toBe('Expand sidebar')
+  })
+
+  it('sidebar-toggle=false 时不渲染 .topbar-menu，logo 仍在', () => {
+    const wrapper = mountTopBar({ sidebarToggle: false })
+    expect(wrapper.find('.topbar-menu').exists()).toBe(false)
+    expect(wrapper.find('.topbar-logo').exists()).toBe(true)
   })
 
   it('.topbar-menu 位于 logo 之前', () => {

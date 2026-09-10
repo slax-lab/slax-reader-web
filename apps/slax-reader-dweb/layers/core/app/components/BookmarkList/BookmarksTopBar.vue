@@ -4,8 +4,8 @@
     <div class="topbar-inner">
       <!-- 左侧：侧栏折叠按钮 + 品牌名 + 主题切换 -->
       <div class="topbar-left">
-        <!-- 折叠按钮：≤920px 侧栏本身隐藏或转为横条，按钮随之隐藏 -->
-        <button class="topbar-menu" :title="menuLabel" :aria-label="menuLabel" :aria-expanded="!collapsed" @click="toggle" type="button">
+        <!-- 折叠按钮：≤920px 侧栏本身隐藏或转为横条，按钮随之隐藏；没有侧栏的页面用 sidebar-toggle=false 去掉 -->
+        <button v-if="sidebarToggle" class="topbar-menu" :title="menuLabel" :aria-label="menuLabel" :aria-expanded="!collapsed" @click="toggle" type="button">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -19,7 +19,7 @@
 
       <!-- 右侧：搜索框 + 通知 + 用户菜单 -->
       <div class="topbar-right">
-        <BookmarksSearchBar @search="onSearch" />
+        <BookmarksSearchBar :search-text="searchText" @search="onSearch" />
         <UserNotification :icon-style="UserNotificationIconStyle.TINY" @checkAll="emit('checkAll')">
           <template #icon>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--slax-text-muted)">
@@ -40,6 +40,16 @@ import BookmarksUserMenu from '#layers/core/app/components/BookmarkList/Bookmark
 import UserNotification, { UserNotificationIconStyle } from '#layers/core/app/components/Notification/UserNotification.vue'
 
 import { useSidebarCollapsed } from '#layers/core/app/composables/bookmark/useSidebarCollapsed'
+
+withDefaults(
+  defineProps<{
+    // Current search text of the hosting page, mirrored into the search box
+    searchText?: string
+    // Pages without a sidebar (settings) hide the collapse button
+    sidebarToggle?: boolean
+  }>(),
+  { searchText: undefined, sidebarToggle: true }
+)
 
 const emit = defineEmits<{
   search: [keyword: string]

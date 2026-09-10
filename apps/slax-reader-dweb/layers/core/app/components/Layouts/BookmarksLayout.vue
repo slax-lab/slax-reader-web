@@ -4,7 +4,7 @@
     <div class="small-screen-trigger" ref="smallScreenTrigger"></div>
 
     <!-- 顶栏：固定定位，毛玻璃效果，自包含所有内容 -->
-    <BookmarksTopBar @search="emit('search', $event)" @feedback="emit('feedback')" @check-all="emit('checkAll')" />
+    <BookmarksTopBar :search-text="searchText" @search="emit('search', $event)" @feedback="emit('feedback')" @check-all="emit('checkAll')" />
 
     <!-- 主体：顶部留出 header 高度，sidebar + main 布局 -->
     <div class="layout">
@@ -26,6 +26,11 @@
 import BookmarksTopBar from '#layers/core/app/components/BookmarkList/BookmarksTopBar.vue'
 
 import { useSidebarCollapsed } from '#layers/core/app/composables/bookmark/useSidebarCollapsed'
+
+defineProps<{
+  // Current search text, mirrored into the top bar's search box
+  searchText?: string
+}>()
 
 const emit = defineEmits<{
   search: [keyword: string]
