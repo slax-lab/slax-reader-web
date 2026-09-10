@@ -1,7 +1,7 @@
 <template>
   <!-- 顶栏内嵌搜索框：支持历史记录下拉、回车搜索、Esc 收起 -->
   <!-- click-outside 绑在容器上，避免 input focus 时被误判为外部点击导致历史闪烁 -->
-  <div class="topbar-search" data-analytics-element="bookmark_search" :class="{ focused: isFocused }" ref="searchWrap" v-on-click-outside="onClickOutside">
+  <div class="topbar-search" :class="{ focused: isFocused }" ref="searchWrap" v-on-click-outside="onClickOutside">
     <!-- 搜索图标 -->
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8" />
@@ -12,6 +12,7 @@
     <input
       v-ime-guard
       class="search-input"
+      data-analytics-element="bookmark_search"
       :placeholder="$t('page.bookmarks_index.search_placeholder')"
       v-model="keyword"
       @focus="onFocus"
