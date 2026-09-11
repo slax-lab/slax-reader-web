@@ -69,11 +69,11 @@ pnpm run build:extensions:zip   # 构建并打包扩展为 zip
 pnpm run lint                   # 检查代码风格
 ```
 
-详细开发指南请查看 [开发文档](./public/DEVELOPMENT-DOCUMENT-CN.md)。
+详细开发指南请查看 [开发文档](./docs/DEVELOPMENT-DOCUMENT-CN.md)。
 
 # 🚀 Self-Deploy
 
-快速部署您自己的版本！本项目支持多种部署方式。查看我们的 [部署文档](./public/DEPLOY-CN.md) 获取完整的步骤说明。
+快速部署您自己的版本！本项目支持多种部署方式。查看我们的 [部署文档](./docs/DEPLOY-CN.md) 获取完整的步骤说明。
 
 # 🎉 Feature List
 
@@ -87,7 +87,7 @@ pnpm run lint                   # 检查代码风格
 
 # 🤝 How to Contribution
 
-你可以通过了解我们的开发、部署、基础规范来进行代码的贡献，让产品做得更好。[开发文档](./public/DEVELOPMENT-DOCUMENT-CN.md)
+你可以通过了解我们的开发、部署、基础规范来进行代码的贡献，让产品做得更好。[开发文档](./docs/DEVELOPMENT-DOCUMENT-CN.md)
 
 # 💖 Contributors
 
@@ -125,7 +125,7 @@ pnpm run lint                   # 检查代码风格
 
 未经明确书面许可，您不得将项目标志、名称或其他商标用于任何商业目的。您可以使用项目名称仅作为准确引用，以表明您的作品基于本项目，但不得以暗示认可或附属关系的方式使用。本软件的任何修改版本必须清楚地标明为修改版本，且不得以暗示其为原始项目官方发行版的方式进行标记或营销。如需商标使用许可，请联系 Slax Lab 团队 (ns.boxcounter@gmail.com)。
 
-请参阅我们的[商标和使用政策](./TRADEMARK.md)
+请参阅我们的[商标和使用政策](./docs/TRADEMARK.md)
 
 # 📝 License
 

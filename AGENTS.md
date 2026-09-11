@@ -41,6 +41,10 @@ pnpm workspaces: `apps/*`, `commons/*`.
 - Build outDir is `build/` (load `build/chrome-mv3`, not `dist`).
 - `postinstall` runs `wxt prepare` + vendor build (markmap/highlight.js/katex externalized for dev speed).
 
+## Documentation
+
+All project docs live under `docs/` (deploy guide, dev guide, contribution guide, DESIGN.md, TRADEMARK.md). **Any new documentation must be added under `docs/`, not `public/` or the repo root.** This repo is a separate submodule from the fork parent (`slax-reader`) — its `docs/` is independent of the fork's `docs/`; don't cross-reference or duplicate between the two. Exceptions: root `README.md`/`README_CN.md`, module-level `README.md` files next to code (e.g. `apps/*/README.md`, `commons/selection/README.md`), and `.claude/`/`.codex/` agent working notes stay where they are.
+
 ## Tech stack
 
 Nuxt (Vue 3.5, SSR) on Cloudflare Pages · WXT extension · UnoCSS (attributify/icons/rem-to-px, token theming light/dark/eink) · Pinia · VueUse · TypeScript · Vitest · `@nuxtjs/i18n`.

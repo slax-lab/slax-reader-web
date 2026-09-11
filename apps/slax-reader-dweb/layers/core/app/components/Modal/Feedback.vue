@@ -143,7 +143,7 @@ const t = (text: string, params: Record<string, unknown> = {}) => {
 .feedback-modal {
   --style: fixed inset-0 z-200 bg-transparent flex-center transition-colors duration-normal;
   &.appear {
-    // 遵循 DESIGN.md 第八节弹窗遮罩规范
+    // 遵循 docs/DESIGN.md 第八节弹窗遮罩规范
     background: rgba(15, 20, 25, 0.6);
     backdrop-filter: blur(4px);
   }
