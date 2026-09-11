@@ -40,7 +40,7 @@ const onToggle = () => {
 
 <style lang="scss" scoped>
 .switch-toggle {
-  // 开关关态：弱化文本色淡化底，开态填 accent；遵循 DESIGN.md toggle 规范
+  // 开关关态：弱化文本色淡化底，开态填 accent；遵循 docs/DESIGN.md toggle 规范
   --style: relative flex-none w-36px h-20px rounded-full cursor-pointer transition-colors duration-normal p-0 border-none;
   background: color-mix(in srgb, var(--slax-text-light) 40%, transparent);
 

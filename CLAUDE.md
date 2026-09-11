@@ -72,6 +72,10 @@ pnpm workspace globs: `apps/*`, `commons/*`.
 - `configs/env.ts` loads env files and builds the runtime config consumed by both apps.
 - Wrangler for Cloudflare Pages: `apps/slax-reader-dweb/wrangler.toml`.
 
+## Documentation
+
+All project docs (deploy guide, dev guide, contribution guide, `DESIGN.md`, `TRADEMARK.md`) live under `docs/` at the repo root. **Any new documentation must be added under `docs/`** — not `public/`, not the repo root. This repo is a git submodule of the fork parent (`slax-reader`); its `docs/` is independent of the fork's `docs/` — don't mix the two. This does not apply to: root `README.md`/`README_CN.md`, module-level `README.md` files that sit next to the code they describe (e.g. `apps/slax-reader-dweb/README.md`, `commons/selection/README.md`), and `.claude/`/`.codex/` agent working notes.
+
 ## Important Notes
 
 - **`@slax-reader/selection` must be rebuilt after source edits.** It's a workspace package (`commons/selection`) built with `tsup`; the runtime imports `dist/`, so editing `src/` alone does nothing until you rebuild (`pnpm --F @slax-reader/selection build` or `dev` for watch mode).

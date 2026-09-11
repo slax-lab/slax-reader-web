@@ -69,11 +69,11 @@ pnpm run build:extensions:zip   # Build and create zip for extension
 pnpm run lint                   # Check code style
 ```
 
-For detailed development guide, see [Development Documentation](./public/DEVELOPMENT-DOCUMENT-EN.md).
+For detailed development guide, see [Development Documentation](./docs/DEVELOPMENT-DOCUMENT-EN.md).
 
 # 🚀 Self-Deploy
 
-Quickly deploy your own version! This project supports multiple deployment methods. Check out our [Deploy Document](./public/DEPLOY-EN.md) for complete step-by-step instructions.
+Quickly deploy your own version! This project supports multiple deployment methods. Check out our [Deploy Document](./docs/DEPLOY-EN.md) for complete step-by-step instructions.
 
 # 🎉 Feature List
 
@@ -87,7 +87,7 @@ Quickly deploy your own version! This project supports multiple deployment metho
 
 # 🤝 How to Contribute
 
-You can contribute to the code by understanding our development, deployment, and basic standards, helping to improve the product. [Development Documentation](./public/DEVELOPMENT-DOCUMENT-EN.md)
+You can contribute to the code by understanding our development, deployment, and basic standards, helping to improve the product. [Development Documentation](./docs/DEVELOPMENT-DOCUMENT-EN.md)
 
 # 💖 Contributors
 
@@ -125,7 +125,7 @@ Specifically:
 
 You may not use the project logo, name, or other trademarks for any commercial purpose without explicit written permission. You may use the project name only for accurate reference to identify that your work is based on this project, but not in a way that suggests endorsement or affiliation. Any modified versions of this software must be clearly labeled as such and must not be labeled or marketed in a manner that suggests they are the official distribution of the original project. For trademark use permission, please contact Slax Lab Teams (ns.boxcounter@gmail.com.).
 
-Please refer to our [trademark and usage policy](./TRADEMARK.md)
+Please refer to our [trademark and usage policy](./docs/TRADEMARK.md)
 
 # 📝 License
 
