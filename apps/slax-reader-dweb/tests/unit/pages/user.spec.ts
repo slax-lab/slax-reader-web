@@ -10,7 +10,7 @@ import { mountWithApp } from '~~/tests/setup/mount'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockRoute, mockNavigateTo, mockRequest, mockGet, mockAnalyticsLog, mockToastShowToast, mockUseI18n, mockShowFeedbackModal } = vi.hoisted(() => {
-  const route = { query: {} as Record<string, unknown>, path: '/user', params: {}, fullPath: '/user' }
+  const route = { query: {} as Record<string, unknown>, path: '/user', params: {}, fullPath: '/user', hash: '' }
   const mockGet = vi.fn()
   const mockT = vi.fn((key: string) => key)
   return {
@@ -60,6 +60,7 @@ let labFeatures: unknown[] = []
 const dispatchGet = ({ url }: { url: string }) => Promise.resolve(url === '/v1/user/labs' ? { features: labFeatures } : baseUserDetail)
 
 beforeEach(() => {
+  mockRoute.hash = ''
   mockRoute.query = {}
   mockNavigateTo.mockClear()
   mockGet.mockReset()
@@ -84,8 +85,8 @@ const stubs = {
   },
   UserRelatedInfoSection: {
     name: 'UserRelatedInfoSection',
-    template: '<section class="settings-card user-related-stub"></section>',
-    props: ['userInfo'],
+    template: '<section v-if="section === \'connections\'" class="settings-card user-related-stub"></section>',
+    props: ['userInfo', 'section'],
     emits: ['update']
   },
   UserImportSection: {
@@ -145,13 +146,14 @@ describe('pages/user', () => {
       expect(wrapper.find('#labs').exists()).toBe(false)
     })
 
-    it('/labs 返回一个功能 → 第 7 张卡是实验室，放在语言卡片后面', async () => {
+    it('places Labs after connections and before data', async () => {
       labFeatures = [{ key: 'youtube', status: 'active', enabled: false, enabled_at: null }]
       const wrapper = mountWithApp(UserPage, { global: { stubs } })
       await flushPromises()
       const cards = wrapper.findAll('.settings-card')
       expect(cards.length).toBe(7)
-      expect(cards[1]!.attributes('id')).toBe('labs')
+      expect(cards[3]!.attributes('id')).toBe('labs')
+      expect(wrapper.findAll('.settings-nav a').map(link => link.attributes('href'))).toEqual(['#account', '#preferences', '#connections', '#features', '#data', '#support'])
       expect(mockGet).toHaveBeenCalledWith(expect.objectContaining({ url: '/v1/user/labs' }))
     })
 
@@ -168,6 +170,41 @@ describe('pages/user', () => {
       const deleteSection = wrapper.find('.user-delete-account-section')
       expect(deleteSection.exists()).toBe(true)
       expect(deleteSection.classes()).not.toContain('settings-card')
+    })
+  })
+
+  describe('section navigation', () => {
+    it('omits Features when there are no visible Labs and groups account, preferences, connections, data, support', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      expect(wrapper.findAll('.settings-nav a').map(link => link.attributes('href'))).toEqual(['#account', '#preferences', '#connections', '#data', '#support'])
+      expect((wrapper.find('#features').element as HTMLElement).style.display).toBe('none')
+      expect(wrapper.find('#support .user-delete-account-section').exists()).toBe(true)
+    })
+
+    it('preserves query parameters and scrolls to a keyboard-focusable destination', async () => {
+      mockRoute.query = { source: 'reader' }
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      const target = wrapper.find('#data').element as HTMLElement
+      const scroll = vi.spyOn(target, 'scrollIntoView')
+      await wrapper.find('.settings-nav a[href="#data"]').trigger('click')
+      await flushPromises()
+      expect(mockNavigateTo).toHaveBeenCalledWith({ path: '/user', query: { source: 'reader' }, hash: '#data' }, { replace: true })
+      expect(scroll).toHaveBeenCalled()
+      expect(target.getAttribute('tabindex')).toBe('-1')
+      expect(wrapper.find('.settings-nav a[href="#data"]').attributes('aria-current')).toBe('location')
+    })
+
+    it('opens the existing Labs deep link after the async Labs response', async () => {
+      mockRoute.hash = '#labs'
+      labFeatures = [{ key: 'youtube', status: 'active', enabled: false, enabled_at: null }]
+      const scroll = vi.spyOn(HTMLElement.prototype, 'scrollIntoView')
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      expect(wrapper.find('#labs').exists()).toBe(true)
+      expect(scroll.mock.contexts).toContain(wrapper.find('#labs').element)
+      scroll.mockRestore()
     })
   })
 

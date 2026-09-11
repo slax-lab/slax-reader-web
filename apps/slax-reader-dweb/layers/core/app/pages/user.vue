@@ -6,57 +6,80 @@
     <BookmarksTopBar :sidebar-toggle="false" @search="searchBookmarks" @feedback="feedbackClick" @check-all="showNotifications" />
 
     <div class="content">
-      <Transition name="opacity" mode="out-in">
-        <div class="detail" v-if="!loading" key="content">
-          <!-- 语言设置卡片 -->
-          <div class="settings-card">
-            <div class="settings-row" v-if="true">
-              <span class="settings-label">{{ $t('page.user.language') }}</span>
-              <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
-            </div>
-            <div class="settings-divider" v-if="userInfo" />
-            <div class="settings-row" v-if="userInfo">
-              <div class="settings-label-group">
-                <AILanguageTips />
-                <span class="settings-label">{{ $t('page.user.ai_response_language') }}</span>
-              </div>
-              <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
-            </div>
-          </div>
-
-          <!-- 实验室（UserLabSection 自带 .settings-card，列表为空时不渲染） -->
-          <UserLabSection />
-
-          <!-- 个人信息卡片 -->
-          <div class="settings-card">
-            <div class="section-title">{{ $t('page.user.personal_info') }}</div>
-            <div class="personal">
-              <img class="avatar" :src="userInfo?.avatar || avatarUrl" />
-              <div class="personal-text">
-                <span class="username">{{ userInfo?.name }}</span>
-                <span class="email">{{ userInfo?.email }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 第三方绑定（UserRelatedInfoSection 自带 .settings-card） -->
-          <UserRelatedInfoSection v-if="userInfo" :user-info="userInfo" @update="getUserDetailInfo" />
-
-          <!-- 导入（UserImportSection 自带 .settings-card） -->
-          <UserImportSection />
-          <UserExportSection />
-
-          <!-- 帮助与支持卡片 -->
-          <div class="settings-card">
-            <div class="section-title">{{ $t('page.user.help_and_support') }}</div>
-            <div class="support">
-              <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
-            </div>
-          </div>
-
-          <!-- 删除账号（不加 settings-card，保持原样） -->
-          <UserDeleteAccountSection v-if="userInfo" />
+      <nav v-if="!loading" class="settings-nav" :aria-label="$t('page.user.navigation.title')">
+        <h1>{{ $t('page.user.navigation.title') }}</h1>
+        <div class="settings-nav-links">
+          <a
+            v-for="section in sections"
+            :key="section"
+            :href="`#${section}`"
+            :aria-current="activeSection === section ? 'location' : undefined"
+            @click.prevent="goToSection(section)"
+          >
+            {{ $t(`page.user.navigation.${section}`) }}
+          </a>
         </div>
+      </nav>
+      <Transition name="opacity" mode="out-in">
+        <main ref="detail" class="detail" v-if="!loading" key="content">
+          <section id="account" class="settings-group" aria-labelledby="account-heading" v-if="userInfo">
+            <h2 id="account-heading" class="group-title">{{ $t('page.user.navigation.account') }}</h2>
+            <div class="settings-card">
+              <div class="personal">
+                <img class="avatar" :src="userInfo.avatar || avatarUrl" alt="" />
+                <div class="personal-text">
+                  <span class="username">{{ userInfo.name }}</span>
+                  <span class="email">{{ userInfo.email }}</span>
+                </div>
+              </div>
+            </div>
+            <UserRelatedInfoSection section="account" :user-info="userInfo" @update="getUserDetailInfo" />
+          </section>
+
+          <section id="preferences" class="settings-group" aria-labelledby="preferences-heading">
+            <h2 id="preferences-heading" class="group-title">{{ $t('page.user.navigation.preferences') }}</h2>
+            <div class="settings-card">
+              <div class="settings-row">
+                <span class="settings-label">{{ $t('page.user.language') }}</span>
+                <OptionsBar :options="languageOptions.map(option => option.name)" :defaultSelectedIndex="languageOptionIndex" @option-selected="localeSelect" />
+              </div>
+              <div class="settings-divider" v-if="userInfo" />
+              <div class="settings-row" v-if="userInfo">
+                <div class="settings-label-group">
+                  <AILanguageTips />
+                  <span class="settings-label">{{ $t('page.user.ai_response_language') }}</span>
+                </div>
+                <OptionsBar :options="aiLanguageOptions.map(option => option.name)" :defaultSelectedIndex="aiLanguageOptionIndex" @option-selected="aiResponseLanguageSelect" />
+              </div>
+            </div>
+          </section>
+
+          <section id="connections" class="settings-group" aria-labelledby="connections-heading" v-if="userInfo">
+            <h2 id="connections-heading" class="group-title">{{ $t('page.user.navigation.connections') }}</h2>
+            <UserRelatedInfoSection section="connections" :user-info="userInfo" @update="getUserDetailInfo" />
+          </section>
+
+          <section id="features" class="settings-group" aria-labelledby="features-heading" v-show="hasLabs">
+            <h2 id="features-heading" class="group-title">{{ $t('page.user.navigation.features') }}</h2>
+            <UserLabSection />
+          </section>
+
+          <section id="data" class="settings-group" aria-labelledby="data-heading">
+            <h2 id="data-heading" class="group-title">{{ $t('page.user.navigation.data') }}</h2>
+            <UserImportSection />
+            <UserExportSection />
+          </section>
+
+          <section id="support" class="settings-group" aria-labelledby="support-heading">
+            <h2 id="support-heading" class="group-title">{{ $t('page.user.navigation.support') }}</h2>
+            <div class="settings-card">
+              <div class="support">
+                <NavigateStyleButton :title="$t('page.user.telegram_channel')" @action="navigateToTelegramChannel" />
+              </div>
+            </div>
+            <UserDeleteAccountSection v-if="userInfo" />
+          </section>
+        </main>
         <UserPageSkeleton v-else key="skeleton" />
       </Transition>
     </div>
@@ -80,9 +103,10 @@ import { RESTMethodPath } from '@commons/types/const'
 import { type UserDetailInfo } from '@commons/types/interface'
 import { showFeedbackModal } from '#layers/core/app/components/Modal'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
+import { useLabFeatures } from '#layers/core/app/composables/useLabFeatures'
 import { useUserStore } from '#layers/core/app/stores/user'
 
-const { t, locale } = useI18n()
+const { t, te, locale } = useI18n()
 const userStore = useUserStore()
 
 const { start, finish } = useLoadingIndicator({
@@ -94,6 +118,66 @@ const { start, finish } = useLoadingIndicator({
 const avatarUrl = new URL('@images/user-default-avatar.png', import.meta.url).href
 const userInfo = ref<UserDetailInfo>()
 const loading = ref(true)
+const detail = ref<HTMLElement>()
+const labs = useLabFeatures()
+const hasLabs = computed(() => labs.features.value.some(feature => te(`page.user.labs.${feature.key}.name`)))
+const sections = computed(() => [
+  ...(userInfo.value ? ['account'] : []),
+  'preferences',
+  ...(userInfo.value ? ['connections'] : []),
+  ...(hasLabs.value ? ['features'] : []),
+  'data',
+  'support'
+])
+const activeSection = ref('account')
+const route = useRoute()
+let navigationTarget: string | undefined
+
+const scrollToSection = (id: string, smooth = false) => {
+  const target = detail.value?.querySelector<HTMLElement>(`[id="${id}"]`)
+  if (!target) return
+  target.scrollIntoView({ behavior: smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant', block: 'start' })
+  if (smooth) {
+    target.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
+  }
+}
+
+const goToSection = async (id: string) => {
+  navigationTarget = id
+  try {
+    await navigateTo({ path: route.path, query: route.query, hash: `#${id}` }, { replace: true })
+    await nextTick()
+    scrollToSection(id, true)
+    activeSection.value = id
+  } finally {
+    navigationTarget = undefined
+  }
+}
+
+const updateActiveSection = () => {
+  const groups = sections.value.map(id => detail.value?.querySelector<HTMLElement>(`#${id}`)).filter((element): element is HTMLElement => Boolean(element))
+  if (!groups.length) return
+  const offset = Number.parseFloat(window.getComputedStyle(groups[0]!).scrollMarginTop) || 104
+  const current = groups.filter(element => element.getBoundingClientRect().top <= offset + 2).at(-1) ?? groups[0]
+  const atBottom = window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
+  activeSection.value = (atBottom ? groups.at(-1) : current)!.id
+}
+
+useEventListener('scroll', updateActiveSection, { passive: true })
+useEventListener('resize', updateActiveSection, { passive: true })
+
+watch(
+  [loading, hasLabs, () => route.hash],
+  async () => {
+    if (loading.value) return
+    await nextTick()
+    const id = route.hash?.slice(1)
+    if (id && id !== navigationTarget && [...sections.value, 'labs'].includes(id)) scrollToSection(id)
+    updateActiveSection()
+  },
+  { flush: 'post' }
+)
 
 const languageOptions = computed<{ name: string; value: string }[]>(() => [
   {
@@ -151,7 +235,7 @@ const alertParams = (() => {
 })()
 
 useHead({
-  title: `${t('component.user_operate_icon.personal_info')} - ${t('common.app.name')}`
+  title: `${t('page.user.navigation.title')} - ${t('common.app.name')}`
 })
 
 onMounted(async () => {
@@ -241,14 +325,19 @@ const localeSelect = (index: number) => {
   --style: w-full relative flex justify-center items-start pb-88px;
 }
 
-// 内容区：顶部留出顶栏高度 + 额外间距
-// 宽度对齐 Inbox 内容区
+// Leave room for the header above the two-column settings layout.
 .content {
   width: 100%;
-  max-width: var(--slax-content-w);
-  padding: calc(var(--slax-header-height) + 16px) 24px 88px;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  align-items: start;
+  gap: 48px;
+  padding: calc(var(--slax-header-height) + 32px) 24px 88px;
 
   @media (max-width: 768px) {
+    display: block;
+    padding-top: calc(var(--slax-header-height) + 16px);
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -266,18 +355,110 @@ const localeSelect = (index: number) => {
 .detail {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 36px;
+  min-width: 0;
+  grid-column: 2;
 }
 
-// Section 标题
-.section-title {
+.settings-nav {
+  position: sticky;
+  top: calc(var(--slax-header-height) + 32px);
+  padding: 16px 12px;
+  background: var(--slax-surface);
+  border: 1px solid var(--slax-border);
+  border-radius: var(--slax-radius);
+
+  h1 {
+    margin: 0 12px 20px;
+    color: var(--slax-text);
+    font-family: var(--slax-font-serif);
+    font-size: var(--slax-fs-h2);
+    font-weight: 500;
+  }
+
+  a {
+    display: block;
+    padding: 12px;
+    border-radius: 8px;
+    color: var(--slax-text-muted);
+    font-size: var(--slax-fs-aux);
+    line-height: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover,
+    &[aria-current='location'] {
+      color: var(--slax-accent);
+      background: var(--slax-accent-bg);
+    }
+
+    &[aria-current='location'] {
+      font-weight: 600;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--slax-accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: calc(var(--slax-header-height) + 24px);
+  &:focus {
+    outline: none;
+  }
+}
+
+.group-title {
+  margin: 0;
+  color: var(--slax-text);
   font-family: var(--slax-font-serif);
   font-size: var(--slax-fs-h2);
-  font-weight: 500;
-  color: var(--slax-text);
   line-height: 1.4;
-  margin-bottom: 20px;
-  user-select: none;
+  font-weight: 500;
+}
+
+:deep(#labs) {
+  scroll-margin-top: calc(var(--slax-header-height) + 24px);
+}
+
+@media (max-width: 768px) {
+  .settings-nav {
+    top: var(--slax-header-height);
+    z-index: 20;
+    margin-bottom: 24px;
+    padding: 8px;
+    background: var(--slax-topbar-bg);
+    backdrop-filter: var(--slax-blur);
+
+    h1 {
+      font-size: var(--slax-fs-card);
+      margin: 4px 8px 8px;
+    }
+    a {
+      padding: 10px 12px;
+    }
+  }
+
+  .settings-nav-links {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  .settings-group,
+  :deep(#labs) {
+    scroll-margin-top: calc(var(--slax-header-height) + 112px);
+  }
+  .settings-card {
+    padding: 20px;
+  }
 }
 
 // 语言设置行
@@ -332,6 +513,7 @@ const localeSelect = (index: number) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .username {
@@ -343,6 +525,7 @@ const localeSelect = (index: number) => {
 }
 
 .email {
+  overflow-wrap: anywhere;
   font-size: var(--slax-fs-aux);
   color: var(--slax-text-light);
   line-height: 1.5;
@@ -350,6 +533,6 @@ const localeSelect = (index: number) => {
 
 // 帮助支持
 .support {
-  margin-top: 16px;
+  margin-top: 0;
 }
 </style>

@@ -797,6 +797,15 @@
       "title": "Page not found"
     },
     "user": {
+      "navigation": {
+        "title": "Settings",
+        "account": "Account",
+        "preferences": "Preferences",
+        "connections": "Connections",
+        "features": "Features",
+        "data": "Data",
+        "support": "Support"
+      },
       "ai_response_language": "AI Response Language:",
       "batches_progress": "Progress",
       "business_name": "Business name:",
