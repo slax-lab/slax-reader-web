@@ -83,6 +83,31 @@ describe('useExtensionDetection', () => {
     })
   })
 
+  it('页面切回可见/重新获得焦点后主动复查扩展标记', async () => {
+    const panel = document.createElement('slax-reader-panel')
+    let markerAvailable = false
+    const originalQuerySelector = document.querySelector.bind(document)
+    const querySelectorSpy = vi.spyOn(document, 'querySelector').mockImplementation((selector: string) => {
+      if (selector === 'slax-reader-panel' || selector === 'slax-reader-modal') {
+        return selector === 'slax-reader-panel' && markerAvailable ? panel : null
+      }
+      return originalQuerySelector(selector)
+    })
+
+    const { api } = mountDetection()
+    expect(api.isInstalled.value).toBe(false)
+
+    // 模拟从扩展商店页面切回 onboarding 页面
+    markerAvailable = true
+    window.dispatchEvent(new Event('focus'))
+
+    await vi.waitFor(() => {
+      expect(api.isInstalled.value).toBe(true)
+      expect(api.checked.value).toBe(true)
+    })
+    querySelectorSpy.mockRestore()
+  })
+
   it('组件卸载时清理 observer/timer，不再触发状态变更', () => {
     vi.useFakeTimers()
     const { wrapper, api } = mountDetection()

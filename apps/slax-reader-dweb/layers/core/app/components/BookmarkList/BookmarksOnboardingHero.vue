@@ -123,6 +123,8 @@ const gettingStartedUrl = 'https://slax.com/blog/built-an-open-source-tool-to-sa
 const { isInstalled } = useExtensionDetection()
 const { isPinned } = usePinnedDetection()
 const manualStep3 = ref(false)
+const installPending = ref(false)
+let installReturnTimer: ReturnType<typeof setTimeout> | undefined
 
 const currentStep = computed<1 | 2 | 3>(() => {
   if (manualStep3.value) return 3
@@ -131,7 +133,23 @@ const currentStep = computed<1 | 2 | 3>(() => {
   return 3
 })
 
-const install = () => window.open(pluginUrl)
+const checkInstallReturn = () => {
+  if (!installPending.value || document.visibilityState !== 'visible') return
+
+  if (installReturnTimer) clearTimeout(installReturnTimer)
+  installReturnTimer = setTimeout(() => {
+    installReturnTimer = undefined
+    if (!installPending.value) return
+
+    installPending.value = false
+    // 新安装的扩展不会自动注入已打开的页面，刷新后才能创建 DOM 标记并进入步骤 2
+    if (!isInstalled.value) window.location.reload()
+  }, 300)
+}
+const install = () => {
+  installPending.value = true
+  window.open(pluginUrl)
+}
 const confirmPinned = () => (manualStep3.value = true)
 const skip = () => emit('skip')
 const complete = () => emit('complete')
@@ -176,6 +194,9 @@ const playDemoSequence = () => {
 onMounted(() => {
   playDemoSequence()
 
+  document.addEventListener('visibilitychange', checkInstallReturn)
+  window.addEventListener('focus', checkInstallReturn)
+
   if (window.matchMedia) {
     reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     reducedMotionQuery.addEventListener?.('change', playDemoSequence)
@@ -184,6 +205,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearTimers()
+  if (installReturnTimer) clearTimeout(installReturnTimer)
+  document.removeEventListener('visibilitychange', checkInstallReturn)
+  window.removeEventListener('focus', checkInstallReturn)
   reducedMotionQuery?.removeEventListener?.('change', playDemoSequence)
 })
 </script>
