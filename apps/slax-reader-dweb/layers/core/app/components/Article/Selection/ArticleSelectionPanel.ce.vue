@@ -312,10 +312,16 @@ const onKeyDown = (e: KeyboardEvent) => {
     }
 
     const textareaTarget = e.target as HTMLTextAreaElement
+    // Shift+Enter 交给原生换行
+    // 避免 nextTick 抢跑光标
+    if (e.shiftKey) {
+      nextTick(handleInput)
+      return
+    }
     const cursorPosition = textareaTarget.selectionStart
     const textBeforeCursor = inputText.value.slice(0, cursorPosition)
     const textAfterCursor = inputText.value.slice(cursorPosition)
-    !e.shiftKey && (inputText.value = textBeforeCursor + '\n' + textAfterCursor)
+    inputText.value = textBeforeCursor + '\n' + textAfterCursor
 
     nextTick(() => {
       textareaTarget.selectionStart = cursorPosition + 1

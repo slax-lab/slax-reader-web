@@ -2,8 +2,8 @@
   <div class="user-info">
     <NuxtLoadingIndicator color="var(--slax-accent)" />
 
-    <!-- 顶栏：与收件箱共用同一个顶栏，页面切换时头部不变 -->
-    <BookmarksTopBar @search="searchBookmarks" @feedback="feedbackClick" />
+    <!-- Same top bar as the inbox, so the header does not change shape between pages -->
+    <BookmarksTopBar :sidebar-toggle="false" @search="searchBookmarks" @feedback="feedbackClick" @check-all="showNotifications" />
 
     <div class="content">
       <nav v-if="!loading" class="settings-nav" :aria-label="$t('page.user.navigation.title')">
@@ -272,17 +272,23 @@ const getUserDetailInfo = async () => {
   loading.value = false
 }
 
-// 顶栏搜索：回到收件箱并带上关键词，收件箱页读到 q 后发起搜索
+// Top bar search: go to the inbox with the keyword; the inbox page turns ?q= into a search.
+// The clear (×) button emits '', which must not leave the settings page.
 const searchBookmarks = (keyword: string) => {
-  const text = keyword.trim()
-  navigateTo(text ? { path: '/bookmarks', query: { q: text } } : '/bookmarks')
+  if (!keyword) return
+  navigateTo({ path: '/bookmarks', query: { q: keyword } })
+}
+
+// "View all" in the bell popover: the list lives on the inbox page
+const showNotifications = () => {
+  navigateTo({ path: '/bookmarks', query: { filter: 'notifications' } })
 }
 
 const feedbackClick = () => {
   showFeedbackModal({
     reportType: 'parse_error',
     title: '',
-    email: userInfo.value?.email || userStore.userInfo?.email || '',
+    email: userInfo.value?.email || '',
     params: {
       entry_point: 'settings'
     }

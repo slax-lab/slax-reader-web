@@ -76,11 +76,12 @@ afterEach(() => {
 
 // 子组件 stub，避免子组件内部副作用
 const stubs = {
-  // 与收件箱共用的顶栏：只保留 search / feedback 两个事件
+  // Top bar shared with the inbox: only the search / feedback events matter here
   BookmarksTopBar: {
     name: 'BookmarksTopBar',
     template: '<header class="bookmarks-topbar-stub"></header>',
-    emits: ['search', 'feedback']
+    props: ['sidebarToggle', 'searchText'],
+    emits: ['search', 'feedback', 'checkAll']
   },
   UserRelatedInfoSection: {
     name: 'UserRelatedInfoSection',
@@ -208,14 +209,28 @@ describe('pages/user', () => {
   })
 
   describe('共用顶栏', () => {
-    it('顶栏搜索 → 带 q 回到收件箱；空关键词只回收件箱', async () => {
+    it('顶栏不带侧栏折叠按钮', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      expect(wrapper.findComponent({ name: 'BookmarksTopBar' }).props('sidebarToggle')).toBe(false)
+    })
+
+    it('顶栏搜索 → 带 q 回到收件箱；清空（空关键词）不离开设置页', async () => {
       const wrapper = mountWithApp(UserPage, { global: { stubs } })
       await flushPromises()
       const topbar = wrapper.findComponent({ name: 'BookmarksTopBar' })
-      await topbar.vm.$emit('search', '  vue  ')
+      await topbar.vm.$emit('search', 'vue')
       expect(mockNavigateTo).toHaveBeenCalledWith({ path: '/bookmarks', query: { q: 'vue' } })
-      await topbar.vm.$emit('search', '   ')
-      expect(mockNavigateTo).toHaveBeenLastCalledWith('/bookmarks')
+      mockNavigateTo.mockClear()
+      await topbar.vm.$emit('search', '')
+      expect(mockNavigateTo).not.toHaveBeenCalled()
+    })
+
+    it('通知“查看全部” → 跳到收件箱的通知列表', async () => {
+      const wrapper = mountWithApp(UserPage, { global: { stubs } })
+      await flushPromises()
+      await wrapper.findComponent({ name: 'BookmarksTopBar' }).vm.$emit('checkAll')
+      expect(mockNavigateTo).toHaveBeenCalledWith({ path: '/bookmarks', query: { filter: 'notifications' } })
     })
 
     it('顶栏反馈 → showFeedbackModal 带用户邮箱和 settings 入口', async () => {

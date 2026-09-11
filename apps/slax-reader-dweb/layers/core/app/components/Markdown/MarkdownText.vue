@@ -137,12 +137,12 @@ const handleAnchors = () => {
       color: var(--slax-link);
     }
 
-    // 真实外链：E-ink 加 🔗 前缀
+    // 真实外链：E-ink 加 ↗︎ 后缀
     &:deep(a:not(.slax_link)) {
       color: var(--slax-link);
 
-      &::before {
-        content: var(--slax-link-prefix, '');
+      &::after {
+        content: var(--slax-link-suffix, '');
       }
     }
 

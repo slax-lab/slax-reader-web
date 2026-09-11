@@ -694,10 +694,16 @@ const onKeyDown = (e: KeyboardEvent) => {
       return
     }
     const textareaTarget = e.target as HTMLTextAreaElement
+    // Shift+Enter 交给原生换行
+    // 避免 nextTick 抢跑光标
+    if (e.shiftKey) {
+      nextTick(handleInput)
+      return
+    }
     const cursorPosition = textareaTarget.selectionStart
     const textBeforeCursor = inputText.value.slice(0, cursorPosition)
     const textAfterCursor = inputText.value.slice(cursorPosition)
-    !e.shiftKey && (inputText.value = textBeforeCursor + '\n' + textAfterCursor)
+    inputText.value = textBeforeCursor + '\n' + textAfterCursor
     nextTick(() => {
       textareaTarget.selectionStart = cursorPosition + 1
       textareaTarget.selectionEnd = cursorPosition + 1
@@ -1141,12 +1147,12 @@ defineExpose({ addQuoteData, focusTextarea })
         font-family: var(--slax-font-mono);
       }
 
-      // 日夜强调色，E-ink 蓝 + 🔗
+      // 日夜强调色，E-ink 蓝 + ↗︎
       :deep(a) {
         color: var(--slax-link);
 
-        &::before {
-          content: var(--slax-link-prefix, '');
+        &::after {
+          content: var(--slax-link-suffix, '');
         }
       }
 

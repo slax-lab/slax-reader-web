@@ -21,6 +21,13 @@ describe('components/BookmarkList/TagChip', () => {
     expect(w.find('.tag-ai').exists()).toBe(false)
     expect(w.find('.tag-act').exists()).toBe(false)
     expect(w.classes()).not.toContain('mine')
+    expect(w.classes()).not.toContain('has-acts')
+  })
+
+  it('reserves the action gutter only on chips that have actions', () => {
+    expect(mountWithApp(TagChip, { props: { tag, removable: true } }).classes()).toContain('has-acts')
+    expect(mountWithApp(TagChip, { props: { tag, promotable: true } }).classes()).toContain('has-acts')
+    expect(mountWithApp(TagChip, { props: { tag, count: 3 } }).classes()).not.toContain('has-acts')
   })
 
   it('emits click on the chip and remove on the × without click', async () => {
