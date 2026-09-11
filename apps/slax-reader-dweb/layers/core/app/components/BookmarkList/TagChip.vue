@@ -2,7 +2,7 @@
 <template>
   <span
     class="tag-chip"
-    :class="{ mine: tag.source === 'mine', active, compact, clickable: !!onClickListener }"
+    :class="{ mine: tag.source === 'mine', active, compact, clickable: !!onClickListener, 'has-acts': promotable || removable }"
     :title="tag.show_name"
     role="button"
     :tabindex="onClickListener ? 0 : -1"
@@ -12,7 +12,7 @@
     <span class="tag-name">{{ tag.show_name }}</span>
     <span v-if="typeof count === 'number'" class="tag-count">{{ count }}</span>
     <i v-if="aiMark" class="tag-ai" :title="$t('component.bookmark_tags.by_ai')">AI</i>
-    <!-- 操作按钮浮在右缘：悬停时 chip 宽度不变，列表不会跳动 -->
+    <!-- Actions sit in a gutter reserved on the right: the chip keeps its width on hover and nothing gets covered -->
     <span v-if="promotable || removable" class="tag-acts">
       <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
       <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
@@ -114,12 +114,22 @@ void props
     font-style: normal;
   }
 
-  // 绝对定位在右缘，不占布局宽度；遮住标签名尾部是预期的
+  // Chips with actions keep a gutter on the right at all times, so showing the buttons never changes the width
+  &.has-acts {
+    padding-right: 28px;
+  }
+
+  &.compact.has-acts {
+    padding-right: 24px;
+  }
+
+  // Hidden, not display:none, so the buttons stay reachable by keyboard
   .tag-acts {
-    display: none;
+    display: inline-flex;
+    visibility: hidden;
     position: absolute;
     top: 50%;
-    right: 4px;
+    right: 5px;
     transform: translateY(-50%);
     gap: 2px;
   }
@@ -146,7 +156,7 @@ void props
 
   &:hover .tag-acts,
   &:focus-within .tag-acts {
-    display: inline-flex;
+    visibility: visible;
   }
 }
 </style>

@@ -13,7 +13,7 @@
     <!-- FAB：浮动添加按钮 -->
     <BookmarksFab @click="isShowTopModal = true" />
 
-    <BookmarksLayout ref="bookmarksLayout" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
+    <BookmarksLayout ref="bookmarksLayout" :search-text="searchText" @search="text => (searchText = text)" @feedback="feedbackClick" @check-all="showNotificationList">
       <template v-slot:sidebar-left>
         <TabsSidebar ref="tabsSidebar" :tabType="searchText ? '' : filterStatus" @change-tab="inboxClick" />
       </template>
@@ -260,16 +260,18 @@ watch(filterStatus, (value, oldValue) => {
   reloadList()
 })
 
-// 其他页面（如设置页顶栏）带 ?q= 进来：转成一次搜索，再把 q 从地址栏去掉
-watch(
-  () => route.query.q,
-  value => {
-    if (typeof value !== 'string' || !value) return
-    searchText.value = value
-    useRouter().replace({ query: { ...route.query, q: undefined } })
-  },
-  { immediate: true }
-)
+// ?q= from another page (e.g. the settings top bar): run it as a search, then drop q from the URL.
+// The page is kept alive, so this runs on a fresh mount and on every return to /bookmarks;
+// hooks rather than a route watcher, so a cached instance never reacts to another page's URL.
+const consumeSearchQuery = () => {
+  const q = typeof route.query.q === 'string' ? route.query.q.trim() : ''
+  if (!q) return
+  searchText.value = q
+  // Keep the current path: a name-based replace would turn the '/' alias into '/bookmarks' and remount the page
+  useRouter().replace({ path: route.path, query: { ...route.query, q: undefined } })
+}
+onMounted(consumeSearchQuery)
+onActivated(consumeSearchQuery)
 
 watch(searchText, value => {
   if (value) sourceFilter.value = null
