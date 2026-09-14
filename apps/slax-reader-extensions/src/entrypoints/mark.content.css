@@ -2,6 +2,7 @@
 
 slax-mark {
   color: inherit;
+  white-space: inherit;
   position: relative;
   transition: color 250ms;
 }
