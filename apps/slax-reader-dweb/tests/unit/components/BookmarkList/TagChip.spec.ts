@@ -30,6 +30,20 @@ describe('components/BookmarkList/TagChip', () => {
     expect(mountWithApp(TagChip, { props: { tag, count: 3 } }).classes()).not.toContain('has-acts')
   })
 
+  it('supports the legacy BookmarkTags appearance without changing its events', async () => {
+    const onClick = vi.fn()
+    const onRemove = vi.fn()
+    const w = mountWithApp(TagChip, { props: { tag, legacy: true, legacyInteractive: true, removable: true, aiMark: true, onClick, onRemove } })
+
+    expect(w.classes()).toContain('legacy')
+    expect(w.classes()).toContain('clickable')
+    expect(w.find('.tag-ai').exists()).toBe(true)
+
+    await w.find('.tag-act.remove').trigger('click')
+    expect(onRemove).toHaveBeenCalledWith(tag)
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
   it('emits click on the chip and remove on the × without click', async () => {
     const onClick = vi.fn()
     const onRemove = vi.fn()
