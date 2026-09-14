@@ -127,7 +127,7 @@ export function useBookmarkCellNavigation(options: UseBookmarkCellNavigationOpti
       // 合集直跳 /b/[uuid]，缺则回退
       const uuid = bookmark.value.bookmark_user_uuid
       pwaOpen({
-        url: uuid ? `/b/${uuid}` : `/c/${collectionCode()}/${bookmark.value.id}`,
+        url: useSlaxRoutes().decorateReaderRoute(uuid ? `/b/${uuid}` : `/c/${collectionCode()}/${bookmark.value.id}`),
         target: '_blank'
       })
       return

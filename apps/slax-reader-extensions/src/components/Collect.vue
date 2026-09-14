@@ -158,6 +158,7 @@ watch(
   () => showPopup.value,
   async (value: boolean) => {
     if (value) {
+      void props.browser.runtime.sendMessage({ target: 'slax-background', method: 'collect-screen-viewed' }).catch(() => {})
       updateTitle()
       await addBookmark()
     }

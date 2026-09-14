@@ -32,5 +32,5 @@ export function useSlaxRoutes() {
     return `/bookmarks/${id}`
   }
 
-  return { highlightRoute, snapshotRoute }
+  return { highlightRoute, snapshotRoute, decorateReaderRoute: (path: string): string => path }
 }
