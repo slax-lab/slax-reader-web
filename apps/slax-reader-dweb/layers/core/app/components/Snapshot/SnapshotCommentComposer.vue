@@ -1,6 +1,6 @@
 <template>
   <!-- 无引用时隐藏整个 composer -->
-  <div v-if="allowAction !== false && hasTarget" class="comment-composer" :class="{ replying: !!replyInfo }">
+  <div v-if="canCompose" class="comment-composer" :class="{ replying: !!replyInfo }">
     <!-- 引用条：@用户名：内容 -->
     <div v-if="replyInfo" class="comment-composer-quote">
       <div class="comment-composer-quote-body">
@@ -46,6 +46,7 @@ import { useUserStore } from '#layers/core/app/stores/user'
 
 const props = defineProps<{
   allowAction?: boolean
+  allowReply?: boolean
   articleSelection: DwebArticleSelection | null
   pendingSelection: MarkItemInfo | null
   pendingQuote: QuoteData | null
@@ -69,6 +70,23 @@ const inputText = ref('')
 const sending = ref(false)
 
 // 组装引用信息：@用户名：内容
+const replyTarget = computed((): MarkCommentInfo | null => {
+  if (!props.replyToUid || !props.infos) return null
+  for (const info of props.infos) {
+    const findComment = (comments: MarkCommentInfo[]): MarkCommentInfo | null => {
+      for (const comment of comments) {
+        if (comment.markUid === props.replyToUid) return comment.isDeleted ? null : comment
+        const found = findComment(comment.children ?? [])
+        if (found) return found
+      }
+      return null
+    }
+    const target = findComment(info.comments)
+    if (target) return target
+  }
+  return null
+})
+
 const replyInfo = computed((): { username: string; content: string } | null => {
   // 新选区：从 pendingQuote 取划线文本（无用户名，只显示内容）
   if (props.pendingSelection && props.pendingQuote) {
@@ -79,19 +97,8 @@ const replyInfo = computed((): { username: string; content: string } | null => {
   }
 
   // 回复某条具体评论（replyToUid 优先）
-  if (props.replyToUid && props.infos) {
-    for (const info of props.infos) {
-      const findComment = (comments: MarkCommentInfo[]): MarkCommentInfo | null => {
-        for (const c of comments) {
-          if (c.markUid === props.replyToUid) return c
-          const found = findComment(c.children ?? [])
-          if (found) return found
-        }
-        return null
-      }
-      const target = findComment(info.comments)
-      if (target) return { username: target.username, content: target.comment?.slice(0, 80) ?? '' }
-    }
+  if (replyTarget.value) {
+    return { username: replyTarget.value.username, content: replyTarget.value.comment?.slice(0, 80) ?? '' }
   }
 
   // 点击已有划线/评论（无 replyToUid，显示划线引用）
@@ -110,7 +117,11 @@ const replyInfo = computed((): { username: string; content: string } | null => {
 
 // 新选区/回复直接显示
 // 补评论须有引用，引用失效则隐藏
-const hasTarget = computed(() => !!props.pendingSelection || !!props.replyToUid || (!!props.composeStroke && !!replyInfo.value))
+const hasTarget = computed(() => !!props.pendingSelection || !!replyTarget.value || (!!props.composeStroke && !!replyInfo.value))
+const canCompose = computed(() => {
+  if (props.allowAction !== false) return hasTarget.value
+  return !!props.allowReply && !!props.replyToUid && !!replyTarget.value && !props.pendingSelection && !props.composeStroke
+})
 
 const getQuoteTextFromInfo = (info: MarkItemInfo): string => {
   // 优先用 approx.exact（服务端存储的精确文本，不依赖 DOM）
@@ -166,7 +177,7 @@ const autoResize = () => {
 }
 
 const handleSend = async () => {
-  if (!inputText.value.trim() || sending.value) return
+  if (!canCompose.value || !inputText.value.trim() || sending.value) return
 
   if (!userStore.userInfo) {
     showLoginModal({ redirect: location.href })
@@ -202,7 +213,6 @@ const handleSend = async () => {
     })
 
     if (!resultInfoId) {
-      Toast.showToast({ text: t('common.tips.operate_failed'), type: ToastType.Error })
       return
     }
 

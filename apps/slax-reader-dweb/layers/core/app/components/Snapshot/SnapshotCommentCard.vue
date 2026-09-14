@@ -22,13 +22,18 @@
           <span class="comment-author">{{ mainComment.isDeleted ? $t('component.article_selection.user_deleted') : mainComment.username }}</span>
           <template v-if="mainComment.createdAt"> · {{ formatYmd(mainComment.createdAt) }}</template>
         </span>
-        <span v-if="allowAction && !mainComment.isDeleted" class="comment-meta-actions">
+        <span v-if="(allowAction || allowReply) && !mainComment.isDeleted" class="comment-meta-actions">
           <!-- 划线则取消划线，纯评论则删评论 -->
-          <button v-if="canUnhighlight || canDeleteComment" class="comment-delete-trigger" :class="{ 'is-confirming': confirmingDelete }" @click.stop="onDeleteClick">
+          <button
+            v-if="allowAction && (canUnhighlight || canDeleteComment)"
+            class="comment-delete-trigger"
+            :class="{ 'is-confirming': confirmingDelete }"
+            @click.stop="onDeleteClick"
+          >
             {{ confirmingDelete ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
           </button>
-          <span v-if="canUnhighlight || canDeleteComment" class="comment-meta-divider" aria-hidden="true"></span>
-          <button class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
+          <span v-if="allowAction && (canUnhighlight || canDeleteComment)" class="comment-meta-divider" aria-hidden="true"></span>
+          <button v-if="allowAction || allowReply" class="comment-reply-trigger" @click.stop="$emit('reply', mainComment)">
             {{ $t('common.operate.reply') }}
           </button>
         </span>
@@ -46,7 +51,7 @@
               <span class="comment-author">{{ child.username }}</span>
               <template v-if="child.createdAt"> · {{ formatYmd(child.createdAt) }}</template>
             </span>
-            <span v-if="allowAction" class="comment-sub-actions">
+            <span v-if="allowAction || allowReply || canDeleteChild(child)" class="comment-sub-actions">
               <button
                 v-if="canDeleteChild(child)"
                 class="comment-sub-delete-btn"
@@ -55,7 +60,7 @@
               >
                 {{ confirmingChildUid === child.markUid ? $t('common.operate.confirm_delete') : $t('common.operate.delete') }}
               </button>
-              <button v-if="child.markUid" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
+              <button v-if="(allowAction || allowReply) && child.markUid && !child.isDeleted" class="comment-sub-reply-btn" @click.stop="$emit('reply', child)">
                 {{ $t('common.operate.reply') }}
               </button>
             </span>
@@ -99,6 +104,8 @@ const props = defineProps<{
   comments: MarkCommentInfo[]
   isActive?: boolean
   allowAction?: boolean
+  allowReply?: boolean
+  allowDeleteOwnReply?: boolean
   // 本人划线：删除=取消划线留评论
   canUnhighlight?: boolean
   // 本人纯评论：删除评论
@@ -150,7 +157,8 @@ const onDeleteClick = () => {
 }
 
 // 本人子评论才可删
-const canDeleteChild = (child: MarkCommentInfo) => !!props.allowAction && !!child.markUid && props.currentUserId != null && child.userId === props.currentUserId
+const canDeleteChild = (child: MarkCommentInfo) =>
+  !child.isDeleted && (!!props.allowAction || !!props.allowDeleteOwnReply) && !!child.markUid && props.currentUserId != null && child.userId === props.currentUserId
 
 const onDeleteChildClick = (child: MarkCommentInfo) => {
   if (confirmingChildUid.value !== child.markUid) {
