@@ -3,6 +3,7 @@
   <div class="article-card" :class="{ deleting: isDeleting, editing: isEditingTitle }">
     <a
       class="article-card-link"
+      data-analytics-element="bookmark_list_row"
       :href="articleHref"
       target="_blank"
       rel="noopener noreferrer"
@@ -18,6 +19,7 @@
         <a
           v-if="!isEditingTitle"
           class="article-title"
+          data-analytics-element="bookmark_list_row"
           :class="{ stroking: isStroking }"
           :href="articleHref"
           target="_blank"
@@ -59,7 +61,7 @@
           </button>
 
           <!-- 编辑标题 -->
-          <button class="article-action edit-title" ref="editTitleButton" @click.stop="clickEdit" type="button">
+          <button class="article-action edit-title" ref="editTitleButton" data-analytics-element="bookmark_edit_title_button" @click.stop="clickEdit" type="button">
             {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
           </button>
 
@@ -69,6 +71,7 @@
               v-if="['inbox', 'archive'].indexOf(bookmark.archived) !== -1 && !isArchiving"
               class="article-action"
               ref="archieveButton"
+              data-analytics-element="bookmark_archive_button"
               @click.stop="archiveBookmark(bookmark.archived === 'inbox')"
               type="button"
             >
@@ -78,7 +81,7 @@
           </template>
 
           <!-- 删除（非废纸篓 + 非订阅） -->
-          <button v-if="!isTrashed && !isSubscribe" class="article-action danger" @click.stop="clickDelete" type="button">
+          <button v-if="!isTrashed && !isSubscribe" class="article-action danger" data-analytics-element="bookmark_delete_button" @click.stop="clickDelete" type="button">
             {{ $t('common.operate.trashed') }}
           </button>
 
@@ -105,7 +108,14 @@
     </div>
 
     <!-- 星标按钮：绝对定位右侧（非废纸篓 + 非订阅） -->
-    <button v-if="!isTrashed && !isSubscribe" class="article-star" :class="{ active: isStarred }" @click.stop="starBookmark(!isStarred)" type="button">
+    <button
+      v-if="!isTrashed && !isSubscribe"
+      class="article-star"
+      data-analytics-element="bookmark_star_button"
+      :class="{ active: isStarred }"
+      @click.stop="starBookmark(!isStarred)"
+      type="button"
+    >
       <!-- 未星标：outline 星 -->
       <svg class="star-outline" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />

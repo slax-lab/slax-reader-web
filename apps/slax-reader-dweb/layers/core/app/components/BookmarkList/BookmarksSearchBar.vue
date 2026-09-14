@@ -12,7 +12,6 @@
     <input
       v-ime-guard
       class="search-input"
-      data-analytics-element="bookmark_search"
       :placeholder="$t('page.bookmarks_index.search_placeholder')"
       v-model="keyword"
       @focus="onFocus"

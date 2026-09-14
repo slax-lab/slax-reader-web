@@ -33,9 +33,9 @@ vi.mock('@commons/utils/request', async () => {
 })
 
 // useCookies：getUserToken 客户端分支唯一来源
-const { cookieGet } = vi.hoisted(() => ({ cookieGet: vi.fn() }))
+const { cookieGet, cookieSet } = vi.hoisted(() => ({ cookieGet: vi.fn(), cookieSet: vi.fn() }))
 vi.mock('@vueuse/integrations/useCookies', () => ({
-  useCookies: () => ({ get: cookieGet })
+  useCookies: () => ({ get: cookieGet, set: cookieSet })
 }))
 
 // Toast：errorInterceptor 客户端分支调用点。ToastType 枚举对齐 layers/core/app/components/Toast/type.ts
@@ -80,6 +80,7 @@ describe('客户端环境', () => {
     navigateToMock.mockClear()
     clearAuth.mockClear()
     cookieGet.mockReset().mockReturnValue(undefined)
+    cookieSet.mockReset()
     lastConfig.value = null
     requestModule = await import('~~/layers/core/app/utils/request')
   })
@@ -106,6 +107,37 @@ describe('客户端环境', () => {
 
     it('token 不存在 → false', () => {
       expect(requestModule.haveRequestToken()).toBe(false)
+    })
+  })
+
+  describe('getDeviceId', () => {
+    it('首次访问生成一年有效的设备 cookie，后续请求复用', () => {
+      const first = requestModule.getDeviceId()
+      expect(first).toMatch(/^[a-f0-9]{32}\.\d+$/)
+      expect(requestModule.getDeviceId()).toBe(first)
+      expect(cookieSet).toHaveBeenCalledWith('_su', first, expect.objectContaining({ path: '/', maxAge: 31536000, sameSite: 'lax' }))
+    })
+
+    it('沿用分享页已有的设备身份', () => {
+      cookieGet.mockImplementation(name => (name === '_su' ? 'existing-device.123' : undefined))
+      expect(requestModule.getDeviceId()).toBe('existing-device.123')
+      expect(cookieSet).not.toHaveBeenCalled()
+    })
+
+    it('cookie 无法写入时仍保持同页设备身份', () => {
+      cookieSet.mockImplementation(() => {
+        throw new Error('cookie storage blocked')
+      })
+      const first = requestModule.getDeviceId()
+      expect(first).not.toBe('')
+      expect(requestModule.getDeviceId()).toBe(first)
+    })
+
+    it('登录请求也带设备头，不依赖先触发埋点', async () => {
+      requestModule.request()
+      const options = await lastConfig.value.requestInterceptors({ url: '/v1/user/login', headers: {} })
+      expect(options.headers['X-Device-ID']).toBe(requestModule.getDeviceId())
+      expect(options.headers).not.toHaveProperty('Authorization')
     })
   })
 
@@ -234,6 +266,7 @@ describe('服务端环境', () => {
   beforeEach(async () => {
     vi.resetModules()
     requestHeadersMock.mockReset().mockReturnValue({})
+    runtimeConfig.public.COOKIE_TOKEN_NAME = 'token'
     showToast.mockClear()
     lastConfig.value = null
     fetchSpy.mockReset().mockResolvedValue({ status: 200, json: () => Promise.resolve({}) })
@@ -256,6 +289,21 @@ describe('服务端环境', () => {
     it('无 cookie header → 返回 undefined', () => {
       // beforeEach 已设 mockReset + mockReturnValue({})，此处显式断言空 headers 分支
       expect(requestModule.getUserToken()).toBeUndefined()
+    })
+
+    it('按当前环境读取完整 cookie 名，不混用其他环境的 token', () => {
+      runtimeConfig.public.COOKIE_TOKEN_NAME = 'beta_token'
+      requestHeadersMock.mockReturnValue({ cookie: 'token=prod; beta_token=beta' })
+      expect(requestModule.getUserToken()).toBe('beta')
+      requestHeadersMock.mockReturnValue({ cookie: 'token=prod; other_beta_token=wrong' })
+      expect(requestModule.getUserToken()).toBeUndefined()
+    })
+
+    it('SSR 请求透传已有设备 cookie，不生成新的访客', async () => {
+      requestHeadersMock.mockReturnValue({ cookie: 'token=abc; _su=web-device' })
+      requestModule.request()
+      const options = await lastConfig.value.requestInterceptors({ url: '/v1/share/detail', headers: {} })
+      expect(options.headers).toMatchObject({ Authorization: 'Bearer abc', 'X-Device-ID': 'web-device' })
     })
   })
 
