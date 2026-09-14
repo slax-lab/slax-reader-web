@@ -159,6 +159,7 @@ export interface BaseBookmarkDetail {
   byline?: string
   created_at?: string
   published_at?: string
+  site_name?: string
 }
 
 // 分享/合集详情共用的作者展示信息。
