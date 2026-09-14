@@ -9,6 +9,11 @@ const isProduction = env === 'production'
 console.log('Current env is:', env)
 
 const envConfig = getDWebConfig()
+const enableDevServiceWorker = isDev && ['1', 'true'].includes(`${process.env.ENABLE_DEV_SW || ''}`.toLowerCase())
+
+if (isDev) {
+  console.log(`[pwa] development service worker ${enableDevServiceWorker ? 'enabled' : 'disabled'} (ENABLE_DEV_SW=${process.env.ENABLE_DEV_SW || 'unset'})`)
+}
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -264,7 +269,8 @@ export default defineNuxtConfig({
       }
     },
     devOptions: {
-      enabled: isDev,
+      // 默认关闭以免缓存干扰日常 HMR；调试 PWA 时使用 ENABLE_DEV_SW=true pnpm dev:dweb。
+      enabled: enableDevServiceWorker,
       type: 'module'
     }
   },

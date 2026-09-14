@@ -14,6 +14,7 @@
     "dev": "tsx scripts/start.script.ts",
     "dev:extensions": "pnpm --F @apps/slax-reader-extensions run dev",
     "dev:dweb": "pnpm --F @apps/slax-reader-dweb run dev",
+    "dev:dweb:sw": "ENABLE_DEV_SW=true pnpm --F @apps/slax-reader-dweb run dev",
     "build:dweb": "pnpm --F @apps/slax-reader-dweb run build",
     "build:extensions": "pnpm --F @apps/slax-reader-extensions run build",
     "build:extensions:zip": "pnpm --F @apps/slax-reader-extensions run zip",
