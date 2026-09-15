@@ -20,7 +20,15 @@ export interface CommentPanelExistingEvent {
  * 划线 ↔ 评论卡片双向联动。
  * 维护 markUid/stroke.mark_uid（后端 key）→ MarkItemInfo.id（DOM data-uuid key）的映射。
  */
-export function useCommentPanel({ activePanel, articleSelection }: { activePanel: Ref<SnapshotPanelId | null>; articleSelection: Ref<DwebArticleSelection | null> }) {
+export function useCommentPanel({
+  activePanel,
+  articleSelection,
+  allowAction = () => true
+}: {
+  activePanel: Ref<SnapshotPanelId | null>
+  articleSelection: Ref<DwebArticleSelection | null>
+  allowAction?: () => boolean
+}) {
   const activeInfoId = ref<string | null>(null)
   const pendingSelection = ref<MarkItemInfo | null>(null)
   // 内含 DOM Range，深度解包会导致类型报错
@@ -81,6 +89,7 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
       activePanel.value = 'comment'
 
       if (detail.kind === 'new') {
+        if (!allowAction()) return
         pendingSelection.value = detail.info
         pendingQuote.value = detail.quote
         activeInfoId.value = null
@@ -91,7 +100,7 @@ export function useCommentPanel({ activePanel, articleSelection }: { activePanel
         activeInfoId.value = detail.infoId
         pendingSelection.value = null
         pendingQuote.value = null
-        composeStroke.value = detail.compose === true
+        composeStroke.value = allowAction() && detail.compose === true
         focusByInfoId(detail.infoId)
       }
     }

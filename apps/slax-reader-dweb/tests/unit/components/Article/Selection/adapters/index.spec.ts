@@ -3,6 +3,7 @@
 // 这 4 个 class 都是 @slax-reader/selection 适配器层，逻辑简单（构造存值 + 转发）
 // 注意：DwebI18nService 不在此 spec — 它显式 from '#app' import useNuxtApp，
 //       vi.mock('#app') 会破坏 setupNuxt 内部依赖；该文件 1 行 t() 转发，列 phase6
+import { RESTMethodPath } from '@commons/types/const'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ToastType } from '@slax-reader/selection/adapters'
 import { DwebBookmarkProvider } from '~~/layers/core/app/components/Article/Selection/adapters/DwebBookmarkProvider'
@@ -167,9 +168,22 @@ describe('Selection/adapters', () => {
       await c.put({ url: '/u' })
       await c.delete({ url: '/d' })
       expect(mockGet).toHaveBeenCalledWith({ url: '/g' })
-      expect(mockPost).toHaveBeenCalledWith({ url: '/p' })
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/p', errorInterceptors: expect.any(Function) }))
       expect(mockPut).toHaveBeenCalledWith({ url: '/u' })
       expect(mockDelete).toHaveBeenCalledWith({ url: '/d' })
+    })
+
+    it('保留调用方自定义 errorInterceptors', async () => {
+      const c = new DwebHttpClient()
+      const errorInterceptors = vi.fn()
+      await c.post({ url: '/p', errorInterceptors })
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: '/p', errorInterceptors }))
+    })
+
+    it('创建标记时关闭全局错误 toast，交给 Selection 层处理', async () => {
+      const c = new DwebHttpClient()
+      await c.post({ url: RESTMethodPath.ADD_MARK })
+      expect(mockPost).toHaveBeenCalledWith(expect.objectContaining({ url: RESTMethodPath.ADD_MARK, errorInterceptors: expect.any(Function) }))
     })
   })
 })

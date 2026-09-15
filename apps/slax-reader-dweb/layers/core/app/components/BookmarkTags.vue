@@ -8,7 +8,8 @@
           v-for="tag in displayTags"
           :key="tag.id"
           :tag="tag"
-          :compact="props.compact"
+          legacy
+          :legacy-interactive="props.compact"
           :removable="!props.readonly"
           :ai-mark="tag.added_by === 'ai'"
           @click="emit('select-tag', tag)"
@@ -21,7 +22,7 @@
       </div>
 
       <div class="tag-add-wrap" v-if="!props.readonly">
-        <button ref="add" class="tag-add" :class="{ compact: props.compact }" :title="$t('common.operate.add')" @click="addingTagClick">
+        <button ref="add" class="tag-add" :title="$t('common.operate.add')" @click="addingTagClick">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <g transform="translate(4, 4)" fill="currentColor">
               <polygon points="5.25 0 6.75 0 6.75 12 5.25 12" />
@@ -482,15 +483,10 @@ const addingTagClick = (e: MouseEvent) => {
   height: 28px;
   border: 1px dashed var(--slax-border);
   background: transparent;
-  border-radius: 999px;
+  border-radius: 6px;
   cursor: pointer;
   color: var(--slax-text-light);
   transition: all 0.15s;
-
-  &.compact {
-    width: 22px;
-    height: 22px;
-  }
 
   &:hover {
     border-color: var(--slax-accent);

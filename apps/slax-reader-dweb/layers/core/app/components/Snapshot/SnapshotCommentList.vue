@@ -26,6 +26,8 @@
         :stroke-user="card.strokeUser"
         :is-active="activeInfoId === card.infoId"
         :allow-action="allowAction"
+        :allow-reply="allowReply"
+        :allow-delete-own-reply="allowDeleteOwnReply"
         :can-unhighlight="card.canUnhighlight"
         :can-delete-comment="card.canDeleteComment"
         :current-user-id="currentUserId"
@@ -51,6 +53,8 @@ const props = defineProps<{
   infos: MarkItemInfo[]
   activeInfoId: string | null
   allowAction?: boolean
+  allowReply?: boolean
+  allowDeleteOwnReply?: boolean
   // 页面级开关：是否允许取消划线
   allowUnhighlight?: boolean
   userList?: UserList

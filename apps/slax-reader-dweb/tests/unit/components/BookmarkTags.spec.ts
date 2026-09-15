@@ -1,5 +1,5 @@
 // components/BookmarkTags.vue 单测 —— 标签面板改为“勾选后一次提交”
-// 覆盖：TagChip 渲染（readonly / compact / AI 标记）/ 删除走 DELETE_BOOKMARK_TAG 并 emit change /
+// 覆盖：TagChip 旧版外观（readonly / compact）/ 删除走 DELETE_BOOKMARK_TAG 并 emit change /
 //      面板分组标题 / 点击候选只切换 pending 不发请求 / Done 一次 ADD_BOOKMARK_TAGS 提交 /
 //      create 行 / Enter 提交 / 点击外部提交 / 重开保留 searchText / 出错保留 pending 并 toast /
 //      LF 非 compact：createUserTag 一次 + setTags 一次 / LF compact：走 bookmarkTagActions + SharedUserTagsKey
@@ -107,10 +107,12 @@ afterEach(() => {
 
 describe('components/BookmarkTags', () => {
   describe('渲染', () => {
-    it('readonly=false：每个 tag 用 TagChip 渲染，带删除按钮 + add 按钮', () => {
+    it('readonly=false：每个 tag 使用旧版方角外观，带删除按钮 + add 按钮', () => {
       const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7 } })
       expect(wrapper.findAll('.tags-cells .tag-chip')).toHaveLength(2)
       expect(wrapper.findAll('.tag-act.remove')).toHaveLength(2)
+      expect(wrapper.find('.tags-cells .tag-chip').classes()).toContain('legacy')
+      expect(wrapper.find('.tags-cells .tag-chip').classes()).not.toContain('clickable')
       expect(wrapper.find('.tag-add-wrap .tag-add').exists()).toBe(true)
     })
 
@@ -121,19 +123,15 @@ describe('components/BookmarkTags', () => {
       expect(wrapper.find('.tag-add-wrap').exists()).toBe(false)
     })
 
-    it('AI 标记只在 added_by === "ai" 的 chip 上', () => {
-      const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7 } })
-      const chips = wrapper.findAll('.tags-cells .tag-chip')
-      expect(chips[0]!.find('.tag-ai').exists()).toBe(false)
-      expect(chips[1]!.find('.tag-ai').exists()).toBe(true)
-    })
-
-    it('compact：chip 带 compact class', () => {
+    it('compact：仍使用旧版外观并保留列表筛选所需的可点击状态', () => {
       const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7, compact: true } })
-      expect(wrapper.find('.tags-cells .tag-chip').classes()).toContain('compact')
+      const chip = wrapper.find('.tags-cells .tag-chip')
+      expect(chip.classes()).toContain('legacy')
+      expect(chip.classes()).toContain('clickable')
+      expect(chip.classes()).not.toContain('compact')
     })
 
-    it('点击 chip 主体：emit select-tag', async () => {
+    it('点击标签主体：emit select-tag', async () => {
       const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7 } })
       await wrapper.find('.tags-cells .tag-chip').trigger('click')
       expect(wrapper.emitted('select-tag')![0]![0]).toEqual(tech)

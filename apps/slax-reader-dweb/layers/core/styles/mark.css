@@ -2,6 +2,7 @@
 
 slax-mark {
   color: inherit;
+  white-space: inherit;
   transition: all var(--slax-dur-normal);
 }
 

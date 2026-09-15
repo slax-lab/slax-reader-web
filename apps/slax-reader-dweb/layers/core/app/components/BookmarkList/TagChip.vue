@@ -2,10 +2,10 @@
 <template>
   <span
     class="tag-chip"
-    :class="{ mine: tag.source === 'mine', active, compact, clickable: !!onClickListener, 'has-acts': promotable || removable }"
+    :class="{ mine: tag.source === 'mine', active, compact, legacy, clickable: isClickable, 'has-acts': promotable || removable }"
     :title="tag.show_name"
     role="button"
-    :tabindex="onClickListener ? 0 : -1"
+    :tabindex="isClickable ? 0 : -1"
     @click.stop="emit('click', tag)"
     @keydown.enter.stop="emit('click', tag)"
   >
@@ -15,7 +15,13 @@
     <!-- Actions sit in a gutter reserved on the right: the chip keeps its width on hover and nothing gets covered -->
     <span v-if="promotable || removable" class="tag-acts">
       <button v-if="promotable" class="tag-act promote" type="button" :title="$t('component.tags_header.promote')" @click.stop="emit('promote', tag)">↑</button>
-      <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">×</button>
+      <button v-if="removable" class="tag-act remove" type="button" :title="$t('common.operate.delete')" @click.stop="emit('remove', tag)">
+        <svg v-if="legacy" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+          <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+        <template v-else>×</template>
+      </button>
     </span>
   </span>
 </template>
@@ -33,6 +39,8 @@ const props = defineProps<{
   aiMark?: boolean
   count?: number
   compact?: boolean
+  legacy?: boolean
+  legacyInteractive?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +51,7 @@ const emit = defineEmits<{
 
 // 只有父级监听了 click 才把 chip 当按钮画
 const onClickListener = !!getCurrentInstance()?.vnode.props?.onClick
+const isClickable = computed(() => onClickListener && (!props.legacy || props.legacyInteractive))
 void props
 </script>
 
@@ -157,6 +166,73 @@ void props
   &:hover .tag-acts,
   &:focus-within .tag-acts {
     visibility: visible;
+  }
+
+  // BookmarkTags 在标签改造前使用的方角、透明底样式。
+  // 仅切换外观，保留当前 chip 的事件与多标签交互结构。
+  &.legacy {
+    gap: 0;
+    padding: 4px 10px;
+    border-color: var(--slax-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--slax-text-muted);
+    font-size: 13px;
+    cursor: default;
+
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--slax-border);
+      }
+    }
+
+    .tag-name {
+      max-width: 150px;
+    }
+
+    .tag-ai {
+      display: none;
+    }
+
+    &.has-acts,
+    &.compact.has-acts {
+      padding-right: 10px;
+    }
+
+    .tag-acts {
+      position: static;
+      top: auto;
+      right: auto;
+      transform: none;
+      gap: 0;
+    }
+
+    .tag-act {
+      box-sizing: content-box;
+      flex-shrink: 0;
+      height: 14px;
+      width: 0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      border: none;
+      border-left: 1px solid var(--slax-border);
+      border-radius: 3px;
+      background: none;
+      color: var(--slax-text-light);
+      opacity: 0;
+      transition: all 0.15s;
+    }
+
+    &:hover .tag-act,
+    &:focus-within .tag-act {
+      width: 14px;
+      margin-left: 6px;
+      padding-left: 6px;
+      opacity: 1;
+    }
   }
 }
 </style>

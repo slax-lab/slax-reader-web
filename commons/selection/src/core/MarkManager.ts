@@ -239,10 +239,22 @@ export class MarkManager extends Base {
     const markType = commentItem ? (replyToUid ? this.getMarkType('reply') : this.getMarkType('comment')) : this.getMarkType('line')
     await this.renderer.drawMark(infoItem, isUpdate ? 'update' : 'create')
 
-    const res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToUid)
+    let res: { mark_uid: string; root_uid: string } | null = null
+    let saveError: unknown
+    try {
+      res = await this.saveMarkSelectContent(markItems, markType, approx, comment, replyToUid)
+    } catch (error) {
+      saveError = error
+    }
+
     if (!res) {
       this.toastService.showToast({
-        text: commentItem ? this.i18nService.t('component.article_selection.comment_failed') : this.i18nService.t('component.article_selection.stroke_failed'),
+        text:
+          saveError instanceof Error && saveError.message
+            ? saveError.message
+            : commentItem
+              ? this.i18nService.t('component.article_selection.comment_failed')
+              : this.i18nService.t('component.article_selection.stroke_failed'),
         type: 'error' as ToastType
       })
 
@@ -675,34 +687,29 @@ export class MarkManager extends Base {
    * @returns 保存结果
    */
   private async saveMarkSelectContent(value: MarkPathItem[], type: BackendMarkType, approx?: MarkPathApprox, comment?: string, replyToUid?: string) {
-    try {
-      const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
-      const shareCode = this.bookmarkProvider.getShareCode?.()
-      const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
-      // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错或发出被后端优先解析的伪造 bm_id:0
-      const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
+    const bookmarkUid = this.bookmarkProvider.getBookmarkUid?.()
+    const shareCode = this.bookmarkProvider.getShareCode?.()
+    const collectionInfo = this.bookmarkProvider.getCollectionInfo?.()
+    // 公开快照页只有 bookmarkUid，跳过 getBookmarkId 以免抛错或发出被后端优先解析的伪造 bm_id:0
+    const bookmarkId = bookmarkUid ? undefined : await this.bookmarkProvider.getBookmarkId()
 
-      const res = await this.httpClient.post<{ mark_uid: string; root_uid: string }>({
-        url: RESTMethodPath.ADD_MARK,
-        body: {
-          share_code: shareCode,
-          bm_id: bookmarkId,
-          bookmark_uid: bookmarkUid,
-          comment,
-          type,
-          source: value,
-          parent_uid: replyToUid,
-          select_content: this._selectContent.value,
-          approx_source: approx,
-          collection_code: collectionInfo?.code,
-          cb_id: collectionInfo?.cb_id
-        }
-      })
-      return res || null
-    } catch (error) {
-      console.log(error)
-      return null
-    }
+    const res = await this.httpClient.post<{ mark_uid: string; root_uid: string }>({
+      url: RESTMethodPath.ADD_MARK,
+      body: {
+        share_code: shareCode,
+        bm_id: bookmarkId,
+        bookmark_uid: bookmarkUid,
+        comment,
+        type,
+        source: value,
+        parent_uid: replyToUid,
+        select_content: this._selectContent.value,
+        approx_source: approx,
+        collection_code: collectionInfo?.code,
+        cb_id: collectionInfo?.cb_id
+      }
+    })
+    return res || null
   }
 
   /**
