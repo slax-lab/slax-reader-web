@@ -1,5 +1,6 @@
-// components/BookmarkList/BookmarkCell.vue 单测（Phase 4 卡片化重设计后更新）
-// 新结构：.article-card、.article-title、.article-star、.article-action、.article-date、.article-source
+// components/BookmarkList/BookmarkCell.vue 单测（meta 行去日期、标签并入来源右侧、去掉"打开原文"按钮、
+// 文字列表模式也显示标签行后更新）
+// 新结构：.article-card、.article-title、.article-star、.article-action、.article-source、.article-tags（并入 .article-meta）
 import { defineComponent, reactive } from 'vue'
 
 import BookmarkCell from '~~/layers/core/app/components/BookmarkList/BookmarkCell.vue'
@@ -107,7 +108,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
       })
       expect(wrapper.find('.article-title').text()).toBe(baseBookmarkItem.title)
       expect(wrapper.find('.article-source').text()).toBe('Example Site')
-      expect(wrapper.find('.article-date').text()).toBe('2026-01-01')
+      expect(wrapper.find('.article-date').exists()).toBe(false)
       expect(wrapper.find('.article-card-link').attributes('href')).toBe('/bookmarks/1000001')
       expect(wrapper.find('.article-title').attributes('href')).toBe('/bookmarks/1000001')
       // 非 inbox：编辑 + 归档 + 删除 = 3 个
@@ -131,7 +132,6 @@ describe('components/BookmarkList/BookmarkCell', () => {
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
       expect(wrapper.findAll('.article-action').length).toBe(2)
       expect(wrapper.find('.article-action.danger').exists()).toBe(false)
-      expect(wrapper.find('.article-date').text()).toBe('2026-01-02')
     })
 
     it('shortcut 类型：article-source 含站点名', () => {
@@ -146,12 +146,6 @@ describe('components/BookmarkList/BookmarkCell', () => {
       })
       expect(wrapper.find('.article-star').exists()).toBe(false)
       expect(wrapper.findAll('.article-action').length).toBe(1)
-    })
-
-    it('dateString：trashed_at 优先 / published_at 缺失时 fallback "--"', () => {
-      const bm = makeBookmarkItem({ published_at: '', created_at: '' })
-      const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: bm, isSubscribe: false } })
-      expect(wrapper.find('.article-date').text()).toBe('--')
     })
   })
 
@@ -222,7 +216,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     })
   })
 
-  describe('来源筛选 + 打开原文', () => {
+  describe('来源筛选', () => {
     it('sourceFilterable=true：来源为按钮，点击发出规范化域名且不打开页面', async () => {
       const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
       const bm = makeBookmarkItem({ host_url: 'https://WWW.Example.com:443/path', site_name: 'Example Site' })
@@ -236,13 +230,9 @@ describe('components/BookmarkList/BookmarkCell', () => {
       expect(mockAnalyticsLog).toHaveBeenCalledWith(expect.objectContaining({ element: 'source_filter' }))
     })
 
-    it('“打开原文”始终打开 target_url，而不是快照链接', async () => {
-      const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+    it('“打开原文”按钮已移除：操作区不再渲染 .open-original', () => {
       const wrapper = mountWithApp(BookmarkCell, { props: { bookmark: baseBookmarkItem, isSubscribe: false, sourceFilterable: true } })
-
-      await wrapper.find('.article-action.open-original').trigger('click')
-
-      expect(openSpy).toHaveBeenCalledWith('https://example.com/article-1', '_blank')
+      expect(wrapper.find('.article-action.open-original').exists()).toBe(false)
     })
   })
 
@@ -400,7 +390,7 @@ describe('components/BookmarkList/BookmarkCell', () => {
     it('textMode=false：渲染 .article-tags，标签经子组件渲染，并把 id/uid/uuid 传给子组件', () => {
       const bm = makeBookmarkItem({ tags, bookmark_user_uuid: 'uid-1' })
       const wrapper = mountCell({ bookmark: bm, isSubscribe: false })
-      const row = wrapper.find('.article-body .article-tags')
+      const row = wrapper.find('.article-meta .article-tags')
       expect(row.exists()).toBe(true)
       expect(row.findAll('.stub-chip').map(c => c.text())).toEqual(['Vue', 'AI'])
       const child = wrapper.findComponent(BookmarkTagsStub)
@@ -414,10 +404,10 @@ describe('components/BookmarkList/BookmarkCell', () => {
       expect(wrapper.findComponent(BookmarkTagsStub).props('tags')).toEqual([])
     })
 
-    it('textMode=true：不渲染标签行', () => {
+    it('textMode=true：桌面文字列表也照常渲染标签行（移动端隐藏靠 CSS media query，非此处逻辑）', () => {
       const wrapper = mountCell({ bookmark: makeBookmarkItem({ tags }), isSubscribe: false, textMode: true })
-      expect(wrapper.find('.article-tags').exists()).toBe(false)
-      expect(wrapper.findComponent(BookmarkTagsStub).exists()).toBe(false)
+      expect(wrapper.find('.article-tags').exists()).toBe(true)
+      expect(wrapper.findComponent(BookmarkTagsStub).exists()).toBe(true)
     })
 
     it('trashed：不渲染标签行', () => {

@@ -1,11 +1,11 @@
 <template>
-  <div class="bookmark-tags">
+  <div class="bookmark-tags" ref="rootEl">
     <div class="tags-list" :class="{ 'is-reserving': isReserving }">
       <!-- :key 随 id 集合变化整块挂卸，
            绕开 keyed v-for patch 崩溃 -->
-      <div v-if="displayTags.length" :key="tagsKey" class="tags-cells">
+      <div v-if="visibleTags.length" :key="tagsKey" class="tags-cells">
         <TagChip
-          v-for="tag in displayTags"
+          v-for="tag in visibleTags"
           :key="tag.id"
           :tag="tag"
           legacy
@@ -17,17 +17,28 @@
         />
       </div>
 
+      <!-- compact 专用：不可见度量行，完整渲染 displayTags 量真实宽度，
+           与可见 chip 完全解耦（不受 hover 展开删除按钮影响），只用来算 visibleCount -->
+      <div v-if="props.compact" class="tags-measure" ref="measureEl" aria-hidden="true">
+        <TagChip v-for="tag in displayTags" :key="tag.id" :tag="tag" legacy :legacy-interactive="props.compact" :removable="!props.readonly" :ai-mark="tag.added_by === 'ai'" />
+      </div>
+
       <div class="loading" v-if="isTagLoading">
         <div class="i-svg-spinners:90-ring w-16px" style="color: var(--slax-accent)" />
       </div>
 
       <div class="tag-add-wrap" v-if="!props.readonly">
-        <button ref="add" class="tag-add" :title="$t('common.operate.add')" @click="addingTagClick">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <button ref="add" class="tag-add" :title="isOverflowing ? $t('component.bookmark_tags.more') : $t('common.operate.add')" @click="addingTagClick">
+          <svg v-if="!isOverflowing" width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <g transform="translate(4, 4)" fill="currentColor">
               <polygon points="5.25 0 6.75 0 6.75 12 5.25 12" />
               <polygon transform="translate(6, 6) rotate(-90) translate(-6, -6)" points="5.25 0 6.75 0 6.75 12 5.25 12" />
             </g>
+          </svg>
+          <svg v-else width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <circle cx="4" cy="10" r="1.6" />
+            <circle cx="10" cy="10" r="1.6" />
+            <circle cx="16" cy="10" r="1.6" />
           </svg>
         </button>
         <!-- Teleport 到 body：列表卡片位于 virtua 虚拟滚动的 item wrapper 内（该 wrapper 带
@@ -80,6 +91,8 @@
 
 <script lang="ts" setup>
 import TagChip from '#layers/core/app/components/BookmarkList/TagChip.vue'
+
+import { computeVisibleTagCount } from '#layers/core/app/utils/tagOverflow'
 
 import { RESTMethodPath } from '@commons/types/const'
 import type { BookmarkTag } from '@commons/types/interface'
@@ -174,7 +187,46 @@ watch(bookmarkTags, () => {
 
 // key 随 id 集合变化、整块挂卸，
 // 绕开就地 patch 的 null-anchor 崩溃。
+// 注意：裁剪（visibleCount）不影响这个 key —— 裁剪只改变渲染 displayTags 的前几个，
+// 不改变 id 集合，与上面的崩溃规避机制解耦。
 const tagsKey = computed(() => displayTags.value.map(tag => tag.id).join('|'))
+
+// compact 专用：宽度不够时裁剪展示的 tag 数量，把 + 换成 ···（点击行为不变）。
+// 用不可见的 measureEl（完整渲染 displayTags）量真实 chip 宽度，避开可见 chip 的 hover 动画干扰。
+const rootEl = ref<HTMLDivElement>()
+const measureEl = ref<HTMLDivElement>()
+const visibleCount = ref(Infinity)
+const isOverflowing = computed(() => props.compact && visibleCount.value < displayTags.value.length)
+const visibleTags = computed(() => (props.compact ? displayTags.value.slice(0, visibleCount.value) : displayTags.value))
+
+// chip 间隔对齐 .tags-list 的 gap-8px；ADD_BTN 是 +/··· 按钮自身宽度；
+// SAFETY_MARGIN 吃掉 legacy chip hover 时删除按钮 0→14px 展开动画可能带来的边界闪动
+const TAG_GAP = 8
+const ADD_BTN_WIDTH = 28
+const SAFETY_MARGIN = 28
+
+const recomputeVisibleCount = () => {
+  if (!props.compact) return
+  const container = rootEl.value
+  const measure = measureEl.value
+  if (!container || !measure) return
+  // 容器尚未真实布局（首帧 / 无布局引擎的测试环境）时 clientWidth 恒为 0，
+  // 不能当真实宽度用——维持默认全显，等 ResizeObserver 给出第一份真实测量再收窄
+  if (container.clientWidth <= 0) return
+
+  const chipWidths = (Array.from(measure.children) as HTMLElement[]).map(chip => chip.offsetWidth)
+  const count = computeVisibleTagCount({
+    availableWidth: container.clientWidth,
+    chipWidths,
+    gap: TAG_GAP,
+    addButtonWidth: ADD_BTN_WIDTH,
+    safetyMargin: SAFETY_MARGIN
+  })
+
+  visibleCount.value = count >= displayTags.value.length ? Infinity : count
+}
+
+const recomputeVisibleCountDebounced = useDebounceFn(recomputeVisibleCount, 200, { maxWait: 1000 })
 
 // LF 首查未返回，预留一行占位防跳动
 const isReserving = computed(() => localActive.value && !!tagSrc.value?.isLoading?.value)
@@ -260,10 +312,19 @@ const onReposition = () => {
   updatePopupPosition()
 }
 
+// compact 专用：容器宽度变化（窗口 resize / 侧栏展开等）时重算能放下几个 chip。
+// virtua 虚拟列表滚出可视区会整例销毁（非复用实例），组件卸载时 useResizeObserver 自动 disconnect，不会串到别的卡片。
+if (props.compact) {
+  useResizeObserver(rootEl, recomputeVisibleCountDebounced)
+  // tag 增删后度量行内容变了，nextTick 等 DOM 更新完再重算
+  watch(displayTags, () => nextTick(recomputeVisibleCount))
+}
+
 onMounted(() => {
   isMounted.value = true
   window.addEventListener('scroll', onReposition, { passive: true, capture: true })
   window.addEventListener('resize', onReposition, { passive: true })
+  if (props.compact) nextTick(recomputeVisibleCount)
 })
 
 onUnmounted(() => {
@@ -455,6 +516,12 @@ const addingTagClick = (e: MouseEvent) => {
 <style lang="scss" scoped>
 .bookmark-tags {
   --style: relative;
+  // compact 场景下是 BookmarkCell .article-tags（flex）里的唯一子项：flex 子项默认按内容
+  // 宽度定size，不会自动撑满父级分给它的空间；width:100% 让它先撑满 .article-tags 分到的
+  // 可用宽度，min-width:0 再解除"内容自动最小宽度"（否则会被内部 nowrap chip 总宽顶开）。
+  // 两者都是 flex 语境才生效，非 compact（文章页 block 布局）下是无副作用的默认值。
+  width: 100%;
+  min-width: 0;
 }
 
 .tags-list {
@@ -469,6 +536,17 @@ const addingTagClick = (e: MouseEvent) => {
 // 不生成盒子，chip 仍是 flex 子项
 .tags-cells {
   display: contents;
+}
+
+// 度量行：脱离视觉与文档流，只用来读 chip 真实宽度；BookmarkCell.vue 的
+// .article-tags 外层 overflow:hidden 兜底二次遮蔽，双重保险不会露出
+.tags-measure {
+  position: absolute;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
 }
 
 .loading {

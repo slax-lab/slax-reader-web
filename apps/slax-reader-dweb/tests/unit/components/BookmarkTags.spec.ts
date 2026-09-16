@@ -131,6 +131,12 @@ describe('components/BookmarkTags', () => {
       expect(chip.classes()).not.toContain('compact')
     })
 
+    it('非 compact：不渲染裁剪用的度量行', () => {
+      const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7 } })
+      expect(wrapper.find('.tags-measure').exists()).toBe(false)
+      expect(wrapper.findAll('.tags-cells .tag-chip')).toHaveLength(2)
+    })
+
     it('点击标签主体：emit select-tag', async () => {
       const wrapper = mountTags({ props: { tags: baseTags, bookmarkId: 7 } })
       await wrapper.find('.tags-cells .tag-chip').trigger('click')
@@ -589,6 +595,27 @@ describe('components/BookmarkTags', () => {
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
       expect(isPanelHidden()).toBe(false)
       expect(panelFind('.confirm-btn').text()).toBe('Done (1)')
+    })
+  })
+
+  // 裁剪逻辑本身（几个 chip 能放下）由纯函数 computeVisibleTagCount 覆盖（tests/unit/utils/tagOverflow.spec.ts）。
+  // 组件内 rootEl/measureEl 这两个模板 ref 在本仓库当前 happy-dom + @vue/test-utils 组合下不会被填充
+  // （连这个文件里早就存在、与本次改动无关的 add ref 在同样环境下也是 undefined，属于预置环境问题，
+  // 不是这次改动引入的），所以这里只覆盖不依赖 DOM ref 解析的部分：默认态渲染、compact 才出现度量行、
+  // + 图标默认态。真实宽度裁剪→图标切换的端到端行为已用真实 Chrome + 组件同款 CSS/DOM 结构离线验证过。
+  describe('compact：宽度裁剪 —— 默认态与度量行', () => {
+    it('默认（未收到真实宽度测量前）：全部显示，+ 图标，无 More tags title', () => {
+      const tags = [tech, ai, design]
+      const wrapper = mountTags({ props: { tags: [...tags], bookmarkId: 7, compact: true } })
+      expect(wrapper.findAll('.tags-cells .tag-chip')).toHaveLength(3)
+      expect(wrapper.find('.tag-add').find('circle').exists()).toBe(false)
+      expect(wrapper.find('.tag-add').attributes('title')).toBe('Add')
+    })
+
+    it('compact 才渲染不可见度量行，且数量与 displayTags 一致', () => {
+      const tags = [tech, ai, design]
+      const wrapper = mountTags({ props: { tags: [...tags], bookmarkId: 7, compact: true } })
+      expect(wrapper.findAll('.tags-measure .tag-chip')).toHaveLength(3)
     })
   })
 })
