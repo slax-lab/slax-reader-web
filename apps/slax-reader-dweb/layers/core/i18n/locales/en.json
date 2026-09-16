@@ -76,7 +76,6 @@
       "more": "More",
       "off": "OFF",
       "on": "ON",
-      "open_original": "Open original",
       "payment": {
         "completed": "Payment Completed",
         "confirm_desc": "Have you completed the payment?",
@@ -232,7 +231,8 @@
       "by_ai": "Added by AI",
       "group_mine": "My tags",
       "group_auto": "Auto tags",
-      "placeholder": "Enter new tag (press Enter to confirm)"
+      "placeholder": "Enter new tag (press Enter to confirm)",
+      "more": "More tags"
     },
     "cancel_collection_modal": {
       "removecollection": "Remove from my collections",

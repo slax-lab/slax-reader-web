@@ -117,7 +117,7 @@ import { usePinnedDetection } from '#layers/core/app/composables/usePinnedDetect
 const emit = defineEmits<{ skip: []; complete: [] }>()
 
 const pluginUrl = 'https://chromewebstore.google.com/detail/slax-reader/gdnhaajlomjkhahnmiijphnodkcfikfd?utm_source=web_onboarding'
-const gettingStartedUrl = 'https://slax.com/blog/built-an-open-source-tool-to-save-content-permanently-and-simplify-learning/'
+const gettingStartedUrl = 'https://www.slax.com/blog/quick-save-with-the-slax-extension'
 
 // computed 避免拿不到初始值
 const { isInstalled } = useExtensionDetection()

@@ -47,19 +47,27 @@
         />
       </div>
 
-      <!-- meta 行：日期 + 来源 + hover 操作区 -->
+      <!-- meta 行：来源 + 标签 + hover 操作区 -->
       <div class="article-meta">
-        <span class="article-date">{{ dateString }}</span>
         <button v-if="sourceFilterable && sourceDomain" class="article-source" type="button" @click.stop="selectSource">{{ getSiteName() }}</button>
         <a v-else class="article-source" :href="originalHref" target="_blank" rel="noopener noreferrer" @click.stop="clickHref">{{ getSiteName() }}</a>
 
+        <!-- 标签：紧跟来源；文字模式 / 废纸篓 / 订阅不显示；整块拦截点击，避免触发整卡跳转 -->
+        <div v-if="showTags" class="article-tags" @click.stop>
+          <BookmarkTags
+            compact
+            :bookmark-id="lf ? 0 : bookmark.id"
+            :bookmark-uid="bookmark.bookmark_user_uuid || ''"
+            :bookmark-uuid="lf ? lfKey() : ''"
+            :tags="bookmark.tags ?? []"
+            :readonly="false"
+            @change="onTagsChange"
+            @select-tag="(tag: BookmarkTag) => emits('selectTag', tag)"
+          />
+        </div>
+
         <!-- hover 操作区 -->
         <div class="article-actions">
-          <!-- 打开原文 -->
-          <button v-if="sourceFilterable && sourceDomain" class="article-action open-original" @click.stop="clickHref" type="button">
-            {{ $t('common.operate.open_original') }}
-          </button>
-
           <!-- 编辑标题 -->
           <button class="article-action edit-title" ref="editTitleButton" data-analytics-element="bookmark_edit_title_button" @click.stop="clickEdit" type="button">
             {{ !isEditingTitle ? $t('common.operate.edit_title') : $t('common.operate.cancel_edit_title') }}
@@ -90,20 +98,6 @@
             {{ $t('common.operate.revert_to_inbox') }}
           </button>
         </div>
-      </div>
-
-      <!-- 标签行：文字模式 / 废纸篓 / 订阅不显示；整行拦截点击，避免触发整卡跳转 -->
-      <div v-if="showTags" class="article-tags" @click.stop>
-        <BookmarkTags
-          compact
-          :bookmark-id="lf ? 0 : bookmark.id"
-          :bookmark-uid="bookmark.bookmark_user_uuid || ''"
-          :bookmark-uuid="lf ? lfKey() : ''"
-          :tags="bookmark.tags ?? []"
-          :readonly="false"
-          @change="onTagsChange"
-          @select-tag="(tag: BookmarkTag) => emits('selectTag', tag)"
-        />
       </div>
     </div>
 
@@ -140,7 +134,6 @@ import { truncateTitle } from '#layers/core/app/utils/string'
 import { RESTMethodPath } from '@commons/types/const'
 import { type BookmarkItem, type BookmarkTag, type EmptyBookmarkResp } from '@commons/types/interface'
 import { vOnClickOutside, vOnKeyStroke } from '@vueuse/components'
-import { formatDate } from '@vueuse/core'
 import Toast, { ToastType } from '#layers/core/app/components/Toast'
 import { useBookmarkCellNavigation } from '#layers/core/app/composables/bookmark/useBookmarkCellNavigation'
 import { LocalFirstAdapterKey } from '#layers/core/app/composables/local-first/injection'
@@ -167,7 +160,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // 文字列表：不渲染标签行
+  // 文字列表：驱动外层 .text-mode class（紧凑排版），标签行照常渲染
   textMode: {
     type: Boolean,
     default: false
@@ -209,7 +202,9 @@ const isTrashed = computed(() => {
   return !!props.bookmark.trashed_at
 })
 
-const showTags = computed(() => !props.textMode && !isTrashed.value && !props.isSubscribe)
+// 桌面文字列表模式也显示标签（与卡片列表同款裁剪+···逻辑）；
+// 移动端（≤768px）不受这里影响，靠本文件下方 .article-tags 的 @media 规则隐藏
+const showTags = computed(() => !isTrashed.value && !props.isSubscribe)
 
 // 标签面板回传整份新列表；LF 下写库在 BookmarkTags 内完成，这里只同步列表态
 const onTagsChange = (tags: BookmarkTag[]) => {
@@ -218,21 +213,6 @@ const onTagsChange = (tags: BookmarkTag[]) => {
 
 const isRequesting = computed(() => {
   return isDeleting.value || isRetrying.value || isArchiving.value || isStroking.value
-})
-
-const dateString = computed(() => {
-  if (bookmark.value.trashed_at) {
-    return formatDate(new Date(bookmark.value.trashed_at), 'YYYY-MM-DD')
-  }
-
-  // 单元格恒显 created_at，不兜底
-  // starred/archived 也不例外
-  const date = bookmark.value.created_at
-  if (!date || date.length === 0) {
-    return '--'
-  }
-
-  return formatDate(new Date(date), 'YYYY-MM-DD')
 })
 
 const isStarred = computed(() => {
@@ -709,25 +689,16 @@ const starBookmark = async (isStar: boolean) => {
   }
 }
 
-// meta 行：日期 + 来源 + 操作区
+// meta 行：来源 + 标签 + 操作区
 .article-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: nowrap;
   overflow: visible;
 }
 
-// 日期
-.article-date {
-  font-size: 13px;
-  color: var(--slax-text-light);
-  font-weight: 300;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-// 来源：胶囊形
+// 来源：胶囊形，固定宽度不压缩（压缩优先级低于标签区）
 .article-source {
   border: none;
   font-family: inherit;
@@ -742,7 +713,7 @@ const starBookmark = async (isStar: boolean) => {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  flex-shrink: 1;
+  flex-shrink: 0;
   transition: all 0.12s;
   text-decoration: none;
   pointer-events: auto;
@@ -793,17 +764,32 @@ const starBookmark = async (isStar: boolean) => {
   }
 }
 
-// 标签行：位于整卡覆盖链接之上，可点
+// 标签区：并入 meta 行，位于来源右侧、操作区左侧；
+// 空间不够时裁剪展示的 tag 数量（BookmarkTags compact 内部量宽决定），
+// + 按钮变 ···，不占用来源/操作区的宽度，也不换行增高
 .article-tags {
   position: relative;
   z-index: 2;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
+  overflow: hidden;
   color: var(--slax-text-muted);
   pointer-events: auto;
+
+  // 标签本身不换行；裁剪后的可见数量由 BookmarkTags 内部算好，这里仅兜底裁掉溢出
+  // （含 BookmarkTags 内部不可见的度量行，双重保险不会露出）
+  :deep(.tags-list) {
+    flex-wrap: nowrap;
+  }
+
+  // 字号与同行来源/操作按钮的 12px 对齐；只在这里（列表卡片 meta 行）覆盖，
+  // 不动 TagChip.vue 本身默认值，文章详情页的标签行（非 compact 用法）不受影响
+  :deep(.tag-chip.legacy) {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 768px) {

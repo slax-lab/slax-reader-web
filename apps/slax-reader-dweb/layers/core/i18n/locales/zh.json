@@ -76,7 +76,6 @@
       "more": "更多",
       "off": "已关闭",
       "on": "已开启",
-      "open_original": "打开原文",
       "payment": {
         "completed": "已完成支付",
         "confirm_desc": "您是否已完成支付？",
@@ -232,7 +231,8 @@
       "by_ai": "AI 添加",
       "group_mine": "我的标签",
       "group_auto": "自动标签",
-      "placeholder": "输入新标签 (按 Enter 确认)"
+      "placeholder": "输入新标签 (按 Enter 确认)",
+      "more": "查看更多标签"
     },
     "cancel_collection_modal": {
       "removecollection": "从我订阅的书签集中移除",

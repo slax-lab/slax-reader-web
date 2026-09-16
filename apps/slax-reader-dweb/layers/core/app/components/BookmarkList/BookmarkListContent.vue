@@ -172,17 +172,12 @@ const emit = defineEmits<{
     gap: 8px;
   }
 
-  // 日期字号（原 13px 偏大）
-  .article-date {
-    font-size: 12px;
-  }
-
-  // 来源：去胶囊底色，改为左侧分隔线 + 浅色文字
+  // 来源：去胶囊底色，浅色文字
+  // 原先左侧有一条分隔线是用来隔开日期和来源，日期去掉后不再需要
   .article-source {
     background: transparent;
     border-radius: 0;
-    border-left: 1px solid var(--slax-border);
-    padding: 0 0 0 8px;
+    padding: 0;
     margin-left: 0;
     color: var(--slax-text-light);
     font-weight: 300;
@@ -247,17 +242,12 @@ const emit = defineEmits<{
       min-width: 0;
     }
 
-    .article-date,
     .article-source {
       font-size: 12px;
-    }
-
-    .article-source {
       background: transparent;
-      border-left: 1px solid var(--slax-border);
       border-radius: 0;
       color: var(--slax-text-light);
-      padding: 0 0 0 8px;
+      padding: 0;
       max-width: 54vw;
 
       &:hover {
