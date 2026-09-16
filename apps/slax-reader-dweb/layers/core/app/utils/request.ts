@@ -113,7 +113,8 @@ export const getClientEventHeaders = (): Record<string, string> => {
   const incoming = isServer ? useRequestHeaders(['x-client-locale', 'accept-language', 'x-client-version']) : {}
   // The active app locale is ready before useHead writes <html lang>, including hydration.
   const activeLocale = tryUseNuxtApp()?.$i18n?.locale?.value
-  const locale = activeLocale || (isClient ? document.documentElement.lang || navigator.language : incoming['x-client-locale'] || incoming['accept-language']?.split(',')[0]) || 'en'
+  const locale =
+    activeLocale || (isClient ? document.documentElement.lang || navigator.language : incoming['x-client-locale'] || incoming['accept-language']?.split(',')[0]) || 'en'
   return {
     ...(deviceId ? { 'X-Device-ID': deviceId } : {}),
     'X-CLIENT-TYPE': 'web',
